@@ -4,12 +4,12 @@ Everything people do in FPR, grouped by activity. Each path, with its edge cases
 
 FPR has four roles:
 
-| Role      | Sees                                                                         | Own portfolio | Admin area     | Changes data                                                      |
-| --------- | ---------------------------------------------------------------------------- | ------------- | -------------- | ----------------------------------------------------------------- |
-| Admin     | Everything, real names and amounts                                           | Yes           | Yes            | Own portfolio, any member's portfolio, people, access, and shares |
-| Member    | Everything outside the admin area, real names and amounts                    | Yes           | No             | Own portfolio, manual shares                                      |
-| Guest     | Everything outside the admin area, real names and amounts                    | No            | No             | Own profile                                                       |
-| Anonymous | Everything, with pseudonyms, initials instead of photos, and no euro amounts | No            | Yes, read-only | Nothing                                                           |
+| Role | Sees | Own portfolio | Admin area | Changes data |
+| --- | --- | --- | --- | --- |
+| Admin | Everything, real names and amounts | Yes | Yes | Own portfolio, any member's portfolio, people, access, and shares |
+| Member | Everything outside the admin area, real names and amounts | Yes | No | Own portfolio, manual shares |
+| Guest | Everything outside the admin area, real names and amounts | No | No | Own profile |
+| Anonymous | Everything, with pseudonyms, initials instead of photos, and no euro amounts | No | Yes, read-only | Nothing |
 
 Members and the admin are ranked. Guests and anonymous viewers are never ranked.
 
@@ -19,16 +19,16 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Access — get in and stay in
 
-| ID    | As a person given access, I want to…                                                         | So that…                                           | Version |
-| ----- | -------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------- |
-| ACC-1 | open the link I was sent, see who it's for, and choose my password in one field I can reveal | my account is ready without filling a sign-up form | v1      |
-| ACC-2 | sign in with my email and password                                                           | I get back to the race from any browser            | v1      |
-| ACC-3 | reset a forgotten password: my email and the reset key I was given, then my new password     | I recover my account without any email being sent  | v1      |
-| ACC-4 | change my display name, photo, and colour in Settings                                        | the others recognise me on every chart             | v1      |
-| ACC-5 | sign out                                                                                     | nobody else uses my session on a shared device     | v1      |
-| ACC-6 | change my password with my current one                                                       | I replace a password I typed in a hurry            | v1      |
-| ACC-7 | use FPR in English or French                                                                 | I read it in my own language                       | v1      |
-| ACC-8 | install FPR on my phone or computer and open it like an app                                  | the race is one tap away                           | v1      |
+| ID | As a person given access, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| ACC-1 | open the link I was sent, see who it's for, and choose my password in one field I can reveal | my account is ready without filling a sign-up form | v1 |
+| ACC-2 | sign in with my email and password | I get back to the race from any browser | v1 |
+| ACC-3 | reset a forgotten password: my email and the reset key I was given, then my new password | I recover my account without any email being sent | v1 |
+| ACC-4 | change my display name, photo, and colour in Settings | the others recognise me on every chart | v1 |
+| ACC-5 | sign out | nobody else uses my session on a shared device | v1 |
+| ACC-6 | change my password with my current one | I replace a password I typed in a hurry | v1 |
+| ACC-7 | use FPR in English or French | I read it in my own language | v1 |
+| ACC-8 | install FPR on my phone or computer and open it like an app | the race is one tap away | v1 |
 
 **Cases to cover**
 
@@ -49,12 +49,12 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Onboarding — the first steps
 
-| ID    | As a person signing in for the first time, I want to…  | So that…                                | Version |
-| ----- | ------------------------------------------------------ | --------------------------------------- | ------- |
-| ONB-1 | confirm or change the display name the admin gave me   | the others know who I am                | v1      |
-| ONB-2 | pick my colour, and add a photo if I want              | I find my curve and my row at a glance  | v1      |
-| ONB-3 | see the portfolio the admin prepared for me, read-only | I check it before I start               | v1      |
-| ONB-4 | be welcomed among everyone already in the race         | I feel part of it from the first minute | v1      |
+| ID | As a person signing in for the first time, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| ONB-1 | confirm or change the display name the admin gave me | the others know who I am | v1 |
+| ONB-2 | pick my colour, and add a photo if I want | I find my curve and my row at a glance | v1 |
+| ONB-3 | see the portfolio the admin prepared for me, read-only | I check it before I start | v1 |
+| ONB-4 | be welcomed among everyone already in the race | I feel part of it from the first minute | v1 |
 
 **Cases to cover**
 
@@ -66,15 +66,15 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Portfolio — record what I hold
 
-| ID    | As a member, I want to…                                                                                                                                                                            | So that…                                                            | Version |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------- |
-| POR-1 | see my portfolio: my balance with the time of the latest prices, my gain over the period, how it splits between shares and cash, and each share with its quantity, value, and gain over the period | I know where I stand right now                                      | v1      |
-| POR-2 | record a purchase: what changed, which share, when (today by default), how many, then a review                                                                                                     | recording a purchase takes a few seconds                            | v1      |
-| POR-3 | record a sale, seeing how many I held on that day, with an "all" option                                                                                                                            | recording a sale is as quick as a purchase                          | v1      |
-| POR-4 | set my cash on a day: "from that day, I have €X"                                                                                                                                                   | the money I hold outside shares counts in the race                  | v1      |
-| POR-5 | see every share change and cash balance I recorded, and edit or delete any entry                                                                                                                   | a typo or a forgotten entry is fixed, and every leaderboard follows | v1      |
-| POR-6 | see my balance over time as a chart, with my purchases and sales marked                                                                                                                            | I see my own progress, not only my rank                             | v1      |
-| POR-7 | record several changes in one go: after each save, record another with the same date, and undo any change saved in the session                                                                     | catching up on a week of changes takes one sitting                  | v1      |
+| ID | As a member, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| POR-1 | see my portfolio: my balance with the time of the latest prices, my gain over the period, how it splits between shares and cash, and each share with its quantity, value, and gain over the period | I know where I stand right now | v1 |
+| POR-2 | record a purchase: what changed, which share, when (today by default), how many, then a review | recording a purchase takes a few seconds | v1 |
+| POR-3 | record a sale, seeing how many I held on that day, with an "all" option | recording a sale is as quick as a purchase | v1 |
+| POR-4 | set my cash on a day: "from that day, I have €X" | the money I hold outside shares counts in the race | v1 |
+| POR-5 | see every share change and cash balance I recorded, and edit or delete any entry | a typo or a forgotten entry is fixed, and every leaderboard follows | v1 |
+| POR-6 | see my balance over time as a chart, with my purchases and sales marked | I see my own progress, not only my rank | v1 |
+| POR-7 | record several changes in one go: after each save, record another with the same date, and undo any change saved in the session | catching up on a week of changes takes one sitting | v1 |
 
 **Cases to cover**
 
@@ -93,15 +93,15 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Shares — find and follow them
 
-| ID    | As a member or guest, I want to…                                                                                                                                                            | So that…                                                        | Version |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------- |
-| SHR-1 | find a share: FPR's shares filter as I type, a full ISIN is looked up at the price provider by itself, and any other text can be looked up with one button                                  | I add what I own, even if nobody in the race holds it yet       | v1      |
-| SHR-2 | open a share's page: latest price with its time, change over the period, price chart, exchange, currency, ISIN, and my position (quantity, value, gain since I bought) next to Buy and Sell | I know what I hold before I buy or sell                         | v1      |
-| SHR-3 | see a held share's price refreshed every 30 minutes during the trading day                                                                                                                  | the race moves during the day                                   | v1      |
-| SHR-4 | see on a share's chart when each member added or removed it, and how each holder is doing on it                                                                                             | I compare who got in at the better moment                       | v1      |
-| SHR-5 | create a manual share (ISIN, name, first value) when a lookup finds nothing, and fix any manual share's name or ISIN                                                                        | a fund or certificate with no public price still counts         | v1      |
-| SHR-6 | add, edit, or delete a value point on any manual share: "on Monday at 05:10, one unit was worth €40"                                                                                        | every holder's value updates at once, and anyone can fix a typo | v1      |
-| SHR-7 | see every share FPR knows, with its price, change over the period, and who holds it                                                                                                         | I see what the others bought                                    | v1      |
+| ID | As a member or guest, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| SHR-1 | find a share: FPR's shares filter as I type, a full ISIN is looked up at the price provider by itself, and any other text can be looked up with one button | I add what I own, even if nobody in the race holds it yet | v1 |
+| SHR-2 | open a share's page: latest price with its time, change over the period, price chart, exchange, currency, ISIN, and my position (quantity, value, gain since I bought) next to Buy and Sell | I know what I hold before I buy or sell | v1 |
+| SHR-3 | see a held share's price refreshed every 30 minutes during the trading day | the race moves during the day | v1 |
+| SHR-4 | see on a share's chart when each member added or removed it, and how each holder is doing on it | I compare who got in at the better moment | v1 |
+| SHR-5 | create a manual share (ISIN, name, first value) when a lookup finds nothing, and fix any manual share's name or ISIN | a fund or certificate with no public price still counts | v1 |
+| SHR-6 | add, edit, or delete a value point on any manual share: "on Monday at 05:10, one unit was worth €40" | every holder's value updates at once, and anyone can fix a typo | v1 |
+| SHR-7 | see every share FPR knows, with its price, change over the period, and who holds it | I see what the others bought | v1 |
 
 **Cases to cover**
 
@@ -126,15 +126,15 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Home — the race
 
-| ID    | As a member or guest, I want to…                                                                                                       | So that…                                         | Version |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------- |
-| LDB-1 | see the standings by total balance, as of the last market close                                                                        | I see who leads the race                         | v1      |
-| LDB-2 | see the standings by gain in euros over the period, as of the last close                                                               | I see who earned the most over a period          | v1      |
-| LDB-3 | switch the gain to percent                                                                                                             | a smaller portfolio can still win on performance | v1      |
-| LDB-4 | see the best pick: each member's best holding, in percent since it entered their portfolio                                             | the best single choice gets credit               | later   |
-| LDB-5 | see the event feed: shares added and removed, cash set, manual share values added, edited, or deleted, overtakes, and a new number one | I follow what happens between two visits         | later   |
-| LDB-6 | see personal records in the event feed, such as a member's best week                                                                   | the feed celebrates more than rank changes       | later   |
-| LDB-7 | see my result for the period in one sentence, with who leads and the best share of the period                                          | I know how the race stands at a glance           | v1      |
+| ID | As a member or guest, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| LDB-1 | see the standings by total balance, as of the last market close | I see who leads the race | v1 |
+| LDB-2 | see the standings by gain in euros over the period, as of the last close | I see who earned the most over a period | v1 |
+| LDB-3 | switch the gain to percent | a smaller portfolio can still win on performance | v1 |
+| LDB-4 | see the best pick: each member's best holding, in percent since it entered their portfolio | the best single choice gets credit | later |
+| LDB-5 | see the event feed: shares added and removed, cash set, manual share values added, edited, or deleted, overtakes, and a new number one | I follow what happens between two visits | later |
+| LDB-6 | see personal records in the event feed, such as a member's best week | the feed celebrates more than rank changes | later |
+| LDB-7 | see my result for the period in one sentence, with who leads and the best share of the period | I know how the race stands at a glance | v1 |
 
 **Cases to cover**
 
@@ -151,13 +151,13 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Comparison — side by side
 
-| ID    | As a member or guest, I want to…                                                                                                                             | So that…                                             | Version |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- | ------- |
-| CMP-1 | see the race chart: every member's gain over the period on one chart, each line ending with its owner's picture, my curve and the focused member's in colour | I compare everyone's progress at a glance            | v1      |
-| CMP-2 | see the race in euros or in percent                                                                                                                          | portfolios of different sizes compare on performance | v1      |
-| CMP-3 | focus one member from their curve or their row: their curve stands out, and I see what moved their period, holding by holding                                | I understand why a line jumped                       | v1      |
-| CMP-4 | see every member with their curve against mine, their gain, balance, and top holdings                                                                        | I get to know everyone's portfolio                   | v1      |
-| CMP-5 | open a member's page: their curve against mine and every holding they have                                                                                   | I see exactly what someone holds                     | v1      |
+| ID | As a member or guest, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| CMP-1 | see the race chart: every member's gain over the period on one chart, each line ending with its owner's picture, my curve and the focused member's in colour | I compare everyone's progress at a glance | v1 |
+| CMP-2 | see the race in euros or in percent | portfolios of different sizes compare on performance | v1 |
+| CMP-3 | focus one member from their curve or their row: their curve stands out, and I see what moved their period, holding by holding | I understand why a line jumped | v1 |
+| CMP-4 | see every member with their curve against mine, their gain, balance, and top holdings | I get to know everyone's portfolio | v1 |
+| CMP-5 | open a member's page: their curve against mine and every holding they have | I see exactly what someone holds | v1 |
 
 **Cases to cover**
 
@@ -168,10 +168,10 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Help — understand the app
 
-| ID    | As anyone with access, I want to…                                                   | So that…                                     | Version |
-| ----- | ----------------------------------------------------------------------------------- | -------------------------------------------- | ------- |
-| HLP-1 | read How FPR works: one page of short sections, each with its own link              | I understand the race whenever I want        | v1      |
-| HLP-2 | open a short explanation next to an idea that needs one, with a link to its section | I get the answer where the question comes up | v1      |
+| ID | As anyone with access, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| HLP-1 | read How FPR works: one page of short sections, each with its own link | I understand the race whenever I want | v1 |
+| HLP-2 | open a short explanation next to an idea that needs one, with a link to its section | I get the answer where the question comes up | v1 |
 
 **Cases to cover**
 
@@ -180,20 +180,20 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Admin — people, access, and shares
 
-| ID     | As the admin, I want to…                                                                                                                         | So that…                                                                          | Version |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------- |
-| ADM-1  | add a person with a display name, an email (not for anonymous), a role, and an optional access end date, then copy their access link, shown once | I invite someone without them filling a sign-up form                              | v1      |
-| ADM-2  | see every person, grouped by role, and the status of their access: waiting for first use, active, ended, or revoked                              | I know who can get in                                                             | v1      |
-| ADM-3  | revoke a person's access, and restore it                                                                                                         | I cut someone off immediately, and undo it                                        | v1      |
-| ADM-4  | replace a lost or expired link with a new one                                                                                                    | a lost link costs nothing                                                         | v1      |
-| ADM-5  | change a person's display name, email, role, or access end date                                                                                  | I fix a typo, promote a guest to member, or extend a reviewer who needs more time | v1      |
-| ADM-6  | generate a reset key for a person                                                                                                                | they recover a forgotten password                                                 | v1      |
-| ADM-7  | edit any member's portfolio and cash, with the same screens they use                                                                             | I prepare a portfolio before sending the link, and fix mistakes                   | v1      |
-| ADM-8  | delete a person                                                                                                                                  | someone who leaves the race leaves the data too                                   | v1      |
-| ADM-9  | see every share FPR knows, grouped as needing attention, tracked, manual, or not held, with the time of its latest price                         | I see what the price service follows and what is stuck                            | v1      |
-| ADM-10 | delete a share nobody has ever held                                                                                                              | a share looked up by mistake doesn't stay in the list                             | v1      |
-| ADM-11 | turn a market share that needs attention into a manual share                                                                                     | a share the provider never prices still counts                                    | v1      |
-| ADM-12 | refresh every held share's price now                                                                                                             | I don't wait 30 minutes after fixing a problem                                    | v1      |
+| ID | As the admin, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| ADM-1 | add a person with a display name, an email (not for anonymous), a role, and an optional access end date, then copy their access link, shown once | I invite someone without them filling a sign-up form | v1 |
+| ADM-2 | see every person, grouped by role, and the status of their access: waiting for first use, active, ended, or revoked | I know who can get in | v1 |
+| ADM-3 | revoke a person's access, and restore it | I cut someone off immediately, and undo it | v1 |
+| ADM-4 | replace a lost or expired link with a new one | a lost link costs nothing | v1 |
+| ADM-5 | change a person's display name, email, role, or access end date | I fix a typo, promote a guest to member, or extend a reviewer who needs more time | v1 |
+| ADM-6 | generate a reset key for a person | they recover a forgotten password | v1 |
+| ADM-7 | edit any member's portfolio and cash, with the same screens they use | I prepare a portfolio before sending the link, and fix mistakes | v1 |
+| ADM-8 | delete a person | someone who leaves the race leaves the data too | v1 |
+| ADM-9 | see every share FPR knows, grouped as needing attention, tracked, manual, or not held, with the time of its latest price | I see what the price service follows and what is stuck | v1 |
+| ADM-10 | delete a share nobody has ever held | a share looked up by mistake doesn't stay in the list | v1 |
+| ADM-11 | turn a market share that needs attention into a manual share | a share the provider never prices still counts | v1 |
+| ADM-12 | refresh every held share's price now | I don't wait 30 minutes after fixing a problem | v1 |
 
 **Cases to cover**
 
@@ -212,15 +212,15 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Viewing without a portfolio
 
-| ID    | As a guest, I want to…                                                            | So that…                              | Version |
-| ----- | --------------------------------------------------------------------------------- | ------------------------------------- | ------- |
-| GST-1 | browse every member screen with real names and amounts, without changing anything | I follow the race without taking part | v1      |
+| ID | As a guest, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| GST-1 | browse every member screen with real names and amounts, without changing anything | I follow the race without taking part | v1 |
 
-| ID    | As an anonymous viewer, I want to…                                                                           | So that…                                                  | Version |
-| ----- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------- |
-| ANO-1 | open the link I was sent and be in, with no email or password, every time until my access ends               | I look at the project without creating an account         | v1      |
-| ANO-2 | browse every screen and the admin area, read-only, with pseudonyms and initials in place of names and photos | I see how the whole tool works on real data               | v1      |
-| ANO-3 | see percentages and charts in percent in place of euro amounts                                               | the data stays meaningful without exposing anyone's money | v1      |
+| ID | As an anonymous viewer, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| ANO-1 | open the link I was sent and be in, with no email or password, every time until my access ends | I look at the project without creating an account | v1 |
+| ANO-2 | browse every screen and the admin area, read-only, with pseudonyms and initials in place of names and photos | I see how the whole tool works on real data | v1 |
+| ANO-3 | see percentages and charts in percent in place of euro amounts | the data stays meaningful without exposing anyone's money | v1 |
 
 **Cases to cover**
 
@@ -234,6 +234,6 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 ## Later
 
-| ID    | As a member, I want to…                                      | So that…                              | Version |
-| ----- | ------------------------------------------------------------ | ------------------------------------- | ------- |
-| LTR-1 | import my bank statement instead of entering changes by hand | updating my portfolio takes no typing | later   |
+| ID | As a member, I want to… | So that… | Version |
+| --- | --- | --- | --- |
+| LTR-1 | import my bank statement instead of entering changes by hand | updating my portfolio takes no typing | later |
