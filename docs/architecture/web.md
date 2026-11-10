@@ -4,22 +4,22 @@
 
 ## Stack
 
-| Concern | Choice |
-| --- | --- |
-| Framework | React, built with Vite |
-| Routing | TanStack Router, file-based routes in `src/routes/` |
-| Server state | TanStack Query |
-| Request and response types | `@fpr/contracts` |
-| Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
-| Components | Base UI, wrapped as the app's own components in `src/components/ui/` |
-| Component workshop | Storybook, one story per component |
-| Charts | TradingView Lightweight Charts |
-| Icons | Phosphor, `@phosphor-icons/react` |
-| Breakpoints | phone (default), `tablet:` from 640 px, `desktop:` from 1120 px |
-| Targets | Phone first for everyday screens; desktop complete and polished |
-| Theme | Light only |
-| Languages | English and French, with `react-i18next` |
-| Install | Progressive Web App, with `vite-plugin-pwa` |
+| Concern                    | Choice                                                               |
+| -------------------------- | -------------------------------------------------------------------- |
+| Framework                  | React, built with Vite                                               |
+| Routing                    | TanStack Router, file-based routes in `src/routes/`                  |
+| Server state               | TanStack Query                                                       |
+| Request and response types | `@fpr/contracts`                                                     |
+| Styling                    | Tailwind v4, registered tokens only, defined in `src/theme.css`      |
+| Components                 | Base UI, wrapped as the app's own components in `src/components/ui/` |
+| Component workshop         | Storybook, one story per component                                   |
+| Charts                     | TradingView Lightweight Charts                                       |
+| Icons                      | Phosphor, `@phosphor-icons/react`                                    |
+| Breakpoints                | phone (default), `tablet:` from 640 px, `desktop:` from 1120 px      |
+| Targets                    | Phone first for everyday screens; desktop complete and polished      |
+| Theme                      | Light only                                                           |
+| Languages                  | English and French, with `react-i18next`                             |
+| Install                    | Progressive Web App, with `vite-plugin-pwa`                          |
 
 The full UI conventions are in the `fpr-ui` skill. The design reference lives in `design/`, kept outside git: the wireframes, the user flows, the final screens, and the design system.
 
@@ -36,25 +36,25 @@ The design files fix each screen and component until it is built in `apps/web`. 
 
 ## Screens
 
-| Route | Screen | Stories |
-| --- | --- | --- |
-| `/setup` | First-admin setup | Admin, first-admin case |
-| `/sign-in` | Sign in | ACC-2 |
-| `/access/$key` | Access link: set a password, or sign in as an anonymous viewer | ACC-1, ANO-1 |
-| `/reset-password` | Email and reset key, then the new password | ACC-3 |
-| `/onboarding` | Name, colour and optional photo, the prepared portfolio, then a welcome | ONB-1 to ONB-4 |
-| `/` | Home: the race, the focused member's panel, the standings | LDB-1 to LDB-3, LDB-7, CMP-1 to CMP-3 |
-| `/members` | Every member | CMP-4 |
-| `/members/$userId` | A member's page, read-only, or editable by the admin | CMP-5, ADM-7 |
-| `/portfolio` | My portfolio, its chart, and the latest changes | POR-1, POR-6 |
-| `/portfolio/record` | Record a change: bought, sold, or cash | POR-2 to POR-4, POR-7 |
-| `/members/$userId/record` | The admin records a change for a member, with the same flow | ADM-7 |
-| `/portfolio/history` | Every share change and cash balance | POR-5 |
-| `/shares` | Every share, and the search | SHR-1, SHR-5, SHR-7 |
-| `/shares/$shareId` | A share's page | SHR-2 to SHR-6 |
-| `/help` | How FPR works | HLP-1 |
-| `/admin/people` | People and access | ADM-1 to ADM-8 |
-| `/admin/shares` | Tracked shares | ADM-9 to ADM-12 |
+| Route                     | Screen                                                                  | Stories                               |
+| ------------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
+| `/setup`                  | First-admin setup                                                       | Admin, first-admin case               |
+| `/sign-in`                | Sign in                                                                 | ACC-2                                 |
+| `/access/$key`            | Access link: set a password, or sign in as an anonymous viewer          | ACC-1, ANO-1                          |
+| `/reset-password`         | Email and reset key, then the new password                              | ACC-3                                 |
+| `/onboarding`             | Name, colour and optional photo, the prepared portfolio, then a welcome | ONB-1 to ONB-4                        |
+| `/`                       | Home: the race, the focused member's panel, the standings               | LDB-1 to LDB-3, LDB-7, CMP-1 to CMP-3 |
+| `/members`                | Every member                                                            | CMP-4                                 |
+| `/members/$userId`        | A member's page, read-only, or editable by the admin                    | CMP-5, ADM-7                          |
+| `/portfolio`              | My portfolio, its chart, and the latest changes                         | POR-1, POR-6                          |
+| `/portfolio/record`       | Record a change: bought, sold, or cash                                  | POR-2 to POR-4, POR-7                 |
+| `/members/$userId/record` | The admin records a change for a member, with the same flow             | ADM-7                                 |
+| `/portfolio/history`      | Every share change and cash balance                                     | POR-5                                 |
+| `/shares`                 | Every share, and the search                                             | SHR-1, SHR-5, SHR-7                   |
+| `/shares/$shareId`        | A share's page                                                          | SHR-2 to SHR-6                        |
+| `/help`                   | How FPR works                                                           | HLP-1                                 |
+| `/admin/people`           | People and access                                                       | ADM-1 to ADM-8                        |
+| `/admin/shares`           | Tracked shares                                                          | ADM-9 to ADM-12                       |
 
 Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone, opened from the account menu. Each setting is saved as soon as it changes.
 

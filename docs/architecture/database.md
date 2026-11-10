@@ -26,12 +26,12 @@ All identifiers are lowercase snake_case, including Better Auth's columns, which
 
 Each table has one writer. Every process can read any table.
 
-| Table | Written by |
-| --- | --- |
-| `user`, `account`, `session`, `verification` | API, through Better Auth |
-| `access_keys`, `reset_keys` | API |
-| `portfolio_changes`, `cash_balances` | API |
-| `shares`, `prices`, `manual_price_events` | Price service. A manual share or value entered by a member reaches it through the API. |
+| Table                                        | Written by                                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `user`, `account`, `session`, `verification` | API, through Better Auth                                                               |
+| `access_keys`, `reset_keys`                  | API                                                                                    |
+| `portfolio_changes`, `cash_balances`         | API                                                                                    |
+| `shares`, `prices`, `manual_price_events`    | Price service. A manual share or value entered by a member reaches it through the API. |
 
 ## Schema
 
@@ -239,21 +239,21 @@ Rows are never edited or deleted, except with their share or person.
 
 Beyond the primary keys and unique columns:
 
-| Table | Index | Serves |
-| --- | --- | --- |
-| `account` | `user_id` | Better Auth's sign-in |
-| `session` | `user_id` | Signing a person out everywhere |
-| `access_keys`, `reset_keys` | `user_id`; `created_by` | A person's keys; deleting an admin |
-| `shares` | `created_by` | Deleting a person |
-| `portfolio_changes` | (`user_id`, `share_id`, `effective_at`) | A holding at a moment, a person's log, the holding check |
-| `portfolio_changes` | (`share_id`, `effective_at`) | A share's holders and markers, the deletion check |
-| `portfolio_changes` | `created_by` | Deleting a person |
-| `cash_balances` | (`user_id`, `effective_at`) | Cash at a moment |
-| `cash_balances` | `created_by` | Deleting a person |
-| `prices` | `entered_by` | Deleting a person |
-| `prices` | `at`, only where `source = 'intraday'` | The daily deletion of old intraday prices |
-| `manual_price_events` | (`share_id`, `at`) | A manual share's changes |
-| `manual_price_events` | `user_id` | Deleting a person |
+| Table                       | Index                                   | Serves                                                   |
+| --------------------------- | --------------------------------------- | -------------------------------------------------------- |
+| `account`                   | `user_id`                               | Better Auth's sign-in                                    |
+| `session`                   | `user_id`                               | Signing a person out everywhere                          |
+| `access_keys`, `reset_keys` | `user_id`; `created_by`                 | A person's keys; deleting an admin                       |
+| `shares`                    | `created_by`                            | Deleting a person                                        |
+| `portfolio_changes`         | (`user_id`, `share_id`, `effective_at`) | A holding at a moment, a person's log, the holding check |
+| `portfolio_changes`         | (`share_id`, `effective_at`)            | A share's holders and markers, the deletion check        |
+| `portfolio_changes`         | `created_by`                            | Deleting a person                                        |
+| `cash_balances`             | (`user_id`, `effective_at`)             | Cash at a moment                                         |
+| `cash_balances`             | `created_by`                            | Deleting a person                                        |
+| `prices`                    | `entered_by`                            | Deleting a person                                        |
+| `prices`                    | `at`, only where `source = 'intraday'`  | The daily deletion of old intraday prices                |
+| `manual_price_events`       | (`share_id`, `at`)                      | A manual share's changes                                 |
+| `manual_price_events`       | `user_id`                               | Deleting a person                                        |
 
 The primary key (`share_id`, `at`) of `prices` serves a share's latest price and its history.
 

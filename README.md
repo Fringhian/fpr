@@ -10,14 +10,14 @@ FPR is being specified. The documentation describes the first version; the code 
 
 ## Documentation
 
-| | |
-| --- | --- |
-| [Overview](docs/architecture/overview.md) | The blocks, the stack, and the repository layout |
-| [User stories](docs/product/user-stories.md) | What people do in FPR, with every case to cover |
-| [User flows](docs/product/user-flows.md) | Every path through FPR, drawn |
-| [Web](docs/architecture/web.md) | The app: screens, navigation, languages, installation |
-| [API](docs/architecture/api.md) | Routes, race calculation, anonymization |
-| [Price service](docs/architecture/prices.md) | Where prices come from, and when |
-| [Database](docs/architecture/database.md) | Tables, keys, indexes, valuation |
-| [Auth](docs/architecture/auth.md) | Roles, access links, sign-in |
-| [Deployment](docs/architecture/deployment.md) | Services, self-hosting, logs, CI |
+|                                               |                                                       |
+| --------------------------------------------- | ----------------------------------------------------- |
+| [Overview](docs/architecture/overview.md)     | The blocks, the stack, and the repository layout      |
+| [User stories](docs/product/user-stories.md)  | What people do in FPR, with every case to cover       |
+| [User flows](docs/product/user-flows.md)      | Every path through FPR, drawn                         |
+| [Web](docs/architecture/web.md)               | The app: screens, navigation, languages, installation |
+| [API](docs/architecture/api.md)               | Routes, race calculation, anonymization               |
+| [Price service](docs/architecture/prices.md)  | Where prices come from, and when                      |
+| [Database](docs/architecture/database.md)     | Tables, keys, indexes, valuation                      |
+| [Auth](docs/architecture/auth.md)             | Roles, access links, sign-in                          |
+| [Deployment](docs/architecture/deployment.md) | Services, self-hosting, logs, CI                      |

@@ -14,16 +14,16 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 
 ## Roles
 
-| | Admin | Member | Guest | Anonymous |
-| --- | --- | --- | --- | --- |
-| Signs in with | Email and password | Email and password | Email and password | The access link |
-| Has a portfolio and is ranked | Yes | Yes | No | No |
-| Reads the race | Yes | Yes | Yes | Yes, anonymized |
-| Edits own portfolio, cash, and profile | Yes | Yes | Profile only | No |
-| Creates and edits manual shares and their value points | Yes | Yes | No | No |
-| Edits any member's portfolio and cash | Yes | No | No | No |
-| Reads the admin area | Yes | No | No | Yes, anonymized |
-| Manages people and access | Yes | No | No | No |
+|                                                        | Admin              | Member             | Guest              | Anonymous       |
+| ------------------------------------------------------ | ------------------ | ------------------ | ------------------ | --------------- |
+| Signs in with                                          | Email and password | Email and password | Email and password | The access link |
+| Has a portfolio and is ranked                          | Yes                | Yes                | No                 | No              |
+| Reads the race                                         | Yes                | Yes                | Yes                | Yes, anonymized |
+| Edits own portfolio, cash, and profile                 | Yes                | Yes                | Profile only       | No              |
+| Creates and edits manual shares and their value points | Yes                | Yes                | No                 | No              |
+| Edits any member's portfolio and cash                  | Yes                | No                 | No                 | No              |
+| Reads the admin area                                   | Yes                | No                 | No                 | Yes, anonymized |
+| Manages people and access                              | Yes                | No                 | No                 | No              |
 
 The API enforces every cell of this table. The web app hides what a role can't use, and the API refuses it anyway. What anonymization replaces is in `api.md`.
 

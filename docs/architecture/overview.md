@@ -20,14 +20,14 @@ flowchart LR
     Ops["Admin's browser"] -- "own hostname and login" --> Logs
 ```
 
-| Block | What it is | File |
-| --- | --- | --- |
-| Web | The React app, served as static files and installable as a Progressive Web App. Its server also forwards `/api` to the API, so the browser sees one origin. | `web.md` |
-| API | The only block the browser talks to. Accounts, access, portfolios, shares, leaderboards, and the admin area. | `api.md` |
-| Price service | Internal. The only block that calls the price provider and the exchange-rate API, and the only writer of `shares`, `prices`, and `manual_price_events`. Prices the held shares on a schedule. | `prices.md` |
-| Postgres | Every table, reached through the shared `@fpr/db` package. | `database.md` |
-| Auth | Better Auth inside the API, FPR's access keys, reset keys, and roles. | `auth.md` |
-| Deployment | Docker images, `compose.yaml`, configuration, CI. | `deployment.md` |
+| Block         | What it is                                                                                                                                                                                    | File            |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Web           | The React app, served as static files and installable as a Progressive Web App. Its server also forwards `/api` to the API, so the browser sees one origin.                                   | `web.md`        |
+| API           | The only block the browser talks to. Accounts, access, portfolios, shares, leaderboards, and the admin area.                                                                                  | `api.md`        |
+| Price service | Internal. The only block that calls the price provider and the exchange-rate API, and the only writer of `shares`, `prices`, and `manual_price_events`. Prices the held shares on a schedule. | `prices.md`     |
+| Postgres      | Every table, reached through the shared `@fpr/db` package.                                                                                                                                    | `database.md`   |
+| Auth          | Better Auth inside the API, FPR's access keys, reset keys, and roles.                                                                                                                         | `auth.md`       |
+| Deployment    | Docker images, `compose.yaml`, configuration, CI.                                                                                                                                             | `deployment.md` |
 
 ## Stack-wide conventions
 

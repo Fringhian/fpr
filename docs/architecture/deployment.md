@@ -4,15 +4,15 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 
 ## Services
 
-| Service | Image | Exposed |
-| --- | --- | --- |
-| `web` | `apps/web/Dockerfile`: Caddy with the built app | Yes, the only public port |
-| `api` | `apps/api/Dockerfile` | No |
-| `prices` | `apps/prices/Dockerfile` | No |
-| `postgres` | `postgres:18` | No |
-| `minio` | `minio/minio`, in the `storage` profile | No |
-| `victorialogs` | `victoriametrics/victoria-logs` | Yes, on its own hostname |
-| `vector` | `timberio/vector` | No |
+| Service        | Image                                           | Exposed                   |
+| -------------- | ----------------------------------------------- | ------------------------- |
+| `web`          | `apps/web/Dockerfile`: Caddy with the built app | Yes, the only public port |
+| `api`          | `apps/api/Dockerfile`                           | No                        |
+| `prices`       | `apps/prices/Dockerfile`                        | No                        |
+| `postgres`     | `postgres:18`                                   | No                        |
+| `minio`        | `minio/minio`, in the `storage` profile         | No                        |
+| `victorialogs` | `victoriametrics/victoria-logs`                 | Yes, on its own hostname  |
+| `vector`       | `timberio/vector`                               | No                        |
 
 `web` forwards `/api` to `api`. `api` calls `prices`. `web` and `victorialogs` each need a hostname, and TLS is the host's reverse proxy's job.
 
@@ -37,11 +37,11 @@ Every container writes its logs to standard output. `vector` reads them through 
 - The search interface is VictoriaLogs' own web UI, on its own hostname. FPR's sign-in has no part in it: VictoriaLogs asks for its own username and password, `LOGS_USERNAME` and `LOGS_PASSWORD`. The host's access proxy, such as Cloudflare Access, can add a second login in front of it.
 - `victorialogs` and `vector` share a Docker network of their own. `web`, `api`, and `prices` can't reach them.
 
-| Variable | Purpose |
-| --- | --- |
-| `LOGS_RETENTION` | How long logs are kept. Default `100y` |
-| `LOGS_MAX_DISK` | The logs volume's size limit. Default `20GB` |
-| `LOGS_USERNAME`, `LOGS_PASSWORD` | The search interface's login |
+| Variable                         | Purpose                                      |
+| -------------------------------- | -------------------------------------------- |
+| `LOGS_RETENTION`                 | How long logs are kept. Default `100y`       |
+| `LOGS_MAX_DISK`                  | The logs volume's size limit. Default `20GB` |
+| `LOGS_USERNAME`, `LOGS_PASSWORD` | The search interface's login                 |
 
 ## Migrations
 

@@ -30,11 +30,11 @@ The number of calls depends on the number of held shares, not on the number of p
 
 The provider sits behind one interface, `PriceProvider`, in `apps/prices/src/providers/`:
 
-| Method | Returns |
-| --- | --- |
-| `lookup(query)` | The listings matching an ISIN or a ticker: ISIN, name, provider symbol, exchange, trading currency |
-| `latest(symbols)` | The latest price of several listings, with each price's time, in as few calls as the provider allows |
-| `closes(symbol, from, to)` | Daily closing prices |
+| Method                     | Returns                                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `lookup(query)`            | The listings matching an ISIN or a ticker: ISIN, name, provider symbol, exchange, trading currency   |
+| `latest(symbols)`          | The latest price of several listings, with each price's time, in as few calls as the provider allows |
+| `closes(symbol, from, to)` | Daily closing prices                                                                                 |
 
 `PRICE_PROVIDER` selects the implementation and `PRICE_PROVIDER_API_KEY` holds its key. The implementation is `eodhd`.
 
@@ -51,11 +51,11 @@ A share the provider doesn't know is created as a manual share.
 
 `PRICE_PROVIDER=eodhd`. The API is at `https://eodhd.com/api`, and takes the key as the `api_token` query parameter.
 
-| Method | EODHD endpoint | Cost |
-| --- | --- | --- |
-| `lookup(query)` | `GET /search/{query}`: every listing of the ISIN or ticker, with its code, exchange, country, currency, ISIN, type, and whether it is the primary listing | 1 call |
-| `latest(symbols)` | `GET /real-time/{symbol}?s={other symbols}`: the latest price of several listings in one request, with each price's time | 1 call per listing |
-| `closes(symbol, from, to)` | `GET /eod/{symbol}?from=&to=`: one row per trading day. FPR stores `close`, the price as traded, and ignores `adjusted_close` | 1 call |
+| Method                     | EODHD endpoint                                                                                                                                            | Cost               |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `lookup(query)`            | `GET /search/{query}`: every listing of the ISIN or ticker, with its code, exchange, country, currency, ISIN, type, and whether it is the primary listing | 1 call             |
+| `latest(symbols)`          | `GET /real-time/{symbol}?s={other symbols}`: the latest price of several listings in one request, with each price's time                                  | 1 call per listing |
+| `closes(symbol, from, to)` | `GET /eod/{symbol}?from=&to=`: one row per trading day. FPR stores `close`, the price as traded, and ignores `adjusted_close`                             | 1 call             |
 
 - A listing's symbol is its code and its exchange: `ABC.PA`, `ABC.XETRA`, `ABC.LSE`, `ABC.US`.
 - A request for an unknown symbol is billed. `GET /user`, the account's usage, costs no call.
@@ -111,12 +111,12 @@ At 07:00 in `RACE_TIMEZONE`, Tuesday to Saturday, the service fetches the closes
 
 With 20 held market shares, on EODHD:
 
-| What | Calls per trading day |
-| --- | --- |
-| Intraday refresh, 28 runs of 20 listings | 560 |
-| Daily closes | 20 |
-| Lookups and history fills | 1 each, when members add shares |
-| Refreshes the admin runs | 20 each, plus 1 per share missing its history |
+| What                                     | Calls per trading day                         |
+| ---------------------------------------- | --------------------------------------------- |
+| Intraday refresh, 28 runs of 20 listings | 560                                           |
+| Daily closes                             | 20                                            |
+| Lookups and history fills                | 1 each, when members add shares               |
+| Refreshes the admin runs                 | 20 each, plus 1 per share missing its history |
 
 That is about 600 calls per trading day. On the Free plan, about 12,500 calls a month come from extra-call packs, so a pack of 100,000 lasts about 8 months. Exchange rates cost no provider call.
 
@@ -133,17 +133,17 @@ Each share's `trading_currency` is the currency the provider quotes it in. The s
 
 ## Endpoints
 
-| Endpoint | Purpose |
-| --- | --- |
-| `POST /lookup` | Look up a share: `{ query }`. Returns the stored shares |
-| `POST /shares/manual` | Create a manual share with its first value: `{ isin, name, price_eur, at, created_by }` |
-| `PATCH /shares/:id` | Edit a manual share's name or ISIN: `{ name, isin }` |
-| `POST /shares/:id/history` | Make sure closes are stored from a date: `{ from }`. Returns once they are |
-| `POST /shares/:id/manual-prices` | Store a value point for a manual share: `{ at, price_eur, entered_by }` |
-| `PATCH /shares/:id/manual-prices/:at`, `DELETE …` | Edit a value point's price, or delete it. A manual share keeps at least one |
-| `DELETE /shares/:id` | Delete a share with its prices and value edits. Refused with `409` when a share change refers to it |
-| `POST /shares/:id/make-manual` | Set `kind` to `manual`, clear `provider_symbol` and `exchange`, keep its prices, and store its latest price as a `manual` value point, or the given `{ price_eur, at }` when it has none. Writes a `manual_price_events` row |
-| `POST /refresh` | Run the intraday refresh now: missing closes first, then the latest prices in one batch. Refused while a run is going or once the daily cap is reached |
+| Endpoint                                          | Purpose                                                                                                                                                                                                                      |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /lookup`                                    | Look up a share: `{ query }`. Returns the stored shares                                                                                                                                                                      |
+| `POST /shares/manual`                             | Create a manual share with its first value: `{ isin, name, price_eur, at, created_by }`                                                                                                                                      |
+| `PATCH /shares/:id`                               | Edit a manual share's name or ISIN: `{ name, isin }`                                                                                                                                                                         |
+| `POST /shares/:id/history`                        | Make sure closes are stored from a date: `{ from }`. Returns once they are                                                                                                                                                   |
+| `POST /shares/:id/manual-prices`                  | Store a value point for a manual share: `{ at, price_eur, entered_by }`                                                                                                                                                      |
+| `PATCH /shares/:id/manual-prices/:at`, `DELETE …` | Edit a value point's price, or delete it. A manual share keeps at least one                                                                                                                                                  |
+| `DELETE /shares/:id`                              | Delete a share with its prices and value edits. Refused with `409` when a share change refers to it                                                                                                                          |
+| `POST /shares/:id/make-manual`                    | Set `kind` to `manual`, clear `provider_symbol` and `exchange`, keep its prices, and store its latest price as a `manual` value point, or the given `{ price_eur, at }` when it has none. Writes a `manual_price_events` row |
+| `POST /refresh`                                   | Run the intraday refresh now: missing closes first, then the latest prices in one batch. Refused while a run is going or once the daily cap is reached                                                                       |
 
 Every value point added, edited, or deleted also writes a row to `manual_price_events`, in the same transaction.
 
@@ -157,12 +157,12 @@ Tests replace the HTTP responses of the provider and of Frankfurter with Vitest 
 
 ## Configuration
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Postgres |
-| `PRICES_TOKEN` | The bearer token the API sends |
-| `PRICE_PROVIDER`, `PRICE_PROVIDER_API_KEY` | The provider implementation, `eodhd`, and its key |
-| `RATES_URL` | The exchange-rate API. Default `https://api.frankfurter.dev` |
-| `PROVIDER_DAILY_CALL_LIMIT` | The daily call cap. Default `1000` |
-| `REFRESH_SCHEDULE` | The intraday refresh, as a cron expression. Default `*/30 9-22 * * 1-5` |
-| `RACE_TIMEZONE` | The schedules' time zone. Default `Europe/Paris` |
+| Variable                                   | Purpose                                                                 |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| `DATABASE_URL`                             | Postgres                                                                |
+| `PRICES_TOKEN`                             | The bearer token the API sends                                          |
+| `PRICE_PROVIDER`, `PRICE_PROVIDER_API_KEY` | The provider implementation, `eodhd`, and its key                       |
+| `RATES_URL`                                | The exchange-rate API. Default `https://api.frankfurter.dev`            |
+| `PROVIDER_DAILY_CALL_LIMIT`                | The daily call cap. Default `1000`                                      |
+| `REFRESH_SCHEDULE`                         | The intraday refresh, as a cron expression. Default `*/30 9-22 * * 1-5` |
+| `RACE_TIMEZONE`                            | The schedules' time zone. Default `Europe/Paris`                        |
