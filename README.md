@@ -8,6 +8,19 @@ FPR is self-hosted: one Docker Compose stack with Postgres and S3-compatible sto
 
 FPR is being specified. The documentation describes the first version; the code comes next.
 
+## Development
+
+FPR runs on Node 24 with pnpm.
+
+```sh
+pnpm install
+```
+
+`pnpm install` also installs the git hooks. Before each commit, Biome formats the staged files and blocks the commit on any lint error. Before each push, Biome checks the whole repository and blocks the push on any error.
+
+- `pnpm lint` checks the repository with Biome.
+- `pnpm format` formats it and applies safe fixes.
+
 ## Documentation
 
 | | |
