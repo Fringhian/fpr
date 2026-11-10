@@ -10,3 +10,4 @@ PRODUCT.md
 DESIGN.md
 *.tsbuildinfo
 coverage/
+.vscode/

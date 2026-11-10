@@ -7,14 +7,16 @@
     "dev": "pnpm --recursive --parallel --if-present run dev",
     "build": "pnpm --recursive --if-present run build",
     "test": "pnpm --recursive --if-present run test",
-    "lint": "pnpm --recursive --if-present run lint",
-    "typecheck": "pnpm --recursive --if-present run typecheck"
+    "lint": "biome check .",
+    "typecheck": "pnpm --recursive --if-present run typecheck",
+    "format": "biome check --write ."
   },
   "engines": {
     "node": ">=24 <25"
   },
   "packageManager": "pnpm@10.33.2",
   "devDependencies": {
+    "@biomejs/biome": "2.6.6",
     "typescript": "^7.0.2"
   }
 }
