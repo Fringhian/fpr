@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { gainSchema, positionSchema } from "../../schemas/performance.js";
+import { latestPriceSchema } from "../../schemas/share.js";
 import {
   getPortfolio,
+  getPortfolioHoldingAt,
   type Portfolio,
   type PortfolioHolding,
+  type PortfolioHoldingAt,
+  portfolioHoldingAtSchema,
   portfolioHoldingSchema,
   portfolioSchema,
 } from "./holdings.js";
@@ -56,6 +61,7 @@ const portfolio: Portfolio = {
   latestPricesAt: "2026-03-02T17:30:00+01:00",
   balanceEur: "1001.67",
   sharesEur: "921.67",
+  sharesWeight: "92.1",
   cashEur: "80.00",
   cashWeight: "7.9",
   gain: { eur: "-18.30", percent: "-1.79" },
@@ -103,6 +109,7 @@ describe("GET /users/{userId}/portfolio", () => {
       latestPricesAt: null,
       balanceEur: "0",
       sharesEur: "0",
+      sharesWeight: null,
       cashEur: "0",
       cashWeight: null,
       gain: { eur: "0", percent: null },
@@ -141,6 +148,7 @@ describe("GET /users/{userId}/portfolio", () => {
     const marks = {
       balanceEur: anonymizeKind(portfolioSchema.shape.balanceEur),
       sharesEur: anonymizeKind(portfolioSchema.shape.sharesEur),
+      sharesWeight: anonymizeKind(portfolioSchema.shape.sharesWeight),
       cashEur: anonymizeKind(portfolioSchema.shape.cashEur),
       cashWeight: anonymizeKind(portfolioSchema.shape.cashWeight),
       gainEur: anonymizeKind(portfolioSchema.shape.gain.shape.eur),
@@ -155,6 +163,7 @@ describe("GET /users/{userId}/portfolio", () => {
     expect(marks).toEqual({
       balanceEur: "euro",
       sharesEur: "euro",
+      sharesWeight: undefined,
       cashEur: "quantity",
       cashWeight: undefined,
       gainEur: "euro",
@@ -164,6 +173,16 @@ describe("GET /users/{userId}/portfolio", () => {
       weight: undefined,
       latestPrice: undefined,
     });
+  });
+
+  it("builds each holding on the shared position and gain", () => {
+    const { shape } = portfolioHoldingSchema;
+    for (const key of Object.keys(positionSchema.shape)) {
+      expect(shape).toHaveProperty(key);
+    }
+    expect(shape.gain.unwrap()).toBe(gainSchema);
+    expect(portfolioSchema.shape.gain).toBe(gainSchema);
+    expect(shape.latestPrice.unwrap()).toBe(latestPriceSchema);
   });
 
   it("is in the OpenAPI document, with its roles and markers", async () => {
@@ -202,5 +221,76 @@ describe("GET /users/{userId}/portfolio", () => {
         },
       },
     });
+  });
+});
+
+describe("GET /users/{userId}/holdings/{shareId}", () => {
+  const shareId = priced.share.id;
+  const at = "2026-03-02T17:30:00+01:00";
+  const held: PortfolioHoldingAt = {
+    share: priced.share,
+    at,
+    quantity: "74.328",
+  };
+
+  it("is declared for every signed-in role, with not_found", () => {
+    const { route, meta, errorMap } = getPortfolioHoldingAt["~orpc"];
+    expect(route).toMatchObject({
+      method: "GET",
+      path: "/users/{userId}/holdings/{shareId}",
+    });
+    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
+    expect(Object.keys(errorMap).sort()).toEqual(
+      [
+        "access_ended",
+        "internal_error",
+        "invalid_request",
+        "not_found",
+        "unauthenticated",
+      ].sort(),
+    );
+  });
+
+  it("takes the member, the share, and a moment with its offset", () => {
+    const input = getPortfolioHoldingAt["~orpc"].inputSchema;
+    expect(input?.safeParse({ userId, shareId, at }).success).toBe(true);
+    expect(input?.safeParse({ userId, shareId }).success).toBe(false);
+    expect(
+      input?.safeParse({ userId, shareId, at: "2026-03-02" }).success,
+    ).toBe(false);
+    expect(input?.safeParse({ userId, shareId: "fund", at }).success).toBe(
+      false,
+    );
+  });
+
+  it("answers the share, the moment, and the quantity held, zero included", () => {
+    expect(portfolioHoldingAtSchema.parse(held)).toEqual(held);
+    expect(
+      portfolioHoldingAtSchema.safeParse({ ...held, quantity: "0" }).success,
+    ).toBe(true);
+    expect(
+      portfolioHoldingAtSchema.safeParse({ ...held, quantity: 74.328 }).success,
+    ).toBe(false);
+  });
+
+  it("marks the quantity", () => {
+    expect(anonymizeKind(portfolioHoldingAtSchema.shape.quantity)).toBe(
+      "quantity",
+    );
+  });
+
+  it("is in the OpenAPI document with both ids in the path and the moment in the query", async () => {
+    const operation = (await createOpenApiDocument()).paths?.[
+      "/users/{userId}/holdings/{shareId}"
+    ]?.get;
+    expect(operation).toMatchObject({
+      operationId: "portfolio.holdingAt",
+      "x-roles": ["admin", "member", "guest", "anonymous"],
+    });
+    expect(
+      operation?.parameters?.map((parameter) =>
+        "in" in parameter ? `${parameter.in}:${parameter.name}` : undefined,
+      ),
+    ).toEqual(["path:userId", "path:shareId", "query:at"]);
   });
 });
