@@ -16,11 +16,15 @@ export const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 /**
- * Validates the environment. Throws an error that names every variable that
- * is missing or invalid.
+ * Validates the environment. An empty variable counts as unset, so it takes
+ * its default or is reported missing. Throws an error that names every
+ * variable that is missing or invalid.
  */
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
-  const result = envSchema.safeParse(source);
+  const set = Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value !== ""),
+  );
+  const result = envSchema.safeParse(set);
   if (!result.success) {
     const problems = result.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)

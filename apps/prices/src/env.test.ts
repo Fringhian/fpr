@@ -11,6 +11,10 @@ describe("loadEnv", () => {
     expect(loadEnv(valid).PORT).toBe(3000);
   });
 
+  it("defaults an empty PORT to 3000", () => {
+    expect(loadEnv({ ...valid, PORT: "" }).PORT).toBe(3000);
+  });
+
   it("names a missing DATABASE_URL", () => {
     expect(() => loadEnv({ PRICES_TOKEN: "x" })).toThrow(/DATABASE_URL/);
   });
