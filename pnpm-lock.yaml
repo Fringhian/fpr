@@ -12,16 +12,16 @@ importers:
         specifier: 2.6.6
         version: 2.6.6
       lefthook:
-        specifier: ^2.2.2
+        specifier: 2.2.2
         version: 2.2.2
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vite:
-        specifier: ^8.3.8
+        specifier: 8.3.8
         version: 8.3.8
       vitest:
-        specifier: ^5.1.0
+        specifier: 5.1.0
         version: 5.1.0(vite@8.3.8)
 
 packages:
