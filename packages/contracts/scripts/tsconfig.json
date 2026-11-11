@@ -1,0 +1,12 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    // Environment Settings
+    "types": ["node"],
+
+    // Outputs: these scripts run with tsx and are never built.
+    "noEmit": true
+  },
+  "include": ["."]
+}

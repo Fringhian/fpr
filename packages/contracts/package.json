@@ -3,7 +3,8 @@
   "description": "Zod schemas for the REST API",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit --project scripts",
+    "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {
     "zod": "4.6.7"
@@ -19,5 +20,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15"
+  }
 }
