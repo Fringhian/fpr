@@ -1,0 +1,29 @@
+{
+  "name": "@fpr/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The connection pool, migrations, row types, and queries for FPR's Postgres",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@fpr/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "kysely": "0.29.8",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1"
+  }
+}
