@@ -8,12 +8,21 @@ Postgres 18, accessed by the API and the price service through one shared intern
 
 It holds:
 
-- **Connection pool**: one implementation, configured per process from `DATABASE_URL`.
+- **Connection pool**: one `pg` pool per process, configured from `DATABASE_URL`, behind a Kysely instance. `createDb()` opens it, `ping()` runs `select 1` for the health endpoints, and `close()` waits for running queries and closes every connection on shutdown.
 - **Migrations**: the one schema history for the whole system, run with Kysely's migrator by the API image before the server starts. Better Auth's tables are created by a migration in the same history, generated from Better Auth's schema. Every migration stays compatible with the running code: additions ship first, removals in a later deploy.
 - **Row types**: one TypeScript type per table, used by every process that reads or writes it.
 - **One query module per table**, built with Kysely. A module holds the queries for its table and no workflow logic.
 
 All identifiers are lowercase snake_case, including Better Auth's columns, which are mapped from its defaults. Every table carries `created_at`.
+
+In TypeScript, tables and columns are camelCase: Kysely's `CamelCasePlugin` writes them in snake_case in SQL and returns rows in camelCase. The pool reads values as follows, with parsers set on the pool rather than on `pg`'s global registry:
+
+| Postgres | TypeScript |
+| --- | --- |
+| `numeric` | decimal `string` |
+| `timestamptz` | `Date` |
+| `date` | `YYYY-MM-DD` `string` |
+| every other type | `pg`'s default |
 
 ## Keys and constraints
 
