@@ -1,4 +1,4 @@
-import { apiRoutes, createOpenApiDocument } from "@fpr/contracts";
+import { createOpenApiDocument } from "@fpr/contracts";
 import { apiReference } from "@scalar/express-api-reference";
 import { Router } from "express";
 
@@ -14,11 +14,11 @@ const viewerScript =
  * starts, at `openapi.json`, and the Scalar viewer reading it.
  */
 export function docsRouter(): Router {
-  const document = createOpenApiDocument(apiRoutes);
+  const document = createOpenApiDocument();
   const router = Router();
 
-  router.get("/openapi.json", (_req, res) => {
-    res.json(document);
+  router.get("/openapi.json", async (_req, res) => {
+    res.json(await document);
   });
   router.get(
     "/",

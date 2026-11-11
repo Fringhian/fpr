@@ -1,12 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { type Db, ping } from "@fpr/db";
+import type { AnyRouter } from "@orpc/server";
 import express, { type Express } from "express";
 import type { Logger } from "pino";
 import { pinoHttp } from "pino-http";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
+import { mountRouter } from "./orpc.js";
+import { apiRouter } from "./router.js";
 
 export interface AppOptions {
+  /** The contract routes served under `/api`. Defaults to every API route. */
+  router?: AnyRouter;
   db: Db;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
@@ -23,6 +28,7 @@ export function createApp({
   db,
   logger,
   docs = false,
+  router = apiRouter,
   routes,
 }: AppOptions): Express {
   const app = express();
@@ -71,6 +77,7 @@ export function createApp({
     app.use(docsPath, docsRouter());
   }
 
+  mountRouter(app, router);
   routes?.(app);
 
   app.use(notFound);

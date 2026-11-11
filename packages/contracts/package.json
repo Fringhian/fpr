@@ -7,6 +7,9 @@
     "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {
+    "@orpc/contract": "1.16.1",
+    "@orpc/openapi": "1.16.1",
+    "@orpc/zod": "1.16.1",
     "zod": "4.6.7"
   },
   "private": true,

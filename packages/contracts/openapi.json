@@ -1,5 +1,4 @@
 {
-  "openapi": "3.1.1",
   "info": {
     "title": "FPR API",
     "version": "1",
@@ -10,16 +9,12 @@
       "url": "/api"
     }
   ],
+  "openapi": "3.1.1",
   "paths": {
     "/me": {
       "get": {
+        "operationId": "getMe",
         "summary": "The signed-in person",
-        "x-roles": [
-          "admin",
-          "member",
-          "guest",
-          "anonymous"
-        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -30,17 +25,16 @@
                   "properties": {
                     "id": {
                       "type": "string",
-                      "format": "uuid",
-                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      "format": "uuid"
                     },
                     "role": {
-                      "type": "string",
                       "enum": [
                         "admin",
                         "member",
                         "guest",
                         "anonymous"
-                      ]
+                      ],
+                      "type": "string"
                     },
                     "displayName": {
                       "type": "string",
@@ -49,11 +43,15 @@
                       "x-anonymize": "personal"
                     },
                     "avatarUrl": {
-                      "x-anonymize": "personal",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-anonymize": "personal"
                     },
                     "color": {
                       "type": "integer",
@@ -63,11 +61,11 @@
                     "language": {
                       "anyOf": [
                         {
-                          "type": "string",
                           "enum": [
                             "fr",
                             "en"
-                          ]
+                          ],
+                          "type": "string"
                         },
                         {
                           "type": "null"
@@ -86,14 +84,13 @@
                     "color",
                     "language",
                     "onboarded"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "`unauthenticated`, `access_ended`",
+            "description": "401",
             "content": {
               "application/json": {
                 "schema": {
@@ -110,29 +107,23 @@
                           ]
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "type": "object"
                         }
                       },
                       "required": [
                         "code"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
                     "error"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
           },
           "500": {
-            "description": "`internal_error`",
+            "description": "500",
             "content": {
               "application/json": {
                 "schema": {
@@ -148,28 +139,28 @@
                           ]
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "type": "object"
                         }
                       },
                       "required": [
                         "code"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
                     "error"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
           }
-        }
+        },
+        "x-roles": [
+          "admin",
+          "member",
+          "guest",
+          "anonymous"
+        ]
       }
     }
   }

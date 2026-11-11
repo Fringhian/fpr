@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { personal } from "../anonymize.js";
+import { signedInRoute } from "../contract.js";
 import { roleSchema, roles } from "../roles.js";
-import { defineRoute } from "../route.js";
 
 /** The languages FPR is written in. */
 export const languages = ["fr", "en"] as const;
@@ -25,10 +25,7 @@ export const meSchema = z.object({
 
 export type Me = z.infer<typeof meSchema>;
 
-export const getMe = defineRoute({
-  method: "get",
-  path: "/me",
-  summary: "The signed-in person",
-  roles,
-  responses: { 200: meSchema },
-});
+export const getMe = signedInRoute
+  .meta({ roles })
+  .route({ method: "GET", path: "/me", summary: "The signed-in person" })
+  .output(meSchema);

@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { apiRoutes, createOpenApiDocument } from "../src/index.js";
+import { createOpenApiDocument } from "../src/index.js";
 
 /**
  * Writes `openapi.json` from the API's route contracts. With `--check`, writes
@@ -7,7 +7,7 @@ import { apiRoutes, createOpenApiDocument } from "../src/index.js";
  */
 const target = new URL("../openapi.json", import.meta.url);
 const name = "packages/contracts/openapi.json";
-const generated = `${JSON.stringify(createOpenApiDocument(apiRoutes), null, 2)}\n`;
+const generated = `${JSON.stringify(await createOpenApiDocument(), null, 2)}\n`;
 
 if (process.argv.includes("--check")) {
   const current = await readFile(target, "utf8").catch(() => "");
