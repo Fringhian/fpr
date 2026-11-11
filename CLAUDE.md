@@ -49,3 +49,5 @@ How to create and fully wire up a ticket: `.claude/github-project-workflow.md`.
 - Docs: affirmative, factual, and standalone. They state what the system is, not why or how it was decided. No decision records in the repository.
 - Every ticket has a coverage checklist specific to its problem. It closes only when every item is checked.
 - Load `supabase-postgres-best-practices` before any schema, migration, index, or query work.
+- `.claude/hooks/require-skills.sh` blocks an edit until the session has loaded the skills its file needs: `react-best-practices`, `fpr-ui` and `typescript-advanced-types` for `apps/web` code, `fpr-ui` for its CSS, `typescript-advanced-types` for any other TypeScript, and `supabase-postgres-best-practices` for `packages/db`, SQL and migrations.
+- Change source files with the Edit and Write tools, never through shell commands, so the skill hook sees every edit.
