@@ -114,13 +114,16 @@ A colour another person has is refused with `409`, unless all ten are taken. `PA
 
 | Route | Purpose |
 | --- | --- |
-| `GET /users/:userId/portfolio?period=` | Holdings with quantity, latest value, gain over the period, and a small price series for the period; cash; total; each holding's weight; the time of the latest prices |
+| `GET /users/:userId/portfolio?period=` | Each holding's position (quantity, value, weight, and gain over the period), latest price, and a small price series for the period; the holdings' value and the cash, each with its weight; the balance; its gain over the period; `latestPricesAt`, the time of the latest prices; `firstEntryOn`, `measuredFrom`, and `incomplete` |
+| `GET /users/:userId/holdings/:shareId?at=` | The quantity of a share the member held at a moment, zero when they held none: `{ share, at, quantity }`. `at` is a timestamp with its offset. A sale shows it before its quantity is typed. `404` for an unknown person or share |
 | `GET /users/:userId/log?limit=&before=` | Share changes and cash balances, newest first, a page at a time: `limit` entries, 50 by default and 100 at most, after the `before` cursor the previous page returned |
-| `POST /users/:userId/changes` | Add or remove shares: `{ shareId, quantityDelta, effectiveAt }`. `quantityDelta` is above zero for a purchase, below zero for a sale, and never zero |
+| `POST /users/:userId/changes` | Add or remove shares: `{ id, shareId, quantityDelta, effectiveAt }`. `quantityDelta` is above zero for a purchase, below zero for a sale, and never zero. `id` is optional |
 | `PATCH /changes/:id`, `DELETE /changes/:id` | Edit a share change's quantity or moment, `{ quantityDelta, effectiveAt }`, or delete it |
-| `POST /users/:userId/cash-balances` | Set cash: `{ amountEur, effectiveAt }`, with `amountEur` zero or more |
+| `POST /users/:userId/cash-balances` | Set cash: `{ id, amountEur, effectiveAt }`, with `amountEur` zero or more. `id` is optional |
 | `PATCH /cash-balances/:id`, `DELETE /cash-balances/:id` | Edit a cash balance's amount or moment, `{ amountEur, effectiveAt }`, or delete it |
-| `GET /users/:userId/balance-history?period=` | The member's balance at each close of the period, then at each refresh today, with the share changes and cash balances in the period for the chart's markers |
+| `GET /users/:userId/balance-history?period=` | The member's points at each close of the period, then at each refresh today, each with the balance and the gain since the period's start, with the share changes and cash balances in the period for the chart's markers |
+
+The `id` of `POST /users/:userId/changes` and `POST /users/:userId/cash-balances` is a UUID the client generates for the entry it creates. A request repeating an `id` already stored for that person answers the stored entry as it is, with `201`, and creates nothing, so a save sent twice is saved once. An `id` another person's entry has is refused with `403`. Without an `id`, the API generates one.
 
 Every write to `portfolio_changes` runs in one transaction that takes a per-user advisory lock, then checks that no holding of that member goes below zero at any moment. A refusal, `holding_below_zero`, names the entry it would break in `details`: the stored share change the holding would go below zero at, or `null` for the change sent, and the quantity held just before it. The portfolio routes answer `not_found` for a person with no portfolio: a guest or an anonymous viewer. A change that makes a market share held for the first time, or is dated before its stored history, is saved first, then the API asks the price service for that history without waiting. See `prices.md`.
 
@@ -128,12 +131,12 @@ Every write to `portfolio_changes` runs in one transaction that takes a per-user
 
 | Route | Purpose |
 | --- | --- |
-| `GET /shares?q=&period=` | Stored shares matching a name, ISIN, or symbol, read from Postgres, each with its latest price, change over the period, a small price series, and its holders. With an empty query, every stored share, held ones first |
+| `GET /shares?q=&period=` | Stored shares matching a name, ISIN, or symbol, read from Postgres, each with its latest price, change over the period in euros and in percent, a small price series, and its holders. With an empty query, every stored share, held ones first |
 | `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service's `POST /lookup`: `{ query }`, 1 to 100 characters. Returns `{ shares, listings }`: the matching shares, stored, and the listings the provider returned without an ISIN. `{ query, isin }`, with a listing's symbol as `query`, is forwarded to the price service's `POST /shares/market`, which stores that listing under the ISIN the member typed, and returns it in `shares`. Refused with `404` when the provider no longer returns the symbol, and `409` when another share has the ISIN |
 | `POST /shares/manual` | Create a manual share, through the price service: `{ isin, name, priceEur, at }` |
-| `GET /shares/:id?period=` | A share's details, latest price with its time, change over the period, and the signed-in member's position: quantity, value, and gain since they bought, each purchase valued at that day's price |
+| `GET /shares/:id?period=` | A share's details, latest price with its time and source, change over the period in euros and in percent, and the signed-in member's position: quantity, value, weight in their balance, and gain since they bought, each purchase valued at that day's price |
 | `GET /shares/:id/prices?range=` | Chart points for `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`: intraday points for `1D` and `1W`, daily closes otherwise |
-| `GET /shares/:id/holders` | Each member's changes on this share, for the chart markers, and their result on it |
+| `GET /shares/:id/holders` | Each member's changes on this share, for the chart markers, and their position on it, with its gain since they bought |
 | `GET /shares/:id/values` | A manual share's value points, newest first, each with who entered it |
 | `GET /shares/:id/value-events` | A manual share's value edits, newest first: who changed which value, from what to what |
 | `PATCH /shares/:id` | Edit a manual share's name or ISIN: `{ name, isin }`. An ISIN another share already has is refused |
@@ -146,7 +149,7 @@ Any member and the admin can edit a manual share and its value points.
 - `:at` is the value point's moment as `GET /shares/:id/values` returns it, an ISO 8601 timestamp with its offset, percent-encoded as one path segment: `/shares/:id/values/2026-03-02T16%3A30%3A00Z`. The API matches the instant, so `2026-03-02T17:30:00+01:00` names the same value point.
 - A manual share's name is 1 to 100 characters, trimmed, and each value is above zero, as in the price service.
 - A market share has no value points: its value lists are empty, and editing its name, ISIN, or values answers `404`.
-- A share's position, holders' quantities, and holders' results are marked for the anonymizer. Share prices, changes, and value points are not.
+- A position is the same in a portfolio, on a share's page, and among its holders: `{ quantity, valueEur, weight, gain }`, its gain over the period in a portfolio and since bought on a share. Its quantity and euro amounts are marked for the anonymizer. Share prices, changes, and value points are not.
 
 No share route calls the provider except `POST /shares/lookup`. Everything else reads Postgres.
 
@@ -154,12 +157,12 @@ No share route calls the provider except `POST /shares/lookup`. Everything else 
 
 | Route | Purpose |
 | --- | --- |
-| `GET /leaderboards/:board?period=&unit=` | `balance`, or `gain` over `1D`, `1W`, `1M`, `3M`, `YTD`, or `all` in `eur` or `percent`, as of the last close. Each row carries the member's best holding over the period |
-| `GET /leaderboards/shares?period=` | The shares held in the race, ranked by their change over the period |
-| `GET /members?period=&unit=` | Every member with the date of their first entry, their gain since the period's start at each close, their gain and balance, and their top three holdings with weights |
-| `GET /race?period=&unit=` | Every member's gain since the period's start at each close, then at each refresh since the last close, in `eur` or `percent`. The points after the last close are marked provisional. Also returns the time of the latest prices and whether today's refreshes are running |
+| `GET /leaderboards/:board?period=&unit=` | `balance`, or `gain` over `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`, as of the last close. Each row carries the member's best holding over the period, with its gain |
+| `GET /leaderboards/shares?period=` | The shares held in the race, ranked by their change in percent over the period, each with its change in euros and in percent |
+| `GET /members?period=` | Every member with the date of their first entry, their points since the period's start at each close, their gain and balance, and their top three holdings with weights |
+| `GET /race?period=` | Every member's points since the period's start at each close, then at each refresh since the last close. The points after the last close are marked provisional. Also returns `latestPricesAt`, the time of the latest prices, and whether today's refreshes are running |
 
-A response to a request with a `unit` names that unit, and its gains are in it. Balances are in euros in either unit.
+Every gain carries euros and percent, `{ eur, percent }`, and a member's point carries their balance and their gain, so the web app draws the unit the viewer picks without a new request. `unit` decides an order only: the gain leaderboard ranks by the gain in `eur` or in `percent`, `eur` when left out, and names the unit it ranked by. The balance leaderboard ranks by balance and has no unit. An anonymous viewer is ranked in `percent`, whatever `unit` asks.
 
 ### Admin
 
@@ -198,14 +201,16 @@ For an anonymous viewer, the anonymizer replaces, in every response:
 
 - display names with pseudonyms, and photos with nothing, so the web app draws the pseudonym's initial on the person's colour;
 - emails with nothing;
-- euro amounts with percentages, and euro series with series in percent;
+- every amount in euros with nothing: the percentage beside it stays;
 - quantities held with each holding's weight in percent of the portfolio, and cash with its weight too.
 
-A route that takes a `unit` answers an anonymous viewer in `percent`, whatever `unit` asks. The balance leaderboard shows ranks without amounts. Share prices are market data and stay in euros.
+Every amount in euros has its percentage beside it: a gain is `{ eur, percent }`, a holding's `valueEur` has its `weight`, and the holdings' value and the cash have theirs. A member's total balance has no percentage, so anonymous viewers see ranks without amounts, and draw a member's curve from the gain in percent. Share prices, their changes, and value points are market data and stay in euros. A test fails when a response has an amount in euros without its percentage, a balance aside.
+
+The gain leaderboard ranks an anonymous viewer in `percent`, whatever `unit` asks.
 
 A pseudonym is an adjective and an animal, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)`. Two people with the same pseudonym are told apart by a number suffix. It is the same on every screen and visit, and is not stored.
 
-The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts and series in euros), or `quantity()` (quantities held and cash), and a test fails when a schema has an unmarked field of those kinds.
+The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts in euros), or `quantity()` (quantities held and cash), and a test fails when a schema has an unmarked field of those kinds.
 
 ## Configuration
 

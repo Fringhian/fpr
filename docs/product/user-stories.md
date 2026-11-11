@@ -70,7 +70,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 | --- | --- | --- | --- |
 | POR-1 | see my portfolio: my balance with the time of the latest prices, my gain over the period, how it splits between shares and cash, and each share with its quantity, value, and gain over the period | I know where I stand right now | v1 |
 | POR-2 | record a purchase: what changed, which share, when (today by default), how many, then a review | recording a purchase takes a few seconds | v1 |
-| POR-3 | record a sale, seeing how many I held on that day, with an "all" option | recording a sale is as quick as a purchase | v1 |
+| POR-3 | record a sale, seeing how many I held on that day, with an "all" option, read from `GET /users/:userId/holdings/:shareId?at=` | recording a sale is as quick as a purchase | v1 |
 | POR-4 | set my cash on a day: "from that day, I have €X" | the money I hold outside shares counts in the race | v1 |
 | POR-5 | see every share change and cash balance I recorded, and edit or delete any entry | a typo or a forgotten entry is fixed, and every leaderboard follows | v1 |
 | POR-6 | see my balance over time as a chart, with my purchases and sales marked | I see my own progress, not only my rank | v1 |
@@ -88,7 +88,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Removing shares doesn't change cash, and adding shares doesn't spend it.
 - A manual share shows its value with "as of" the date of its last value point.
 - Leaving the change flow midway asks to confirm. Changes already saved in the session stay.
-- A change saved twice by a double press is saved once.
+- A change or cash balance saved twice by a double press is saved once: the button is disabled while saving, and each save carries an id the web app generates, so a repeated request answers the entry already saved instead of creating a second one.
 - A stock split is recorded as a purchase of the new shares on the split day. A dividend paid in cash is recorded by setting cash. FPR doesn't detect either.
 
 ## Shares — find and follow them
