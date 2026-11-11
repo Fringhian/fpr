@@ -1,11 +1,46 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
+import {
+  createOpenApiDocument,
+  decimalSchema,
+  errorMap,
+  publicRoute,
+} from "@fpr/contracts";
 import { type Db, ping } from "@fpr/db";
+import { type AnyRouter, implement } from "@orpc/server";
 import type { Express } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { createApp } from "./app.js";
 import { createLogger } from "./logger.js";
+import type { ApiContext } from "./orpc.js";
+
+/** A contract and router used only here, to exercise inputs and errors. */
+const testContract = {
+  setAmount: publicRoute
+    .errors(errorMap("invalid_request", "not_found"))
+    .route({ method: "POST", path: "/things/{id}" })
+    .input(z.object({ id: z.uuid(), amount: decimalSchema }))
+    .output(z.object({ id: z.uuid(), amount: decimalSchema })),
+  boom: publicRoute
+    .route({ method: "GET", path: "/boom" })
+    .output(z.object({})),
+};
+const testApi = implement(testContract).$context<ApiContext>();
+const testRouter = testApi.router({
+  setAmount: testApi.setAmount.handler(({ input, errors }) => {
+    if (input.id === MISSING) {
+      throw errors.not_found({ data: { id: input.id } });
+    }
+    return input;
+  }),
+  boom: testApi.boom.handler(() => {
+    throw new Error("database password is hunter2-test");
+  }),
+});
+const THING = "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70";
+const MISSING = "1c7a4d2f-9b3e-4d8f-a021-3c4d5e6f7a81";
 
 vi.mock("@fpr/db", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@fpr/db")>();
@@ -23,7 +58,10 @@ interface Running {
 }
 
 /** Starts the app on a random local port and captures its log lines. */
-async function serve(routes?: (app: Express) => void): Promise<Running> {
+async function serve(
+  routes?: (app: Express) => void,
+  { docs = false, router }: { docs?: boolean; router?: AnyRouter } = {},
+): Promise<Running> {
   const rawLines: string[] = [];
   const destination = new Writable({
     write(chunk, _encoding, callback) {
@@ -34,6 +72,8 @@ async function serve(routes?: (app: Express) => void): Promise<Running> {
   const app = createApp({
     db: {} as Db,
     logger: createLogger({ destination }),
+    docs,
+    ...(router ? { router } : {}),
     ...(routes ? { routes } : {}),
   });
   const server: Server = await new Promise((resolve) => {
@@ -167,6 +207,126 @@ describe("GET /health", () => {
           line.message === "health check failed: Postgres did not answer",
       ),
     ).toBe(true);
+  });
+});
+
+describe("contract routes", () => {
+  it("answers GET /api/me with unauthenticated until sessions exist", async () => {
+    running = await serve();
+
+    const response = await fetch(`${running.url}/api/me`);
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: { code: "unauthenticated" },
+    });
+    expect(response.headers.get("x-request-id")).toMatch(UUID);
+  });
+
+  it("validates the input and answers the handler's output", async () => {
+    running = await serve(undefined, { router: testRouter });
+
+    const response = await fetch(`${running.url}/api/things/${THING}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: "12.50" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ id: THING, amount: "12.50" });
+  });
+
+  it("answers an invalid input with invalid_request and its issues", async () => {
+    running = await serve(undefined, { router: testRouter });
+
+    const response = await fetch(`${running.url}/api/things/not-a-uuid`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: 12.5 }),
+    });
+    const body = (await response.json()) as {
+      error: { code: string; details: { issues: { path: string[] }[] } };
+    };
+
+    expect(response.status).toBe(400);
+    expect(body.error.code).toBe("invalid_request");
+    expect(body.error.details.issues.map((issue) => issue.path).sort()).toEqual(
+      [["amount"], ["id"]],
+    );
+  });
+
+  it("answers a declared error with its status and details", async () => {
+    running = await serve(undefined, { router: testRouter });
+
+    const response = await fetch(`${running.url}/api/things/${MISSING}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: "1" }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({
+      error: { code: "not_found", details: { id: MISSING } },
+    });
+  });
+
+  it("answers a thrown error with internal_error, logged with its stack", async () => {
+    running = await serve(undefined, { router: testRouter });
+
+    const response = await fetch(`${running.url}/api/boom`);
+    const body = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(JSON.parse(body)).toEqual({ error: { code: "internal_error" } });
+    expect(body).not.toContain("hunter2-test");
+    const errorLine = running.lines.find(
+      (line) => line.message === "unexpected error",
+    );
+    expect(errorLine).toMatchObject({
+      level: "error",
+      requestId: response.headers.get("x-request-id"),
+    });
+    expect(JSON.stringify(errorLine)).toContain("hunter2-test");
+  });
+
+  it("leaves an unknown /api route to Express's not_found", async () => {
+    running = await serve();
+
+    const response = await fetch(`${running.url}/api/nowhere`);
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: { code: "not_found" } });
+  });
+});
+
+describe("/api/docs", () => {
+  it("serves the OpenAPI document generated from the contracts", async () => {
+    running = await serve(undefined, { docs: true });
+
+    const response = await fetch(`${running.url}/api/docs/openapi.json`);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(await createOpenApiDocument());
+  });
+
+  it("serves a viewer that reads the document", async () => {
+    running = await serve(undefined, { docs: true });
+
+    const response = await fetch(`${running.url}/api/docs`);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/html");
+    expect(await response.text()).toContain("/api/docs/openapi.json");
+  });
+
+  it("is not served unless asked, as outside development", async () => {
+    running = await serve();
+
+    const viewer = await fetch(`${running.url}/api/docs`);
+    const document = await fetch(`${running.url}/api/docs/openapi.json`);
+
+    expect(viewer.status).toBe(404);
+    expect(document.status).toBe(404);
   });
 });
 

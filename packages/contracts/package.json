@@ -3,9 +3,13 @@
   "description": "Zod schemas for the REST API",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit --project scripts",
+    "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {
+    "@orpc/contract": "1.16.1",
+    "@orpc/openapi": "1.16.1",
+    "@orpc/zod": "1.16.1",
     "zod": "4.6.7"
   },
   "private": true,
@@ -19,5 +23,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15"
+  }
 }
