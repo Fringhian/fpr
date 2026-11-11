@@ -75,7 +75,7 @@ A member types an ISIN or a ticker and submits it. That is one provider call.
 
 - The service stores each listing the provider returns that isn't stored yet, and returns the stored shares.
 - For an ISIN listed on several exchanges, it keeps one listing: the primary listing. When the provider marks none as primary, it keeps the listing in the ISIN's country, given by the ISIN's first two letters, otherwise the first listing returned.
-- Every share has an ISIN. A listing the provider returns without one is shown with an ISIN field, and is stored once the member fills it in from their statement.
+- Every share has an ISIN. A listing the provider returns without one is returned unstored, shown with an ISIN field, and stored by `POST /shares/market` once the member fills it in from their statement. Storing it looks its symbol up again: one provider call.
 - A share is stored without history. Its history is fetched when it is first held.
 
 Typing in the Shares search filters stored shares only, in Postgres, at no cost: every share anyone has held, looked up, or created by hand.
@@ -133,19 +133,27 @@ Each share's `trading_currency` is the currency the provider quotes it in. The s
 
 ## Endpoints
 
-| Endpoint | Purpose |
-| --- | --- |
-| `POST /lookup` | Look up a share: `{ query }`. Returns the stored shares |
-| `POST /shares/manual` | Create a manual share with its first value: `{ isin, name, price_eur, at, created_by }` |
-| `PATCH /shares/:id` | Edit a manual share's name or ISIN: `{ name, isin }` |
-| `POST /shares/:id/history` | Make sure closes are stored from a date: `{ from }`. Returns once they are |
-| `POST /shares/:id/manual-prices` | Store a value point for a manual share: `{ at, price_eur, entered_by }` |
-| `PATCH /shares/:id/manual-prices/:at`, `DELETE …` | Edit a value point's price, or delete it. A manual share keeps at least one |
-| `DELETE /shares/:id` | Delete a share with its prices and value edits. Refused with `409` when a share change refers to it |
-| `POST /shares/:id/make-manual` | Set `kind` to `manual`, clear `provider_symbol` and `exchange`, keep its prices, and store its latest price as a `manual` value point, or the given `{ price_eur, at }` when it has none. Writes a `manual_price_events` row |
-| `POST /refresh` | Run the intraday refresh now: missing closes first, then the latest prices in one batch. Refused while a run is going or once the daily cap is reached |
+Each endpoint is an oRPC contract in `pricesContract`, in `packages/contracts/src/prices/`, declared like the API's routes and left out of the OpenAPI document. Bodies are camelCase JSON, prices are decimal strings in EUR, zero or more, and moments are ISO 8601 with their offset. Errors are `{ "error": { "code", "details" } }`, with the codes and statuses of `api.md` › Errors.
 
-Every value point added, edited, or deleted also writes a row to `manual_price_events`, in the same transaction.
+Every endpoint answers `401 unauthenticated` to a request without `Authorization: Bearer <PRICES_TOKEN>`, and `500 internal_error` to an unexpected failure. Every endpoint with a body or a path param answers `400 invalid_request` when it fails its schema.
+
+| Endpoint | Purpose | Also refused with |
+| --- | --- | --- |
+| `POST /lookup` | Look up a share: `{ query }`, an ISIN or a ticker. Returns `{ shares, listings }`: the stored shares, and the listings the provider returned without an ISIN, unstored | `call_budget_used` once the calls left in the day are the schedule's; `provider_unavailable` |
+| `POST /shares/market` | Store a listing a lookup returned without an ISIN: `{ symbol, isin }`, with the ISIN the member typed. Returns the share, `201` | `not_found` when the provider no longer returns the symbol; `isin_taken`; `call_budget_used`; `provider_unavailable` |
+| `POST /shares/manual` | Create a manual share with its first value point: `{ isin, name, priceEur, at, createdBy }`. `createdBy` also enters the value point. Returns the share, `201` | `isin_taken`; `future_moment` |
+| `PATCH /shares/:id` | Edit a manual share's name, ISIN, or both: `{ name, isin }`. Returns the share | `not_found` for a missing or market share; `isin_taken` |
+| `POST /shares/:id/history` | Make sure closes are stored from a day: `{ from }`. Returns `{ historyStartsOn }` once they are. A manual share has nothing to fetch | `not_found`; `call_budget_used`; `provider_unavailable` |
+| `POST /shares/:id/manual-prices` | Store a value point for a manual share: `{ at, priceEur, enteredBy }`. Returns it with `enteredBy`, `201` | `not_found` for a missing or market share; `value_changed` when a value point is already stored at `at`, with it in `details`; `future_moment` |
+| `PATCH /shares/:id/manual-prices/:at` | Edit a value point's price: `{ priceEur, expectedPriceEur, enteredBy }`. Returns it | `not_found`; `value_changed` when its price is no longer `expectedPriceEur`, with the stored value point in `details` |
+| `DELETE /shares/:id/manual-prices/:at` | Delete a value point: `{ expectedPriceEur, deletedBy }` | `not_found`; `value_changed`, as for an edit; `last_value_point` for a manual share's only value point |
+| `DELETE /shares/:id` | Delete a share with its prices and value edits | `not_found`; `share_in_use` when a share change refers to it |
+| `POST /shares/:id/make-manual` | Set `kind` to `manual`, clear `provider_symbol` and `exchange`, keep its prices, and store its latest price as a `manual` value point entered by the admin: `{ enteredBy }`. A share with no price takes its first value point too: `{ enteredBy, priceEur, at }`. Returns the share | `not_found`; `share_not_needing_attention` for a manual share or a market share that doesn't need attention; `invalid_request` without `{ priceEur, at }` for a share with no price; `future_moment` |
+| `POST /refresh` | Run the intraday refresh now: missing closes first, then the latest prices in one batch. Returns once the run ends | `refresh_running` while a run is going; `call_budget_used` once the daily cap is reached; `provider_unavailable` when the latest-prices batch fails |
+
+`:at` is a value point's moment, ISO 8601 with its offset, percent-encoded as one path segment: `2026-03-02T05%3A10%3A00%2B01%3A00`. oRPC's client encodes it and its server decodes it. Any offset names the same moment, so `2026-03-02T04:10:00Z` finds the same value point.
+
+Every value point added, edited, or deleted also writes a row to `manual_price_events`, in the same transaction, with `createdBy`, `enteredBy`, or `deletedBy` as its `user_id`. Creating a manual share and making a share manual add a value point, and write an `added` row.
 
 ## Logs
 
