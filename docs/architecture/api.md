@@ -149,7 +149,7 @@ No share route calls the provider except `POST /shares/lookup`. Everything else 
 
 | Route | Purpose |
 | --- | --- |
-| `GET /admin/people` | Every person, their role, and their access status |
+| `GET /admin/people` | Every person, their role, and their access status: `waiting`, `active`, `expired`, `revoked`, or `ended` |
 | `POST /admin/people` | Add a person. Returns the access link once |
 | `PATCH /admin/people/:id` | Change a person's display name, email, role, or access end date |
 | `POST /admin/people/:id/revoke`, `/restore` | Revoke or restore access |
