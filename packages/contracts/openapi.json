@@ -165,6 +165,2718 @@
           "anonymous"
         ]
       }
+    },
+    "/users/{userId}/portfolio": {
+      "get": {
+        "operationId": "portfolio.get",
+        "summary": "A member's holdings, cash and balance",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1D",
+                "1W",
+                "1M",
+                "3M",
+                "YTD",
+                "all"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pricesAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "balanceEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "euro"
+                    },
+                    "sharesEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "euro"
+                    },
+                    "cashEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "cashWeight": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "gain": {
+                      "type": "object",
+                      "properties": {
+                        "eur": {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "x-anonymize": "euro"
+                        },
+                        "percent": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "eur",
+                        "percent"
+                      ]
+                    },
+                    "firstEntryAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "measuredFromFirstEntry": {
+                      "type": "boolean"
+                    },
+                    "incomplete": {
+                      "type": "boolean"
+                    },
+                    "holdings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "share": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "isin": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                              },
+                              "name": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "kind": {
+                                "enum": [
+                                  "market",
+                                  "manual"
+                                ],
+                                "type": "string"
+                              },
+                              "symbol": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "isin",
+                              "name",
+                              "kind",
+                              "symbol"
+                            ]
+                          },
+                          "quantity": {
+                            "type": "string",
+                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "x-anonymize": "quantity"
+                          },
+                          "latestPrice": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "priceEur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  }
+                                },
+                                "required": [
+                                  "at",
+                                  "priceEur"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "valueEur": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "x-anonymize": "euro"
+                          },
+                          "weight": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "gain": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "eur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                    "x-anonymize": "euro"
+                                  },
+                                  "percent": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "eur",
+                                  "percent"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "pricesFrom": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "series": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "priceEur": {
+                                  "type": "string",
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                }
+                              },
+                              "required": [
+                                "at",
+                                "priceEur"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "share",
+                          "quantity",
+                          "latestPrice",
+                          "valueEur",
+                          "weight",
+                          "gain",
+                          "pricesFrom",
+                          "series"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pricesAt",
+                    "balanceEur",
+                    "sharesEur",
+                    "cashEur",
+                    "cashWeight",
+                    "gain",
+                    "firstEntryAt",
+                    "measuredFromFirstEntry",
+                    "incomplete",
+                    "holdings"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member",
+          "guest",
+          "anonymous"
+        ]
+      }
+    },
+    "/users/{userId}/log": {
+      "get": {
+        "operationId": "portfolio.log",
+        "summary": "A member's share changes and cash balances, newest first",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "change"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "share": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "isin": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "kind": {
+                                    "enum": [
+                                      "market",
+                                      "manual"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "symbol": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "isin",
+                                  "name",
+                                  "kind",
+                                  "symbol"
+                                ]
+                              },
+                              "quantityDelta": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "share",
+                              "quantityDelta",
+                              "effectiveAt"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "cash"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "amountEur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "amountEur",
+                              "effectiveAt"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "nextBefore": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "entries",
+                    "nextBefore"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member",
+          "guest",
+          "anonymous"
+        ]
+      }
+    },
+    "/users/{userId}/changes": {
+      "post": {
+        "operationId": "portfolio.addChange",
+        "summary": "Add or remove shares",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shareId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "quantityDelta": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "shareId",
+                  "quantityDelta",
+                  "effectiveAt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "change"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "share": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isin": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "market",
+                            "manual"
+                          ],
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "isin",
+                        "name",
+                        "kind",
+                        "symbol"
+                      ]
+                    },
+                    "quantityDelta": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "share",
+                    "quantityDelta",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`holding_below_zero`, `future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment",
+                            "holding_below_zero"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/changes/{id}": {
+      "patch": {
+        "operationId": "portfolio.updateChange",
+        "summary": "Edit a share change",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantityDelta": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "change"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "share": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isin": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "market",
+                            "manual"
+                          ],
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "isin",
+                        "name",
+                        "kind",
+                        "symbol"
+                      ]
+                    },
+                    "quantityDelta": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "share",
+                    "quantityDelta",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`holding_below_zero`, `future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment",
+                            "holding_below_zero"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      },
+      "delete": {
+        "operationId": "portfolio.deleteChange",
+        "summary": "Delete a share change",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "not": {}
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`holding_below_zero`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "holding_below_zero"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/users/{userId}/cash-balances": {
+      "post": {
+        "operationId": "portfolio.setCash",
+        "summary": "Set cash from a moment",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amountEur": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "amountEur",
+                  "effectiveAt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "cash"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "amountEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "amountEur",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/cash-balances/{id}": {
+      "patch": {
+        "operationId": "portfolio.updateCash",
+        "summary": "Edit a cash balance",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amountEur": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "cash"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "amountEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "amountEur",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      },
+      "delete": {
+        "operationId": "portfolio.deleteCash",
+        "summary": "Delete a cash balance",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "not": {}
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/users/{userId}/balance-history": {
+      "get": {
+        "operationId": "portfolio.balanceHistory",
+        "summary": "A member's balance over the period",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1D",
+                "1W",
+                "1M",
+                "3M",
+                "YTD",
+                "all"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "points": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "balanceEur": {
+                            "type": "string",
+                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "x-anonymize": "euro"
+                          },
+                          "provisional": {
+                            "type": "boolean"
+                          },
+                          "incomplete": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "at",
+                          "balanceEur",
+                          "provisional",
+                          "incomplete"
+                        ]
+                      },
+                      "x-anonymize": "euro"
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "change"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "share": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "isin": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "kind": {
+                                    "enum": [
+                                      "market",
+                                      "manual"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "symbol": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "isin",
+                                  "name",
+                                  "kind",
+                                  "symbol"
+                                ]
+                              },
+                              "quantityDelta": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "share",
+                              "quantityDelta",
+                              "effectiveAt"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "cash"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "amountEur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "amountEur",
+                              "effectiveAt"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "points",
+                    "entries"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member",
+          "guest",
+          "anonymous"
+        ]
+      }
     }
   }
 }
