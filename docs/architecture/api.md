@@ -4,18 +4,24 @@
 
 ## Route contracts
 
-Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. Schemas several areas share, such as a person, a share, ids, and moments, are in `src/schemas/`. The price service's internal routes are in `src/prices/`. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
+Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. The price service's internal routes are in `src/prices/`. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
 
 - its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
 - its input, with `.input()`: the path params, the query, and the body in one Zod object;
 - its response, with `.output()`;
-- its error codes, with `.errors(errorMap(...))`, each sent with its status.
+- its error codes, with `.errors(errorMap(...))`, each sent with its status, and a code whose `details` follow a schema with `.errors(errorWithDetails(code, schema))`.
+
+Each definition has one source:
+
+- `src/roles.ts` holds the roles, `Role` to name one, such as `Role.admin`, and the role lists routes share: `adminRoles`, `adminAreaRoles`, `writerRoles`, and `profileRoles`.
+- A list of values, such as the units, the boards, or the access key states, is defined once with `z.enum`, and a field or discriminant that takes one of its values references it, such as `accessKeyStateSchema.enum.waiting`. A test fails when a value of a shared list is written as a string outside the file that defines it.
+- `src/schemas/` holds the schemas several areas share, one file per theme: ids and moments; a person, their email and display name; passwords, access keys, and reset keys; currencies, prices, and percentages; shares, their names, listings, lookups, and latest prices; and the markers and amounts of a member's performance. The API's routes and the price service's use the same schemas and the same names.
 
 Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones, and a test over `apiContract` fails when a route misses one.
 
 The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
 
-The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
+The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. Each error response has one body per code, with the typed `details` of a code declared with `errorWithDetails`. A response without a body, such as a `204`, has no content. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
 
 ## Request pipeline
 
@@ -49,14 +55,14 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 | `409` | `admin_exists` | `POST /setup` once an admin exists |
 | `409` | `color_taken` | Another person has the colour, and not all ten are taken |
 | `409` | `email_taken` | Another person has the email |
-| `409` | `isin_taken` | Another share has the ISIN. `details` has that share's id |
+| `409` | `isin_taken` | Another share has the ISIN. `details` has that share's id, `{ shareId }` |
 | `409` | `share_in_use` | Deleting a share a share change refers to |
 | `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
-| `409` | `value_changed` | A value point is no longer `expectedPriceEur`, or one already exists at the moment a new one is added. `details` has the stored value |
+| `409` | `value_changed` | A value point is no longer `expectedPriceEur`, or one already exists at the moment a new one is added. `details` has the stored price, `{ priceEur }` |
 | `409` | `refresh_running` | A price refresh while a run is going |
 | `413` | `avatar_too_large` | A picture over 2 MB |
 | `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
-| `422` | `invalid_access_key` | Claiming a key that isn't waiting, or signing in with one that doesn't give access, or with a key of the other kind of person. `details` has its state |
+| `422` | `invalid_access_key` | Claiming a key that isn't waiting, or signing in with one that doesn't give access, or with a key of the other kind of person. `details` has its state, `{ state }` |
 | `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair, without saying which |
 | `422` | `invalid_bootstrap_key` | `POST /setup` with a key other than `ADMIN_BOOTSTRAP_KEY` |
 | `422` | `holding_below_zero` | A change, edit, or deletion that takes a holding below zero. `details` names the entry it would break |
@@ -123,7 +129,7 @@ Every write to `portfolio_changes` runs in one transaction that takes a per-user
 | Route | Purpose |
 | --- | --- |
 | `GET /shares?q=&period=` | Stored shares matching a name, ISIN, or symbol, read from Postgres, each with its latest price, change over the period, a small price series, and its holders. With an empty query, every stored share, held ones first |
-| `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service: `{ query }`. Returns the matching shares, stored, and the listings the provider returned without an ISIN. `{ query, isin }`, with a listing's symbol as `query`, stores that listing under the ISIN the member typed |
+| `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service's `POST /lookup`: `{ query }`, 1 to 100 characters. Returns `{ shares, listings }`: the matching shares, stored, and the listings the provider returned without an ISIN. `{ query, isin }`, with a listing's symbol as `query`, is forwarded to the price service's `POST /shares/market`, which stores that listing under the ISIN the member typed, and returns it in `shares`. Refused with `404` when the provider no longer returns the symbol, and `409` when another share has the ISIN |
 | `POST /shares/manual` | Create a manual share, through the price service: `{ isin, name, priceEur, at }` |
 | `GET /shares/:id?period=` | A share's details, latest price with its time, change over the period, and the signed-in member's position: quantity, value, and gain since they bought, each purchase valued at that day's price |
 | `GET /shares/:id/prices?range=` | Chart points for `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`: intraday points for `1D` and `1W`, daily closes otherwise |
@@ -138,7 +144,7 @@ Every write to `portfolio_changes` runs in one transaction that takes a per-user
 Any member and the admin can edit a manual share and its value points.
 
 - `:at` is the value point's moment as `GET /shares/:id/values` returns it, an ISO 8601 timestamp with its offset, percent-encoded as one path segment: `/shares/:id/values/2026-03-02T16%3A30%3A00Z`. The API matches the instant, so `2026-03-02T17:30:00+01:00` names the same value point.
-- A manual share's name is 1 to 200 characters, and each value is above zero.
+- A manual share's name is 1 to 100 characters, trimmed, and each value is above zero, as in the price service.
 - A market share has no value points: its value lists are empty, and editing its name, ISIN, or values answers `404`.
 - A share's position, holders' quantities, and holders' results are marked for the anonymizer. Share prices, changes, and value points are not.
 
@@ -166,7 +172,7 @@ A response to a request with a `unit` names that unit, and its gains are in it. 
 | `POST /admin/people/:id/replace-link` | Replace the access link. Returns the new link once |
 | `POST /admin/people/:id/reset-key` | Generate a reset key. Returns it once |
 | `DELETE /admin/people/:id` | Delete a person and their data |
-| `GET /admin/shares` | Every stored share in one group: needs attention (held, with no price or a latest close older than the last trading day), tracked, manual, or not held, with the time of its latest price, its holders, and whether any share change refers to it |
+| `GET /admin/shares` | Every stored share in one group: needs attention (held, with no price or a latest close older than the last trading day), tracked, manual, or not held, with its latest price, its time, and its source, its holders, and whether any share change refers to it |
 | `POST /admin/shares/:id/make-manual` | Turn a market share that needs attention into a manual share, through the price service: `{ priceEur, at }` when it has no price yet. Refused with `409` for any other share |
 | `POST /admin/prices/refresh` | Run the price refresh now, through the price service. Refused with `409` while a run is going, and `429` once the day's call cap is reached |
 
