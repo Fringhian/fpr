@@ -44,7 +44,7 @@ export async function createOpenApiDocument(
       title: "FPR API",
       version: "1",
       description:
-        "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer replaces for an anonymous viewer: `personal`, `euro`, or `quantity`.",
+        "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio.",
     },
     servers: [{ url: "/api" }],
     // FPR's error body, `{ error: { code, details } }`, in place of oRPC's:

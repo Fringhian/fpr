@@ -30,8 +30,7 @@ const item: ShareListItem = {
     priceEur: "40.10",
     source: "close",
   },
-  changeEur: "1.10",
-  changePercent: "2.8",
+  change: { eur: "1.10", percent: "2.8" },
   series: [
     { at: "2026-02-27T22:59:59Z", priceEur: "39.00" },
     { at: "2026-03-02T22:59:59Z", priceEur: "40.10" },
@@ -90,8 +89,7 @@ describe("GET /shares", () => {
       shareListItemSchema.safeParse({
         ...item,
         latestPrice: null,
-        changeEur: null,
-        changePercent: null,
+        change: null,
         series: [],
         holders: [],
       }).success,

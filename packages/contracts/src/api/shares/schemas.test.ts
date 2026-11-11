@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
+import { priceChangeSchema } from "../../schemas/performance.js";
 import { latestPriceSchema } from "../../schemas/share.js";
-import {
-  type ShareQuote,
-  sharePositionSchema,
-  shareQuoteSchema,
-} from "./schemas.js";
+import { type ShareQuote, shareQuoteSchema } from "./schemas.js";
 
 const quote: ShareQuote = {
   id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f71",
@@ -18,24 +15,19 @@ const quote: ShareQuote = {
     priceEur: "40.10",
     source: "intraday",
   },
-  changeEur: "-0.90",
-  changePercent: "-2.2",
+  change: { eur: "-0.90", percent: "-2.2" },
 };
 
 describe("shareQuoteSchema", () => {
-  it("accepts a share with its latest price, or none yet", () => {
+  it("accepts a share with its latest price and change, or none yet", () => {
     expect(shareQuoteSchema.parse(quote)).toEqual(quote);
     expect(
-      shareQuoteSchema.safeParse({
-        ...quote,
-        latestPrice: null,
-        changeEur: null,
-        changePercent: null,
-      }).success,
+      shareQuoteSchema.safeParse({ ...quote, latestPrice: null, change: null })
+        .success,
     ).toBe(true);
   });
 
-  it("refuses an unknown price source or a price as a number", () => {
+  it("refuses an unknown price source, a change without its percent, or a number", () => {
     expect(
       shareQuoteSchema.safeParse({
         ...quote,
@@ -43,41 +35,26 @@ describe("shareQuoteSchema", () => {
       }).success,
     ).toBe(false);
     expect(
-      shareQuoteSchema.safeParse({ ...quote, changeEur: -0.9 }).success,
+      shareQuoteSchema.safeParse({ ...quote, change: { eur: "-0.90" } })
+        .success,
     ).toBe(false);
+    expect(
+      shareQuoteSchema.safeParse({
+        ...quote,
+        change: { eur: -0.9, percent: "-2.2" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("uses the shared latest price and price change", () => {
+    expect(shareQuoteSchema.shape.latestPrice.unwrap()).toBe(latestPriceSchema);
+    expect(shareQuoteSchema.shape.change.unwrap()).toBe(priceChangeSchema);
   });
 
   it("keeps share prices and changes unmarked, as market data", () => {
     expect(anonymizeKind(shareQuoteSchema.shape.latestPrice)).toBeUndefined();
     expect(anonymizeKind(latestPriceSchema.shape.priceEur)).toBeUndefined();
-    expect(anonymizeKind(shareQuoteSchema.shape.changeEur)).toBeUndefined();
-  });
-});
-
-describe("sharePositionSchema", () => {
-  it("accepts a position, with no value while the share has no price", () => {
-    const position = {
-      quantity: "74.328",
-      valueEur: "2980.55",
-      gainSinceBoughtEur: "120.40",
-      gainSinceBoughtPercent: "4.2",
-    };
-    expect(sharePositionSchema.parse(position)).toEqual(position);
-    expect(
-      sharePositionSchema.safeParse({
-        ...position,
-        valueEur: null,
-        gainSinceBoughtEur: null,
-        gainSinceBoughtPercent: null,
-      }).success,
-    ).toBe(true);
-  });
-
-  it("marks the quantity and the euro amounts", () => {
-    const { shape } = sharePositionSchema;
-    expect(anonymizeKind(shape.quantity)).toBe("quantity");
-    expect(anonymizeKind(shape.valueEur)).toBe("euro");
-    expect(anonymizeKind(shape.gainSinceBoughtEur)).toBe("euro");
-    expect(anonymizeKind(shape.gainSinceBoughtPercent)).toBeUndefined();
+    expect(anonymizeKind(priceChangeSchema.shape.eur)).toBeUndefined();
+    expect(anonymizeKind(priceChangeSchema.shape.percent)).toBeUndefined();
   });
 });

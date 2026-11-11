@@ -2,25 +2,25 @@ import { z } from "zod";
 import { euro } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { periodSchema, unitSchema } from "../../period.js";
+import { periodSchema } from "../../period.js";
 import { roles } from "../../roles.js";
+import { percentSchema } from "../../schemas/money.js";
 import {
   firstEntryOnSchema,
+  gainSchema,
   incompleteSchema,
   measuredFromSchema,
+  memberSeriesPointSchema,
 } from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { shareSummarySchema } from "../../schemas/share.js";
-import { dateSchema } from "../../schemas/time.js";
-import { byUnit } from "./fields.js";
 
 /**
- * Every member, in the `unit` the response names: gains in euros, marked
- * `euro`, or in percent. The web app orders them, the viewer first, then by the
- * name it shows. A member with no entry yet has no first entry, gain, balance,
- * series, or holdings.
+ * Every member. The web app orders them, the viewer first, then by the name it
+ * shows. A member with no entry yet has no first entry, gain, balance, series,
+ * or holdings.
  */
-export const membersSchema = byUnit((inUnit) => ({
+export const membersSchema = z.object({
   members: z.array(
     z.object({
       member: personSchema,
@@ -28,23 +28,18 @@ export const membersSchema = byUnit((inUnit) => ({
       measuredFrom: measuredFromSchema,
       incomplete: incompleteSchema,
       /** Their gain over the period, as of the last close. */
-      gain: inUnit(decimalSchema.nullable()),
-      /** Their balance at the last close, in euros whatever `unit` asks. */
-      balance: euro(decimalSchema.nullable()),
-      /** Their gain since the period's start at each close of the period. */
-      series: z.array(
-        z.object({
-          on: dateSchema,
-          gain: inUnit(decimalSchema),
-        }),
-      ),
+      gain: gainSchema.nullable(),
+      /** Their balance at the last close. */
+      balanceEur: euro(decimalSchema.nullable()),
+      /** Their balance and gain since the period's start at each close of the period, oldest first. */
+      series: z.array(memberSeriesPointSchema),
       /** Their three largest holdings, largest first, with their weight. */
       topHoldings: z
         .array(
           z.object({
             share: shareSummarySchema,
             /** The holding's value in percent of the member's balance. */
-            weightPercent: decimalSchema,
+            weight: percentSchema,
           }),
         )
         .max(3),
@@ -52,7 +47,7 @@ export const membersSchema = byUnit((inUnit) => ({
       holdingCount: z.int().min(0),
     }),
   ),
-}));
+});
 
 export type Members = z.infer<typeof membersSchema>;
 
@@ -62,6 +57,6 @@ export const getMembers = signedInRoute(roles)
     path: "/members",
     summary: "Every member with their curve, gain, balance and top holdings",
   })
-  .input(z.object({ period: periodSchema, unit: unitSchema }))
+  .input(z.object({ period: periodSchema }))
   .output(membersSchema)
   .errors(errorMap("invalid_request"));

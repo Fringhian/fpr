@@ -22,12 +22,7 @@ export {
   shareUpdateBodySchema,
   updateShare,
 } from "./manual.js";
-export {
-  type SharePosition,
-  type ShareQuote,
-  sharePositionSchema,
-  shareQuoteSchema,
-} from "./schemas.js";
+export { type ShareQuote, shareQuoteSchema } from "./schemas.js";
 export {
   lookUpShares,
   type ShareList,
