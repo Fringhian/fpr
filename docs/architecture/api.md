@@ -22,7 +22,40 @@ flowchart LR
 4. **Handler**: validates the body with its contract, then reads and writes Postgres through `@fpr/db`.
 5. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
 
-Errors are `{ "error": { "code", "details" } }`, and the web app turns the code into text in the person's language, with `400` (invalid body), `401`, `403`, `404`, `409` (conflict, such as a duplicate ISIN), or `422` (a rule refused, such as a holding below zero).
+## Errors
+
+Errors are `{ "error": { "code", "details" } }`, and the web app turns the code into text in the person's language. `details` is an object, present when the code carries more, such as the entry a refused change would break or the stored value a stale edit missed. `@fpr/contracts` holds the codes and the status each one is sent with:
+
+| Status | Code | When |
+| --- | --- | --- |
+| `400` | `invalid_request` | The body, query, or path fails its schema. `details` lists the issues |
+| `401` | `unauthenticated` | No session, or it expired |
+| `401` | `access_ended` | The person's key no longer gives access. See `auth.md` |
+| `403` | `forbidden` | The role can't do this, the data belongs to another member, or the `Origin` isn't `PUBLIC_URL` |
+| `404` | `not_found` | No such route, person, share, entry, or value point |
+| `409` | `admin_exists` | `POST /setup` once an admin exists |
+| `409` | `color_taken` | Another person has the colour, and not all ten are taken |
+| `409` | `email_taken` | Another person has the email |
+| `409` | `isin_taken` | Another share has the ISIN |
+| `409` | `share_in_use` | Deleting a share a share change refers to |
+| `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
+| `409` | `value_changed` | A value point is no longer `expectedPriceEur`. `details` has the stored value |
+| `409` | `refresh_running` | A price refresh while a run is going |
+| `413` | `avatar_too_large` | A picture over 2 MB |
+| `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
+| `422` | `invalid_access_key` | Claiming or signing in with a key that is unknown, expired, replaced, or already claimed. `details` has its state |
+| `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair, without saying which |
+| `422` | `invalid_bootstrap_key` | `POST /setup` with a key other than `ADMIN_BOOTSTRAP_KEY` |
+| `422` | `holding_below_zero` | A change, edit, or deletion that takes a holding below zero. `details` names the entry it would break |
+| `422` | `future_moment` | A share change, cash balance, or value point dated in the future |
+| `422` | `last_admin` | Revoking, ending, replacing, deleting, or changing the role of the last admin |
+| `422` | `has_portfolio_entries` | Making a guest of a person with portfolio entries |
+| `422` | `anonymous_role_fixed` | Making someone anonymous, or an anonymous viewer something else |
+| `422` | `last_value_point` | Deleting a manual share's only value point |
+| `429` | `rate_limited` | Too many requests from one client |
+| `429` | `call_budget_used` | A lookup or refresh once the day's provider calls are used |
+| `500` | `internal_error` | An unexpected failure, logged with its request id |
+| `503` | `provider_unavailable` | A lookup while the price provider doesn't answer |
 
 ## Routes
 
