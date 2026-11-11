@@ -7,8 +7,8 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 - Email and password only. No OAuth and no public sign-up: Better Auth's sign-up endpoint is disabled.
 - Sessions are HTTP-only, `Secure`, `SameSite=Lax` cookies on the instance's origin. A session lasts 30 days and is extended on use.
 - Better Auth's origin check accepts only `PUBLIC_URL`.
-- Passwords are hashed with Better Auth's default hasher and are at least 12 characters long.
-- Sign-in, access-link claims, and password resets are rate-limited per client address.
+- Passwords are hashed with Better Auth's default hasher and are 12 to 128 characters long.
+- Sign-in, setup, access-link checks, claims, and sign-ins, and password resets are rate-limited per client address.
 - A signed-in person can change their password with their current one. It ends their other sessions.
 - Better Auth writes `user`, `account`, `session`, and `verification`. FPR's columns on `user` are declared as Better Auth additional fields. See `database.md`.
 

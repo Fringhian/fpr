@@ -56,7 +56,7 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 | `409` | `refresh_running` | A price refresh while a run is going |
 | `413` | `avatar_too_large` | A picture over 2 MB |
 | `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
-| `422` | `invalid_access_key` | Claiming or signing in with a key that is unknown, expired, replaced, or already claimed. `details` has its state |
+| `422` | `invalid_access_key` | Claiming a key that isn't waiting, or signing in with one that doesn't give access, or with a key of the other kind of person. `details` has its state |
 | `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair, without saying which |
 | `422` | `invalid_bootstrap_key` | `POST /setup` with a key other than `ADMIN_BOOTSTRAP_KEY` |
 | `422` | `holding_below_zero` | A change, edit, or deletion that takes a holding below zero. `details` names the entry it would break |
@@ -81,12 +81,15 @@ The API sits behind `web`, and trusts the client address `web` forwards in `X-Fo
 | Route | Purpose |
 | --- | --- |
 | `/api/auth/*` | Better Auth: sign-in, sign-out, session |
-| `POST /access/check` | The key's state (`waiting`, `claimed`, `expired`, `replaced`, `revoked`, `ended`, or `unknown`), and for a waiting password user their email and display name: `{ key }` |
-| `POST /access/claim` | Set the password on first use: `{ key, password }` |
+| `POST /access/check` | The key's state (`waiting`, `claimed`, `expired`, `replaced`, `revoked`, `ended`, or `unknown`), and for a known key whether its person signs in with a `password` or the `link`. For a waiting password user, also their email, display name, and whether they already have a password: `{ key }` |
+| `POST /access/claim` | Claim a password user's waiting key: `{ key, password }`, without `password` when the person already has one. Answers whether a session started: it starts when the claim sets the password, and a person who already had one signs in with it |
 | `POST /access/sign-in` | An anonymous viewer's sign-in: `{ key }` |
 | `POST /password-reset/check` | Page 1: `{ email, key }` is valid |
 | `POST /password-reset` | Page 2: `{ email, key, password }` |
-| `POST /setup` | Create the first admin with the bootstrap key. Refused with `409` once an admin exists |
+| `GET /setup` | Whether an admin exists, which closes `/setup` |
+| `POST /setup` | Create the first admin with the bootstrap key: `{ bootstrapKey, email, displayName, password }`. Refused with `409` once an admin exists |
+
+Every write here is rate-limited per client address.
 
 ### Me
 
