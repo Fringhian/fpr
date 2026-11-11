@@ -106,14 +106,14 @@ A colour another person has is refused with `409`, unless all ten are taken.
 | Route | Purpose |
 | --- | --- |
 | `GET /users/:userId/portfolio?period=` | Holdings with quantity, latest value, gain over the period, and a small price series for the period; cash; total; each holding's weight; the time of the latest prices |
-| `GET /users/:userId/log?limit=&before=` | Share changes and cash balances, newest first, a page at a time |
-| `POST /users/:userId/changes` | Add or remove shares: `{ shareId, quantityDelta, effectiveAt }` |
-| `PATCH /changes/:id`, `DELETE /changes/:id` | Edit or delete a share change |
-| `POST /users/:userId/cash-balances` | Set cash: `{ amountEur, effectiveAt }` |
-| `PATCH /cash-balances/:id`, `DELETE /cash-balances/:id` | Edit or delete a cash balance |
+| `GET /users/:userId/log?limit=&before=` | Share changes and cash balances, newest first, a page at a time: `limit` entries, 50 by default and 100 at most, after the `before` cursor the previous page returned |
+| `POST /users/:userId/changes` | Add or remove shares: `{ shareId, quantityDelta, effectiveAt }`. `quantityDelta` is above zero for a purchase, below zero for a sale, and never zero |
+| `PATCH /changes/:id`, `DELETE /changes/:id` | Edit a share change's quantity or moment, `{ quantityDelta, effectiveAt }`, or delete it |
+| `POST /users/:userId/cash-balances` | Set cash: `{ amountEur, effectiveAt }`, with `amountEur` zero or more |
+| `PATCH /cash-balances/:id`, `DELETE /cash-balances/:id` | Edit a cash balance's amount or moment, `{ amountEur, effectiveAt }`, or delete it |
 | `GET /users/:userId/balance-history?period=` | The member's balance at each close of the period, then at each refresh today, with the share changes and cash balances in the period for the chart's markers |
 
-Every write to `portfolio_changes` runs in one transaction that takes a per-user advisory lock, then checks that no holding of that member goes below zero at any moment. A refusal names the entry it would break. A change that makes a market share held for the first time, or is dated before its stored history, is saved first, then the API asks the price service for that history without waiting. See `prices.md`.
+Every write to `portfolio_changes` runs in one transaction that takes a per-user advisory lock, then checks that no holding of that member goes below zero at any moment. A refusal, `holding_below_zero`, names the entry it would break in `details`: the stored share change the holding would go below zero at, or `null` for the change sent, and the quantity held just before it. The portfolio routes answer `not_found` for a person with no portfolio: a guest or an anonymous viewer. A change that makes a market share held for the first time, or is dated before its stored history, is saved first, then the API asks the price service for that history without waiting. See `prices.md`.
 
 ### Shares
 
