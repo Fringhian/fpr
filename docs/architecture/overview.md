@@ -72,12 +72,16 @@ fpr/
 ├── tsconfig.base.json
 ├── biome.json
 ├── lefthook.yml
+├── vitest.config.ts
+├── vitest.shared.ts
 └── .nvmrc
 ```
 
 - Every workspace is named `@fpr/<folder>`.
 - The root `package.json` pins pnpm through `packageManager` and Node 24 through `engines`. `.nvmrc` holds `24`.
+- Every dependency is pinned to an exact version. `pnpm-workspace.yaml` sets `saveExact`, so `pnpm add` writes exact versions.
 - Each workspace's `tsconfig.json` extends `tsconfig.base.json`.
+- `vitest.config.ts` makes each workspace a Vitest project, named after its package. Each workspace's `vitest.config.ts` merges `vitest.shared.ts`, which resolves the `@fpr/source` condition. `pnpm test` runs every project, and `pnpm test --project @fpr/<folder>` runs one.
 - Packages build to `dist/`. Their `@fpr/source` export condition points at `src/`, which development tooling resolves, so a package edit reaches its consumers without a rebuild.
 - Each app has its own `apps/<name>/Dockerfile`, built from the repository root with `pnpm deploy`.
 
