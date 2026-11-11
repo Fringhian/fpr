@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --recursive --parallel --if-present run dev",
+    "dev:deps": "docker compose --file compose.yaml --file compose.dev.yaml --profile storage up --detach --wait postgres rustfs rustfs-bucket victorialogs vector",
     "build": "pnpm --recursive --if-present run build",
     "test": "vitest run",
     "lint": "biome check .",
