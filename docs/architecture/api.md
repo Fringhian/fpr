@@ -49,10 +49,10 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 | `409` | `admin_exists` | `POST /setup` once an admin exists |
 | `409` | `color_taken` | Another person has the colour, and not all ten are taken |
 | `409` | `email_taken` | Another person has the email |
-| `409` | `isin_taken` | Another share has the ISIN |
+| `409` | `isin_taken` | Another share has the ISIN. `details` has that share's id |
 | `409` | `share_in_use` | Deleting a share a share change refers to |
 | `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
-| `409` | `value_changed` | A value point is no longer `expectedPriceEur`. `details` has the stored value |
+| `409` | `value_changed` | A value point is no longer `expectedPriceEur`, or one already exists at the moment a new one is added. `details` has the stored value |
 | `409` | `refresh_running` | A price refresh while a run is going |
 | `413` | `avatar_too_large` | A picture over 2 MB |
 | `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
@@ -120,7 +120,7 @@ Every write to `portfolio_changes` runs in one transaction that takes a per-user
 | Route | Purpose |
 | --- | --- |
 | `GET /shares?q=&period=` | Stored shares matching a name, ISIN, or symbol, read from Postgres, each with its latest price, change over the period, a small price series, and its holders. With an empty query, every stored share, held ones first |
-| `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service: `{ query }`. Returns the matching shares, stored |
+| `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service: `{ query }`. Returns the matching shares, stored, and the listings the provider returned without an ISIN. `{ query, isin }`, with a listing's symbol as `query`, stores that listing under the ISIN the member typed |
 | `POST /shares/manual` | Create a manual share, through the price service: `{ isin, name, priceEur, at }` |
 | `GET /shares/:id?period=` | A share's details, latest price with its time, change over the period, and the signed-in member's position: quantity, value, and gain since they bought, each purchase valued at that day's price |
 | `GET /shares/:id/prices?range=` | Chart points for `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`: intraday points for `1D` and `1W`, daily closes otherwise |
@@ -129,10 +129,15 @@ Every write to `portfolio_changes` runs in one transaction that takes a per-user
 | `GET /shares/:id/value-events` | A manual share's value edits, newest first: who changed which value, from what to what |
 | `PATCH /shares/:id` | Edit a manual share's name or ISIN: `{ name, isin }`. An ISIN another share already has is refused |
 | `POST /shares/:id/values` | Add a value point to a manual share: `{ at, priceEur }` |
-| `PATCH /shares/:id/values/:at`, `DELETE …` | Edit a value point's price, or delete it: `{ priceEur, expectedPriceEur }`. Refused with `409` and the stored value when it is no longer `expectedPriceEur`, so a second editor confirms over the first |
+| `PATCH /shares/:id/values/:at`, `DELETE …` | Edit a value point's price, `{ priceEur, expectedPriceEur }`, or delete it, `{ expectedPriceEur }`. Refused with `409` and the stored value when it is no longer `expectedPriceEur`, so a second editor confirms over the first |
 | `DELETE /shares/:id` | Admin only, through the price service. Delete a share no share change refers to, with its prices. Refused with `409` otherwise |
 
 Any member and the admin can edit a manual share and its value points.
+
+- `:at` is the value point's moment as `GET /shares/:id/values` returns it, an ISO 8601 timestamp with its offset, percent-encoded as one path segment: `/shares/:id/values/2026-03-02T16%3A30%3A00Z`. The API matches the instant, so `2026-03-02T17:30:00+01:00` names the same value point.
+- A manual share's name is 1 to 200 characters, and each value is above zero.
+- A market share has no value points: its value lists are empty, and editing its name, ISIN, or values answers `404`.
+- A share's position, holders' quantities, and holders' results are marked for the anonymizer. Share prices, changes, and value points are not.
 
 No share route calls the provider except `POST /shares/lookup`. Everything else reads Postgres.
 
