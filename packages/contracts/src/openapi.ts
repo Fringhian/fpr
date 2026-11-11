@@ -6,6 +6,7 @@ import {
 } from "@orpc/zod/zod4";
 import { anonymizeKind } from "./anonymize.js";
 import type { RouteMeta } from "./contract.js";
+import { errorCodes, errorStatus } from "./errors.js";
 import { apiContract } from "./routes/index.js";
 
 type ConvertInterceptor = NonNullable<
@@ -56,18 +57,31 @@ export async function createOpenApiDocument(
     }),
   });
 
-  // oRPC's generator has no hook for route metadata, so the roles are added
-  // to each operation afterwards.
+  // oRPC's generator has no hook for route metadata, so each operation gets
+  // its roles afterwards, and each error response the codes it carries.
   for (const procedure of Object.values(contract)) {
-    const { route, meta } = procedure["~orpc"];
+    const { route, meta, errorMap } = procedure["~orpc"];
     const { roles } = meta as RouteMeta;
     const method = route.method?.toLowerCase() as "get" | undefined;
     const operation =
       route.path && method ? document.paths?.[route.path]?.[method] : undefined;
-    if (operation) {
-      Object.assign(operation, {
-        "x-roles": roles === "public" ? "public" : [...roles],
-      });
+    if (!operation) {
+      continue;
+    }
+
+    Object.assign(operation, {
+      "x-roles": roles === "public" ? "public" : [...roles],
+    });
+    for (const [status, response] of Object.entries(
+      operation.responses ?? {},
+    )) {
+      const codes = errorCodes
+        .filter((code) => code in errorMap)
+        .filter((code) => String(errorStatus[code]) === status)
+        .map((code) => `\`${code}\``);
+      if (codes.length > 0 && "description" in response) {
+        response.description = codes.join(", ");
+      }
     }
   }
 

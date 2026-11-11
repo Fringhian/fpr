@@ -11,8 +11,10 @@ export {
 export {
   type Access,
   errorMap,
+  missingErrorCodes,
   publicRoute,
   type RouteMeta,
+  requiredErrorCodes,
   signedInRoute,
 } from "./contract.js";
 export { type Decimal, decimalPattern, decimalSchema } from "./decimal.js";

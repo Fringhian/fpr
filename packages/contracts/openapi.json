@@ -90,7 +90,7 @@
             }
           },
           "401": {
-            "description": "401",
+            "description": "`unauthenticated`, `access_ended`",
             "content": {
               "application/json": {
                 "schema": {
@@ -123,7 +123,7 @@
             }
           },
           "500": {
-            "description": "500",
+            "description": "`internal_error`",
             "content": {
               "application/json": {
                 "schema": {

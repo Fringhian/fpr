@@ -25,7 +25,6 @@ export const meSchema = z.object({
 
 export type Me = z.infer<typeof meSchema>;
 
-export const getMe = signedInRoute
-  .meta({ roles })
+export const getMe = signedInRoute(roles)
   .route({ method: "GET", path: "/me", summary: "The signed-in person" })
   .output(meSchema);
