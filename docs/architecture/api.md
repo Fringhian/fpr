@@ -149,6 +149,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 
 | Variable | Purpose |
 | --- | --- |
+| `PORT` | The port it listens on. Default `3000` |
 | `DATABASE_URL` | Postgres |
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
 | `BETTER_AUTH_SECRET` | Session signing |
