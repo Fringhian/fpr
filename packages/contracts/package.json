@@ -1,0 +1,23 @@
+{
+  "name": "@fpr/contracts",
+  "description": "Zod schemas for the REST API",
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "@fpr/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}

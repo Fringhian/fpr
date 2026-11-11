@@ -11,3 +11,4 @@ DESIGN.md
 *.tsbuildinfo
 coverage/
 .vscode/
+.claude/worktrees/
