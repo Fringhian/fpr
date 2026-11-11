@@ -2,7 +2,7 @@
   "info": {
     "title": "FPR API",
     "version": "1",
-    "description": "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer replaces for an anonymous viewer: `personal`, `euro`, or `quantity`."
+    "description": "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio."
   },
   "servers": [
     {
@@ -2789,6 +2789,17 @@
                       "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                       "x-anonymize": "euro"
                     },
+                    "sharesWeight": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "cashEur": {
                       "type": "string",
                       "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
@@ -2860,84 +2871,10 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "share": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              },
-                              "isin": {
-                                "type": "string",
-                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                              },
-                              "name": {
-                                "type": "string",
-                                "minLength": 1
-                              },
-                              "kind": {
-                                "enum": [
-                                  "market",
-                                  "manual"
-                                ],
-                                "type": "string"
-                              },
-                              "symbol": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "isin",
-                              "name",
-                              "kind",
-                              "symbol"
-                            ]
-                          },
                           "quantity": {
                             "type": "string",
                             "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                             "x-anonymize": "quantity"
-                          },
-                          "latestPrice": {
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "at": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "priceEur": {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  "source": {
-                                    "enum": [
-                                      "close",
-                                      "intraday",
-                                      "manual"
-                                    ],
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "at",
-                                  "priceEur",
-                                  "source"
-                                ]
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
                           },
                           "valueEur": {
                             "anyOf": [
@@ -2994,6 +2931,80 @@
                               }
                             ]
                           },
+                          "share": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "isin": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                              },
+                              "name": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "kind": {
+                                "enum": [
+                                  "market",
+                                  "manual"
+                                ],
+                                "type": "string"
+                              },
+                              "symbol": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "isin",
+                              "name",
+                              "kind",
+                              "symbol"
+                            ]
+                          },
+                          "latestPrice": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "priceEur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  "source": {
+                                    "enum": [
+                                      "close",
+                                      "intraday",
+                                      "manual"
+                                    ],
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "at",
+                                  "priceEur",
+                                  "source"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "pricesFrom": {
                             "anyOf": [
                               {
@@ -3027,12 +3038,12 @@
                           }
                         },
                         "required": [
-                          "share",
                           "quantity",
-                          "latestPrice",
                           "valueEur",
                           "weight",
                           "gain",
+                          "share",
+                          "latestPrice",
                           "pricesFrom",
                           "series"
                         ]
@@ -3043,6 +3054,7 @@
                     "latestPricesAt",
                     "balanceEur",
                     "sharesEur",
+                    "sharesWeight",
                     "cashEur",
                     "cashWeight",
                     "gain",
@@ -3050,6 +3062,283 @@
                     "measuredFrom",
                     "incomplete",
                     "holdings"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "invalid_request"
+                        },
+                        "details": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "const": "unauthenticated"
+                            },
+                            "details": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            }
+                          },
+                          "required": [
+                            "code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "const": "access_ended"
+                            },
+                            "details": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {}
+                            }
+                          },
+                          "required": [
+                            "code"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "not_found"
+                        },
+                        "details": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "internal_error"
+                        },
+                        "details": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member",
+          "guest",
+          "anonymous"
+        ]
+      }
+    },
+    "/users/{userId}/holdings/{shareId}": {
+      "get": {
+        "operationId": "portfolio.holdingAt",
+        "summary": "The quantity of a share a member held at a moment",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "shareId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "share": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isin": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "market",
+                            "manual"
+                          ],
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "isin",
+                        "name",
+                        "kind",
+                        "symbol"
+                      ]
+                    },
+                    "at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "quantity": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    }
+                  },
+                  "required": [
+                    "share",
+                    "at",
+                    "quantity"
                   ]
                 }
               }
@@ -3593,6 +3882,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "shareId": {
                     "type": "string",
                     "format": "uuid"
@@ -4869,6 +5162,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "amountEur": {
                     "type": "string",
                     "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
@@ -5744,6 +6041,31 @@
                             "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                             "x-anonymize": "euro"
                           },
+                          "gain": {
+                            "type": "object",
+                            "properties": {
+                              "eur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "euro"
+                              },
+                              "percent": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "eur",
+                              "percent"
+                            ]
+                          },
                           "provisional": {
                             "type": "boolean"
                           },
@@ -5754,11 +6076,11 @@
                         "required": [
                           "at",
                           "balanceEur",
+                          "gain",
                           "provisional",
                           "incomplete"
                         ]
-                      },
-                      "x-anonymize": "euro"
+                      }
                     },
                     "entries": {
                       "type": "array",
@@ -6157,22 +6479,24 @@
                               }
                             ]
                           },
-                          "changeEur": {
+                          "change": {
                             "anyOf": [
                               {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "changePercent": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                "type": "object",
+                                "properties": {
+                                  "eur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  "percent": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  }
+                                },
+                                "required": [
+                                  "eur",
+                                  "percent"
+                                ]
                               },
                               {
                                 "type": "null"
@@ -6247,8 +6571,7 @@
                           "kind",
                           "symbol",
                           "latestPrice",
-                          "changeEur",
-                          "changePercent",
+                          "change",
                           "series",
                           "holders"
                         ]
@@ -7268,22 +7591,24 @@
                         }
                       ]
                     },
-                    "changeEur": {
+                    "change": {
                       "anyOf": [
                         {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "changePercent": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                          "type": "object",
+                          "properties": {
+                            "eur": {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            "percent": {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            }
+                          },
+                          "required": [
+                            "eur",
+                            "percent"
+                          ]
                         },
                         {
                           "type": "null"
@@ -7344,7 +7669,7 @@
                               ],
                               "x-anonymize": "euro"
                             },
-                            "gainSinceBoughtEur": {
+                            "weight": {
                               "anyOf": [
                                 {
                                   "type": "string",
@@ -7353,14 +7678,34 @@
                                 {
                                   "type": "null"
                                 }
-                              ],
-                              "x-anonymize": "euro"
+                              ]
                             },
-                            "gainSinceBoughtPercent": {
+                            "gain": {
                               "anyOf": [
                                 {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  "type": "object",
+                                  "properties": {
+                                    "eur": {
+                                      "type": "string",
+                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                      "x-anonymize": "euro"
+                                    },
+                                    "percent": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "eur",
+                                    "percent"
+                                  ]
                                 },
                                 {
                                   "type": "null"
@@ -7371,8 +7716,8 @@
                           "required": [
                             "quantity",
                             "valueEur",
-                            "gainSinceBoughtEur",
-                            "gainSinceBoughtPercent"
+                            "weight",
+                            "gain"
                           ]
                         },
                         {
@@ -7388,8 +7733,7 @@
                     "kind",
                     "symbol",
                     "latestPrice",
-                    "changeEur",
-                    "changePercent",
+                    "change",
                     "exchange",
                     "tradingCurrency",
                     "historyStartsOn",
@@ -8442,7 +8786,7 @@
                             ],
                             "x-anonymize": "euro"
                           },
-                          "gainSinceBoughtEur": {
+                          "weight": {
                             "anyOf": [
                               {
                                 "type": "string",
@@ -8451,14 +8795,34 @@
                               {
                                 "type": "null"
                               }
-                            ],
-                            "x-anonymize": "euro"
+                            ]
                           },
-                          "gainSinceBoughtPercent": {
+                          "gain": {
                             "anyOf": [
                               {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                "type": "object",
+                                "properties": {
+                                  "eur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                    "x-anonymize": "euro"
+                                  },
+                                  "percent": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "eur",
+                                  "percent"
+                                ]
                               },
                               {
                                 "type": "null"
@@ -8532,8 +8896,8 @@
                         "required": [
                           "quantity",
                           "valueEur",
-                          "gainSinceBoughtEur",
-                          "gainSinceBoughtPercent",
+                          "weight",
+                          "gain",
                           "person",
                           "changes"
                         ]
@@ -10550,13 +10914,14 @@
           {
             "name": "unit",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "enum": [
                 "eur",
                 "percent"
               ],
-              "type": "string"
+              "type": "string",
+              "default": "eur"
             },
             "allowEmptyValue": true,
             "allowReserved": true
@@ -10621,7 +10986,7 @@
                                   "color"
                                 ]
                               },
-                              "balance": {
+                              "balanceEur": {
                                 "type": "string",
                                 "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                                 "x-anonymize": "euro"
@@ -10675,14 +11040,35 @@
                                           "symbol"
                                         ]
                                       },
-                                      "gainPercent": {
-                                        "type": "string",
-                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                      "gain": {
+                                        "type": "object",
+                                        "properties": {
+                                          "eur": {
+                                            "type": "string",
+                                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                            "x-anonymize": "euro"
+                                          },
+                                          "percent": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "eur",
+                                          "percent"
+                                        ]
                                       }
                                     },
                                     "required": [
                                       "share",
-                                      "gainPercent"
+                                      "gain"
                                     ]
                                   },
                                   {
@@ -10693,7 +11079,7 @@
                             },
                             "required": [
                               "member",
-                              "balance",
+                              "balanceEur",
                               "incomplete",
                               "bestHolding"
                             ]
@@ -10748,394 +11134,242 @@
                       ]
                     },
                     {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "unit": {
-                              "const": "eur"
-                            },
-                            "board": {
-                              "const": "gain"
-                            },
-                            "lastCloseOn": {
-                              "type": "string",
-                              "format": "date"
-                            },
-                            "rows": {
-                              "type": "array",
-                              "items": {
+                      "type": "object",
+                      "properties": {
+                        "board": {
+                          "const": "gain"
+                        },
+                        "unit": {
+                          "enum": [
+                            "eur",
+                            "percent"
+                          ],
+                          "type": "string"
+                        },
+                        "lastCloseOn": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "member": {
                                 "type": "object",
                                 "properties": {
-                                  "member": {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      "displayName": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 40,
-                                        "x-anonymize": "personal"
-                                      },
-                                      "avatarUrl": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
-                                          },
-                                          {
-                                            "type": "null"
-                                          }
-                                        ],
-                                        "x-anonymize": "personal"
-                                      },
-                                      "color": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 10
-                                      }
-                                    },
-                                    "required": [
-                                      "id",
-                                      "displayName",
-                                      "avatarUrl",
-                                      "color"
-                                    ]
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
                                   },
-                                  "gain": {
+                                  "displayName": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 40,
+                                    "x-anonymize": "personal"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "x-anonymize": "personal"
+                                  },
+                                  "color": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 10
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "displayName",
+                                  "avatarUrl",
+                                  "color"
+                                ]
+                              },
+                              "gain": {
+                                "type": "object",
+                                "properties": {
+                                  "eur": {
                                     "type": "string",
                                     "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                                     "x-anonymize": "euro"
                                   },
-                                  "measuredFrom": {
+                                  "percent": {
                                     "anyOf": [
                                       {
                                         "type": "string",
-                                        "format": "date"
+                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                       },
                                       {
                                         "type": "null"
                                       }
                                     ]
+                                  }
+                                },
+                                "required": [
+                                  "eur",
+                                  "percent"
+                                ]
+                              },
+                              "measuredFrom": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "date"
                                   },
-                                  "incomplete": {
-                                    "type": "boolean"
-                                  },
-                                  "bestHolding": {
-                                    "anyOf": [
-                                      {
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "incomplete": {
+                                "type": "boolean"
+                              },
+                              "bestHolding": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "share": {
                                         "type": "object",
                                         "properties": {
-                                          "share": {
-                                            "type": "object",
-                                            "properties": {
-                                              "id": {
-                                                "type": "string",
-                                                "format": "uuid"
-                                              },
-                                              "isin": {
-                                                "type": "string",
-                                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                                              },
-                                              "name": {
-                                                "type": "string",
-                                                "minLength": 1
-                                              },
-                                              "kind": {
-                                                "enum": [
-                                                  "market",
-                                                  "manual"
-                                                ],
+                                          "id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                          },
+                                          "isin": {
+                                            "type": "string",
+                                            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                                          },
+                                          "name": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          },
+                                          "kind": {
+                                            "enum": [
+                                              "market",
+                                              "manual"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "symbol": {
+                                            "anyOf": [
+                                              {
                                                 "type": "string"
                                               },
-                                              "symbol": {
-                                                "anyOf": [
-                                                  {
-                                                    "type": "string"
-                                                  },
-                                                  {
-                                                    "type": "null"
-                                                  }
-                                                ]
+                                              {
+                                                "type": "null"
                                               }
-                                            },
-                                            "required": [
-                                              "id",
-                                              "isin",
-                                              "name",
-                                              "kind",
-                                              "symbol"
                                             ]
-                                          },
-                                          "gainPercent": {
-                                            "type": "string",
-                                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                           }
                                         },
                                         "required": [
-                                          "share",
-                                          "gainPercent"
+                                          "id",
+                                          "isin",
+                                          "name",
+                                          "kind",
+                                          "symbol"
                                         ]
                                       },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "member",
-                                  "gain",
-                                  "measuredFrom",
-                                  "incomplete",
-                                  "bestHolding"
-                                ]
-                              }
-                            },
-                            "notStarted": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
-                                ]
-                              }
-                            }
-                          },
-                          "required": [
-                            "unit",
-                            "board",
-                            "lastCloseOn",
-                            "rows",
-                            "notStarted"
-                          ]
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "unit": {
-                              "const": "percent"
-                            },
-                            "board": {
-                              "const": "gain"
-                            },
-                            "lastCloseOn": {
-                              "type": "string",
-                              "format": "date"
-                            },
-                            "rows": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "member": {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      "displayName": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 40,
-                                        "x-anonymize": "personal"
-                                      },
-                                      "avatarUrl": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
+                                      "gain": {
+                                        "type": "object",
+                                        "properties": {
+                                          "eur": {
+                                            "type": "string",
+                                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                            "x-anonymize": "euro"
                                           },
-                                          {
-                                            "type": "null"
+                                          "percent": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string",
+                                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
                                           }
-                                        ],
-                                        "x-anonymize": "personal"
-                                      },
-                                      "color": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 10
+                                        },
+                                        "required": [
+                                          "eur",
+                                          "percent"
+                                        ]
                                       }
                                     },
                                     "required": [
-                                      "id",
-                                      "displayName",
-                                      "avatarUrl",
-                                      "color"
+                                      "share",
+                                      "gain"
                                     ]
                                   },
-                                  "gain": {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  "measuredFrom": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "date"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
-                                  },
-                                  "incomplete": {
-                                    "type": "boolean"
-                                  },
-                                  "bestHolding": {
-                                    "anyOf": [
-                                      {
-                                        "type": "object",
-                                        "properties": {
-                                          "share": {
-                                            "type": "object",
-                                            "properties": {
-                                              "id": {
-                                                "type": "string",
-                                                "format": "uuid"
-                                              },
-                                              "isin": {
-                                                "type": "string",
-                                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                                              },
-                                              "name": {
-                                                "type": "string",
-                                                "minLength": 1
-                                              },
-                                              "kind": {
-                                                "enum": [
-                                                  "market",
-                                                  "manual"
-                                                ],
-                                                "type": "string"
-                                              },
-                                              "symbol": {
-                                                "anyOf": [
-                                                  {
-                                                    "type": "string"
-                                                  },
-                                                  {
-                                                    "type": "null"
-                                                  }
-                                                ]
-                                              }
-                                            },
-                                            "required": [
-                                              "id",
-                                              "isin",
-                                              "name",
-                                              "kind",
-                                              "symbol"
-                                            ]
-                                          },
-                                          "gainPercent": {
-                                            "type": "string",
-                                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                          }
-                                        },
-                                        "required": [
-                                          "share",
-                                          "gainPercent"
-                                        ]
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ]
+                                  {
+                                    "type": "null"
                                   }
-                                },
-                                "required": [
-                                  "member",
-                                  "gain",
-                                  "measuredFrom",
-                                  "incomplete",
-                                  "bestHolding"
                                 ]
                               }
                             },
-                            "notStarted": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid"
+                            "required": [
+                              "member",
+                              "gain",
+                              "measuredFrom",
+                              "incomplete",
+                              "bestHolding"
+                            ]
+                          }
+                        },
+                        "notStarted": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 40,
+                                "x-anonymize": "personal"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
                                   },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
+                                  {
+                                    "type": "null"
                                   }
-                                },
-                                "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
-                                ]
+                                ],
+                                "x-anonymize": "personal"
+                              },
+                              "color": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 10
                               }
-                            }
-                          },
-                          "required": [
-                            "unit",
-                            "board",
-                            "lastCloseOn",
-                            "rows",
-                            "notStarted"
-                          ]
+                            },
+                            "required": [
+                              "id",
+                              "displayName",
+                              "avatarUrl",
+                              "color"
+                            ]
+                          }
                         }
+                      },
+                      "required": [
+                        "board",
+                        "unit",
+                        "lastCloseOn",
+                        "rows",
+                        "notStarted"
                       ]
                     }
                   ]
@@ -11366,14 +11600,27 @@
                               "symbol"
                             ]
                           },
-                          "changePercent": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                          "change": {
+                            "type": "object",
+                            "properties": {
+                              "eur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              "percent": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              }
+                            },
+                            "required": [
+                              "eur",
+                              "percent"
+                            ]
                           }
                         },
                         "required": [
                           "share",
-                          "changePercent"
+                          "change"
                         ]
                       }
                     }
@@ -11549,20 +11796,6 @@
             },
             "allowEmptyValue": true,
             "allowReserved": true
-          },
-          {
-            "name": "unit",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "enum": [
-                "eur",
-                "percent"
-              ],
-              "type": "string"
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
           }
         ],
         "responses": {
@@ -11571,407 +11804,254 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "unit": {
-                          "const": "eur"
-                        },
-                        "members": {
-                          "type": "array",
-                          "items": {
+                  "type": "object",
+                  "properties": {
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "member": {
                             "type": "object",
                             "properties": {
-                              "member": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 40,
+                                "x-anonymize": "personal"
+                              },
+                              "avatarUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "x-anonymize": "personal"
+                              },
+                              "color": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 10
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "displayName",
+                              "avatarUrl",
+                              "color"
+                            ]
+                          },
+                          "firstEntryOn": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "measuredFrom": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "incomplete": {
+                            "type": "boolean"
+                          },
+                          "gain": {
+                            "anyOf": [
+                              {
                                 "type": "object",
                                 "properties": {
-                                  "id": {
+                                  "eur": {
                                     "type": "string",
-                                    "format": "uuid"
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                    "x-anonymize": "euro"
                                   },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
+                                  "percent": {
                                     "anyOf": [
                                       {
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                       },
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
+                                    ]
                                   }
                                 },
                                 "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
+                                  "eur",
+                                  "percent"
                                 ]
                               },
-                              "firstEntryOn": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "balanceEur": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                               },
-                              "measuredFrom": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "incomplete": {
-                                "type": "boolean"
-                              },
-                              "gain": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "x-anonymize": "euro"
-                              },
-                              "balance": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "x-anonymize": "euro"
-                              },
-                              "series": {
-                                "type": "array",
-                                "items": {
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "x-anonymize": "euro"
+                          },
+                          "series": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "balanceEur": {
+                                  "type": "string",
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                  "x-anonymize": "euro"
+                                },
+                                "gain": {
                                   "type": "object",
                                   "properties": {
-                                    "on": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "gain": {
+                                    "eur": {
                                       "type": "string",
                                       "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
                                       "x-anonymize": "euro"
-                                    }
-                                  },
-                                  "required": [
-                                    "on",
-                                    "gain"
-                                  ]
-                                }
-                              },
-                              "topHoldings": {
-                                "type": "array",
-                                "maxItems": 3,
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "share": {
-                                      "type": "object",
-                                      "properties": {
-                                        "id": {
-                                          "type": "string",
-                                          "format": "uuid"
-                                        },
-                                        "isin": {
-                                          "type": "string",
-                                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                                        },
-                                        "name": {
-                                          "type": "string",
-                                          "minLength": 1
-                                        },
-                                        "kind": {
-                                          "enum": [
-                                            "market",
-                                            "manual"
-                                          ],
-                                          "type": "string"
-                                        },
-                                        "symbol": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "id",
-                                        "isin",
-                                        "name",
-                                        "kind",
-                                        "symbol"
-                                      ]
                                     },
-                                    "weightPercent": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                    "percent": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
                                     }
                                   },
                                   "required": [
-                                    "share",
-                                    "weightPercent"
+                                    "eur",
+                                    "percent"
                                   ]
-                                }
-                              },
-                              "holdingCount": {
-                                "type": "integer",
-                                "minimum": 0,
-                                "maximum": 9007199254740991
-                              }
-                            },
-                            "required": [
-                              "member",
-                              "firstEntryOn",
-                              "measuredFrom",
-                              "incomplete",
-                              "gain",
-                              "balance",
-                              "series",
-                              "topHoldings",
-                              "holdingCount"
-                            ]
-                          }
-                        }
-                      },
-                      "required": [
-                        "unit",
-                        "members"
-                      ]
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "unit": {
-                          "const": "percent"
-                        },
-                        "members": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "member": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
-                                  }
                                 },
-                                "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
-                                ]
-                              },
-                              "firstEntryOn": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "measuredFrom": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "incomplete": {
-                                "type": "boolean"
-                              },
-                              "gain": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "balance": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "x-anonymize": "euro"
-                              },
-                              "series": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "on": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "gain": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                    }
-                                  },
-                                  "required": [
-                                    "on",
-                                    "gain"
-                                  ]
+                                "provisional": {
+                                  "type": "boolean"
+                                },
+                                "incomplete": {
+                                  "type": "boolean"
                                 }
                               },
-                              "topHoldings": {
-                                "type": "array",
-                                "maxItems": 3,
-                                "items": {
+                              "required": [
+                                "at",
+                                "balanceEur",
+                                "gain",
+                                "provisional",
+                                "incomplete"
+                              ]
+                            }
+                          },
+                          "topHoldings": {
+                            "type": "array",
+                            "maxItems": 3,
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "share": {
                                   "type": "object",
                                   "properties": {
-                                    "share": {
-                                      "type": "object",
-                                      "properties": {
-                                        "id": {
-                                          "type": "string",
-                                          "format": "uuid"
-                                        },
-                                        "isin": {
-                                          "type": "string",
-                                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                                        },
-                                        "name": {
-                                          "type": "string",
-                                          "minLength": 1
-                                        },
-                                        "kind": {
-                                          "enum": [
-                                            "market",
-                                            "manual"
-                                          ],
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid"
+                                    },
+                                    "isin": {
+                                      "type": "string",
+                                      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "market",
+                                        "manual"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "symbol": {
+                                      "anyOf": [
+                                        {
                                           "type": "string"
                                         },
-                                        "symbol": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
+                                        {
+                                          "type": "null"
                                         }
-                                      },
-                                      "required": [
-                                        "id",
-                                        "isin",
-                                        "name",
-                                        "kind",
-                                        "symbol"
                                       ]
-                                    },
-                                    "weightPercent": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                     }
                                   },
                                   "required": [
-                                    "share",
-                                    "weightPercent"
+                                    "id",
+                                    "isin",
+                                    "name",
+                                    "kind",
+                                    "symbol"
                                   ]
+                                },
+                                "weight": {
+                                  "type": "string",
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                 }
                               },
-                              "holdingCount": {
-                                "type": "integer",
-                                "minimum": 0,
-                                "maximum": 9007199254740991
-                              }
-                            },
-                            "required": [
-                              "member",
-                              "firstEntryOn",
-                              "measuredFrom",
-                              "incomplete",
-                              "gain",
-                              "balance",
-                              "series",
-                              "topHoldings",
-                              "holdingCount"
-                            ]
+                              "required": [
+                                "share",
+                                "weight"
+                              ]
+                            }
+                          },
+                          "holdingCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
                           }
-                        }
-                      },
-                      "required": [
-                        "unit",
-                        "members"
-                      ]
+                        },
+                        "required": [
+                          "member",
+                          "firstEntryOn",
+                          "measuredFrom",
+                          "incomplete",
+                          "gain",
+                          "balanceEur",
+                          "series",
+                          "topHoldings",
+                          "holdingCount"
+                        ]
+                      }
                     }
+                  },
+                  "required": [
+                    "members"
                   ]
                 }
               }
@@ -12140,20 +12220,6 @@
             },
             "allowEmptyValue": true,
             "allowReserved": true
-          },
-          {
-            "name": "unit",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "enum": [
-                "eur",
-                "percent"
-              ],
-              "type": "string"
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
           }
         ],
         "responses": {
@@ -12162,322 +12228,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "unit": {
-                          "const": "eur"
-                        },
-                        "lastCloseOn": {
+                  "type": "object",
+                  "properties": {
+                    "lastCloseOn": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "latestPricesAt": {
+                      "anyOf": [
+                        {
                           "type": "string",
-                          "format": "date"
+                          "format": "date-time"
                         },
-                        "latestPricesAt": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "refreshesRunning": {
-                          "type": "boolean"
-                        },
-                        "members": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "member": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
-                                ]
-                              },
-                              "measuredFrom": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "incomplete": {
-                                "type": "boolean"
-                              },
-                              "closes": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "on": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "gain": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                      "x-anonymize": "euro"
-                                    }
-                                  },
-                                  "required": [
-                                    "on",
-                                    "gain"
-                                  ]
-                                }
-                              },
-                              "provisional": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "at": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
-                                    "gain": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                      "x-anonymize": "euro"
-                                    }
-                                  },
-                                  "required": [
-                                    "at",
-                                    "gain"
-                                  ]
-                                }
-                              }
-                            },
-                            "required": [
-                              "member",
-                              "measuredFrom",
-                              "incomplete",
-                              "closes",
-                              "provisional"
-                            ]
-                          }
-                        },
-                        "notStarted": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              },
-                              "displayName": {
-                                "type": "string",
-                                "minLength": 1,
-                                "maxLength": 40,
-                                "x-anonymize": "personal"
-                              },
-                              "avatarUrl": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "x-anonymize": "personal"
-                              },
-                              "color": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 10
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "displayName",
-                              "avatarUrl",
-                              "color"
-                            ]
-                          }
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "unit",
-                        "lastCloseOn",
-                        "latestPricesAt",
-                        "refreshesRunning",
-                        "members",
-                        "notStarted"
                       ]
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "unit": {
-                          "const": "percent"
-                        },
-                        "lastCloseOn": {
-                          "type": "string",
-                          "format": "date"
-                        },
-                        "latestPricesAt": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "refreshesRunning": {
-                          "type": "boolean"
-                        },
-                        "members": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "member": {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  },
-                                  "displayName": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
-                                  },
-                                  "avatarUrl": {
-                                    "anyOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
-                                ]
-                              },
-                              "measuredFrom": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "incomplete": {
-                                "type": "boolean"
-                              },
-                              "closes": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "on": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "gain": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                    }
-                                  },
-                                  "required": [
-                                    "on",
-                                    "gain"
-                                  ]
-                                }
-                              },
-                              "provisional": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "at": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
-                                    "gain": {
-                                      "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                    }
-                                  },
-                                  "required": [
-                                    "at",
-                                    "gain"
-                                  ]
-                                }
-                              }
-                            },
-                            "required": [
-                              "member",
-                              "measuredFrom",
-                              "incomplete",
-                              "closes",
-                              "provisional"
-                            ]
-                          }
-                        },
-                        "notStarted": {
-                          "type": "array",
-                          "items": {
+                    "refreshesRunning": {
+                      "type": "boolean"
+                    },
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "member": {
                             "type": "object",
                             "properties": {
                               "id": {
@@ -12513,18 +12289,132 @@
                               "avatarUrl",
                               "color"
                             ]
+                          },
+                          "measuredFrom": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "incomplete": {
+                            "type": "boolean"
+                          },
+                          "points": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "balanceEur": {
+                                  "type": "string",
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                  "x-anonymize": "euro"
+                                },
+                                "gain": {
+                                  "type": "object",
+                                  "properties": {
+                                    "eur": {
+                                      "type": "string",
+                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                      "x-anonymize": "euro"
+                                    },
+                                    "percent": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "eur",
+                                    "percent"
+                                  ]
+                                },
+                                "provisional": {
+                                  "type": "boolean"
+                                },
+                                "incomplete": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "at",
+                                "balanceEur",
+                                "gain",
+                                "provisional",
+                                "incomplete"
+                              ]
+                            }
                           }
-                        }
-                      },
-                      "required": [
-                        "unit",
-                        "lastCloseOn",
-                        "latestPricesAt",
-                        "refreshesRunning",
-                        "members",
-                        "notStarted"
-                      ]
+                        },
+                        "required": [
+                          "member",
+                          "measuredFrom",
+                          "incomplete",
+                          "points"
+                        ]
+                      }
+                    },
+                    "notStarted": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40,
+                            "x-anonymize": "personal"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "x-anonymize": "personal"
+                          },
+                          "color": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "displayName",
+                          "avatarUrl",
+                          "color"
+                        ]
+                      }
                     }
+                  },
+                  "required": [
+                    "lastCloseOn",
+                    "latestPricesAt",
+                    "refreshesRunning",
+                    "members",
+                    "notStarted"
                   ]
                 }
               }
