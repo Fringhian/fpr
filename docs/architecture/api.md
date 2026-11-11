@@ -151,7 +151,7 @@ A response to a request with a `unit` names that unit, and its gains are in it. 
 
 | Route | Purpose |
 | --- | --- |
-| `GET /admin/people` | Every person, their role, and their access status |
+| `GET /admin/people` | Every person, their role, and their access status: `waiting`, `active`, `expired`, `revoked`, or `ended` |
 | `POST /admin/people` | Add a person. Returns the access link once |
 | `PATCH /admin/people/:id` | Change a person's display name, email, role, or access end date |
 | `POST /admin/people/:id/revoke`, `/restore` | Revoke or restore access |

@@ -183,7 +183,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 | ID | As the admin, I want to… | So that… | Version |
 | --- | --- | --- | --- |
 | ADM-1 | add a person with a display name, an email (not for anonymous), a role, and an optional access end date, then copy their access link, shown once | I invite someone without them filling a sign-up form | v1 |
-| ADM-2 | see every person, grouped by role, and the status of their access: waiting for first use, active, ended, or revoked | I know who can get in | v1 |
+| ADM-2 | see every person, grouped by role, and the status of their access: waiting for first use, active, expired, ended, or revoked | I know who can get in | v1 |
 | ADM-3 | revoke a person's access, and restore it | I cut someone off immediately, and undo it | v1 |
 | ADM-4 | replace a lost or expired link with a new one | a lost link costs nothing | v1 |
 | ADM-5 | change a person's display name, email, role, or access end date | I fix a typo, promote a guest to member, or extend a reviewer who needs more time | v1 |
