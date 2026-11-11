@@ -20,6 +20,7 @@ export {
   type ContractTree,
   contractProcedures,
   errorMap,
+  errorWithDetails,
   missingErrorCodes,
   publicRoute,
   type RouteMeta,
@@ -46,5 +47,13 @@ export {
   units,
 } from "./period.js";
 export * from "./prices/index.js";
-export { type Role, roleSchema, roles } from "./roles.js";
+export {
+  adminAreaRoles,
+  adminRoles,
+  profileRoles,
+  Role,
+  roleSchema,
+  roles,
+  writerRoles,
+} from "./roles.js";
 export * from "./schemas/index.js";

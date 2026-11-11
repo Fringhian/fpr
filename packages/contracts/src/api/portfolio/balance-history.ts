@@ -5,6 +5,7 @@ import { decimalSchema } from "../../decimal.js";
 import { periodSchema } from "../../period.js";
 import { roles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { incompleteSchema } from "../../schemas/performance.js";
 import { timestampSchema } from "../../schemas/time.js";
 import { portfolioLogEntrySchema } from "./log.js";
 
@@ -14,8 +15,7 @@ export const portfolioBalancePointSchema = z.object({
   balanceEur: euro(decimalSchema),
   /** `true` for a refresh after the last close: today's points, not final. */
   provisional: z.boolean(),
-  /** `true` when a holding had no price yet: the balance leaves it out. */
-  incomplete: z.boolean(),
+  incomplete: incompleteSchema,
 });
 
 export type PortfolioBalancePoint = z.infer<typeof portfolioBalancePointSchema>;

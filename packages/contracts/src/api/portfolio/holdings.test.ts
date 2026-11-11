@@ -20,7 +20,11 @@ const priced: PortfolioHolding = {
     symbol: "EXF.PA",
   },
   quantity: "74.328",
-  latestPrice: { at: "2026-03-02T17:30:00+01:00", priceEur: "12.40" },
+  latestPrice: {
+    at: "2026-03-02T17:30:00+01:00",
+    priceEur: "12.40",
+    source: "intraday",
+  },
   valueEur: "921.67",
   weight: "92.1",
   gain: { eur: "-18.30", percent: "-1.95" },
@@ -49,14 +53,14 @@ const pending: PortfolioHolding = {
 };
 
 const portfolio: Portfolio = {
-  pricesAt: "2026-03-02T17:30:00+01:00",
+  latestPricesAt: "2026-03-02T17:30:00+01:00",
   balanceEur: "1001.67",
   sharesEur: "921.67",
   cashEur: "80.00",
   cashWeight: "7.9",
   gain: { eur: "-18.30", percent: "-1.79" },
-  firstEntryAt: "2026-02-20T12:00:00+01:00",
-  measuredFromFirstEntry: true,
+  firstEntryOn: "2026-02-20",
+  measuredFrom: "2026-02-20",
   incomplete: true,
   holdings: [priced, pending],
 };
@@ -96,14 +100,14 @@ describe("GET /users/{userId}/portfolio", () => {
 
   it("accepts an empty portfolio", () => {
     const empty: Portfolio = {
-      pricesAt: null,
+      latestPricesAt: null,
       balanceEur: "0",
       sharesEur: "0",
       cashEur: "0",
       cashWeight: null,
       gain: { eur: "0", percent: null },
-      firstEntryAt: null,
-      measuredFromFirstEntry: false,
+      firstEntryOn: null,
+      measuredFrom: null,
       incomplete: false,
       holdings: [],
     };
@@ -118,8 +122,16 @@ describe("GET /users/{userId}/portfolio", () => {
       portfolioHoldingSchema.safeParse({ ...priced, quantity: "1e3" }).success,
     ).toBe(false);
     expect(
-      portfolioSchema.safeParse({ ...portfolio, pricesAt: "2026-03-02T17:30" })
-        .success,
+      portfolioSchema.safeParse({
+        ...portfolio,
+        latestPricesAt: "2026-03-02T17:30",
+      }).success,
+    ).toBe(false);
+    expect(
+      portfolioSchema.safeParse({
+        ...portfolio,
+        measuredFrom: "2026-02-20T12:00:00+01:00",
+      }).success,
     ).toBe(false);
     const { incomplete: _, ...withoutMarker } = portfolio;
     expect(portfolioSchema.safeParse(withoutMarker).success).toBe(false);

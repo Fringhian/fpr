@@ -5,7 +5,16 @@ import { decimalSchema } from "../../decimal.js";
 import { periodSchema } from "../../period.js";
 import { roles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
-import { pricePointSchema, shareSummarySchema } from "../../schemas/share.js";
+import {
+  firstEntryOnSchema,
+  incompleteSchema,
+  measuredFromSchema,
+} from "../../schemas/performance.js";
+import {
+  latestPriceSchema,
+  pricePointSchema,
+  shareSummarySchema,
+} from "../../schemas/share.js";
 import { dateSchema, timestampSchema } from "../../schemas/time.js";
 
 /** A weight in percent of the portfolio's balance, such as `42.5`. */
@@ -28,8 +37,8 @@ export type PortfolioGain = z.infer<typeof portfolioGainSchema>;
 export const portfolioHoldingSchema = z.object({
   share: shareSummarySchema,
   quantity: quantity(decimalSchema),
-  /** The latest price with its moment, the "as of" of a manual share, or `null` while pending. */
-  latestPrice: pricePointSchema.nullable(),
+  /** The latest price with its time and source, or `null` while pending. */
+  latestPrice: latestPriceSchema.nullable(),
   valueEur: euro(decimalSchema.nullable()),
   weight: weightSchema.nullable(),
   /**
@@ -47,8 +56,8 @@ export type PortfolioHolding = z.infer<typeof portfolioHoldingSchema>;
 
 /** A member's portfolio: their holdings, cash, and balance now. */
 export const portfolioSchema = z.object({
-  /** The moment of the latest prices the balance uses, or `null` with no priced holding. */
-  pricesAt: timestampSchema.nullable(),
+  /** The time of the latest prices the balance uses, or `null` with no priced holding. */
+  latestPricesAt: timestampSchema.nullable(),
   /** Holdings plus cash. */
   balanceEur: euro(decimalSchema),
   /** The holdings' value. */
@@ -57,12 +66,9 @@ export const portfolioSchema = z.object({
   cashWeight: weightSchema.nullable(),
   /** The balance's gain over the period. */
   gain: portfolioGainSchema,
-  /** The member's first share change or cash balance, or `null` with no entries yet. */
-  firstEntryAt: timestampSchema.nullable(),
-  /** `true` when the first entry is after the period's start: the gain is measured from it. */
-  measuredFromFirstEntry: z.boolean(),
-  /** `true` while a holding is pending: the balance leaves it out. */
-  incomplete: z.boolean(),
+  firstEntryOn: firstEntryOnSchema,
+  measuredFrom: measuredFromSchema,
+  incomplete: incompleteSchema,
   /** The holdings above zero. */
   holdings: z.array(portfolioHoldingSchema),
 });

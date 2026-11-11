@@ -2,9 +2,9 @@ import { z } from "zod";
 import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
+import { writerRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
 import { timestampSchema } from "../../schemas/time.js";
-import { portfolioWriterRoles } from "./changes.js";
 
 /** Cash in euros: zero or more. */
 export const portfolioCashAmountSchema = decimalSchema.refine(
@@ -22,7 +22,7 @@ export const portfolioCashBalanceSchema = z.object({
 
 export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;
 
-export const setPortfolioCash = signedInRoute(portfolioWriterRoles)
+export const setPortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "POST",
     path: "/users/{userId}/cash-balances",
@@ -41,7 +41,7 @@ export const setPortfolioCash = signedInRoute(portfolioWriterRoles)
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
 
-export const updatePortfolioCash = signedInRoute(portfolioWriterRoles)
+export const updatePortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "PATCH",
     path: "/cash-balances/{id}",
@@ -65,7 +65,7 @@ export const updatePortfolioCash = signedInRoute(portfolioWriterRoles)
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
 
-export const deletePortfolioCash = signedInRoute(portfolioWriterRoles)
+export const deletePortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "DELETE",
     path: "/cash-balances/{id}",

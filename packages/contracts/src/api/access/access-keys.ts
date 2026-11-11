@@ -1,13 +1,8 @@
 import { z } from "zod";
 import { personal } from "../../anonymize.js";
-import { errorMap, publicRoute } from "../../contract.js";
-import { displayNameSchema } from "../../schemas/person.js";
-import { passwordSchema } from "./password.js";
-
-/** An access key: 32 random bytes in base64url, the end of `/access/<key>`. */
-export const accessKeySchema = z
-  .string()
-  .regex(/^[A-Za-z0-9_-]{43}$/, { error: "Expected an access key" });
+import { errorMap, errorWithDetails, publicRoute } from "../../contract.js";
+import { accessKeySchema, passwordSchema } from "../../schemas/access.js";
+import { displayNameSchema, emailSchema } from "../../schemas/person.js";
 
 /**
  * What an access key is now:
@@ -33,6 +28,8 @@ export const accessKeyStateSchema = z.enum(accessKeyStates);
 
 export type AccessKeyState = z.infer<typeof accessKeyStateSchema>;
 
+const state = accessKeyStateSchema.enum;
+
 /**
  * How the key's person gets in: `password` for an admin, member, or guest,
  * `link` for an anonymous viewer, who signs in with the key itself.
@@ -43,12 +40,20 @@ export const accessSignInMethodSchema = z.enum(accessSignInMethods);
 
 export type AccessSignInMethod = z.infer<typeof accessSignInMethodSchema>;
 
+const signInMethod = accessSignInMethodSchema.enum;
+
 /** The `details` of `invalid_access_key`: the key's state. */
 export const accessKeyErrorDetailsSchema = z.object({
   state: accessKeyStateSchema,
 });
 
 export type AccessKeyErrorDetails = z.infer<typeof accessKeyErrorDetailsSchema>;
+
+/** `invalid_access_key`, with the key's state in `details`. */
+const invalidAccessKeyError = errorWithDetails(
+  "invalid_access_key",
+  accessKeyErrorDetailsSchema,
+);
 
 export const accessCheckBodySchema = z.object({
   key: accessKeySchema,
@@ -63,23 +68,23 @@ export type AccessCheckBody = z.infer<typeof accessCheckBodySchema>;
 export const accessCheckResponseSchema = z.discriminatedUnion("state", [
   z.discriminatedUnion("signsInWith", [
     z.object({
-      state: z.literal("waiting"),
-      signsInWith: z.literal("password"),
-      email: personal(z.email()),
+      state: z.literal(state.waiting),
+      signsInWith: z.literal(signInMethod.password),
+      email: personal(emailSchema),
       displayName: personal(displayNameSchema),
       hasPassword: z.boolean(),
     }),
     z.object({
-      state: z.literal("waiting"),
-      signsInWith: z.literal("link"),
+      state: z.literal(state.waiting),
+      signsInWith: z.literal(signInMethod.link),
     }),
   ]),
   z.object({
-    state: accessKeyStateSchema.exclude(["waiting", "unknown"]),
+    state: accessKeyStateSchema.exclude([state.waiting, state.unknown]),
     signsInWith: accessSignInMethodSchema,
   }),
   z.object({
-    state: z.literal("unknown"),
+    state: z.literal(state.unknown),
   }),
 ]);
 
@@ -134,14 +139,8 @@ export const claimAccessKey = publicRoute
   })
   .input(accessClaimBodySchema)
   .output(accessClaimResponseSchema)
-  .errors(
-    errorMap(
-      "invalid_request",
-      "forbidden",
-      "invalid_access_key",
-      "rate_limited",
-    ),
-  );
+  .errors(errorMap("invalid_request", "forbidden", "rate_limited"))
+  .errors(invalidAccessKeyError);
 
 /**
  * Signs an anonymous viewer in with their key, and records the first visit.
@@ -157,11 +156,5 @@ export const signInWithAccessKey = publicRoute
   })
   .input(accessSignInBodySchema)
   .output(z.void())
-  .errors(
-    errorMap(
-      "invalid_request",
-      "forbidden",
-      "invalid_access_key",
-      "rate_limited",
-    ),
-  );
+  .errors(errorMap("invalid_request", "forbidden", "rate_limited"))
+  .errors(invalidAccessKeyError);

@@ -3,14 +3,13 @@ import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { periodSchema, unitSchema } from "../../period.js";
 import { roles } from "../../roles.js";
+import {
+  incompleteSchema,
+  measuredFromSchema,
+} from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { dateSchema, timestampSchema } from "../../schemas/time.js";
-import {
-  byUnit,
-  incompleteSchema,
-  lastCloseOnSchema,
-  measuredFromSchema,
-} from "./fields.js";
+import { byUnit, lastCloseOnSchema } from "./fields.js";
 
 /**
  * The race chart: each member's gain since the period's start, in the `unit`

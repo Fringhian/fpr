@@ -3,13 +3,13 @@ import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { periodSchema } from "../../period.js";
-import { roles } from "../../roles.js";
+import { adminRoles, roles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { currencySchema } from "../../schemas/money.js";
 import { personSchema } from "../../schemas/person.js";
 import { pricePointSchema } from "../../schemas/share.js";
 import { dateSchema, timestampSchema } from "../../schemas/time.js";
 import {
-  shareCurrencySchema,
   shareIdParamsSchema,
   sharePositionSchema,
   shareQuoteSchema,
@@ -20,7 +20,7 @@ export const shareDetailSchema = shareQuoteSchema.extend({
   /** The exchange of the listing FPR prices, or `null` for a manual share. */
   exchange: z.string().nullable(),
   /** The currency the provider quotes the share in, or `null` for a manual share. */
-  tradingCurrency: shareCurrencySchema.nullable(),
+  tradingCurrency: currencySchema.nullable(),
   /** The day the provider's history starts, when it starts after the share's first holding. */
   historyStartsOn: dateSchema.nullable(),
   /** The signed-in member's position, or `null` when they hold none or have no portfolio. */
@@ -89,7 +89,7 @@ export const getShareHolders = signedInRoute(roles)
   .output(shareHoldersSchema)
   .errors(errorMap("invalid_request", "not_found"));
 
-export const deleteShare = signedInRoute(["admin"])
+export const deleteShare = signedInRoute(adminRoles)
   .route({
     method: "DELETE",
     path: "/shares/{id}",

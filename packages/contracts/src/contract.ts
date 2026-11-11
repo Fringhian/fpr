@@ -36,6 +36,24 @@ export function errorMap<const Codes extends readonly ErrorCode[]>(
   ) as ErrorMap<Codes[number]>;
 }
 
+type ErrorWithDetails<Code extends ErrorCode, Details extends z.ZodType> = {
+  [Key in Code]: { status: (typeof errorStatus)[Key]; data: Details };
+};
+
+/**
+ * The oRPC error definition of a code whose `details` always follow a schema,
+ * such as `errorWithDetails("isin_taken", isinTakenDetailsSchema)`. The
+ * OpenAPI document shows them under the code.
+ */
+export function errorWithDetails<
+  const Code extends ErrorCode,
+  Details extends z.ZodType,
+>(code: Code, details: Details): ErrorWithDetails<Code, Details> {
+  return {
+    [code]: { status: errorStatus[code], data: details },
+  } as ErrorWithDetails<Code, Details>;
+}
+
 /** Contracts grouped by key, such as `{ me: { get: getMe } }`. */
 export interface ContractTree {
   readonly [key: string]: AnyContractProcedure | ContractTree;

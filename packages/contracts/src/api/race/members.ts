@@ -4,10 +4,15 @@ import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { periodSchema, unitSchema } from "../../period.js";
 import { roles } from "../../roles.js";
+import {
+  firstEntryOnSchema,
+  incompleteSchema,
+  measuredFromSchema,
+} from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { shareSummarySchema } from "../../schemas/share.js";
 import { dateSchema } from "../../schemas/time.js";
-import { byUnit, incompleteSchema, measuredFromSchema } from "./fields.js";
+import { byUnit } from "./fields.js";
 
 /**
  * Every member, in the `unit` the response names: gains in euros, marked
@@ -19,8 +24,7 @@ export const membersSchema = byUnit((inUnit) => ({
   members: z.array(
     z.object({
       member: personSchema,
-      /** The day of their first entry, or `null` when they haven't started. */
-      firstEntryOn: dateSchema.nullable(),
+      firstEntryOn: firstEntryOnSchema,
       measuredFrom: measuredFromSchema,
       incomplete: incompleteSchema,
       /** Their gain over the period, as of the last close. */

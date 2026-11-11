@@ -2,8 +2,14 @@ import { z } from "zod";
 import { personal } from "../anonymize.js";
 import { idSchema } from "./ids.js";
 
-/** The name shown on leaderboards: 1 to 40 characters. */
-export const displayNameSchema = z.string().min(1).max(40);
+/**
+ * A sign-in email. Unmarked: a response field wraps it with `personal()`, so
+ * the anonymizer replaces it.
+ */
+export const emailSchema = z.email();
+
+/** The name shown on leaderboards: 1 to 40 characters, trimmed. */
+export const displayNameSchema = z.string().trim().min(1).max(40);
 
 /** A person's colour, from 1 to 10. */
 export const colorSchema = z.int().min(1).max(10);

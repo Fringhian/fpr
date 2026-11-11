@@ -1,9 +1,17 @@
 import { z } from "zod";
-import { errorMap } from "../contract.js";
+import { errorMap, errorWithDetails } from "../contract.js";
 import { idSchema } from "../schemas/ids.js";
+import { priceEurSchema } from "../schemas/money.js";
+import { valueChangedDetailsSchema } from "../schemas/share.js";
 import { timestampSchema } from "../schemas/time.js";
 import { internalRoute } from "./base.js";
-import { pricesPriceEurSchema, pricesValuePointSchema } from "./schemas.js";
+import { pricesValuePointSchema } from "./schemas.js";
+
+/** `value_changed`, with the value point's stored price in `details`. */
+const valueChangedError = errorWithDetails(
+  "value_changed",
+  valueChangedDetailsSchema,
+);
 
 /**
  * A value point's path params. `at` is its moment, with its offset, as one
@@ -20,7 +28,7 @@ const valuePointParams = {
 export const pricesAddManualPriceInputSchema = z.object({
   id: idSchema,
   at: timestampSchema,
-  priceEur: pricesPriceEurSchema,
+  priceEur: priceEurSchema,
   enteredBy: idSchema,
 });
 
@@ -37,15 +45,14 @@ export const pricesAddManualPrice = internalRoute
   })
   .input(pricesAddManualPriceInputSchema)
   .output(pricesValuePointSchema)
-  .errors(
-    errorMap("invalid_request", "not_found", "value_changed", "future_moment"),
-  );
+  .errors(errorMap("invalid_request", "not_found", "future_moment"))
+  .errors(valueChangedError);
 
 /** A value point's new price, and the price the member saw before editing. */
 export const pricesUpdateManualPriceInputSchema = z.object({
   ...valuePointParams,
-  priceEur: pricesPriceEurSchema,
-  expectedPriceEur: pricesPriceEurSchema,
+  priceEur: priceEurSchema,
+  expectedPriceEur: priceEurSchema,
   enteredBy: idSchema,
 });
 
@@ -61,12 +68,13 @@ export const pricesUpdateManualPrice = internalRoute
   })
   .input(pricesUpdateManualPriceInputSchema)
   .output(pricesValuePointSchema)
-  .errors(errorMap("invalid_request", "not_found", "value_changed"));
+  .errors(errorMap("invalid_request", "not_found"))
+  .errors(valueChangedError);
 
 /** A value point to delete, the price the member saw, and who deletes it. */
 export const pricesDeleteManualPriceInputSchema = z.object({
   ...valuePointParams,
-  expectedPriceEur: pricesPriceEurSchema,
+  expectedPriceEur: priceEurSchema,
   deletedBy: idSchema,
 });
 
@@ -82,11 +90,5 @@ export const pricesDeleteManualPrice = internalRoute
   })
   .input(pricesDeleteManualPriceInputSchema)
   .output(z.void())
-  .errors(
-    errorMap(
-      "invalid_request",
-      "not_found",
-      "value_changed",
-      "last_value_point",
-    ),
-  );
+  .errors(errorMap("invalid_request", "not_found", "last_value_point"))
+  .errors(valueChangedError);

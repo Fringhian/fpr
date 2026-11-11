@@ -1,14 +1,16 @@
 import { z } from "zod";
-import { errorMap, signedInRoute } from "../../contract.js";
+import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
 import { periodSchema } from "../../period.js";
-import { roles } from "../../roles.js";
+import { roles, writerRoles } from "../../roles.js";
 import { personSchema } from "../../schemas/person.js";
 import {
   isinSchema,
+  isinTakenDetailsSchema,
+  lookupQuerySchema,
+  lookupResultSchema,
   pricePointSchema,
-  shareSummarySchema,
 } from "../../schemas/share.js";
-import { shareCurrencySchema, shareQuoteSchema } from "./schemas.js";
+import { shareQuoteSchema } from "./schemas.js";
 
 /** `GET /shares`: a name, ISIN, or symbol to filter by, and the period. */
 export const shareSearchQuerySchema = z.object({
@@ -49,47 +51,37 @@ export const searchShares = signedInRoute(roles)
 /**
  * `POST /shares/lookup`: an ISIN, a ticker, or any text to look up at the
  * provider. With `isin`, `query` is the symbol of a listing the provider
- * returned without an ISIN, and the listing is stored under the ISIN the member
- * typed.
+ * returned without an ISIN: the API forwards it to the price service's
+ * `POST /shares/market`, which stores the listing under the ISIN the member
+ * typed, and answers it in `shares`.
  */
 export const shareLookupBodySchema = z.object({
-  query: z.string().trim().min(1).max(100),
+  query: lookupQuerySchema,
   isin: isinSchema.optional(),
 });
 
 export type ShareLookupBody = z.infer<typeof shareLookupBodySchema>;
 
-/** A listing the provider returned without an ISIN: not stored until a member types one. */
-export const shareListingSchema = z.object({
-  symbol: z.string().min(1),
-  name: z.string().min(1),
-  exchange: z.string().min(1),
-  tradingCurrency: shareCurrencySchema,
-});
-
-export type ShareListing = z.infer<typeof shareListingSchema>;
-
-/** What a lookup found: the matching shares, stored, and the listings without an ISIN. */
-export const shareLookupResultSchema = z.object({
-  shares: z.array(shareSummarySchema),
-  listingsWithoutIsin: z.array(shareListingSchema),
-});
-
-export type ShareLookupResult = z.infer<typeof shareLookupResultSchema>;
-
-export const lookUpShares = signedInRoute(["admin", "member"])
+/**
+ * Refused with `not_found` when the provider no longer returns the symbol of
+ * a listing sent with `isin`, and with `isin_taken` when another share has
+ * that ISIN.
+ */
+export const lookUpShares = signedInRoute(writerRoles)
   .route({
     method: "POST",
     path: "/shares/lookup",
     summary: "Look up a share at the price provider",
   })
   .input(shareLookupBodySchema)
-  .output(shareLookupResultSchema)
+  .output(lookupResultSchema)
   .errors(
     errorMap(
       "invalid_request",
       "forbidden",
+      "not_found",
       "call_budget_used",
       "provider_unavailable",
     ),
-  );
+  )
+  .errors(errorWithDetails("isin_taken", isinTakenDetailsSchema));

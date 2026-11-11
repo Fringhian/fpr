@@ -20,7 +20,6 @@ export {
   accessClaimBodySchema,
   accessClaimResponseSchema,
   accessKeyErrorDetailsSchema,
-  accessKeySchema,
   accessKeyStateSchema,
   accessKeyStates,
   accessSignInBodySchema,
@@ -30,7 +29,6 @@ export {
   claimAccessKey,
   signInWithAccessKey,
 } from "./access-keys.js";
-export { passwordSchema } from "./password.js";
 export {
   checkPasswordReset,
   type PasswordResetBody,

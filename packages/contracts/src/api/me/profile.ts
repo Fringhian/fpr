@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
-import { roleSchema, roles } from "../../roles.js";
+import { profileRoles, roleSchema, roles } from "../../roles.js";
 import {
   colorSchema,
   displayNameSchema,
@@ -24,9 +24,6 @@ export const meSchema = personSchema.extend({
 
 export type Me = z.infer<typeof meSchema>;
 
-/** The roles that edit their own profile: everyone but anonymous viewers. */
-export const meEditorRoles = ["admin", "member", "guest"] as const;
-
 /** What `PATCH /me` changes: at least one field, each left out kept. */
 export const meUpdateBodySchema = z
   .object({
@@ -48,7 +45,7 @@ export const getMe = signedInRoute(roles)
   .route({ method: "GET", path: "/me", summary: "The signed-in person" })
   .output(meSchema);
 
-export const updateMe = signedInRoute(meEditorRoles)
+export const updateMe = signedInRoute(profileRoles)
   .route({
     method: "PATCH",
     path: "/me",

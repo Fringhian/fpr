@@ -1,15 +1,16 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
-import { decimalSchema } from "../../decimal.js";
+import { adminAreaRoles, adminRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { priceEurSchema } from "../../schemas/money.js";
 import { personSchema } from "../../schemas/person.js";
-import { shareSummarySchema } from "../../schemas/share.js";
+import { latestPriceSchema, shareSummarySchema } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
 
 /** A stored share as the admin area lists it. */
 export const adminShareSchema = shareSummarySchema.extend({
-  /** The moment of its latest price, or `null` when it has none. */
-  latestPriceAt: timestampSchema.nullable(),
+  /** Its latest price with its time and source, or `null` when it has none. */
+  latestPrice: latestPriceSchema.nullable(),
   /** The people who hold it now. */
   holders: z.array(personSchema),
   /** Whether a share change refers to it: such a share can't be deleted. */
@@ -43,7 +44,7 @@ export type AdminShareGroups = z.infer<typeof adminShareGroupsSchema>;
 export const adminMakeManualSchema = z
   .object({
     id: idSchema,
-    priceEur: decimalSchema.optional(),
+    priceEur: priceEurSchema.optional(),
     at: timestampSchema.optional(),
   })
   .refine(
@@ -56,7 +57,7 @@ export const adminMakeManualSchema = z
 
 export type AdminMakeManual = z.infer<typeof adminMakeManualSchema>;
 
-export const adminShares = signedInRoute(["admin", "anonymous"])
+export const adminShares = signedInRoute(adminAreaRoles)
   .route({
     method: "GET",
     path: "/admin/shares",
@@ -67,7 +68,7 @@ export const adminShares = signedInRoute(["admin", "anonymous"])
   .errors(errorMap("forbidden"));
 
 /** Can't be undone. The share's past prices stay. */
-export const adminMakeManual = signedInRoute(["admin"])
+export const adminMakeManual = signedInRoute(adminRoles)
   .route({
     method: "POST",
     path: "/admin/shares/{id}/make-manual",

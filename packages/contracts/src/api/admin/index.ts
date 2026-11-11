@@ -18,7 +18,6 @@ export {
   adminReplaceLink,
   adminResetKey,
   adminResetKeyResultSchema,
-  adminResetKeySchema,
   adminRestore,
   adminRevoke,
 } from "./access.js";

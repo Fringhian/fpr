@@ -1,12 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
+import { latestPriceSchema } from "../../schemas/share.js";
 import {
   type ShareQuote,
-  shareCurrencySchema,
-  shareLatestPriceSchema,
-  shareNameSchema,
   sharePositionSchema,
-  sharePriceEurSchema,
   shareQuoteSchema,
 } from "./schemas.js";
 
@@ -25,32 +22,6 @@ const quote: ShareQuote = {
   changePercent: "-2.2",
 };
 
-describe("sharePriceEurSchema", () => {
-  it.each(["40.10", "0.5", "1250"])("accepts %s", (price) => {
-    expect(sharePriceEurSchema.safeParse(price).success).toBe(true);
-  });
-
-  it.each(["0", "0.00", "-1", "1e3", "abc", 40])("refuses %j", (price) => {
-    expect(sharePriceEurSchema.safeParse(price).success).toBe(false);
-  });
-});
-
-describe("shareNameSchema", () => {
-  it("trims, and refuses an empty or overlong name", () => {
-    expect(shareNameSchema.parse("  Example Fund ")).toBe("Example Fund");
-    expect(shareNameSchema.safeParse("   ").success).toBe(false);
-    expect(shareNameSchema.safeParse("x".repeat(201)).success).toBe(false);
-  });
-});
-
-describe("shareCurrencySchema", () => {
-  it("accepts a currency code and refuses anything else", () => {
-    expect(shareCurrencySchema.safeParse("GBX").success).toBe(true);
-    expect(shareCurrencySchema.safeParse("eur").success).toBe(false);
-    expect(shareCurrencySchema.safeParse("EURO").success).toBe(false);
-  });
-});
-
 describe("shareQuoteSchema", () => {
   it("accepts a share with its latest price, or none yet", () => {
     expect(shareQuoteSchema.parse(quote)).toEqual(quote);
@@ -66,9 +37,9 @@ describe("shareQuoteSchema", () => {
 
   it("refuses an unknown price source or a price as a number", () => {
     expect(
-      shareLatestPriceSchema.safeParse({
-        ...quote.latestPrice,
-        source: "estimate",
+      shareQuoteSchema.safeParse({
+        ...quote,
+        latestPrice: { ...quote.latestPrice, source: "estimate" },
       }).success,
     ).toBe(false);
     expect(
@@ -78,9 +49,7 @@ describe("shareQuoteSchema", () => {
 
   it("keeps share prices and changes unmarked, as market data", () => {
     expect(anonymizeKind(shareQuoteSchema.shape.latestPrice)).toBeUndefined();
-    expect(
-      anonymizeKind(shareLatestPriceSchema.shape.priceEur),
-    ).toBeUndefined();
+    expect(anonymizeKind(latestPriceSchema.shape.priceEur)).toBeUndefined();
     expect(anonymizeKind(shareQuoteSchema.shape.changeEur)).toBeUndefined();
   });
 });

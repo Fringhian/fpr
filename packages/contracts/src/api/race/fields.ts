@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { euro } from "../../anonymize.js";
 import { decimalSchema } from "../../decimal.js";
+import { unitSchema } from "../../period.js";
 import { shareSummarySchema } from "../../schemas/share.js";
 import { dateSchema } from "../../schemas/time.js";
 
@@ -23,27 +24,13 @@ export function byUnit<Shape extends z.ZodRawShape>(
   build: (inUnit: MarkInUnit) => Shape,
 ) {
   return z.discriminatedUnion("unit", [
-    z.object({ unit: z.literal("eur") }).extend(build(euro)),
-    z.object({ unit: z.literal("percent") }).extend(build(keep)),
+    z.object({ unit: z.literal(unitSchema.enum.eur) }).extend(build(euro)),
+    z.object({ unit: z.literal(unitSchema.enum.percent) }).extend(build(keep)),
   ]);
 }
 
 /** The day of the last close: leaderboards and gains are as of it. */
 export const lastCloseOnSchema = dateSchema;
-
-/**
- * The day of the member's first entry when it is after the period's start:
- * their gain is measured from it, and the web app shows "since <day>". `null`
- * when the member's history covers the whole period.
- */
-export const measuredFromSchema = dateSchema.nullable();
-
-/**
- * `true` when the member holds a share whose prices haven't arrived yet: they
- * are measured on the shares that have a price, and their row is marked
- * incomplete.
- */
-export const incompleteSchema = z.boolean();
 
 /**
  * The member's holding with the largest gain over the period, in percent, or

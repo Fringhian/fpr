@@ -4,15 +4,13 @@ import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { periodSchema, unitSchema } from "../../period.js";
 import { roles } from "../../roles.js";
+import {
+  incompleteSchema,
+  measuredFromSchema,
+} from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { shareSummarySchema } from "../../schemas/share.js";
-import {
-  bestHoldingSchema,
-  byUnit,
-  incompleteSchema,
-  lastCloseOnSchema,
-  measuredFromSchema,
-} from "./fields.js";
+import { bestHoldingSchema, byUnit, lastCloseOnSchema } from "./fields.js";
 
 /** `balance`: the standings by balance. `gain`: by gain over the period. */
 export const leaderboardBoards = ["balance", "gain"] as const;
@@ -20,6 +18,8 @@ export const leaderboardBoards = ["balance", "gain"] as const;
 export const leaderboardBoardSchema = z.enum(leaderboardBoards);
 
 export type LeaderboardBoard = z.infer<typeof leaderboardBoardSchema>;
+
+const board = leaderboardBoardSchema.enum;
 
 /** Members with no entry yet, listed under the standings as not started. */
 const notStartedSchema = z.array(personSchema);
@@ -30,7 +30,7 @@ const notStartedSchema = z.array(personSchema);
  * replaces it, so they see the ranks without amounts.
  */
 const balanceLeaderboardSchema = z.object({
-  board: z.literal("balance"),
+  board: z.literal(board.balance),
   lastCloseOn: lastCloseOnSchema,
   rows: z.array(
     z.object({
@@ -48,7 +48,7 @@ const balanceLeaderboardSchema = z.object({
  * the `unit` the response names: euros, marked `euro`, or percent.
  */
 const gainLeaderboardSchema = byUnit((inUnit) => ({
-  board: z.literal("gain"),
+  board: z.literal(board.gain),
   lastCloseOn: lastCloseOnSchema,
   rows: z.array(
     z.object({
