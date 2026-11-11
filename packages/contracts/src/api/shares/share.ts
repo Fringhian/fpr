@@ -1,0 +1,103 @@
+import { z } from "zod";
+import { quantity } from "../../anonymize.js";
+import { errorMap, signedInRoute } from "../../contract.js";
+import { decimalSchema } from "../../decimal.js";
+import { periodSchema } from "../../period.js";
+import { roles } from "../../roles.js";
+import { idSchema } from "../../schemas/ids.js";
+import { personSchema } from "../../schemas/person.js";
+import { pricePointSchema } from "../../schemas/share.js";
+import { dateSchema, timestampSchema } from "../../schemas/time.js";
+import {
+  shareCurrencySchema,
+  shareIdParamsSchema,
+  sharePositionSchema,
+  shareQuoteSchema,
+} from "./schemas.js";
+
+/** A share's page. */
+export const shareDetailSchema = shareQuoteSchema.extend({
+  /** The exchange of the listing FPR prices, or `null` for a manual share. */
+  exchange: z.string().nullable(),
+  /** The currency the provider quotes the share in, or `null` for a manual share. */
+  tradingCurrency: shareCurrencySchema.nullable(),
+  /** The day the provider's history starts, when it starts after the share's first holding. */
+  historyStartsOn: dateSchema.nullable(),
+  /** The signed-in member's position, or `null` when they hold none or have no portfolio. */
+  position: sharePositionSchema.nullable(),
+});
+
+export type ShareDetail = z.infer<typeof shareDetailSchema>;
+
+export const getShare = signedInRoute(roles)
+  .route({ method: "GET", path: "/shares/{id}", summary: "A share's page" })
+  .input(shareIdParamsSchema.extend({ period: periodSchema }))
+  .output(shareDetailSchema)
+  .errors(errorMap("invalid_request", "not_found"));
+
+/**
+ * A share's chart points over the range: intraday points for `1D` and `1W`,
+ * daily closes otherwise, oldest first. Empty for a share nobody has held.
+ */
+export const sharePricesSchema = z.object({
+  points: z.array(pricePointSchema),
+});
+
+export type SharePrices = z.infer<typeof sharePricesSchema>;
+
+export const getSharePrices = signedInRoute(roles)
+  .route({
+    method: "GET",
+    path: "/shares/{id}/prices",
+    summary: "A share's chart points",
+  })
+  .input(shareIdParamsSchema.extend({ range: periodSchema }))
+  .output(sharePricesSchema)
+  .errors(errorMap("invalid_request", "not_found"));
+
+/** A member's share change, for a chart marker. */
+export const shareHolderChangeSchema = z.object({
+  id: idSchema,
+  quantityDelta: quantity(decimalSchema),
+  effectiveAt: timestampSchema,
+});
+
+export type ShareHolderChange = z.infer<typeof shareHolderChangeSchema>;
+
+/** A member with share changes on the share, and their position on it now. */
+export const shareHolderSchema = sharePositionSchema.extend({
+  person: personSchema,
+  /** Oldest first. */
+  changes: z.array(shareHolderChangeSchema),
+});
+
+export type ShareHolder = z.infer<typeof shareHolderSchema>;
+
+export const shareHoldersSchema = z.object({
+  holders: z.array(shareHolderSchema),
+});
+
+export type ShareHolders = z.infer<typeof shareHoldersSchema>;
+
+export const getShareHolders = signedInRoute(roles)
+  .route({
+    method: "GET",
+    path: "/shares/{id}/holders",
+    summary: "Each member's changes and result on a share",
+  })
+  .input(shareIdParamsSchema)
+  .output(shareHoldersSchema)
+  .errors(errorMap("invalid_request", "not_found"));
+
+export const deleteShare = signedInRoute(["admin"])
+  .route({
+    method: "DELETE",
+    path: "/shares/{id}",
+    summary: "Delete a share no share change refers to",
+    successStatus: 204,
+  })
+  .input(shareIdParamsSchema)
+  .output(z.void())
+  .errors(
+    errorMap("invalid_request", "forbidden", "not_found", "share_in_use"),
+  );
