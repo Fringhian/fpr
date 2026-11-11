@@ -21,6 +21,8 @@
 | Languages | English and French, with `react-i18next` |
 | Install | Progressive Web App, with `vite-plugin-pwa` |
 
+TanStack Router's Vite plugin generates `src/routeTree.gen.ts` from `src/routes/` and splits each route into its own chunk. The generated file is committed and left out of Biome.
+
 The full UI conventions are in the `fpr-ui` skill. The design reference lives in `design/`, kept outside git: the wireframes, the user flows, the final screens, and the design system.
 
 ## Design
@@ -129,4 +131,4 @@ The web image builds the app and serves it with Caddy. Caddy serves `index.html`
 
 Caddy serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.
 
-In development, Vite's dev server forwards `/api` to the local API in the same way.
+In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix.
