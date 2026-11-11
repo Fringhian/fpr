@@ -95,11 +95,11 @@ The API sits behind `web`, and trusts the client address `web` forwards in `X-Fo
 | `GET /me` | The signed-in person: id, role, display name, picture, colour, language (empty until they pick one), and whether onboarding is finished |
 | `PATCH /me` | Change the display name (1 to 40 characters), colour (1 to 10), or language, or mark onboarding finished |
 | `/api/auth/change-password` | Change the password, with the current one. Ends the person's other sessions |
-| `PUT /me/avatar` | Upload a picture, JPEG, PNG, or WebP up to 2 MB, stored in S3-compatible storage |
+| `PUT /me/avatar` | Upload a picture, JPEG, PNG, or WebP up to 2 MB, as the raw request body with its media type. Stored in S3-compatible storage |
 | `DELETE /me/avatar` | Go back to the initial on the person's colour |
 | `GET /users/:userId/avatar` | The uploaded picture. A person without one is drawn by the web app as their initial on their colour |
 
-A colour another person has is refused with `409`, unless all ten are taken.
+A colour another person has is refused with `409`, unless all ten are taken. `PATCH /me`, `PUT /me/avatar`, and `DELETE /me/avatar` answer the person as `GET /me` does. Anonymous viewers see no photos: `GET /users/:userId/avatar` refuses them with `403`.
 
 ### Portfolio
 
