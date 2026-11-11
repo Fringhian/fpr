@@ -142,8 +142,10 @@ No share route calls the provider except `POST /shares/lookup`. Everything else 
 | --- | --- |
 | `GET /leaderboards/:board?period=&unit=` | `balance`, or `gain` over `1D`, `1W`, `1M`, `3M`, `YTD`, or `all` in `eur` or `percent`, as of the last close. Each row carries the member's best holding over the period |
 | `GET /leaderboards/shares?period=` | The shares held in the race, ranked by their change over the period |
-| `GET /members?period=&unit=` | Every member with the date of their first entry, their series over the period, their gain and balance, and their top three holdings with weights |
+| `GET /members?period=&unit=` | Every member with the date of their first entry, their gain since the period's start at each close, their gain and balance, and their top three holdings with weights |
 | `GET /race?period=&unit=` | Every member's gain since the period's start at each close, then at each refresh since the last close, in `eur` or `percent`. The points after the last close are marked provisional. Also returns the time of the latest prices and whether today's refreshes are running |
+
+A response to a request with a `unit` names that unit, and its gains are in it. Balances are in euros in either unit.
 
 ### Admin
 
@@ -185,7 +187,7 @@ For an anonymous viewer, the anonymizer replaces, in every response:
 - euro amounts with percentages, and euro series with series in percent;
 - quantities held with each holding's weight in percent of the portfolio, and cash with its weight too.
 
-The balance leaderboard shows ranks without amounts. Share prices are market data and stay in euros.
+A route that takes a `unit` answers an anonymous viewer in `percent`, whatever `unit` asks. The balance leaderboard shows ranks without amounts. Share prices are market data and stay in euros.
 
 A pseudonym is an adjective and an animal, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)`. Two people with the same pseudonym are told apart by a number suffix. It is the same on every screen and visit, and is not stored.
 
