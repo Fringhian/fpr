@@ -11,6 +11,16 @@ describe("loadEnv", () => {
     expect(loadEnv(valid)).toEqual({ ...valid, PORT: 3000 });
   });
 
+  it("defaults an empty PORT to 3000", () => {
+    expect(loadEnv({ ...valid, PORT: "" }).PORT).toBe(3000);
+  });
+
+  it("names an empty DATABASE_URL as missing", () => {
+    expect(() => loadEnv({ ...valid, DATABASE_URL: "" })).toThrow(
+      "DATABASE_URL",
+    );
+  });
+
   it("reads PORT as a number", () => {
     expect(loadEnv({ ...valid, PORT: "8080" }).PORT).toBe(8080);
   });
