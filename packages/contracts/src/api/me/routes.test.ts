@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../anonymize.js";
-import { createOpenApiDocument } from "../openapi.js";
-import { getMe, type Me, meSchema } from "./me.js";
+import { anonymizeKind } from "../../anonymize.js";
+import { createOpenApiDocument } from "../../openapi.js";
+import { getMe, type Me, meSchema } from "./routes.js";
 
 const me: Me = {
   id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70",
