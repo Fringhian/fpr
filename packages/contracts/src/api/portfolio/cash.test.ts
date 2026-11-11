@@ -82,6 +82,12 @@ describe("POST /users/{userId}/cash-balances", () => {
   ])("refuses %s", (_, cash) => {
     expect(input?.safeParse({ ...body, ...cash }).success).toBe(false);
   });
+
+  it("takes an optional client-generated id, a UUID, against double saves", () => {
+    expect(input?.parse({ ...body, id })).toEqual({ ...body, id });
+    expect(input?.safeParse({ ...body, id: "save-1" }).success).toBe(false);
+    expect(setPortfolioCash["~orpc"].route.successStatus).toBe(201);
+  });
 });
 
 describe("PATCH /cash-balances/{id}", () => {

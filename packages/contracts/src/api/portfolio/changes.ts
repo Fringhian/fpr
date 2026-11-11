@@ -3,7 +3,7 @@ import { quantity } from "../../anonymize.js";
 import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { writerRoles } from "../../roles.js";
-import { idSchema } from "../../schemas/ids.js";
+import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { shareSummarySchema } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
 
@@ -45,6 +45,11 @@ const holdingBelowZeroError = errorWithDetails(
   portfolioHoldingBelowZeroDetailsSchema,
 );
 
+/**
+ * With an `id` already stored for the member, answers that share change as it
+ * is, with `201`, and saves nothing. An `id` another member's share change has
+ * is refused with `forbidden`.
+ */
 export const addPortfolioChange = signedInRoute(writerRoles)
   .route({
     method: "POST",
@@ -55,6 +60,7 @@ export const addPortfolioChange = signedInRoute(writerRoles)
   .input(
     z.object({
       userId: idSchema,
+      id: clientIdSchema,
       shareId: idSchema,
       quantityDelta: portfolioQuantityDeltaSchema,
       effectiveAt: timestampSchema,

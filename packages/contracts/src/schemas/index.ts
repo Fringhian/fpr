@@ -1,5 +1,5 @@
 export { accessKeySchema, passwordSchema, resetKeySchema } from "./access.js";
-export { type Id, idSchema } from "./ids.js";
+export { clientIdSchema, type Id, idSchema } from "./ids.js";
 export {
   type Currency,
   currencySchema,
@@ -9,8 +9,16 @@ export {
 } from "./money.js";
 export {
   firstEntryOnSchema,
+  type Gain,
+  gainSchema,
   incompleteSchema,
+  type MemberSeriesPoint,
   measuredFromSchema,
+  memberSeriesPointSchema,
+  type Position,
+  type PriceChange,
+  positionSchema,
+  priceChangeSchema,
 } from "./performance.js";
 export {
   colorSchema,
