@@ -1,13 +1,16 @@
-import type { AnyContractProcedure } from "@orpc/contract";
 import { type OpenAPI, OpenAPIGenerator } from "@orpc/openapi";
 import {
   ZodToJsonSchemaConverter,
   type ZodToJsonSchemaConverterOptions,
 } from "@orpc/zod/zod4";
 import { anonymizeKind } from "./anonymize.js";
-import type { RouteMeta } from "./contract.js";
+import { apiContract } from "./api/index.js";
+import {
+  type ContractTree,
+  contractProcedures,
+  type RouteMeta,
+} from "./contract.js";
 import { errorCodes, errorStatus } from "./errors.js";
-import { apiContract } from "./routes/index.js";
 
 type ConvertInterceptor = NonNullable<
   ZodToJsonSchemaConverterOptions["interceptors"]
@@ -28,9 +31,12 @@ const generator = new OpenAPIGenerator({
   ],
 });
 
-/** The OpenAPI 3.1 document for a contract, served under `/api`. */
+/**
+ * The OpenAPI 3.1 document for a contract tree, served under `/api`. Each
+ * operation is tagged with its top-level key, its area.
+ */
 export async function createOpenApiDocument(
-  contract: Record<string, AnyContractProcedure> = apiContract,
+  contract: ContractTree = apiContract,
 ): Promise<OpenAPI.Document> {
   const document = await generator.generate(contract, {
     info: {
@@ -58,8 +64,9 @@ export async function createOpenApiDocument(
   });
 
   // oRPC's generator has no hook for route metadata, so each operation gets
-  // its roles afterwards, and each error response the codes it carries.
-  for (const procedure of Object.values(contract)) {
+  // its area and roles afterwards, and each error response the codes it
+  // carries.
+  for (const [[area], procedure] of contractProcedures(contract)) {
     const { route, meta, errorMap } = procedure["~orpc"];
     const { roles } = meta as RouteMeta;
     const method = route.method?.toLowerCase() as "get" | undefined;
@@ -70,6 +77,7 @@ export async function createOpenApiDocument(
     }
 
     Object.assign(operation, {
+      ...(area === undefined ? {} : { tags: [area] }),
       "x-roles": roles === "public" ? "public" : [...roles],
     });
     for (const [status, response] of Object.entries(

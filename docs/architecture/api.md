@@ -4,7 +4,7 @@
 
 ## Route contracts
 
-Each route is an oRPC contract in `@fpr/contracts`, and `apiContract` holds every API route. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
+Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. Schemas several areas share, such as a person, a share, ids, and moments, are in `src/schemas/`. The price service's internal routes are in `src/prices/`. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
 
 - its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
 - its input, with `.input()`: the path params, the query, and the body in one Zod object;

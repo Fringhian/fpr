@@ -13,8 +13,11 @@
   "paths": {
     "/me": {
       "get": {
-        "operationId": "getMe",
+        "operationId": "me.get",
         "summary": "The signed-in person",
+        "tags": [
+          "me"
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -26,15 +29,6 @@
                     "id": {
                       "type": "string",
                       "format": "uuid"
-                    },
-                    "role": {
-                      "enum": [
-                        "admin",
-                        "member",
-                        "guest",
-                        "anonymous"
-                      ],
-                      "type": "string"
                     },
                     "displayName": {
                       "type": "string",
@@ -58,6 +52,15 @@
                       "minimum": 1,
                       "maximum": 10
                     },
+                    "role": {
+                      "enum": [
+                        "admin",
+                        "member",
+                        "guest",
+                        "anonymous"
+                      ],
+                      "type": "string"
+                    },
                     "language": {
                       "anyOf": [
                         {
@@ -78,10 +81,10 @@
                   },
                   "required": [
                     "id",
-                    "role",
                     "displayName",
                     "avatarUrl",
                     "color",
+                    "role",
                     "language",
                     "onboarded"
                   ]

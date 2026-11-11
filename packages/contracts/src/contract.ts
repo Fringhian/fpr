@@ -1,4 +1,8 @@
-import { type AnyContractProcedure, oc } from "@orpc/contract";
+import {
+  type AnyContractProcedure,
+  isContractProcedure,
+  oc,
+} from "@orpc/contract";
 import { z } from "zod";
 import { type ErrorCode, errorStatus } from "./errors.js";
 import { roles as everyRole, type Role } from "./roles.js";
@@ -30,6 +34,23 @@ export function errorMap<const Codes extends readonly ErrorCode[]>(
       { status: errorStatus[code], data: detailsSchema.optional() },
     ]),
   ) as ErrorMap<Codes[number]>;
+}
+
+/** Contracts grouped by key, such as `{ me: { get: getMe } }`. */
+export interface ContractTree {
+  readonly [key: string]: AnyContractProcedure | ContractTree;
+}
+
+/** Every contract of a tree, with its keys, such as `["me", "get"]`. */
+export function contractProcedures(
+  tree: ContractTree,
+  path: readonly string[] = [],
+): [path: string[], procedure: AnyContractProcedure][] {
+  return Object.entries(tree).flatMap(([key, item]) =>
+    isContractProcedure(item)
+      ? [[[...path, key], item] as [string[], AnyContractProcedure]]
+      : contractProcedures(item, [...path, key]),
+  );
 }
 
 /** The base of a route anyone may call. */
