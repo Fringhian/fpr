@@ -1,0 +1,123 @@
+import { describe, expect, it } from "vitest";
+import { anonymizeKind } from "../../anonymize.js";
+import { createOpenApiDocument } from "../../openapi.js";
+import {
+  type AdminShare,
+  type AdminShareGroups,
+  adminMakeManualSchema,
+  adminShareGroupsSchema,
+  adminShareSchema,
+} from "./shares.js";
+
+const id = "6a1d2c3b-4e5f-4a7b-8c9d-0e1f2a3b4c5d";
+
+const fund: AdminShare = {
+  id,
+  isin: "FR0000000001",
+  name: "Example World Fund",
+  kind: "market",
+  symbol: "EXW.PA",
+  latestPriceAt: null,
+  holders: [
+    {
+      id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70",
+      displayName: "Alex Martin",
+      avatarUrl: null,
+      color: 3,
+    },
+  ],
+  hasShareChanges: true,
+};
+
+const groups: AdminShareGroups = {
+  needsAttention: [fund],
+  tracked: [{ ...fund, latestPriceAt: "2026-03-02T17:30:00+01:00" }],
+  manual: [{ ...fund, kind: "manual", symbol: null, holders: [] }],
+  notHeld: [{ ...fund, holders: [], hasShareChanges: false }],
+};
+
+describe("adminShareGroupsSchema", () => {
+  it("accepts every group, empty or not", () => {
+    expect(adminShareGroupsSchema.parse(groups)).toEqual(groups);
+    const empty = { needsAttention: [], tracked: [], manual: [], notHeld: [] };
+    expect(adminShareGroupsSchema.parse(empty)).toEqual(empty);
+  });
+
+  it("refuses a missing group, or a share without its price time or flag", () => {
+    const { notHeld: _, ...withoutNotHeld } = groups;
+    expect(adminShareGroupsSchema.safeParse(withoutNotHeld).success).toBe(
+      false,
+    );
+    const { latestPriceAt: __, ...withoutPriceTime } = fund;
+    expect(adminShareSchema.safeParse(withoutPriceTime).success).toBe(false);
+    const { hasShareChanges: ___, ...withoutFlag } = fund;
+    expect(adminShareSchema.safeParse(withoutFlag).success).toBe(false);
+  });
+
+  it("marks the holders' names and pictures personal", () => {
+    const holder = adminShareSchema.shape.holders.element.shape;
+    expect(anonymizeKind(holder.displayName)).toBe("personal");
+    expect(anonymizeKind(holder.avatarUrl)).toBe("personal");
+    expect(anonymizeKind(adminShareSchema.shape.name)).toBeUndefined();
+  });
+});
+
+describe("adminMakeManualSchema", () => {
+  it("accepts a share alone, or with its first value", () => {
+    expect(adminMakeManualSchema.parse({ id })).toEqual({ id });
+    const withValue = {
+      id,
+      priceEur: "41.20",
+      at: "2026-03-02T17:30:00+01:00",
+    };
+    expect(adminMakeManualSchema.parse(withValue)).toEqual(withValue);
+  });
+
+  it("refuses a price without its moment, a moment without its price, or a float", () => {
+    expect(
+      adminMakeManualSchema.safeParse({ id, priceEur: "41.20" }).success,
+    ).toBe(false);
+    expect(
+      adminMakeManualSchema.safeParse({ id, at: "2026-03-02T17:30:00Z" })
+        .success,
+    ).toBe(false);
+    expect(
+      adminMakeManualSchema.safeParse({
+        id,
+        priceEur: 41.2,
+        at: "2026-03-02T17:30:00Z",
+      }).success,
+    ).toBe(false);
+  });
+});
+
+const paths = (await createOpenApiDocument()).paths ?? {};
+
+describe("the OpenAPI document", () => {
+  it("marks the holders of GET /admin/shares personal", () => {
+    expect(paths["/admin/shares"]?.get?.responses?.["200"]).toMatchObject({
+      content: {
+        "application/json": {
+          schema: {
+            properties: {
+              needsAttention: {
+                items: {
+                  properties: {
+                    holders: {
+                      items: {
+                        properties: {
+                          displayName: { "x-anonymize": "personal" },
+                          avatarUrl: { "x-anonymize": "personal" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+});
