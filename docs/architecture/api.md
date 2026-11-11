@@ -2,18 +2,20 @@
 
 `apps/api`, an Express (TypeScript) server. It is the only block the browser talks to, under `/api` on the instance's origin. It answers JSON, and every request and response body is a Zod schema in `@fpr/contracts`.
 
-Each route is declared in `@fpr/contracts` with `defineRoute`, and `apiRoutes` lists every API route. A declaration holds:
+## Route contracts
 
-- the method, and the path under `/api`, with Express-style params such as `/users/:userId/portfolio`;
-- a one-line summary;
-- the roles it accepts, or `public`;
-- a schema for each path param, the query, and the body, when the route has them;
-- the body of each success status, `200`, `201`, or `204`, or none;
-- its own error codes.
+Each route is an oRPC contract in `@fpr/contracts`, and `apiContract` holds every API route. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
 
-Every route also answers with the codes the request pipeline gives routes of its kind: `internal_error` always, `invalid_request` when it has params, a query, or a body, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role.
+- its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
+- its input, with `.input()`: the path params, the query, and the body in one Zod object;
+- its response, with `.output()`;
+- its error codes, with `.errors(errorMap(...))`, each sent with its status.
 
-The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the declarations with Zod's JSON Schema output by `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
+Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones, and a test over `apiContract` fails when a route misses one.
+
+The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
+
+The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
 
 ## Request pipeline
 
@@ -30,7 +32,7 @@ flowchart LR
 1. **Session**: Better Auth reads the session cookie. Public routes skip the next two steps. A write whose `Origin` header isn't `PUBLIC_URL` is refused.
 2. **Access check**: the person's access key still gives access. Otherwise their sessions are deleted and the answer is `401 access_ended`. See `auth.md`.
 3. **Role guard**: each route declares the roles it accepts. Anonymous viewers are refused every write with `403`. Guests are refused every write except to their own profile.
-4. **Handler**: validates the body with its contract, then reads and writes Postgres through `@fpr/db`.
+4. **Handler**: receives the input oRPC validated with its contract, then reads and writes Postgres through `@fpr/db`.
 5. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
 
 ## Errors
