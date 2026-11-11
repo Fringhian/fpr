@@ -1,0 +1,14 @@
+# Development only: publishes the dependencies on this machine's loopback
+# address, so the apps running under `pnpm dev` reach them.
+services:
+  postgres:
+    ports:
+      - 127.0.0.1:5432:5432
+
+  rustfs:
+    ports:
+      - 127.0.0.1:9000:9000
+
+  victorialogs:
+    ports:
+      - 127.0.0.1:9428:9428

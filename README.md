@@ -10,16 +10,55 @@ FPR is being specified. The documentation describes the first version; the code 
 
 ## Development
 
-FPR runs on Node 24 with pnpm.
+FPR runs on Node 24 with pnpm, and its dependencies run in Docker.
 
-```sh
-pnpm install
-```
+1. Install the packages. This also installs the git hooks.
 
-`pnpm install` also installs the git hooks. Before each commit, Biome formats the staged files and blocks the commit on any lint error. Before each push, Biome checks the whole repository and blocks the push on any error.
+   ```sh
+   pnpm install
+   ```
+
+2. Copy `.env.example` to `.env` and fill it in. For development:
+
+   | Variable | Value |
+   | --- | --- |
+   | `POSTGRES_USER`, `POSTGRES_DB` | `fpr` |
+   | `POSTGRES_PASSWORD` | Any password |
+   | `DATABASE_URL` | `postgres://fpr:<POSTGRES_PASSWORD>@localhost:5432/fpr` |
+   | `PUBLIC_URL` | `http://localhost:5173` |
+   | `PRICES_URL` | `http://localhost:3001` |
+   | `S3_ENDPOINT` | `http://localhost:9000` |
+   | `S3_REGION` | `us-east-1` |
+   | `S3_BUCKET` | `fpr-avatars` |
+   | `S3_ACCESS_KEY_ID` | Any name |
+   | `PRICE_PROVIDER` | `eodhd` |
+   | `PRICE_PROVIDER_API_KEY` | Your own key at the provider, not the live instance's |
+   | `LOGS_USERNAME` | Any name |
+   | `PRICES_TOKEN`, `BETTER_AUTH_SECRET`, `ADMIN_BOOTSTRAP_KEY`, `PSEUDONYM_SECRET`, `S3_SECRET_ACCESS_KEY`, `LOGS_PASSWORD` | `openssl rand -hex 32`, one each |
+
+   The other variables have defaults and can stay empty.
+
+3. Start Postgres, the object storage, and the logs in the background. This creates the bucket too.
+
+   ```sh
+   pnpm dev:deps
+   ```
+
+4. Run the web app, the API, and the price service in watch mode.
+
+   ```sh
+   pnpm dev
+   ```
+
+   The app is on http://localhost:5173. The API answers `http://localhost:3000/health` and the price service `http://localhost:3001/health` with `200` once Postgres answers. The logs of the Docker services are searchable at http://localhost:9428/select/vmui, with `LOGS_USERNAME` and `LOGS_PASSWORD`.
+
+`docker compose --profile storage down` stops the dependencies, and keeps their data.
+
+Before each commit, Biome formats the staged files and blocks the commit on any lint error. Before each push, Biome checks the whole repository and blocks the push on any error.
 
 - `pnpm lint` checks the repository with Biome.
 - `pnpm format` formats it and applies safe fixes.
+- `pnpm test` runs every test, and `pnpm typecheck` checks the types.
 
 ## Documentation
 

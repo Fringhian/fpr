@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --recursive --parallel --if-present run dev",
+    "dev:deps": "export COMPOSE_FILE=compose.yaml:compose.dev.yaml COMPOSE_PROFILES=storage && docker compose up --detach --wait postgres rustfs victorialogs vector && docker compose run --rm rustfs-bucket",
     "build": "pnpm --recursive --if-present run build",
     "test": "vitest run",
     "lint": "biome check .",

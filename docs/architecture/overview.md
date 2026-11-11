@@ -62,10 +62,13 @@ fpr/
 ├── packages/
 │   ├── contracts/        # @fpr/contracts: Zod schemas for the REST API
 │   └── db/               # @fpr/db: pool, migrations, row types, queries
+├── deploy/
+│   └── vector.yaml       # vector's log collection
 ├── docs/
 │   ├── architecture/
 │   └── product/
 ├── compose.yaml
+├── compose.dev.yaml      # local ports for development
 ├── .env.example
 ├── package.json
 ├── pnpm-workspace.yaml

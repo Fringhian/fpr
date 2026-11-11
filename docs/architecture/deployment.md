@@ -10,13 +10,19 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 | `api` | `apps/api/Dockerfile` | No |
 | `prices` | `apps/prices/Dockerfile` | No |
 | `postgres` | `postgres:18` | No |
-| `minio` | `minio/minio`, in the `storage` profile | No |
+| `rustfs` | `rustfs/rustfs`, in the `storage` profile | No |
 | `victorialogs` | `victoriametrics/victoria-logs` | Yes, on its own hostname |
 | `vector` | `timberio/vector` | No |
 
 `web` forwards `/api` to `api`. `api` calls `prices`. `web` and `victorialogs` each need a hostname, and TLS is the host's reverse proxy's job.
 
-The `minio` service is for instances without external object storage: `docker compose --profile storage up`. With an external bucket (Cloudflare R2, AWS S3, or any S3-compatible service), the `S3_*` variables point at it and the profile stays off.
+Every image is pinned to an exact version in `compose.yaml`.
+
+The `rustfs` service is S3-compatible storage for instances without external object storage: `docker compose --profile storage up`. It takes its credentials from `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`, and the one-off `rustfs-bucket` container, in the same profile, creates `S3_BUCKET` when it is missing. With an external bucket (Cloudflare R2, AWS S3, or any S3-compatible service), the `S3_*` variables point at it and the profile stays off.
+
+| Variable | Purpose |
+| --- | --- |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | The `postgres` service's user, password, and database, which `DATABASE_URL` points at |
 
 ## Self-hosting
 
@@ -29,7 +35,7 @@ The `minio` service is for instances without external object storage: `docker co
 
 ## Logs
 
-Every container writes its logs to standard output. `vector` reads them through the Docker socket, mounted read-only, and sends them to `victorialogs`, which stores them on its own volume.
+Every container writes its logs to standard output. `vector` reads them through the Docker socket, mounted read-only, from the containers labelled `fpr.logs`, and sends them to `victorialogs`, which stores them on its own volume. Its configuration is `deploy/vector.yaml`.
 
 - Each line is stored with its service, container, time, and JSON fields, so a search can filter on any of them: a level, a request id, a person's id, a share.
 - Logs are kept for `LOGS_RETENTION`, by default 100 years. When the volume reaches `LOGS_MAX_DISK`, the oldest days are deleted first.
@@ -59,9 +65,9 @@ Postgres holds all of FPR's data, the bucket holds the profile pictures, and the
 
 ## Development
 
-- `docker compose --profile storage up postgres minio victorialogs vector` runs the dependencies.
+- `pnpm dev:deps` runs the dependencies in the background: `postgres`, `rustfs`, `victorialogs`, and `vector`, then creates the bucket. It adds `compose.dev.yaml`, which publishes Postgres on `localhost:5432`, RustFS on `localhost:9000`, and VictoriaLogs on `localhost:9428`, on the loopback address only. `docker compose --profile storage down` stops them.
 - `pnpm install` installs the Git hooks.
-- `pnpm dev` runs `web`, `api`, and `prices` in watch mode, with `api` and `prices` on `tsx`.
+- `pnpm dev` runs `web`, `api`, and `prices` in watch mode, with `api` and `prices` on `tsx`, reading the root `.env`. `web` listens on `5173`, `api` on `PORT`, by default `3000`, and `prices` on `3001`.
 - `pnpm dev:mock` runs `web` alone, on mock responses built from the contracts.
 - `pnpm db:migrate` runs migrations against `DATABASE_URL`.
 - `pnpm db:seed` fills a development database with invented people holding manual shares and a few widely traded listings.
