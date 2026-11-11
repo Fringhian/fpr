@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
+import { apiRoutes, createOpenApiDocument } from "@fpr/contracts";
 import { type Db, ping } from "@fpr/db";
 import type { Express } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,7 +24,10 @@ interface Running {
 }
 
 /** Starts the app on a random local port and captures its log lines. */
-async function serve(routes?: (app: Express) => void): Promise<Running> {
+async function serve(
+  routes?: (app: Express) => void,
+  { docs = false }: { docs?: boolean } = {},
+): Promise<Running> {
   const rawLines: string[] = [];
   const destination = new Writable({
     write(chunk, _encoding, callback) {
@@ -34,6 +38,7 @@ async function serve(routes?: (app: Express) => void): Promise<Running> {
   const app = createApp({
     db: {} as Db,
     logger: createLogger({ destination }),
+    docs,
     ...(routes ? { routes } : {}),
   });
   const server: Server = await new Promise((resolve) => {
@@ -167,6 +172,37 @@ describe("GET /health", () => {
           line.message === "health check failed: Postgres did not answer",
       ),
     ).toBe(true);
+  });
+});
+
+describe("/api/docs", () => {
+  it("serves the OpenAPI document generated from the contracts", async () => {
+    running = await serve(undefined, { docs: true });
+
+    const response = await fetch(`${running.url}/api/docs/openapi.json`);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(createOpenApiDocument(apiRoutes));
+  });
+
+  it("serves a viewer that reads the document", async () => {
+    running = await serve(undefined, { docs: true });
+
+    const response = await fetch(`${running.url}/api/docs`);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/html");
+    expect(await response.text()).toContain("/api/docs/openapi.json");
+  });
+
+  it("is not served unless asked, as outside development", async () => {
+    running = await serve();
+
+    const viewer = await fetch(`${running.url}/api/docs`);
+    const document = await fetch(`${running.url}/api/docs/openapi.json`);
+
+    expect(viewer.status).toBe(404);
+    expect(document.status).toBe(404);
   });
 });
 

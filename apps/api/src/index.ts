@@ -20,7 +20,11 @@ function main(): void {
     onIdleError: (error) =>
       logger.error({ err: error }, "idle database connection failed"),
   });
-  const app = createApp({ db, logger });
+  const app = createApp({
+    db,
+    logger,
+    docs: process.env.NODE_ENV === "development",
+  });
   const server: Server = app.listen(env.PORT, () => {
     logger.info({ port: env.PORT }, "api listening");
   });
