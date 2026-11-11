@@ -2,7 +2,18 @@
 
 `apps/api`, an Express (TypeScript) server. It is the only block the browser talks to, under `/api` on the instance's origin. It answers JSON, and every request and response body is a Zod schema in `@fpr/contracts`.
 
-Each route is declared in `@fpr/contracts` with its method, path, schemas, error codes, and accepted roles. The OpenAPI document, `packages/contracts/openapi.json`, is generated from these declarations by `pnpm contracts:openapi`, and the API serves it with a viewer at `/api/docs` in development. The price service's internal routes are declared the same way and left out of the document.
+Each route is declared in `@fpr/contracts` with `defineRoute`, and `apiRoutes` lists every API route. A declaration holds:
+
+- the method, and the path under `/api`, with Express-style params such as `/users/:userId/portfolio`;
+- a one-line summary;
+- the roles it accepts, or `public`;
+- a schema for each path param, the query, and the body, when the route has them;
+- the body of each success status, `200`, `201`, or `204`, or none;
+- its own error codes.
+
+Every route also answers with the codes the request pipeline gives routes of its kind: `internal_error` always, `invalid_request` when it has params, a query, or a body, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role.
+
+The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the declarations with Zod's JSON Schema output by `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
 
 ## Request pipeline
 
@@ -176,7 +187,7 @@ The balance leaderboard shows ranks without amounts. Share prices are market dat
 
 A pseudonym is an adjective and an animal, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)`. Two people with the same pseudonym are told apart by a number suffix. It is the same on every screen and visit, and is not stored.
 
-The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its personal and euro fields, and a test fails when a schema has an unmarked field of those kinds.
+The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts and series in euros), or `quantity()` (quantities held and cash), and a test fails when a schema has an unmarked field of those kinds.
 
 ## Configuration
 
