@@ -2559,25 +2559,22 @@
         ]
       }
     },
-    "/shares": {
+    "/users/{userId}/portfolio": {
       "get": {
-        "operationId": "shares.search",
-        "summary": "Filter the stored shares",
+        "operationId": "portfolio.get",
+        "summary": "A member's holdings, cash and balance",
         "tags": [
-          "shares"
+          "portfolio"
         ],
         "parameters": [
           {
-            "name": "q",
-            "in": "query",
-            "required": false,
+            "name": "userId",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "maxLength": 100,
-              "default": ""
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
+              "format": "uuid"
+            }
           },
           {
             "name": "period",
@@ -2606,39 +2603,135 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "shares": {
+                    "pricesAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "balanceEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "euro"
+                    },
+                    "sharesEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "euro"
+                    },
+                    "cashEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "cashWeight": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "gain": {
+                      "type": "object",
+                      "properties": {
+                        "eur": {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "x-anonymize": "euro"
+                        },
+                        "percent": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "eur",
+                        "percent"
+                      ]
+                    },
+                    "firstEntryAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "measuredFromFirstEntry": {
+                      "type": "boolean"
+                    },
+                    "incomplete": {
+                      "type": "boolean"
+                    },
+                    "holdings": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "isin": {
-                            "type": "string",
-                            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                          },
-                          "name": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "kind": {
-                            "enum": [
-                              "market",
-                              "manual"
-                            ],
-                            "type": "string"
-                          },
-                          "symbol": {
-                            "anyOf": [
-                              {
+                          "share": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "isin": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                              },
+                              "name": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "kind": {
+                                "enum": [
+                                  "market",
+                                  "manual"
+                                ],
                                 "type": "string"
                               },
-                              {
-                                "type": "null"
+                              "symbol": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
+                            },
+                            "required": [
+                              "id",
+                              "isin",
+                              "name",
+                              "kind",
+                              "symbol"
                             ]
+                          },
+                          "quantity": {
+                            "type": "string",
+                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "x-anonymize": "quantity"
                           },
                           "latestPrice": {
                             "anyOf": [
@@ -2652,20 +2745,11 @@
                                   "priceEur": {
                                     "type": "string",
                                     "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                  },
-                                  "source": {
-                                    "enum": [
-                                      "close",
-                                      "intraday",
-                                      "manual"
-                                    ],
-                                    "type": "string"
                                   }
                                 },
                                 "required": [
                                   "at",
-                                  "priceEur",
-                                  "source"
+                                  "priceEur"
                                 ]
                               },
                               {
@@ -2673,7 +2757,19 @@
                               }
                             ]
                           },
-                          "changeEur": {
+                          "valueEur": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "x-anonymize": "euro"
+                          },
+                          "weight": {
                             "anyOf": [
                               {
                                 "type": "string",
@@ -2684,11 +2780,43 @@
                               }
                             ]
                           },
-                          "changePercent": {
+                          "gain": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "eur": {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                    "x-anonymize": "euro"
+                                  },
+                                  "percent": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "eur",
+                                  "percent"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "pricesFrom": {
                             "anyOf": [
                               {
                                 "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                "format": "date"
                               },
                               {
                                 "type": "null"
@@ -2714,65 +2842,32 @@
                                 "priceEur"
                               ]
                             }
-                          },
-                          "holders": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid"
-                                },
-                                "displayName": {
-                                  "type": "string",
-                                  "minLength": 1,
-                                  "maxLength": 40,
-                                  "x-anonymize": "personal"
-                                },
-                                "avatarUrl": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string"
-                                    },
-                                    {
-                                      "type": "null"
-                                    }
-                                  ],
-                                  "x-anonymize": "personal"
-                                },
-                                "color": {
-                                  "type": "integer",
-                                  "minimum": 1,
-                                  "maximum": 10
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "displayName",
-                                "avatarUrl",
-                                "color"
-                              ]
-                            }
                           }
                         },
                         "required": [
-                          "id",
-                          "isin",
-                          "name",
-                          "kind",
-                          "symbol",
+                          "share",
+                          "quantity",
                           "latestPrice",
-                          "changeEur",
-                          "changePercent",
-                          "series",
-                          "holders"
+                          "valueEur",
+                          "weight",
+                          "gain",
+                          "pricesFrom",
+                          "series"
                         ]
                       }
                     }
                   },
                   "required": [
-                    "shares"
+                    "pricesAt",
+                    "balanceEur",
+                    "sharesEur",
+                    "cashEur",
+                    "cashWeight",
+                    "gain",
+                    "firstEntryAt",
+                    "measuredFromFirstEntry",
+                    "incomplete",
+                    "holdings"
                   ]
                 }
               }
@@ -2825,6 +2920,38 @@
                           "enum": [
                             "unauthenticated",
                             "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
                           ]
                         },
                         "details": {
@@ -2884,37 +3011,46 @@
         ]
       }
     },
-    "/shares/lookup": {
-      "post": {
-        "operationId": "shares.lookup",
-        "summary": "Look up a share at the price provider",
+    "/users/{userId}/log": {
+      "get": {
+        "operationId": "portfolio.log",
+        "summary": "A member's share changes and cash balances, newest first",
         "tags": [
-          "shares"
+          "portfolio"
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 100
-                  },
-                  "isin": {
-                    "type": "string",
-                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                  }
-                },
-                "required": [
-                  "query"
-                ]
-              }
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -2923,84 +3059,124 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "shares": {
+                    "entries": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "isin": {
-                            "type": "string",
-                            "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                          },
-                          "name": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "kind": {
-                            "enum": [
-                              "market",
-                              "manual"
-                            ],
-                            "type": "string"
-                          },
-                          "symbol": {
-                            "anyOf": [
-                              {
-                                "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "change"
                               },
-                              {
-                                "type": "null"
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "share": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  },
+                                  "isin": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "kind": {
+                                    "enum": [
+                                      "market",
+                                      "manual"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "symbol": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "isin",
+                                  "name",
+                                  "kind",
+                                  "symbol"
+                                ]
+                              },
+                              "quantityDelta": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
                               }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "share",
+                              "quantityDelta",
+                              "effectiveAt"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "cash"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "amountEur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "amountEur",
+                              "effectiveAt"
                             ]
                           }
-                        },
-                        "required": [
-                          "id",
-                          "isin",
-                          "name",
-                          "kind",
-                          "symbol"
                         ]
                       }
                     },
-                    "listingsWithoutIsin": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "symbol": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "name": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "exchange": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "tradingCurrency": {
-                            "type": "string",
-                            "pattern": "^[A-Z]{3}$"
-                          }
+                    "nextBefore": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
                         },
-                        "required": [
-                          "symbol",
-                          "name",
-                          "exchange",
-                          "tradingCurrency"
-                        ]
-                      }
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
-                    "shares",
-                    "listingsWithoutIsin"
+                    "entries",
+                    "nextBefore"
                   ]
                 }
               }
@@ -3071,8 +3247,8 @@
               }
             }
           },
-          "403": {
-            "description": "`forbidden`",
+          "404": {
+            "description": "`not_found`",
             "content": {
               "application/json": {
                 "schema": {
@@ -3084,39 +3260,7 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "forbidden"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "`call_budget_used`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "call_budget_used"
+                            "not_found"
                           ]
                         },
                         "details": {
@@ -3166,52 +3310,33 @@
                 }
               }
             }
-          },
-          "503": {
-            "description": "`provider_unavailable`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "provider_unavailable"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
           }
         },
         "x-roles": [
           "admin",
-          "member"
+          "member",
+          "guest",
+          "anonymous"
         ]
       }
     },
-    "/shares/manual": {
+    "/users/{userId}/changes": {
       "post": {
-        "operationId": "shares.createManual",
-        "summary": "Create a manual share",
+        "operationId": "portfolio.addChange",
+        "summary": "Add or remove shares",
         "tags": [
-          "shares"
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -3220,29 +3345,23 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "isin": {
+                  "shareId": {
                     "type": "string",
-                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                    "format": "uuid"
                   },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200
-                  },
-                  "priceEur": {
+                  "quantityDelta": {
                     "type": "string",
                     "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                   },
-                  "at": {
+                  "effectiveAt": {
                     "type": "string",
                     "format": "date-time"
                   }
                 },
                 "required": [
-                  "isin",
-                  "name",
-                  "priceEur",
-                  "at"
+                  "shareId",
+                  "quantityDelta",
+                  "effectiveAt"
                 ]
               }
             }
@@ -3256,42 +3375,70 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "type": {
+                      "const": "change"
+                    },
                     "id": {
                       "type": "string",
                       "format": "uuid"
                     },
-                    "isin": {
-                      "type": "string",
-                      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "kind": {
-                      "enum": [
-                        "market",
-                        "manual"
-                      ],
-                      "type": "string"
-                    },
-                    "symbol": {
-                      "anyOf": [
-                        {
+                    "share": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isin": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "market",
+                            "manual"
+                          ],
                           "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "symbol": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
+                      },
+                      "required": [
+                        "id",
+                        "isin",
+                        "name",
+                        "kind",
+                        "symbol"
                       ]
+                    },
+                    "quantityDelta": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
+                    "type",
                     "id",
-                    "isin",
-                    "name",
-                    "kind",
-                    "symbol"
+                    "share",
+                    "quantityDelta",
+                    "effectiveAt"
                   ]
                 }
               }
@@ -3394,8 +3541,8 @@
               }
             }
           },
-          "409": {
-            "description": "`isin_taken`",
+          "404": {
+            "description": "`not_found`",
             "content": {
               "application/json": {
                 "schema": {
@@ -3407,7 +3554,7 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "isin_taken"
+                            "not_found"
                           ]
                         },
                         "details": {
@@ -3427,7 +3574,7 @@
             }
           },
           "422": {
-            "description": "`future_moment`",
+            "description": "`holding_below_zero`, `future_moment`",
             "content": {
               "application/json": {
                 "schema": {
@@ -3439,7 +3586,8 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "future_moment"
+                            "future_moment",
+                            "holding_below_zero"
                           ]
                         },
                         "details": {
@@ -3497,385 +3645,12 @@
         ]
       }
     },
-    "/shares/{id}": {
-      "get": {
-        "operationId": "shares.get",
-        "summary": "A share's page",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "period",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "enum": [
-                "1D",
-                "1W",
-                "1M",
-                "3M",
-                "YTD",
-                "all"
-              ],
-              "type": "string"
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "isin": {
-                      "type": "string",
-                      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "kind": {
-                      "enum": [
-                        "market",
-                        "manual"
-                      ],
-                      "type": "string"
-                    },
-                    "symbol": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "latestPrice": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "at": {
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "priceEur": {
-                              "type": "string",
-                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                            },
-                            "source": {
-                              "enum": [
-                                "close",
-                                "intraday",
-                                "manual"
-                              ],
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "at",
-                            "priceEur",
-                            "source"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "changeEur": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "changePercent": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "exchange": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "tradingCurrency": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "pattern": "^[A-Z]{3}$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "historyStartsOn": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "format": "date"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "position": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "quantity": {
-                              "type": "string",
-                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                              "x-anonymize": "quantity"
-                            },
-                            "valueEur": {
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "x-anonymize": "euro"
-                            },
-                            "gainSinceBoughtEur": {
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "x-anonymize": "euro"
-                            },
-                            "gainSinceBoughtPercent": {
-                              "anyOf": [
-                                {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            }
-                          },
-                          "required": [
-                            "quantity",
-                            "valueEur",
-                            "gainSinceBoughtEur",
-                            "gainSinceBoughtPercent"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "isin",
-                    "name",
-                    "kind",
-                    "symbol",
-                    "latestPrice",
-                    "changeEur",
-                    "changePercent",
-                    "exchange",
-                    "tradingCurrency",
-                    "historyStartsOn",
-                    "position"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member",
-          "guest",
-          "anonymous"
-        ]
-      },
+    "/changes/{id}": {
       "patch": {
-        "operationId": "shares.update",
-        "summary": "Edit a manual share's name or ISIN",
+        "operationId": "portfolio.updateChange",
+        "summary": "Edit a share change",
         "tags": [
-          "shares"
+          "portfolio"
         ],
         "parameters": [
           {
@@ -3895,14 +3670,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "quantityDelta": {
                     "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                   },
-                  "isin": {
+                  "effectiveAt": {
                     "type": "string",
-                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                    "format": "date-time"
                   }
                 }
               }
@@ -3917,42 +3691,70 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "type": {
+                      "const": "change"
+                    },
                     "id": {
                       "type": "string",
                       "format": "uuid"
                     },
-                    "isin": {
-                      "type": "string",
-                      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "kind": {
-                      "enum": [
-                        "market",
-                        "manual"
-                      ],
-                      "type": "string"
-                    },
-                    "symbol": {
-                      "anyOf": [
-                        {
+                    "share": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isin": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "kind": {
+                          "enum": [
+                            "market",
+                            "manual"
+                          ],
                           "type": "string"
                         },
-                        {
-                          "type": "null"
+                        "symbol": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
+                      },
+                      "required": [
+                        "id",
+                        "isin",
+                        "name",
+                        "kind",
+                        "symbol"
                       ]
+                    },
+                    "quantityDelta": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
                   "required": [
+                    "type",
                     "id",
-                    "isin",
-                    "name",
-                    "kind",
-                    "symbol"
+                    "share",
+                    "quantityDelta",
+                    "effectiveAt"
                   ]
                 }
               }
@@ -4087,8 +3889,8 @@
               }
             }
           },
-          "409": {
-            "description": "`isin_taken`",
+          "422": {
+            "description": "`holding_below_zero`, `future_moment`",
             "content": {
               "application/json": {
                 "schema": {
@@ -4100,7 +3902,8 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "isin_taken"
+                            "future_moment",
+                            "holding_below_zero"
                           ]
                         },
                         "details": {
@@ -4158,10 +3961,10 @@
         ]
       },
       "delete": {
-        "operationId": "shares.delete",
-        "summary": "Delete a share no share change refers to",
+        "operationId": "portfolio.deleteChange",
+        "summary": "Delete a share change",
         "tags": [
-          "shares"
+          "portfolio"
         ],
         "parameters": [
           {
@@ -4321,8 +4124,8 @@
               }
             }
           },
-          "409": {
-            "description": "`share_in_use`",
+          "422": {
+            "description": "`holding_below_zero`",
             "content": {
               "application/json": {
                 "schema": {
@@ -4334,7 +4137,7 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "share_in_use"
+                            "holding_below_zero"
                           ]
                         },
                         "details": {
@@ -4387,16 +4190,294 @@
           }
         },
         "x-roles": [
-          "admin"
+          "admin",
+          "member"
         ]
       }
     },
-    "/shares/{id}/prices": {
-      "get": {
-        "operationId": "shares.prices",
-        "summary": "A share's chart points",
+    "/users/{userId}/cash-balances": {
+      "post": {
+        "operationId": "portfolio.setCash",
+        "summary": "Set cash from a moment",
         "tags": [
-          "shares"
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amountEur": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "amountEur",
+                  "effectiveAt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "cash"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "amountEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "amountEur",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/cash-balances/{id}": {
+      "patch": {
+        "operationId": "portfolio.updateCash",
+        "summary": "Edit a cash balance",
+        "tags": [
+          "portfolio"
         ],
         "parameters": [
           {
@@ -4407,9 +4488,484 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amountEur": {
+                    "type": "string",
+                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                  },
+                  "effectiveAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "cash"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "amountEur": {
+                      "type": "string",
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "x-anonymize": "quantity"
+                    },
+                    "effectiveAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "id",
+                    "amountEur",
+                    "effectiveAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`future_moment`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "future_moment"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      },
+      "delete": {
+        "operationId": "portfolio.deleteCash",
+        "summary": "Delete a cash balance",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "not": {}
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`invalid_request`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "invalid_request"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`unauthenticated`, `access_ended`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "unauthenticated",
+                            "access_ended"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`forbidden`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`not_found`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_found"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`internal_error`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "internal_error"
+                          ]
+                        },
+                        "details": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "member"
+        ]
+      }
+    },
+    "/users/{userId}/balance-history": {
+      "get": {
+        "operationId": "portfolio.balanceHistory",
+        "summary": "A member's balance over the period",
+        "tags": [
+          "portfolio"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           },
           {
-            "name": "range",
+            "name": "period",
             "in": "query",
             "required": true,
             "schema": {
@@ -4444,509 +5000,64 @@
                             "type": "string",
                             "format": "date-time"
                           },
-                          "priceEur": {
+                          "balanceEur": {
                             "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "x-anonymize": "euro"
+                          },
+                          "provisional": {
+                            "type": "boolean"
+                          },
+                          "incomplete": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
                           "at",
-                          "priceEur"
+                          "balanceEur",
+                          "provisional",
+                          "incomplete"
                         ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "points"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
                       },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member",
-          "guest",
-          "anonymous"
-        ]
-      }
-    },
-    "/shares/{id}/holders": {
-      "get": {
-        "operationId": "shares.holders",
-        "summary": "Each member's changes and result on a share",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "holders": {
+                      "x-anonymize": "euro"
+                    },
+                    "entries": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "quantity": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                            "x-anonymize": "quantity"
-                          },
-                          "valueEur": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ],
-                            "x-anonymize": "euro"
-                          },
-                          "gainSinceBoughtEur": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ],
-                            "x-anonymize": "euro"
-                          },
-                          "gainSinceBoughtPercent": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "person": {
+                        "anyOf": [
+                          {
                             "type": "object",
                             "properties": {
+                              "type": {
+                                "const": "change"
+                              },
                               "id": {
                                 "type": "string",
                                 "format": "uuid"
                               },
-                              "displayName": {
-                                "type": "string",
-                                "minLength": 1,
-                                "maxLength": 40,
-                                "x-anonymize": "personal"
-                              },
-                              "avatarUrl": {
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "x-anonymize": "personal"
-                              },
-                              "color": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 10
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "displayName",
-                              "avatarUrl",
-                              "color"
-                            ]
-                          },
-                          "changes": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "string",
-                                  "format": "uuid"
-                                },
-                                "quantityDelta": {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                  "x-anonymize": "quantity"
-                                },
-                                "effectiveAt": {
-                                  "type": "string",
-                                  "format": "date-time"
-                                }
-                              },
-                              "required": [
-                                "id",
-                                "quantityDelta",
-                                "effectiveAt"
-                              ]
-                            }
-                          }
-                        },
-                        "required": [
-                          "quantity",
-                          "valueEur",
-                          "gainSinceBoughtEur",
-                          "gainSinceBoughtPercent",
-                          "person",
-                          "changes"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "holders"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member",
-          "guest",
-          "anonymous"
-        ]
-      }
-    },
-    "/shares/{id}/values": {
-      "get": {
-        "operationId": "shares.values",
-        "summary": "A manual share's value points",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "values": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "at": {
-                            "type": "string",
-                            "format": "date-time"
-                          },
-                          "priceEur": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                          },
-                          "enteredBy": {
-                            "anyOf": [
-                              {
+                              "share": {
                                 "type": "object",
                                 "properties": {
                                   "id": {
                                     "type": "string",
                                     "format": "uuid"
                                   },
-                                  "displayName": {
+                                  "isin": {
                                     "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 40,
-                                    "x-anonymize": "personal"
+                                    "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
                                   },
-                                  "avatarUrl": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "kind": {
+                                    "enum": [
+                                      "market",
+                                      "manual"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "symbol": {
                                     "anyOf": [
                                       {
                                         "type": "string"
@@ -4954,38 +5065,69 @@
                                       {
                                         "type": "null"
                                       }
-                                    ],
-                                    "x-anonymize": "personal"
-                                  },
-                                  "color": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 10
+                                    ]
                                   }
                                 },
                                 "required": [
                                   "id",
-                                  "displayName",
-                                  "avatarUrl",
-                                  "color"
+                                  "isin",
+                                  "name",
+                                  "kind",
+                                  "symbol"
                                 ]
                               },
-                              {
-                                "type": "null"
+                              "quantityDelta": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
                               }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "share",
+                              "quantityDelta",
+                              "effectiveAt"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "const": "cash"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "amountEur": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "amountEur",
+                              "effectiveAt"
                             ]
                           }
-                        },
-                        "required": [
-                          "at",
-                          "priceEur",
-                          "enteredBy"
                         ]
                       }
                     }
                   },
                   "required": [
-                    "values"
+                    "points",
+                    "entries"
                   ]
                 }
               }
@@ -5126,1383 +5268,6 @@
           "member",
           "guest",
           "anonymous"
-        ]
-      },
-      "post": {
-        "operationId": "shares.addValue",
-        "summary": "Add a value point to a manual share",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "at": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "priceEur": {
-                    "type": "string",
-                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                  }
-                },
-                "required": [
-                  "at",
-                  "priceEur"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "at": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "priceEur": {
-                      "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                    },
-                    "enteredBy": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "displayName": {
-                              "type": "string",
-                              "minLength": 1,
-                              "maxLength": 40,
-                              "x-anonymize": "personal"
-                            },
-                            "avatarUrl": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "x-anonymize": "personal"
-                            },
-                            "color": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 10
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "displayName",
-                            "avatarUrl",
-                            "color"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "at",
-                    "priceEur",
-                    "enteredBy"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "`forbidden`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "forbidden"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "`value_changed`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "value_changed"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`future_moment`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "future_moment"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member"
-        ]
-      }
-    },
-    "/shares/{id}/value-events": {
-      "get": {
-        "operationId": "shares.valueEvents",
-        "summary": "A manual share's value edits",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "events": {
-                      "type": "array",
-                      "items": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              },
-                              "at": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "madeBy": {
-                                "anyOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      "displayName": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 40,
-                                        "x-anonymize": "personal"
-                                      },
-                                      "avatarUrl": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
-                                          },
-                                          {
-                                            "type": "null"
-                                          }
-                                        ],
-                                        "x-anonymize": "personal"
-                                      },
-                                      "color": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 10
-                                      }
-                                    },
-                                    "required": [
-                                      "id",
-                                      "displayName",
-                                      "avatarUrl",
-                                      "color"
-                                    ]
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "madeAt": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "action": {
-                                "const": "added"
-                              },
-                              "priceEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              "previousPriceEur": {
-                                "type": "null"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "at",
-                              "madeBy",
-                              "madeAt",
-                              "action",
-                              "priceEur",
-                              "previousPriceEur"
-                            ]
-                          },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              },
-                              "at": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "madeBy": {
-                                "anyOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      "displayName": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 40,
-                                        "x-anonymize": "personal"
-                                      },
-                                      "avatarUrl": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
-                                          },
-                                          {
-                                            "type": "null"
-                                          }
-                                        ],
-                                        "x-anonymize": "personal"
-                                      },
-                                      "color": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 10
-                                      }
-                                    },
-                                    "required": [
-                                      "id",
-                                      "displayName",
-                                      "avatarUrl",
-                                      "color"
-                                    ]
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "madeAt": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "action": {
-                                "const": "edited"
-                              },
-                              "priceEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              },
-                              "previousPriceEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "at",
-                              "madeBy",
-                              "madeAt",
-                              "action",
-                              "priceEur",
-                              "previousPriceEur"
-                            ]
-                          },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              },
-                              "at": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "madeBy": {
-                                "anyOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      "displayName": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 40,
-                                        "x-anonymize": "personal"
-                                      },
-                                      "avatarUrl": {
-                                        "anyOf": [
-                                          {
-                                            "type": "string"
-                                          },
-                                          {
-                                            "type": "null"
-                                          }
-                                        ],
-                                        "x-anonymize": "personal"
-                                      },
-                                      "color": {
-                                        "type": "integer",
-                                        "minimum": 1,
-                                        "maximum": 10
-                                      }
-                                    },
-                                    "required": [
-                                      "id",
-                                      "displayName",
-                                      "avatarUrl",
-                                      "color"
-                                    ]
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "madeAt": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "action": {
-                                "const": "deleted"
-                              },
-                              "priceEur": {
-                                "type": "null"
-                              },
-                              "previousPriceEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                              }
-                            },
-                            "required": [
-                              "id",
-                              "at",
-                              "madeBy",
-                              "madeAt",
-                              "action",
-                              "priceEur",
-                              "previousPriceEur"
-                            ]
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "events"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member",
-          "guest",
-          "anonymous"
-        ]
-      }
-    },
-    "/shares/{id}/values/{at}": {
-      "patch": {
-        "operationId": "shares.updateValue",
-        "summary": "Edit a value point's price",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "at",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "priceEur": {
-                    "type": "string",
-                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                  },
-                  "expectedPriceEur": {
-                    "type": "string",
-                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                  }
-                },
-                "required": [
-                  "priceEur",
-                  "expectedPriceEur"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "at": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "priceEur": {
-                      "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                    },
-                    "enteredBy": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "displayName": {
-                              "type": "string",
-                              "minLength": 1,
-                              "maxLength": 40,
-                              "x-anonymize": "personal"
-                            },
-                            "avatarUrl": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "x-anonymize": "personal"
-                            },
-                            "color": {
-                              "type": "integer",
-                              "minimum": 1,
-                              "maximum": 10
-                            }
-                          },
-                          "required": [
-                            "id",
-                            "displayName",
-                            "avatarUrl",
-                            "color"
-                          ]
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "at",
-                    "priceEur",
-                    "enteredBy"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "`forbidden`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "forbidden"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "`value_changed`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "value_changed"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member"
-        ]
-      },
-      "delete": {
-        "operationId": "shares.deleteValue",
-        "summary": "Delete a value point",
-        "tags": [
-          "shares"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "at",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "expectedPriceEur": {
-                    "type": "string",
-                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                  }
-                },
-                "required": [
-                  "expectedPriceEur"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "not": {}
-                    },
-                    {
-                      "not": {}
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`invalid_request`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "invalid_request"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`unauthenticated`, `access_ended`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "unauthenticated",
-                            "access_ended"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "`forbidden`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "forbidden"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`not_found`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "not_found"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "`value_changed`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "value_changed"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "`last_value_point`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "last_value_point"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`internal_error`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "enum": [
-                            "internal_error"
-                          ]
-                        },
-                        "details": {
-                          "type": "object"
-                        }
-                      },
-                      "required": [
-                        "code"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "x-roles": [
-          "admin",
-          "member"
         ]
       }
     },
