@@ -51,7 +51,11 @@ export function createApp({
       },
       // The route is known only once Express has matched it, which is after
       // the request has started, so it is read when the response finishes.
-      customProps: (req) => ({ route: req.route?.path ?? null }),
+      // pino-http also binds the props when the request starts; the route is
+      // left out then, so the key appears once in each line.
+      customProps: (req, res) => ({
+        route: res.writableFinished ? (req.route?.path ?? null) : undefined,
+      }),
       customAttributeKeys: { responseTime: "duration" },
     }),
   );

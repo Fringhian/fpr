@@ -355,6 +355,33 @@ describe("trust proxy", () => {
 });
 
 describe("request logging", () => {
+  it("logs the route key once, with the matched route", async () => {
+    pingMock.mockResolvedValue(undefined);
+    running = await serve();
+
+    await fetch(`${running.url}/health`);
+
+    const requestLine = running.rawLines
+      .join("")
+      .split("\n")
+      .find((line) => line.includes('"message":"request completed"'));
+    expect(requestLine?.match(/"route":/g)).toHaveLength(1);
+    expect(JSON.parse(requestLine ?? "")).toMatchObject({ route: "/health" });
+  });
+
+  it("logs the route key once, as null, when no route matches", async () => {
+    running = await serve();
+
+    await fetch(`${running.url}/nowhere`);
+
+    const requestLine = running.rawLines
+      .join("")
+      .split("\n")
+      .find((line) => line.includes('"message":"request completed"'));
+    expect(requestLine?.match(/"route":/g)).toHaveLength(1);
+    expect(JSON.parse(requestLine ?? "")).toMatchObject({ route: null });
+  });
+
   it("never logs cookies or bodies", async () => {
     running = await serve();
 
