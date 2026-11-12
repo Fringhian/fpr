@@ -6,7 +6,7 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 
 | Service | Image | Exposed |
 | --- | --- | --- |
-| `web` | `apps/web/Dockerfile`: nginx with the built app | Yes, the only public port |
+| `web` | `apps/web/Dockerfile`: nginx with the built app | Yes, on the loopback address, at `WEB_PORT` |
 | `api` | `apps/api/Dockerfile` | No |
 | `prices` | `apps/prices/Dockerfile` | No |
 | `postgres` | `postgres:18` | No |
@@ -17,6 +17,8 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 `web` forwards `/api` to `api`. `api` calls `prices`. `web` and `victorialogs` each need a hostname, and TLS is the host's reverse proxy's job.
 
 Every image is pinned to an exact version in `compose.yaml`.
+
+`web` and `victorialogs` publish their ports on the loopback address only, at `WEB_PORT` (default `8080`) and `LOGS_PORT` (default `9428`). The host's reverse proxy forwards to them. No other service publishes a port.
 
 The `rustfs` service is S3-compatible storage for instances without external object storage: `docker compose --profile storage up`. It takes its credentials from `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`, and the one-off `rustfs-bucket` container, in the same profile, creates `S3_BUCKET` when it is missing. With an external bucket (Cloudflare R2, AWS S3, or any S3-compatible service), the `S3_*` variables point at it and the profile stays off.
 

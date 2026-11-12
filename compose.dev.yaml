@@ -8,7 +8,3 @@ services:
   rustfs:
     ports:
       - 127.0.0.1:9000:9000
-
-  victorialogs:
-    ports:
-      - 127.0.0.1:9428:9428
