@@ -38,3 +38,27 @@ jobs:
       - run: pnpm test
 
       - run: pnpm build
+
+  docker:
+    name: Docker image (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, api, prices]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      # Builds the image from the repository root, as compose.yaml does, and
+      # never pushes it. Layers are cached in the GitHub Actions cache, one
+      # scope per app.
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
