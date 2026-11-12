@@ -7,7 +7,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @fpr/web...
 RUN pnpm --filter @fpr/web run build
 
-FROM caddy:2.11.2-alpine
-COPY apps/web/Caddyfile /etc/caddy/Caddyfile
+FROM nginx:1.29.8-alpine
+COPY apps/web/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /repo/apps/web/dist /srv
-RUN caddy validate --config /etc/caddy/Caddyfile
+RUN nginx -t
