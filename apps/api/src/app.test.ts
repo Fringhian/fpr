@@ -2,11 +2,12 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
 import {
-  createOpenApiDocument,
   decimalSchema,
   errorMap,
+  type InvalidRequestDetails,
   publicRoute,
 } from "@fpr/contracts";
+import { createOpenApiDocument } from "@fpr/contracts/openapi";
 import { type Db, ping } from "@fpr/db";
 import { type AnyRouter, implement } from "@orpc/server";
 import type { Express } from "express";
@@ -236,7 +237,7 @@ describe("contract routes", () => {
     expect(await response.json()).toEqual({ id: THING, amount: "12.50" });
   });
 
-  it("answers an invalid input with invalid_request and its issues", async () => {
+  it("answers an invalid input with invalid_request and each issue's path and code, without text", async () => {
     running = await serve(undefined, { router: testRouter });
 
     const response = await fetch(`${running.url}/api/things/not-a-uuid`, {
@@ -245,14 +246,21 @@ describe("contract routes", () => {
       body: JSON.stringify({ amount: 12.5 }),
     });
     const body = (await response.json()) as {
-      error: { code: string; details: { issues: { path: string[] }[] } };
+      error: { code: string; details: InvalidRequestDetails };
     };
 
     expect(response.status).toBe(400);
     expect(body.error.code).toBe("invalid_request");
-    expect(body.error.details.issues.map((issue) => issue.path).sort()).toEqual(
-      [["amount"], ["id"]],
-    );
+    expect(Object.keys(body.error.details)).toEqual(["issues"]);
+    // Compared whole, so a message or any other field fails it.
+    expect(
+      body.error.details.issues.toSorted((a, b) =>
+        String(a.path).localeCompare(String(b.path)),
+      ),
+    ).toEqual([
+      { path: ["amount"], code: "invalid_type" },
+      { path: ["id"], code: "invalid_format" },
+    ]);
   });
 
   it("answers a declared error with its status and details", async () => {
