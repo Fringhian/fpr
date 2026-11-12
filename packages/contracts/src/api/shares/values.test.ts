@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
 import { valueChangedDetailsSchema } from "../../schemas/share.js";
 import {
   addShareValue,
-  deleteShareValue,
-  getShareValueEvents,
-  getShareValues,
   type ShareValue,
   type ShareValueEvent,
   shareValueDeleteBodySchema,
@@ -19,11 +14,7 @@ import {
   updateShareValue,
 } from "./values.js";
 
-const document = await createOpenApiDocument();
-
 const shareId = "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f71";
-
-const everyRole = ["admin", "member", "guest", "anonymous"];
 
 const alex = {
   id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70",
@@ -68,32 +59,7 @@ const events: ShareValueEvent[] = [
   },
 ];
 
-/** The codes of a write on a value point, beyond its own. */
-const writeCodes = [
-  "access_ended",
-  "forbidden",
-  "internal_error",
-  "invalid_request",
-  "not_found",
-  "unauthenticated",
-];
-
 describe("GET /shares/{id}/values", () => {
-  it("is declared for every signed-in role, with not_found", () => {
-    const { route, meta, errorMap } = getShareValues["~orpc"];
-    expect(route).toMatchObject({ method: "GET", path: "/shares/{id}/values" });
-    expect(meta.roles).toEqual(everyRole);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("accepts value points, one entered by a deleted person, and none", () => {
     const values = { values: [value, { ...value, enteredBy: null }] };
     expect(shareValuesSchema.parse(values)).toEqual(values);
@@ -102,26 +68,9 @@ describe("GET /shares/{id}/values", () => {
       shareValueSchema.safeParse({ ...value, priceEur: 40.1 }).success,
     ).toBe(false);
   });
-
-  it("marks who entered the value, and keeps the value", () => {
-    const enteredBy = shareValueSchema.shape.enteredBy.unwrap().shape;
-    expect(anonymizeKind(enteredBy.displayName)).toBe("personal");
-    expect(anonymizeKind(enteredBy.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(shareValueSchema.shape.priceEur)).toBeUndefined();
-  });
 });
 
 describe("GET /shares/{id}/value-events", () => {
-  it("is declared for every signed-in role, with not_found", () => {
-    const { route, meta, errorMap } = getShareValueEvents["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/shares/{id}/value-events",
-    });
-    expect(meta.roles).toEqual(everyRole);
-    expect(Object.keys(errorMap)).toContain("not_found");
-  });
-
   it("accepts an addition, an edit, and a deletion", () => {
     expect(shareValueEventsSchema.parse({ events })).toEqual({ events });
   });
@@ -140,30 +89,9 @@ describe("GET /shares/{id}/value-events", () => {
   ])("refuses %s", (_, event) => {
     expect(shareValueEventSchema.safeParse(event).success).toBe(false);
   });
-
-  it("marks who made the edit in every action", () => {
-    for (const option of shareValueEventSchema.options) {
-      const madeBy = option.shape.madeBy.unwrap().shape;
-      expect(anonymizeKind(madeBy.displayName)).toBe("personal");
-      expect(anonymizeKind(madeBy.avatarUrl)).toBe("personal");
-    }
-  });
 });
 
 describe("POST /shares/{id}/values", () => {
-  it("is declared for members and the admin, answering 201", () => {
-    const { route, meta, errorMap } = addShareValue["~orpc"];
-    expect(route).toMatchObject({
-      method: "POST",
-      path: "/shares/{id}/values",
-      successStatus: 201,
-    });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [...writeCodes, "future_moment", "value_changed"].sort(),
-    );
-  });
-
   const input = addShareValue["~orpc"].inputSchema;
 
   it("accepts a moment and a value above zero", () => {
@@ -227,36 +155,9 @@ describe("{at} in a value point's path", () => {
       false,
     );
   });
-
-  it("is a path param of the edit and the deletion in the OpenAPI document", () => {
-    const path = document.paths?.["/shares/{id}/values/{at}"];
-    for (const operation of [path?.patch, path?.delete]) {
-      expect(operation?.parameters).toMatchObject([
-        { in: "path", name: "id", required: true },
-        {
-          in: "path",
-          name: "at",
-          required: true,
-          schema: { type: "string", format: "date-time" },
-        },
-      ]);
-    }
-  });
 });
 
 describe("PATCH /shares/{id}/values/{at}", () => {
-  it("is declared for members and the admin, with value_changed", () => {
-    const { route, meta, errorMap } = updateShareValue["~orpc"];
-    expect(route).toMatchObject({
-      method: "PATCH",
-      path: "/shares/{id}/values/{at}",
-    });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [...writeCodes, "value_changed"].sort(),
-    );
-  });
-
   it("takes the new value and the value the editor last saw", () => {
     const body = { priceEur: "40.10", expectedPriceEur: "41.00" };
     expect(shareValueUpdateBodySchema.parse(body)).toEqual(body);
@@ -285,52 +186,15 @@ describe("PATCH /shares/{id}/values/{at}", () => {
     expect(
       valueChangedDetailsSchema.safeParse({ priceEur: 40.5 }).success,
     ).toBe(false);
-    for (const route of [addShareValue, updateShareValue, deleteShareValue]) {
-      expect(route["~orpc"].errorMap.value_changed.data).toBe(
-        valueChangedDetailsSchema,
-      );
-    }
   });
 });
 
 describe("DELETE /shares/{id}/values/{at}", () => {
-  it("is declared for members and the admin, with last_value_point", () => {
-    const { route, meta, errorMap } = deleteShareValue["~orpc"];
-    expect(route).toMatchObject({
-      method: "DELETE",
-      path: "/shares/{id}/values/{at}",
-      successStatus: 204,
-    });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [...writeCodes, "value_changed", "last_value_point"].sort(),
-    );
-  });
-
-  it("takes the value the editor last saw, in the body", () => {
+  it("takes the value the editor last saw", () => {
     expect(
       shareValueDeleteBodySchema.safeParse({ expectedPriceEur: "40.10" })
         .success,
     ).toBe(true);
     expect(shareValueDeleteBodySchema.safeParse({}).success).toBe(false);
-    expect(
-      document.paths?.["/shares/{id}/values/{at}"]?.delete?.requestBody,
-    ).toMatchObject({
-      required: true,
-      content: {
-        "application/json": {
-          schema: { required: ["expectedPriceEur"] },
-        },
-      },
-    });
-  });
-
-  it("is in the OpenAPI document with 409 and 422", () => {
-    const operation = document.paths?.["/shares/{id}/values/{at}"]?.delete;
-    expect(operation?.responses).toMatchObject({
-      "204": {},
-      "409": { description: "`value_changed`" },
-      "422": { description: "`last_value_point`" },
-    });
   });
 });

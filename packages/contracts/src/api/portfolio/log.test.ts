@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createOpenApiDocument } from "../../openapi.js";
 import {
-  getPortfolioLog,
   type PortfolioLog,
   portfolioLogEntrySchema,
+  portfolioLogQuerySchema,
   portfolioLogSchema,
 } from "./log.js";
 
@@ -35,26 +34,11 @@ const page: PortfolioLog = {
 };
 
 describe("GET /users/{userId}/log", () => {
-  const input = getPortfolioLog["~orpc"].inputSchema;
-
-  it("is declared for every signed-in role, with its codes", () => {
-    const { route, meta, errorMap } = getPortfolioLog["~orpc"];
-    expect(route).toMatchObject({ method: "GET", path: "/users/{userId}/log" });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
+  const input = portfolioLogQuerySchema;
 
   it("reads the limit from the query string, 50 by default", () => {
-    expect(input?.parse({ userId })).toEqual({ userId, limit: 50 });
-    expect(input?.parse({ userId, limit: "20", before: "abc" })).toEqual({
+    expect(input.parse({ userId })).toEqual({ userId, limit: 50 });
+    expect(input.parse({ userId, limit: "20", before: "abc" })).toEqual({
       userId,
       limit: 20,
       before: "abc",
@@ -68,7 +52,7 @@ describe("GET /users/{userId}/log", () => {
     ["a limit that isn't a number", { limit: "all" }],
     ["an empty cursor", { before: "" }],
   ])("refuses %s", (_, query) => {
-    expect(input?.safeParse({ userId, ...query }).success).toBe(false);
+    expect(input.safeParse({ userId, ...query }).success).toBe(false);
   });
 
   it("accepts a page of changes and cash balances, and the last page", () => {
@@ -87,52 +71,5 @@ describe("GET /users/{userId}/log", () => {
       portfolioLogEntrySchema.safeParse({ ...change, type: "dividend" })
         .success,
     ).toBe(false);
-  });
-
-  it("is in the OpenAPI document, with its query and markers", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/users/{userId}/log"
-    ]?.get;
-
-    expect(operation).toMatchObject({
-      operationId: "portfolio.log",
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-      parameters: expect.arrayContaining([
-        expect.objectContaining({
-          name: "limit",
-          in: "query",
-          schema: expect.objectContaining({ type: "integer", default: 50 }),
-        }),
-        expect.objectContaining({ name: "before", in: "query" }),
-      ]),
-    });
-    expect(operation?.responses).toMatchObject({
-      "200": {
-        content: {
-          "application/json": {
-            schema: {
-              properties: {
-                entries: {
-                  items: {
-                    anyOf: [
-                      {
-                        properties: {
-                          quantityDelta: { "x-anonymize": "quantity" },
-                        },
-                      },
-                      {
-                        properties: {
-                          amountEur: { "x-anonymize": "quantity" },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
   });
 });

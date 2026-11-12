@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { contractProcedures, missingErrorCodes } from "../contract.js";
+import {
+  contractProcedures,
+  missingErrorCodes,
+  missingPathParams,
+} from "../contract.js";
 import { apiContract } from "./index.js";
 
 const procedures = contractProcedures(apiContract).map(
@@ -17,6 +21,10 @@ describe.each(procedures)("%s", (_, procedure) => {
 
   it("declares every error code its kind requires", () => {
     expect(missingErrorCodes(procedure)).toEqual([]);
+  });
+
+  it("takes each parameter of its path as a required input field", () => {
+    expect(missingPathParams(procedure)).toEqual([]);
   });
 });
 

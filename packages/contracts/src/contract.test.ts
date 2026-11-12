@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   errorMap,
   missingErrorCodes,
+  missingPathParams,
   publicRoute,
   requiredErrorCodes,
   signedInRoute,
@@ -69,6 +70,26 @@ describe("requiredErrorCodes", () => {
       .route({ method: "GET", path: "/admin/people" })
       .output(ok);
     expect(requiredErrorCodes(route)).toContain("forbidden");
+  });
+});
+
+describe("missingPathParams", () => {
+  const path = "/users/{userId}/changes/{id}";
+
+  it("lists the path parameters the input doesn't require", () => {
+    const route = signedInRoute(["admin"])
+      .route({ method: "GET", path })
+      .input(z.object({ userId: z.uuid().optional() }));
+    expect(missingPathParams(route)).toEqual(["userId", "id"]);
+    const withoutInput = publicRoute.route({ method: "GET", path });
+    expect(missingPathParams(withoutInput)).toEqual(["userId", "id"]);
+  });
+
+  it("is empty once the input requires each of them", () => {
+    const route = signedInRoute(["admin"])
+      .route({ method: "GET", path })
+      .input(z.object({ userId: z.uuid(), id: z.uuid(), limit: z.int() }));
+    expect(missingPathParams(route)).toEqual([]);
   });
 });
 

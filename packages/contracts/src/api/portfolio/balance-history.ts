@@ -21,12 +21,22 @@ export type PortfolioBalanceHistory = z.infer<
   typeof portfolioBalanceHistorySchema
 >;
 
+/** `GET /users/{userId}/balance-history?period=`. */
+export const portfolioBalanceHistoryQuerySchema = z.object({
+  userId: idSchema,
+  period: periodSchema,
+});
+
+export type PortfolioBalanceHistoryQuery = z.input<
+  typeof portfolioBalanceHistoryQuerySchema
+>;
+
 export const getPortfolioBalanceHistory = signedInRoute(roles)
   .route({
     method: "GET",
     path: "/users/{userId}/balance-history",
     summary: "A member's balance over the period",
   })
-  .input(z.object({ userId: idSchema, period: periodSchema }))
+  .input(portfolioBalanceHistoryQuerySchema)
   .output(portfolioBalanceHistorySchema)
   .errors(errorMap("invalid_request", "not_found"));

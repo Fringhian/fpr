@@ -4,7 +4,11 @@ import {
   oc,
 } from "@orpc/contract";
 import { z } from "zod";
-import { type ErrorCode, errorStatus } from "./errors.js";
+import {
+  type ErrorCode,
+  errorStatus,
+  invalidRequestDetailsSchema,
+} from "./errors.js";
 import { roles as everyRole, type Role } from "./roles.js";
 
 /** Who may call a route: anyone, or the signed-in roles it accepts. */
@@ -15,23 +19,37 @@ export interface RouteMeta {
   roles: Access;
 }
 
-const detailsSchema = z.record(z.string(), z.unknown());
+const detailsSchema = z.record(z.string(), z.unknown()).optional();
+
+/** The `details` a code carries: typed for `invalid_request`, free otherwise. */
+type DetailsOf<Code extends ErrorCode> = Code extends "invalid_request"
+  ? typeof invalidRequestDetailsSchema
+  : typeof detailsSchema;
 
 type ErrorMap<Codes extends ErrorCode> = {
   [Code in Codes]: {
     status: (typeof errorStatus)[Code];
-    data: z.ZodOptional<typeof detailsSchema>;
+    data: DetailsOf<Code>;
   };
 };
 
-/** oRPC error definitions for FPR's codes, each with its status. */
+/**
+ * oRPC error definitions for FPR's codes, each with its status. The `details`
+ * of `invalid_request` are always its issues.
+ */
 export function errorMap<const Codes extends readonly ErrorCode[]>(
   ...codes: Codes
 ): ErrorMap<Codes[number]> {
   return Object.fromEntries(
     codes.map((code) => [
       code,
-      { status: errorStatus[code], data: detailsSchema.optional() },
+      {
+        status: errorStatus[code],
+        data:
+          code === "invalid_request"
+            ? invalidRequestDetailsSchema
+            : detailsSchema,
+      },
     ]),
   ) as ErrorMap<Codes[number]>;
 }
@@ -119,4 +137,20 @@ export function missingErrorCodes(
 ): ErrorCode[] {
   const declared = procedure["~orpc"].errorMap;
   return requiredErrorCodes(procedure).filter((code) => !(code in declared));
+}
+
+/**
+ * The parameters of a route's path, such as `userId` in
+ * `/users/{userId}/log`, that its input doesn't take as a required field.
+ */
+export function missingPathParams(procedure: AnyContractProcedure): string[] {
+  const { route, inputSchema } = procedure["~orpc"];
+  const params = [...(route.path ?? "").matchAll(/\{(\w+)\}/g)].map(
+    ([, name]) => name as string,
+  );
+  const shape: Record<string, z.ZodType> =
+    inputSchema instanceof z.ZodObject ? inputSchema.shape : {};
+  return params.filter(
+    (name) => shape[name]?.safeParse(undefined).success !== false,
+  );
 }

@@ -13,6 +13,25 @@ const operations = contractProcedures(apiContract).map(([path, procedure]) => {
   return { key: path.join("."), route, outputSchema, errorMap, operation };
 });
 
+/** A part of the document as JSON, each `$ref` to a component replaced by it. */
+function withRefsResolved(json: string): string {
+  return json.replace(
+    /\{"\$ref":"#\/components\/schemas\/(\w+)"\}/g,
+    (_, name: string) =>
+      JSON.stringify(document.components?.schemas?.[name] ?? {}),
+  );
+}
+
+describe("the shared components", () => {
+  it("hold the details of invalid_request, once", () => {
+    expect(Object.keys(document.components?.schemas ?? {})).toEqual([
+      "InvalidRequestDetails",
+    ]);
+    const json = JSON.stringify(document);
+    expect(json.match(/"issues":/g)).toHaveLength(1);
+  });
+});
+
 const withoutBody = operations.filter(
   ({ outputSchema }) => outputSchema instanceof z.ZodVoid,
 );
@@ -46,6 +65,7 @@ describe("an error response", () => {
       new Set([
         "holding_below_zero",
         "invalid_access_key",
+        "invalid_request",
         "isin_taken",
         "value_changed",
       ]),
@@ -55,8 +75,8 @@ describe("an error response", () => {
   it.each(typed)(
     "shows the details of $code in $key",
     ({ code, definition, operation }) => {
-      const body = JSON.stringify(
-        operation?.responses?.[String(definition.status)],
+      const body = withRefsResolved(
+        JSON.stringify(operation?.responses?.[String(definition.status)]),
       );
       expect(body).toContain(`"code":{"const":"${code}"}`);
       expect(body).toContain('"required":["code","details"]');

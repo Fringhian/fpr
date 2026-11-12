@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
 import {
   type AdminShare,
   type AdminShareGroups,
@@ -62,13 +60,6 @@ describe("adminShareGroupsSchema", () => {
     const { hasShareChanges: ___, ...withoutFlag } = fund;
     expect(adminShareSchema.safeParse(withoutFlag).success).toBe(false);
   });
-
-  it("marks the holders' names and pictures personal", () => {
-    const holder = adminShareSchema.shape.holders.element.shape;
-    expect(anonymizeKind(holder.displayName)).toBe("personal");
-    expect(anonymizeKind(holder.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(adminShareSchema.shape.name)).toBeUndefined();
-  });
 });
 
 describe("adminMakeManualSchema", () => {
@@ -97,36 +88,5 @@ describe("adminMakeManualSchema", () => {
         at: "2026-03-02T17:30:00Z",
       }).success,
     ).toBe(false);
-  });
-});
-
-const paths = (await createOpenApiDocument()).paths ?? {};
-
-describe("the OpenAPI document", () => {
-  it("marks the holders of GET /admin/shares personal", () => {
-    expect(paths["/admin/shares"]?.get?.responses?.["200"]).toMatchObject({
-      content: {
-        "application/json": {
-          schema: {
-            properties: {
-              needsAttention: {
-                items: {
-                  properties: {
-                    holders: {
-                      items: {
-                        properties: {
-                          displayName: { "x-anonymize": "personal" },
-                          avatarUrl: { "x-anonymize": "personal" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
   });
 });

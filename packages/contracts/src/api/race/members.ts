@@ -2,7 +2,7 @@ import { z } from "zod";
 import { euro } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { periodSchema } from "../../period.js";
+import { periodQuerySchema } from "../../period.js";
 import { roles } from "../../roles.js";
 import { percentSchema } from "../../schemas/money.js";
 import {
@@ -57,6 +57,6 @@ export const getMembers = signedInRoute(roles)
     path: "/members",
     summary: "Every member with their curve, gain, balance and top holdings",
   })
-  .input(z.object({ period: periodSchema }))
+  .input(periodQuerySchema)
   .output(membersSchema)
   .errors(errorMap("invalid_request"));

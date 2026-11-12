@@ -1,6 +1,6 @@
 {
   "name": "@fpr/contracts",
-  "description": "Zod schemas for the REST API",
+  "description": "Route contracts for the API and the price service",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --noEmit && tsc --noEmit --project scripts",
@@ -19,6 +19,16 @@
       "@fpr/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./prices": {
+      "@fpr/source": "./src/prices/index.ts",
+      "types": "./dist/prices/index.d.ts",
+      "default": "./dist/prices/index.js"
+    },
+    "./openapi": {
+      "@fpr/source": "./src/openapi.ts",
+      "types": "./dist/openapi.d.ts",
+      "default": "./dist/openapi.js"
     }
   },
   "files": [

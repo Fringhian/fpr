@@ -2,7 +2,7 @@ import { z } from "zod";
 import { euro } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { periodSchema, unitSchema } from "../../period.js";
+import { periodQuerySchema, periodSchema, unitSchema } from "../../period.js";
 import { roles } from "../../roles.js";
 import {
   gainSchema,
@@ -123,6 +123,6 @@ export const getShareLeaderboard = signedInRoute(roles)
     path: "/leaderboards/shares",
     summary: "The shares held in the race, ranked by their change",
   })
-  .input(z.object({ period: periodSchema }))
+  .input(periodQuerySchema)
   .output(shareLeaderboardSchema)
   .errors(errorMap("invalid_request"));

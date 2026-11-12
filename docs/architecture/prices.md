@@ -133,7 +133,7 @@ Each share's `trading_currency` is the currency the provider quotes it in. The s
 
 ## Endpoints
 
-Each endpoint is an oRPC contract in `pricesContract`, in `packages/contracts/src/prices/`, declared like the API's routes and left out of the OpenAPI document. Bodies are camelCase JSON, prices are decimal strings in EUR above zero, and moments are ISO 8601 with their offset. They use the API's schemas from `src/schemas/` under the same names: a lookup's query is 1 to 100 characters and its result is `{ shares, listings }`, and a manual share's name is 1 to 100 characters, trimmed. `isin_taken` and `value_changed` carry the same `details` as in the API. Errors are `{ "error": { "code", "details" } }`, with the codes and statuses of `api.md` › Errors.
+Each endpoint is an oRPC contract in `pricesContract`, in `packages/contracts/src/prices/`, declared like the API's routes, imported from `@fpr/contracts/prices`, and left out of the OpenAPI document. Bodies are camelCase JSON, prices are decimal strings in EUR above zero, and moments are ISO 8601 with their offset. They use the API's schemas from `src/schemas/` under the same names: a lookup's query is 1 to 100 characters and its result is `{ shares, listings }`, and a manual share's name is 1 to 100 characters, trimmed. `isin_taken` and `value_changed` carry the same `details` as in the API. Errors are `{ "error": { "code", "details" } }`, with the codes and statuses of `api.md` › Errors.
 
 Every endpoint answers `401 unauthenticated` to a request without `Authorization: Bearer <PRICES_TOKEN>`, and `500 internal_error` to an unexpected failure. Every endpoint with a body or a path param answers `400 invalid_request` when it fails its schema.
 

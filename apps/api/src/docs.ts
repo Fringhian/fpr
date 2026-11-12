@@ -1,4 +1,4 @@
-import { createOpenApiDocument } from "@fpr/contracts";
+import { createOpenApiDocument } from "@fpr/contracts/openapi";
 import { apiReference } from "@scalar/express-api-reference";
 import { Router } from "express";
 

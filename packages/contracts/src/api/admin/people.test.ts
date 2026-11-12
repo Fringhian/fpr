@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
 import {
   type AdminPerson,
   adminAddPersonSchema,
@@ -51,15 +49,6 @@ describe("adminPersonSchema", () => {
     const { claimBefore: _, ...withoutDeadline } = alex;
     expect(adminPersonSchema.safeParse(withoutDeadline).success).toBe(false);
   });
-
-  it("marks the name, picture, and email personal, and keeps the rest", () => {
-    const { shape } = adminPersonSchema;
-    expect(anonymizeKind(shape.displayName)).toBe("personal");
-    expect(anonymizeKind(shape.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(shape.email)).toBe("personal");
-    expect(anonymizeKind(shape.role)).toBeUndefined();
-    expect(anonymizeKind(shape.accessStatus)).toBeUndefined();
-  });
 });
 
 describe("adminPersonWithLinkSchema", () => {
@@ -73,12 +62,6 @@ describe("adminPersonWithLinkSchema", () => {
       adminPersonWithLinkSchema.safeParse({ ...added, accessLink: "secret" })
         .success,
     ).toBe(false);
-  });
-
-  it("leaves the link unmarked: it goes to the admin only", () => {
-    expect(
-      anonymizeKind(adminPersonWithLinkSchema.shape.accessLink),
-    ).toBeUndefined();
   });
 });
 
@@ -148,39 +131,5 @@ describe("adminUpdatePersonSchema", () => {
     expect(
       adminUpdatePersonSchema.safeParse({ id, email: "alex" }).success,
     ).toBe(false);
-  });
-});
-
-const paths = (await createOpenApiDocument()).paths ?? {};
-
-describe("the OpenAPI document", () => {
-  it("marks the personal fields of GET /admin/people", () => {
-    expect(paths["/admin/people"]?.get?.responses?.["200"]).toMatchObject({
-      content: {
-        "application/json": {
-          schema: {
-            items: {
-              properties: {
-                displayName: { "x-anonymize": "personal" },
-                avatarUrl: { "x-anonymize": "personal" },
-                email: { "x-anonymize": "personal" },
-              },
-            },
-          },
-        },
-      },
-    });
-  });
-
-  it("answers POST /admin/people with 201", () => {
-    expect(
-      Object.keys(paths["/admin/people"]?.post?.responses ?? {}),
-    ).toContain("201");
-  });
-
-  it("answers DELETE /admin/people/{id} with 204", () => {
-    expect(
-      Object.keys(paths["/admin/people/{id}"]?.delete?.responses ?? {}),
-    ).toContain("204");
   });
 });

@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
 import {
   type AccessCheckResponse,
   accessCheckBodySchema,
@@ -10,9 +8,6 @@ import {
   accessKeyErrorDetailsSchema,
   accessKeyStates,
   accessSignInBodySchema,
-  checkAccessKey,
-  claimAccessKey,
-  signInWithAccessKey,
 } from "./access-keys.js";
 
 /** 32 bytes in base64url: 43 characters. */
@@ -27,15 +22,6 @@ const waitingPasswordUser: AccessCheckResponse = {
 };
 
 describe("POST /access/check", () => {
-  it("is public, and declares each refusal", () => {
-    const { route, meta, errorMap } = checkAccessKey["~orpc"];
-    expect(route).toMatchObject({ method: "POST", path: "/access/check" });
-    expect(meta.roles).toBe("public");
-    expect(Object.keys(errorMap).sort()).toEqual(
-      ["forbidden", "internal_error", "invalid_request", "rate_limited"].sort(),
-    );
-  });
-
   it("takes the key, and refuses a malformed one", () => {
     expect(accessCheckBodySchema.parse({ key })).toEqual({ key });
     expect(accessCheckBodySchema.safeParse({ key: "abc" }).success).toBe(false);
@@ -86,31 +72,9 @@ describe("POST /access/check", () => {
       }).success,
     ).toBe(false);
   });
-
-  it("marks the email and display name personal", () => {
-    const [waiting] = accessCheckResponseSchema.options;
-    const [passwordUser] = waiting.options;
-    expect(anonymizeKind(passwordUser.shape.email)).toBe("personal");
-    expect(anonymizeKind(passwordUser.shape.displayName)).toBe("personal");
-  });
 });
 
 describe("POST /access/claim", () => {
-  it("is public, and declares each refusal", () => {
-    const { route, meta, errorMap } = claimAccessKey["~orpc"];
-    expect(route).toMatchObject({ method: "POST", path: "/access/claim" });
-    expect(meta.roles).toBe("public");
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "forbidden",
-        "internal_error",
-        "invalid_access_key",
-        "invalid_request",
-        "rate_limited",
-      ].sort(),
-    );
-  });
-
   it("takes the key, with the password when the person has none", () => {
     const body = { key, password: "correct horse battery" };
     expect(accessClaimBodySchema.parse(body)).toEqual(body);
@@ -138,25 +102,6 @@ describe("POST /access/claim", () => {
 });
 
 describe("POST /access/sign-in", () => {
-  it("is public, answers 204, and declares each refusal", () => {
-    const { route, meta, errorMap } = signInWithAccessKey["~orpc"];
-    expect(route).toMatchObject({
-      method: "POST",
-      path: "/access/sign-in",
-      successStatus: 204,
-    });
-    expect(meta.roles).toBe("public");
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "forbidden",
-        "internal_error",
-        "invalid_access_key",
-        "invalid_request",
-        "rate_limited",
-      ].sort(),
-    );
-  });
-
   it("takes the key, and refuses a malformed one", () => {
     expect(accessSignInBodySchema.parse({ key })).toEqual({ key });
     expect(accessSignInBodySchema.safeParse({ key: `${key}=` }).success).toBe(
@@ -171,62 +116,5 @@ describe("invalid_access_key", () => {
       state: "expired",
     });
     expect(accessKeyErrorDetailsSchema.safeParse({}).success).toBe(false);
-  });
-
-  it("declares its details on the routes that answer it", () => {
-    for (const route of [claimAccessKey, signInWithAccessKey]) {
-      expect(route["~orpc"].errorMap.invalid_access_key).toEqual({
-        status: 422,
-        data: accessKeyErrorDetailsSchema,
-      });
-    }
-  });
-});
-
-describe("the OpenAPI document", () => {
-  it("lists the access key routes, with their statuses and markers", async () => {
-    const paths = (await createOpenApiDocument()).paths;
-
-    expect(paths?.["/access/check"]?.post).toMatchObject({
-      operationId: "access.check",
-      "x-roles": "public",
-    });
-    const claim = paths?.["/access/claim"]?.post;
-    expect(claim).toMatchObject({
-      operationId: "access.claim",
-      "x-roles": "public",
-      responses: { "422": { description: "`invalid_access_key`" } },
-    });
-    expect(Object.keys(claim?.responses ?? {}).sort()).toEqual([
-      "200",
-      "400",
-      "403",
-      "422",
-      "429",
-      "500",
-    ]);
-    expect(paths?.["/access/sign-in"]?.post).toMatchObject({
-      operationId: "access.signIn",
-      "x-roles": "public",
-      responses: { "204": {}, "422": { description: "`invalid_access_key`" } },
-    });
-
-    const checkResponse = JSON.stringify(
-      paths?.["/access/check"]?.post?.responses?.["200"],
-    );
-    expect(checkResponse).toContain(
-      '"email":{"type":"string","format":"email","x-anonymize":"personal"}',
-    );
-    expect(checkResponse).toMatch(
-      /"displayName":\{[^}]*"x-anonymize":"personal"\}/,
-    );
-
-    const invalidKey = JSON.stringify(claim?.responses?.["422"]);
-    expect(invalidKey).toContain('"code":{"const":"invalid_access_key"}');
-    expect(invalidKey).toContain('"required":["code","details"]');
-    expect(invalidKey).toContain('"state":{"enum":["waiting"');
-    expect(paths?.["/access/sign-in"]?.post?.responses?.["204"]).toEqual({
-      description: "OK",
-    });
   });
 });

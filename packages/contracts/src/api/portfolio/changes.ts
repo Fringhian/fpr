@@ -45,6 +45,17 @@ const holdingBelowZeroError = errorWithDetails(
   portfolioHoldingBelowZeroDetailsSchema,
 );
 
+/** `POST /users/{userId}/changes`: the member, and the share change. */
+export const portfolioChangeInputSchema = z.object({
+  userId: idSchema,
+  id: clientIdSchema,
+  shareId: idSchema,
+  quantityDelta: portfolioQuantityDeltaSchema,
+  effectiveAt: timestampSchema,
+});
+
+export type PortfolioChangeInput = z.input<typeof portfolioChangeInputSchema>;
+
 /**
  * With an `id` already stored for the member, answers that share change as it
  * is, with `201`, and saves nothing. An `id` another member's share change has
@@ -57,20 +68,27 @@ export const addPortfolioChange = signedInRoute(writerRoles)
     summary: "Add or remove shares",
     successStatus: 201,
   })
-  .input(
-    z.object({
-      userId: idSchema,
-      id: clientIdSchema,
-      shareId: idSchema,
-      quantityDelta: portfolioQuantityDeltaSchema,
-      effectiveAt: timestampSchema,
-    }),
-  )
+  .input(portfolioChangeInputSchema)
   .output(portfolioChangeSchema)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   )
   .errors(holdingBelowZeroError);
+
+/** `PATCH /changes/{id}`: what changes, at least one of the two. */
+export const portfolioChangeUpdateSchema = z
+  .object({
+    id: idSchema,
+    quantityDelta: portfolioQuantityDeltaSchema.optional(),
+    effectiveAt: timestampSchema.optional(),
+  })
+  .refine(
+    (body) =>
+      body.quantityDelta !== undefined || body.effectiveAt !== undefined,
+    { error: "Expected a quantityDelta or an effectiveAt" },
+  );
+
+export type PortfolioChangeUpdate = z.input<typeof portfolioChangeUpdateSchema>;
 
 export const updatePortfolioChange = signedInRoute(writerRoles)
   .route({
@@ -78,19 +96,7 @@ export const updatePortfolioChange = signedInRoute(writerRoles)
     path: "/changes/{id}",
     summary: "Edit a share change",
   })
-  .input(
-    z
-      .object({
-        id: idSchema,
-        quantityDelta: portfolioQuantityDeltaSchema.optional(),
-        effectiveAt: timestampSchema.optional(),
-      })
-      .refine(
-        (body) =>
-          body.quantityDelta !== undefined || body.effectiveAt !== undefined,
-        { error: "Expected a quantityDelta or an effectiveAt" },
-      ),
-  )
+  .input(portfolioChangeUpdateSchema)
   .output(portfolioChangeSchema)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),

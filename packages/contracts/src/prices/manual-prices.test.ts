@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  pricesAddManualPrice,
   pricesAddManualPriceInputSchema,
-  pricesDeleteManualPrice,
   pricesDeleteManualPriceInputSchema,
-  pricesUpdateManualPrice,
   pricesUpdateManualPriceInputSchema,
 } from "./manual-prices.js";
 
@@ -13,23 +10,6 @@ const memberId = "1c7a4d2f-9b3e-4d8f-8a21-3c4d5e6f7081";
 const at = "2026-03-02T05:10:00+01:00";
 
 describe("POST /shares/{id}/manual-prices", () => {
-  it("is declared, answering 201, with the value point codes", () => {
-    const { route, errorMap } = pricesAddManualPrice["~orpc"];
-    expect(route).toMatchObject({
-      method: "POST",
-      path: "/shares/{id}/manual-prices",
-      successStatus: 201,
-    });
-    expect(Object.keys(errorMap).sort()).toEqual([
-      "future_moment",
-      "internal_error",
-      "invalid_request",
-      "not_found",
-      "unauthenticated",
-      "value_changed",
-    ]);
-  });
-
   it("accepts a value point entered by a member", () => {
     const input = { id: shareId, at, priceEur: "40", enteredBy: memberId };
     expect(pricesAddManualPriceInputSchema.parse(input)).toEqual(input);
@@ -61,21 +41,6 @@ describe("PATCH /shares/{id}/manual-prices/{at}", () => {
     enteredBy: memberId,
   };
 
-  it("is declared with the stale-edit code", () => {
-    const { route, errorMap } = pricesUpdateManualPrice["~orpc"];
-    expect(route).toMatchObject({
-      method: "PATCH",
-      path: "/shares/{id}/manual-prices/{at}",
-    });
-    expect(Object.keys(errorMap).sort()).toEqual([
-      "internal_error",
-      "invalid_request",
-      "not_found",
-      "unauthenticated",
-      "value_changed",
-    ]);
-  });
-
   it("accepts a new price with the price the member saw", () => {
     expect(pricesUpdateManualPriceInputSchema.parse(input)).toEqual(input);
   });
@@ -97,22 +62,6 @@ describe("DELETE /shares/{id}/manual-prices/{at}", () => {
     expectedPriceEur: "41.00",
     deletedBy: memberId,
   };
-
-  it("is declared with the stale-edit and last value point codes", () => {
-    const { route, errorMap } = pricesDeleteManualPrice["~orpc"];
-    expect(route).toMatchObject({
-      method: "DELETE",
-      path: "/shares/{id}/manual-prices/{at}",
-    });
-    expect(Object.keys(errorMap).sort()).toEqual([
-      "internal_error",
-      "invalid_request",
-      "last_value_point",
-      "not_found",
-      "unauthenticated",
-      "value_changed",
-    ]);
-  });
 
   it("accepts the price the member saw and who deletes it", () => {
     expect(pricesDeleteManualPriceInputSchema.parse(input)).toEqual(input);

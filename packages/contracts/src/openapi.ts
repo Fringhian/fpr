@@ -11,7 +11,11 @@ import {
   contractProcedures,
   type RouteMeta,
 } from "./contract.js";
-import { errorCodes, errorStatus } from "./errors.js";
+import {
+  errorCodes,
+  errorStatus,
+  invalidRequestDetailsSchema,
+} from "./errors.js";
 
 type ConvertInterceptor = NonNullable<
   ZodToJsonSchemaConverterOptions["interceptors"]
@@ -47,6 +51,13 @@ export async function createOpenApiDocument(
         "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio.",
     },
     servers: [{ url: "/api" }],
+    // Declared once under `components`, as nearly every route answers it.
+    commonSchemas: {
+      InvalidRequestDetails: {
+        strategy: "output",
+        schema: invalidRequestDetailsSchema,
+      },
+    },
     // FPR's error body, `{ error: { code, details } }`, in place of oRPC's:
     // one body per code, with the `details` its schema declares.
     customErrorResponseBodySchema: (definitions) => {

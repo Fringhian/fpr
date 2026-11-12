@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { createOpenApiDocument } from "../src/index.js";
+import { createOpenApiDocument } from "../src/openapi.js";
 
 /**
  * Writes `openapi.json` from the API's route contracts. With `--check`, writes

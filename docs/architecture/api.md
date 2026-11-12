@@ -4,7 +4,19 @@
 
 ## Route contracts
 
-Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. The price service's internal routes are in `src/prices/`. A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
+Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. The price service's internal routes are in `src/prices/`, in `pricesContract`.
+
+The package has three entry points:
+
+| Entry point | Holds | Used by |
+| --- | --- | --- |
+| `@fpr/contracts` | `apiContract`, the types of each route's input and output, the shared schemas, the error codes, the roles, and the helpers that declare a route | the web app, the API, and the price service |
+| `@fpr/contracts/prices` | `pricesContract` and the types of its routes | the API and the price service |
+| `@fpr/contracts/openapi` | `createOpenApiDocument`, oRPC's generator | the API's `/api/docs`, and `pnpm contracts:openapi` |
+
+A test fails when the root entry point loads the price service's routes or the generator. A route is reached through its tree, such as `apiContract.race.leaderboard`, and is not exported on its own. Its schemas stay in its file, which exports their types under short names, such as `Leaderboard` for the response and `LeaderboardQuery` for the input. A schema becomes shared, in `src/schemas/`, once a second area uses it.
+
+A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
 
 - its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
 - its input, with `.input()`: the path params, the query, and the body in one Zod object;
@@ -17,11 +29,11 @@ Each definition has one source:
 - A list of values, such as the units, the boards, or the access key states, is defined once with `z.enum`, and a field or discriminant that takes one of its values references it, such as `accessKeyStateSchema.enum.waiting`. A test fails when a value of a shared list is written as a string outside the file that defines it.
 - `src/schemas/` holds the schemas several areas share, one file per theme: ids and moments; a person, their email and display name; passwords, access keys, and reset keys; currencies, prices, and percentages; shares, their names, listings, lookups, and latest prices; and the markers and amounts of a member's performance. The API's routes and the price service's use the same schemas and the same names.
 
-Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones, and a test over `apiContract` fails when a route misses one.
+Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones. Tests over every route of `apiContract` and `pricesContract` fail when a route misses one of those codes, when a parameter of its path isn't a required field of its input, or when two routes share a method and path. Each route's tests cover what its schemas accept and refuse. The committed OpenAPI document is the record of each route's method, path, roles, and codes, reviewed in each change's diff.
 
 The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
 
-The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. Each error response has one body per code, with the typed `details` of a code declared with `errorWithDetails`. A response without a body, such as a `204`, has no content. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
+The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. Each error response has one body per code, with the typed `details` of a code declared with `errorWithDetails`, and the details of `invalid_request` under `components` as `InvalidRequestDetails`. A response without a body, such as a `204`, has no content. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
 
 ## Request pipeline
 
@@ -47,7 +59,7 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 
 | Status | Code | When |
 | --- | --- | --- |
-| `400` | `invalid_request` | The body, query, or path fails its schema. `details` lists the issues |
+| `400` | `invalid_request` | The body, query, or path fails its schema. `details` lists the issues, `{ issues: [{ path, code }] }`: each field's path in the input, such as `["amountEur"]`, and Zod's issue code, such as `too_small` or `invalid_format`, without its text |
 | `401` | `unauthenticated` | No session, or it expired |
 | `401` | `access_ended` | The person's key no longer gives access. See `auth.md` |
 | `403` | `forbidden` | The role can't do this, the data belongs to another member, or the `Origin` isn't `PUBLIC_URL` |
@@ -210,7 +222,7 @@ The gain leaderboard ranks an anonymous viewer in `percent`, whatever `unit` ask
 
 A pseudonym is an adjective and an animal, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)`. Two people with the same pseudonym are told apart by a number suffix. It is the same on every screen and visit, and is not stored.
 
-The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts in euros), or `quantity()` (quantities held and cash), and a test fails when a schema has an unmarked field of those kinds.
+The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts in euros), or `quantity()` (quantities held and cash). A test over every response of `apiContract` fails when a field's mark doesn't fit its name: `email`, `displayName`, and `avatarUrl` are `personal`; `quantity…`, `cash…`, and `amountEur` are `quantity`; another `eur` or `…Eur` is `euro` or `quantity`; and `percent`, `…Percent`, `weight`, and `…Weight` are unmarked. A share's prices, `priceEur` and `previousPriceEur`, and a share's price change are market data, listed in the test as exceptions, and stay unmarked.
 
 ## Configuration
 

@@ -81,6 +81,43 @@ export const errorStatus = {
   provider_unavailable: 503,
 } as const satisfies Record<ErrorCode, ErrorStatus>;
 
+/**
+ * What an `invalid_request` issue says went wrong: Zod's issue code, without
+ * its text, which the web app writes in the person's language.
+ */
+export const validationIssueCodes = [
+  "invalid_type",
+  "too_big",
+  "too_small",
+  "invalid_format",
+  "not_multiple_of",
+  "unrecognized_keys",
+  "invalid_union",
+  "invalid_key",
+  "invalid_element",
+  "invalid_value",
+  "custom",
+] as const satisfies readonly z.core.$ZodIssue["code"][];
+
+export const validationIssueCodeSchema = z.enum(validationIssueCodes);
+
+export type ValidationIssueCode = z.infer<typeof validationIssueCodeSchema>;
+
+/**
+ * The `details` of `invalid_request`: each field the request got wrong, by its
+ * path in the input, such as `["amountEur"]`, and what is wrong with it.
+ */
+export const invalidRequestDetailsSchema = z.object({
+  issues: z.array(
+    z.object({
+      path: z.array(z.union([z.string(), z.int()])),
+      code: validationIssueCodeSchema,
+    }),
+  ),
+});
+
+export type InvalidRequestDetails = z.infer<typeof invalidRequestDetailsSchema>;
+
 /** Every error response body: `{ error: { code, details } }`. */
 export const errorSchema = z.object({
   error: z.object({

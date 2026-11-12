@@ -10,6 +10,61 @@
     }
   ],
   "openapi": "3.1.1",
+  "components": {
+    "schemas": {
+      "InvalidRequestDetails": {
+        "type": "object",
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    ]
+                  }
+                },
+                "code": {
+                  "enum": [
+                    "invalid_type",
+                    "too_big",
+                    "too_small",
+                    "invalid_format",
+                    "not_multiple_of",
+                    "unrecognized_keys",
+                    "invalid_union",
+                    "invalid_key",
+                    "invalid_element",
+                    "invalid_value",
+                    "custom"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "code"
+              ]
+            }
+          }
+        },
+        "required": [
+          "issues"
+        ]
+      }
+    }
+  },
   "paths": {
     "/setup": {
       "get": {
@@ -133,15 +188,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -461,15 +513,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -647,15 +696,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -860,15 +906,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -1078,15 +1121,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -1288,15 +1328,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -1755,15 +1792,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -2051,15 +2085,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -2535,15 +2566,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -3081,15 +3109,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -3358,15 +3383,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -3700,15 +3722,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -3999,15 +4018,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -4463,15 +4479,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -4832,15 +4845,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -5232,15 +5242,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -5540,15 +5547,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -5795,15 +5799,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -6208,15 +6209,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -6599,15 +6597,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -6860,15 +6855,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -7258,15 +7250,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -7757,15 +7746,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -8014,15 +8000,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -8275,15 +8258,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -8581,15 +8561,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -8925,15 +8902,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -9195,15 +9169,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -9476,15 +9447,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -10032,15 +10000,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -10324,15 +10289,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -10613,15 +10575,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -11391,15 +11350,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -11647,15 +11603,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -12071,15 +12024,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -12434,15 +12384,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -13013,15 +12960,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -13373,15 +13317,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -13716,15 +13657,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -14068,15 +14006,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -14420,15 +14355,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -14752,15 +14684,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -15029,15 +14958,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },
@@ -16050,15 +15976,12 @@
                           "const": "invalid_request"
                         },
                         "details": {
-                          "type": "object",
-                          "propertyNames": {
-                            "type": "string"
-                          },
-                          "additionalProperties": {}
+                          "$ref": "#/components/schemas/InvalidRequestDetails"
                         }
                       },
                       "required": [
-                        "code"
+                        "code",
+                        "details"
                       ]
                     }
                   },

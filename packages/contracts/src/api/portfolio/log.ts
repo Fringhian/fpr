@@ -22,20 +22,23 @@ export const portfolioLogSchema = z.object({
 
 export type PortfolioLog = z.infer<typeof portfolioLogSchema>;
 
+/** `GET /users/{userId}/log?limit=&before=`. */
+export const portfolioLogQuerySchema = z.object({
+  userId: idSchema,
+  /** Entries per page: 50 by default, 100 at most. */
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  /** The `nextBefore` of the previous page. Omitted for the first page. */
+  before: z.string().min(1).optional(),
+});
+
+export type PortfolioLogQuery = z.input<typeof portfolioLogQuerySchema>;
+
 export const getPortfolioLog = signedInRoute(roles)
   .route({
     method: "GET",
     path: "/users/{userId}/log",
     summary: "A member's share changes and cash balances, newest first",
   })
-  .input(
-    z.object({
-      userId: idSchema,
-      /** Entries per page: 50 by default, 100 at most. */
-      limit: z.coerce.number().int().min(1).max(100).default(50),
-      /** The `nextBefore` of the previous page. Omitted for the first page. */
-      before: z.string().min(1).optional(),
-    }),
-  )
+  .input(portfolioLogQuerySchema)
   .output(portfolioLogSchema)
   .errors(errorMap("invalid_request", "not_found"));

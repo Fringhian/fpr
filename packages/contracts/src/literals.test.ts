@@ -1,11 +1,14 @@
 /// <reference types="node" />
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { accessKeyStates, accessSignInMethods } from "./api/access/index.js";
-import { adminAccessStatuses } from "./api/admin/index.js";
-import { languages } from "./api/me/index.js";
-import { leaderboardBoards } from "./api/race/index.js";
-import { shareValueActions } from "./api/shares/index.js";
+import {
+  accessKeyStates,
+  accessSignInMethods,
+} from "./api/access/access-keys.js";
+import { adminAccessStatuses } from "./api/admin/people.js";
+import { languages } from "./api/me/profile.js";
+import { leaderboardBoards } from "./api/race/leaderboards.js";
+import { shareValueActions } from "./api/shares/values.js";
 import { periods, units } from "./period.js";
 import { roles } from "./roles.js";
 import { priceSources, shareKinds } from "./schemas/share.js";

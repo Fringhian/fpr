@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
-import { gainSchema, positionSchema } from "../../schemas/performance.js";
-import { latestPriceSchema } from "../../schemas/share.js";
 import {
-  getPortfolio,
-  getPortfolioHoldingAt,
   type Portfolio,
   type PortfolioHolding,
   type PortfolioHoldingAt,
+  portfolioHoldingAtQuerySchema,
   portfolioHoldingAtSchema,
   portfolioHoldingSchema,
+  portfolioQuerySchema,
   portfolioSchema,
 } from "./holdings.js";
 
@@ -72,30 +68,12 @@ const portfolio: Portfolio = {
 };
 
 describe("GET /users/{userId}/portfolio", () => {
-  it("is declared for every signed-in role, with its codes", () => {
-    const { route, meta, errorMap } = getPortfolio["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/users/{userId}/portfolio",
-    });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("takes the member and a period, and refuses anything else", () => {
-    const input = getPortfolio["~orpc"].inputSchema;
-    expect(input?.safeParse({ userId, period: "1M" }).success).toBe(true);
-    expect(input?.safeParse({ userId }).success).toBe(false);
-    expect(input?.safeParse({ userId, period: "2Y" }).success).toBe(false);
-    expect(input?.safeParse({ userId: "alex", period: "1M" }).success).toBe(
+    const input = portfolioQuerySchema;
+    expect(input.safeParse({ userId, period: "1M" }).success).toBe(true);
+    expect(input.safeParse({ userId }).success).toBe(false);
+    expect(input.safeParse({ userId, period: "2Y" }).success).toBe(false);
+    expect(input.safeParse({ userId: "alex", period: "1M" }).success).toBe(
       false,
     );
   });
@@ -143,85 +121,6 @@ describe("GET /users/{userId}/portfolio", () => {
     const { incomplete: _, ...withoutMarker } = portfolio;
     expect(portfolioSchema.safeParse(withoutMarker).success).toBe(false);
   });
-
-  it("marks euro amounts, quantities and cash, and keeps prices and weights", () => {
-    const marks = {
-      balanceEur: anonymizeKind(portfolioSchema.shape.balanceEur),
-      sharesEur: anonymizeKind(portfolioSchema.shape.sharesEur),
-      sharesWeight: anonymizeKind(portfolioSchema.shape.sharesWeight),
-      cashEur: anonymizeKind(portfolioSchema.shape.cashEur),
-      cashWeight: anonymizeKind(portfolioSchema.shape.cashWeight),
-      gainEur: anonymizeKind(portfolioSchema.shape.gain.shape.eur),
-      gainPercent: anonymizeKind(portfolioSchema.shape.gain.shape.percent),
-      quantity: anonymizeKind(portfolioHoldingSchema.shape.quantity),
-      valueEur: anonymizeKind(portfolioHoldingSchema.shape.valueEur),
-      weight: anonymizeKind(portfolioHoldingSchema.shape.weight.unwrap()),
-      latestPrice: anonymizeKind(
-        portfolioHoldingSchema.shape.latestPrice.unwrap().shape.priceEur,
-      ),
-    };
-    expect(marks).toEqual({
-      balanceEur: "euro",
-      sharesEur: "euro",
-      sharesWeight: undefined,
-      cashEur: "quantity",
-      cashWeight: undefined,
-      gainEur: "euro",
-      gainPercent: undefined,
-      quantity: "quantity",
-      valueEur: "euro",
-      weight: undefined,
-      latestPrice: undefined,
-    });
-  });
-
-  it("builds each holding on the shared position and gain", () => {
-    const { shape } = portfolioHoldingSchema;
-    for (const key of Object.keys(positionSchema.shape)) {
-      expect(shape).toHaveProperty(key);
-    }
-    expect(shape.gain.unwrap()).toBe(gainSchema);
-    expect(portfolioSchema.shape.gain).toBe(gainSchema);
-    expect(shape.latestPrice.unwrap()).toBe(latestPriceSchema);
-  });
-
-  it("is in the OpenAPI document, with its roles and markers", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/users/{userId}/portfolio"
-    ]?.get;
-
-    expect(operation).toMatchObject({
-      operationId: "portfolio.get",
-      tags: ["portfolio"],
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-      parameters: expect.arrayContaining([
-        expect.objectContaining({ name: "userId", in: "path" }),
-        expect.objectContaining({ name: "period", in: "query" }),
-      ]),
-    });
-    expect(operation?.responses).toMatchObject({
-      "200": {
-        content: {
-          "application/json": {
-            schema: {
-              properties: {
-                balanceEur: { "x-anonymize": "euro" },
-                cashEur: { "x-anonymize": "quantity" },
-                holdings: {
-                  items: {
-                    properties: {
-                      quantity: { "x-anonymize": "quantity" },
-                      valueEur: { "x-anonymize": "euro" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-  });
 });
 
 describe("GET /users/{userId}/holdings/{shareId}", () => {
@@ -233,32 +132,14 @@ describe("GET /users/{userId}/holdings/{shareId}", () => {
     quantity: "74.328",
   };
 
-  it("is declared for every signed-in role, with not_found", () => {
-    const { route, meta, errorMap } = getPortfolioHoldingAt["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/users/{userId}/holdings/{shareId}",
-    });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("takes the member, the share, and a moment with its offset", () => {
-    const input = getPortfolioHoldingAt["~orpc"].inputSchema;
-    expect(input?.safeParse({ userId, shareId, at }).success).toBe(true);
-    expect(input?.safeParse({ userId, shareId }).success).toBe(false);
-    expect(
-      input?.safeParse({ userId, shareId, at: "2026-03-02" }).success,
-    ).toBe(false);
-    expect(input?.safeParse({ userId, shareId: "fund", at }).success).toBe(
+    const input = portfolioHoldingAtQuerySchema;
+    expect(input.safeParse({ userId, shareId, at }).success).toBe(true);
+    expect(input.safeParse({ userId, shareId }).success).toBe(false);
+    expect(input.safeParse({ userId, shareId, at: "2026-03-02" }).success).toBe(
+      false,
+    );
+    expect(input.safeParse({ userId, shareId: "fund", at }).success).toBe(
       false,
     );
   });
@@ -271,26 +152,5 @@ describe("GET /users/{userId}/holdings/{shareId}", () => {
     expect(
       portfolioHoldingAtSchema.safeParse({ ...held, quantity: 74.328 }).success,
     ).toBe(false);
-  });
-
-  it("marks the quantity", () => {
-    expect(anonymizeKind(portfolioHoldingAtSchema.shape.quantity)).toBe(
-      "quantity",
-    );
-  });
-
-  it("is in the OpenAPI document with both ids in the path and the moment in the query", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/users/{userId}/holdings/{shareId}"
-    ]?.get;
-    expect(operation).toMatchObject({
-      operationId: "portfolio.holdingAt",
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-    });
-    expect(
-      operation?.parameters?.map((parameter) =>
-        "in" in parameter ? `${parameter.in}:${parameter.name}` : undefined,
-      ),
-    ).toEqual(["path:userId", "path:shareId", "query:at"]);
   });
 });

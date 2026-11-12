@@ -67,13 +67,21 @@ export const portfolioSchema = z.object({
 
 export type Portfolio = z.infer<typeof portfolioSchema>;
 
+/** `GET /users/{userId}/portfolio?period=`. */
+export const portfolioQuerySchema = z.object({
+  userId: idSchema,
+  period: periodSchema,
+});
+
+export type PortfolioQuery = z.input<typeof portfolioQuerySchema>;
+
 export const getPortfolio = signedInRoute(roles)
   .route({
     method: "GET",
     path: "/users/{userId}/portfolio",
     summary: "A member's holdings, cash and balance",
   })
-  .input(z.object({ userId: idSchema, period: periodSchema }))
+  .input(portfolioQuerySchema)
   .output(portfolioSchema)
   .errors(errorMap("invalid_request", "not_found"));
 

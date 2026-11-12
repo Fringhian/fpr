@@ -1,4 +1,10 @@
-import { type ErrorBody, type ErrorCode, errorCodes } from "@fpr/contracts";
+import {
+  type ErrorBody,
+  type ErrorCode,
+  errorCodes,
+  type InvalidRequestDetails,
+  validationIssueCodeSchema,
+} from "@fpr/contracts";
 import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request } from "express";
@@ -12,10 +18,33 @@ function isErrorCode(code: string): code is ErrorCode {
   return (errorCodes as readonly string[]).includes(code);
 }
 
+interface Issue {
+  path?: readonly PropertyKey[];
+  code?: string;
+}
+
+/**
+ * The `invalid_request` details of oRPC's validation issues: each issue's path
+ * and code, without Zod's text. A symbol in a path, which JSON can't carry,
+ * and a code outside Zod's list, are left as `custom`.
+ */
+function toInvalidRequestDetails(issues: unknown): InvalidRequestDetails {
+  return {
+    issues: (Array.isArray(issues) ? (issues as Issue[]) : []).map(
+      ({ path = [], code }) => ({
+        path: path.flatMap((key) =>
+          typeof key === "symbol" ? [] : [key as string | number],
+        ),
+        code: validationIssueCodeSchema.catch("custom").parse(code),
+      }),
+    ),
+  };
+}
+
 /**
  * FPR's error body for an oRPC error: a declared code as it is, oRPC's input
- * validation failure as `invalid_request` with its issues, and anything else
- * as `internal_error`, without its message.
+ * validation failure as `invalid_request` with each issue's path and code,
+ * and anything else as `internal_error`, without its message.
  */
 export function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
   if (isErrorCode(error.code)) {
@@ -29,7 +58,12 @@ export function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
   }
   if (error.code === "BAD_REQUEST") {
     const { issues } = (error.data ?? {}) as { issues?: unknown };
-    return { error: { code: "invalid_request", details: { issues } } };
+    return {
+      error: {
+        code: "invalid_request",
+        details: toInvalidRequestDetails(issues),
+      },
+    };
   }
   return { error: { code: "internal_error" } };
 }

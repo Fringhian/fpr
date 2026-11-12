@@ -14,67 +14,11 @@ import {
   updateShareValue,
 } from "./values.js";
 
-export {
-  createManualShare,
-  type ShareManualBody,
-  type ShareUpdateBody,
-  shareManualBodySchema,
-  shareUpdateBodySchema,
-  updateShare,
-} from "./manual.js";
-export { type ShareQuote, shareQuoteSchema } from "./schemas.js";
-export {
-  lookUpShares,
-  type ShareList,
-  type ShareListItem,
-  type ShareLookupBody,
-  type ShareSearchQuery,
-  searchShares,
-  shareListItemSchema,
-  shareListSchema,
-  shareLookupBodySchema,
-  shareSearchQuerySchema,
-} from "./search.js";
-export {
-  deleteShare,
-  getShare,
-  getShareHolders,
-  getSharePrices,
-  type ShareDetail,
-  type ShareHolder,
-  type ShareHolderChange,
-  type ShareHolders,
-  type SharePrices,
-  shareDetailSchema,
-  shareHolderChangeSchema,
-  shareHolderSchema,
-  shareHoldersSchema,
-  sharePricesSchema,
-} from "./share.js";
-export {
-  addShareValue,
-  deleteShareValue,
-  getShareValueEvents,
-  getShareValues,
-  type ShareValue,
-  type ShareValueAction,
-  type ShareValueDeleteBody,
-  type ShareValueEvent,
-  type ShareValueEvents,
-  type ShareValueParams,
-  type ShareValues,
-  type ShareValueUpdateBody,
-  shareValueActionSchema,
-  shareValueActions,
-  shareValueDeleteBodySchema,
-  shareValueEventSchema,
-  shareValueEventsSchema,
-  shareValueParamsSchema,
-  shareValueSchema,
-  shareValuesSchema,
-  shareValueUpdateBodySchema,
-  updateShareValue,
-} from "./values.js";
+export type * from "./manual.js";
+export type * from "./schemas.js";
+export type * from "./search.js";
+export type * from "./share.js";
+export type * from "./values.js";
 
 /** Shares, lookups, and manual shares with their value points. */
 export const sharesContract = {

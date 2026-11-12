@@ -22,6 +22,16 @@ export const portfolioCashBalanceSchema = z.object({
 
 export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;
 
+/** `POST /users/{userId}/cash-balances`: the member, and the cash balance. */
+export const portfolioCashInputSchema = z.object({
+  userId: idSchema,
+  id: clientIdSchema,
+  amountEur: portfolioCashAmountSchema,
+  effectiveAt: timestampSchema,
+});
+
+export type PortfolioCashInput = z.input<typeof portfolioCashInputSchema>;
+
 /**
  * With an `id` already stored for the member, answers that cash balance as it
  * is, with `201`, and saves nothing. An `id` another member's cash balance has
@@ -34,18 +44,25 @@ export const setPortfolioCash = signedInRoute(writerRoles)
     summary: "Set cash from a moment",
     successStatus: 201,
   })
-  .input(
-    z.object({
-      userId: idSchema,
-      id: clientIdSchema,
-      amountEur: portfolioCashAmountSchema,
-      effectiveAt: timestampSchema,
-    }),
-  )
+  .input(portfolioCashInputSchema)
   .output(portfolioCashBalanceSchema)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
+
+/** `PATCH /cash-balances/{id}`: what changes, at least one of the two. */
+export const portfolioCashUpdateSchema = z
+  .object({
+    id: idSchema,
+    amountEur: portfolioCashAmountSchema.optional(),
+    effectiveAt: timestampSchema.optional(),
+  })
+  .refine(
+    (body) => body.amountEur !== undefined || body.effectiveAt !== undefined,
+    { error: "Expected an amountEur or an effectiveAt" },
+  );
+
+export type PortfolioCashUpdate = z.input<typeof portfolioCashUpdateSchema>;
 
 export const updatePortfolioCash = signedInRoute(writerRoles)
   .route({
@@ -53,19 +70,7 @@ export const updatePortfolioCash = signedInRoute(writerRoles)
     path: "/cash-balances/{id}",
     summary: "Edit a cash balance",
   })
-  .input(
-    z
-      .object({
-        id: idSchema,
-        amountEur: portfolioCashAmountSchema.optional(),
-        effectiveAt: timestampSchema.optional(),
-      })
-      .refine(
-        (body) =>
-          body.amountEur !== undefined || body.effectiveAt !== undefined,
-        { error: "Expected an amountEur or an effectiveAt" },
-      ),
-  )
+  .input(portfolioCashUpdateSchema)
   .output(portfolioCashBalanceSchema)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
