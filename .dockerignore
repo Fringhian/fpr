@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+.claude
+.github
+docs
+design
