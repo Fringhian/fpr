@@ -2,11 +2,11 @@
 **/dist
 **/*.tsbuildinfo
 .git
-.claude
-.github
 .env
 .env.*
 !.env.example
+.claude
+.github
 coverage
-design
 docs
+design
