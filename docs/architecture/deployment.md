@@ -6,7 +6,7 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 
 | Service | Image | Exposed |
 | --- | --- | --- |
-| `web` | `apps/web/Dockerfile`: Caddy with the built app | Yes, the only public port |
+| `web` | `apps/web/Dockerfile`: nginx with the built app | Yes, the only public port |
 | `api` | `apps/api/Dockerfile` | No |
 | `prices` | `apps/prices/Dockerfile` | No |
 | `postgres` | `postgres:18` | No |
