@@ -14,52 +14,14 @@ import {
   pricesUpdateShare,
 } from "./shares.js";
 
-export {
-  type PricesAddManualPriceInput,
-  type PricesDeleteManualPriceInput,
-  type PricesUpdateManualPriceInput,
-  pricesAddManualPrice,
-  pricesAddManualPriceInputSchema,
-  pricesDeleteManualPrice,
-  pricesDeleteManualPriceInputSchema,
-  pricesUpdateManualPrice,
-  pricesUpdateManualPriceInputSchema,
-} from "./manual-prices.js";
-export { pricesRefresh } from "./refresh.js";
-export {
-  type PricesHistory,
-  type PricesValuePoint,
-  pricesHistorySchema,
-  pricesValuePointSchema,
-} from "./schemas.js";
-export {
-  type PricesCreateManualBody,
-  type PricesCreateMarketBody,
-  type PricesDeleteShareInput,
-  type PricesFillHistoryInput,
-  type PricesLookupBody,
-  type PricesMakeManualInput,
-  type PricesUpdateShareInput,
-  pricesCreateManual,
-  pricesCreateManualBodySchema,
-  pricesCreateMarket,
-  pricesCreateMarketBodySchema,
-  pricesDeleteShare,
-  pricesDeleteShareInputSchema,
-  pricesFillHistory,
-  pricesFillHistoryInputSchema,
-  pricesLookup,
-  pricesLookupBodySchema,
-  pricesMakeManual,
-  pricesMakeManualInputSchema,
-  pricesUpdateShare,
-  pricesUpdateShareInputSchema,
-} from "./shares.js";
+export type * from "./manual-prices.js";
+export type * from "./schemas.js";
+export type * from "./shares.js";
 
 /**
  * The price service's internal routes, which only the API calls, with
  * `Authorization: Bearer <PRICES_TOKEN>`. They are left out of the OpenAPI
- * document.
+ * document. This is the `@fpr/contracts/prices` entry point.
  */
 export const pricesContract = {
   lookup: pricesLookup,
