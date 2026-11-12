@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { apiContract } from "../api/index.js";
-import { contractProcedures } from "../contract.js";
+import { contractProcedures, missingPathParams } from "../contract.js";
 import { createOpenApiDocument } from "../openapi.js";
 import { pricesContract } from "./index.js";
 
@@ -24,6 +24,10 @@ describe.each(procedures)("%s", (_, procedure) => {
 
   it("declares invalid_request when it has an input", () => {
     expect("invalid_request" in errorMap).toBe(inputSchema !== undefined);
+  });
+
+  it("takes each parameter of its path as a required input field", () => {
+    expect(missingPathParams(procedure)).toEqual([]);
   });
 
   it("declares none of the API's session or role codes", () => {
