@@ -30,9 +30,16 @@ export const shareDetailSchema = shareQuoteSchema.extend({
 
 export type ShareDetail = z.infer<typeof shareDetailSchema>;
 
+/** `GET /shares/{id}?period=`. */
+export const shareQuerySchema = shareIdParamsSchema.extend({
+  period: periodSchema,
+});
+
+export type ShareQuery = z.input<typeof shareQuerySchema>;
+
 export const getShare = signedInRoute(roles)
   .route({ method: "GET", path: "/shares/{id}", summary: "A share's page" })
-  .input(shareIdParamsSchema.extend({ period: periodSchema }))
+  .input(shareQuerySchema)
   .output(shareDetailSchema)
   .errors(errorMap("invalid_request", "not_found"));
 
@@ -46,13 +53,20 @@ export const sharePricesSchema = z.object({
 
 export type SharePrices = z.infer<typeof sharePricesSchema>;
 
+/** `GET /shares/{id}/prices?range=`. */
+export const sharePricesQuerySchema = shareIdParamsSchema.extend({
+  range: periodSchema,
+});
+
+export type SharePricesQuery = z.input<typeof sharePricesQuerySchema>;
+
 export const getSharePrices = signedInRoute(roles)
   .route({
     method: "GET",
     path: "/shares/{id}/prices",
     summary: "A share's chart points",
   })
-  .input(shareIdParamsSchema.extend({ range: periodSchema }))
+  .input(sharePricesQuerySchema)
   .output(sharePricesSchema)
   .errors(errorMap("invalid_request", "not_found"));
 

@@ -7,6 +7,11 @@ export const periodSchema = z.enum(periods);
 
 export type Period = z.infer<typeof periodSchema>;
 
+/** The query of a race route that only takes its period: `?period=`. */
+export const periodQuerySchema = z.object({ period: periodSchema });
+
+export type PeriodQuery = z.input<typeof periodQuerySchema>;
+
 /** How a gain is expressed. */
 export const units = ["eur", "percent"] as const;
 

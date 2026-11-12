@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
-import { periodSchema } from "../../period.js";
+import { periodQuerySchema } from "../../period.js";
 import { roles } from "../../roles.js";
 import {
   incompleteSchema,
@@ -47,6 +47,6 @@ export const getRace = signedInRoute(roles)
     path: "/race",
     summary: "Every member's gain at each close, then provisional points",
   })
-  .input(z.object({ period: periodSchema }))
+  .input(periodQuerySchema)
   .output(raceSchema)
   .errors(errorMap("invalid_request"));
