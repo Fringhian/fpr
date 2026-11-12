@@ -7,5 +7,6 @@
 !.env.example
 .claude
 .github
+coverage
 docs
 design
