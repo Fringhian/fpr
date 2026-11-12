@@ -2,11 +2,13 @@ import { StandardOpenAPIMatcher } from "@orpc/openapi/standard";
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { gainSchema, priceChangeSchema } from "../../schemas/performance.js";
 import { raceContract } from "./index.js";
 import {
   getLeaderboard,
   getShareLeaderboard,
   type Leaderboard,
+  leaderboardQuerySchema,
   leaderboardSchema,
   type ShareLeaderboard,
   shareLeaderboardSchema,
@@ -34,17 +36,27 @@ const exampleFund = {
   symbol: "EXW.XETRA",
 } as const;
 
+const bestHolding = {
+  share: exampleFund,
+  gain: { eur: "310.00", percent: "12.4" },
+};
+
 const balanceBoard: Leaderboard = {
   board: "balance",
   lastCloseOn: "2026-03-02",
   rows: [
     {
       member: sam,
-      balance: "21600.00",
+      balanceEur: "21600.00",
       incomplete: false,
-      bestHolding: { share: exampleFund, gainPercent: "12.4" },
+      bestHolding,
     },
-    { member: alex, balance: "12374.50", incomplete: true, bestHolding: null },
+    {
+      member: alex,
+      balanceEur: "12374.50",
+      incomplete: true,
+      bestHolding: null,
+    },
   ],
   notStarted: [],
 };
@@ -56,14 +68,14 @@ const gainBoard: Leaderboard = {
   rows: [
     {
       member: sam,
-      gain: "1240.00",
+      gain: { eur: "1240.00", percent: "6.1" },
       measuredFrom: null,
       incomplete: false,
-      bestHolding: { share: exampleFund, gainPercent: "12.4" },
+      bestHolding,
     },
     {
       member: alex,
-      gain: "-140.25",
+      gain: { eur: "-140.25", percent: "-1.12" },
       measuredFrom: "2026-02-12",
       incomplete: false,
       bestHolding: null,
@@ -73,7 +85,6 @@ const gainBoard: Leaderboard = {
 };
 
 const [balanceOption, gainOption] = leaderboardSchema.options;
-const [gainEurOption, gainPercentOption] = gainOption.options;
 
 describe("GET /leaderboards/{board}", () => {
   it("is declared for every role, with the session and input codes", () => {
@@ -94,38 +105,66 @@ describe("GET /leaderboards/{board}", () => {
   });
 
   it("takes the board in the path, and the period and unit as query strings", () => {
-    const input = getLeaderboard["~orpc"].inputSchema;
     const query = { board: "gain", period: "1M", unit: "percent" };
-    expect(input?.safeParse(query).success).toBe(true);
-    expect(input?.safeParse({ ...query, board: "shares" }).success).toBe(false);
-    expect(input?.safeParse({ ...query, period: "2Y" }).success).toBe(false);
-    expect(input?.safeParse({ ...query, unit: "usd" }).success).toBe(false);
-    expect(input?.safeParse({ board: "balance" }).success).toBe(false);
+    expect(leaderboardQuerySchema.safeParse(query).success).toBe(true);
+    expect(
+      leaderboardQuerySchema.safeParse({ ...query, board: "shares" }).success,
+    ).toBe(false);
+    expect(
+      leaderboardQuerySchema.safeParse({ ...query, period: "2Y" }).success,
+    ).toBe(false);
+    expect(
+      leaderboardQuerySchema.safeParse({ ...query, unit: "usd" }).success,
+    ).toBe(false);
+    expect(leaderboardQuerySchema.safeParse({ board: "balance" }).success).toBe(
+      false,
+    );
   });
 
-  it("answers the balance board, and the gain board in euros or percent", () => {
+  it("ranks the gain board in euros when the unit is left out", () => {
+    expect(
+      leaderboardQuerySchema.parse({ board: "balance", period: "1M" }),
+    ).toEqual({ board: "balance", period: "1M", unit: "eur" });
+    expect(getLeaderboard["~orpc"].inputSchema).toBe(leaderboardQuerySchema);
+  });
+
+  it("answers the balance board, and the gain board ranked in euros or percent", () => {
     expect(leaderboardSchema.parse(balanceBoard)).toEqual(balanceBoard);
     expect(leaderboardSchema.parse(gainBoard)).toEqual(gainBoard);
     const inPercent = { ...gainBoard, unit: "percent" };
     expect(leaderboardSchema.parse(inPercent)).toEqual(inPercent);
   });
 
-  it("refuses a gain board without its unit, and amounts that aren't decimal strings", () => {
+  it("refuses a gain board without its unit, a gain without its percent, and amounts that aren't decimal strings", () => {
     const { unit: _, ...withoutUnit } = gainBoard;
     expect(leaderboardSchema.safeParse(withoutUnit).success).toBe(false);
+    const [gainRow] = gainBoard.rows;
+    expect(
+      leaderboardSchema.safeParse({
+        ...gainBoard,
+        rows: [{ ...gainRow, gain: { eur: "1240.00" } }],
+      }).success,
+    ).toBe(false);
     const [row] = balanceBoard.rows;
-    const asNumber = { ...balanceBoard, rows: [{ ...row, balance: 21600 }] };
+    const asNumber = { ...balanceBoard, rows: [{ ...row, balanceEur: 21600 }] };
     expect(leaderboardSchema.safeParse(asNumber).success).toBe(false);
-    const asFloat = { ...balanceBoard, rows: [{ ...row, balance: "2.16e4" }] };
+    const asFloat = {
+      ...balanceBoard,
+      rows: [{ ...row, balanceEur: "2.16e4" }],
+    };
     expect(leaderboardSchema.safeParse(asFloat).success).toBe(false);
   });
 
+  it("names no unit on the balance board", () => {
+    expect(balanceOption.shape).not.toHaveProperty("unit");
+  });
+
   it("carries the measured-from, incomplete and not-started markers", () => {
-    const row = gainEurOption.shape.rows.element.shape;
+    const row = gainOption.shape.rows.element.shape;
     expect(row.measuredFrom.safeParse("2026-02-12").success).toBe(true);
     expect(row.measuredFrom.safeParse(null).success).toBe(true);
     expect(row.incomplete.safeParse(true).success).toBe(true);
-    expect(gainEurOption.shape.notStarted.safeParse([alex]).success).toBe(true);
+    expect(gainOption.shape.notStarted.safeParse([alex]).success).toBe(true);
     expect(balanceOption.shape.notStarted.safeParse([alex]).success).toBe(true);
   });
 
@@ -133,15 +172,12 @@ describe("GET /leaderboards/{board}", () => {
     const balanceRow = balanceOption.shape.rows.element.shape;
     expect(anonymizeKind(balanceRow.member.shape.displayName)).toBe("personal");
     expect(anonymizeKind(balanceRow.member.shape.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(balanceRow.balance)).toBe("euro");
-    expect(anonymizeKind(gainEurOption.shape.rows.element.shape.gain)).toBe(
-      "euro",
-    );
-    expect(
-      anonymizeKind(gainPercentOption.shape.rows.element.shape.gain),
-    ).toBeUndefined();
-    const best = balanceRow.bestHolding.unwrap().shape;
-    expect(anonymizeKind(best.gainPercent)).toBeUndefined();
+    expect(anonymizeKind(balanceRow.balanceEur)).toBe("euro");
+    const gainRow = gainOption.shape.rows.element.shape;
+    expect(gainRow.gain).toBe(gainSchema);
+    expect(anonymizeKind(gainRow.gain.shape.eur)).toBe("euro");
+    expect(anonymizeKind(gainRow.gain.shape.percent)).toBeUndefined();
+    expect(balanceRow.bestHolding.unwrap().shape.gain).toBe(gainSchema);
   });
 
   it("is in the OpenAPI document, with its roles, markers and error codes", async () => {
@@ -160,14 +196,15 @@ describe("GET /leaderboards/{board}", () => {
       "500",
     ]);
     const json = JSON.stringify(operation?.responses?.["200"]);
-    expect(json.match(/"x-anonymize":"euro"/g)).toHaveLength(2);
+    expect(json).toContain('"x-anonymize":"euro"');
+    expect(json).not.toContain('"x-anonymize":"quantity"');
   });
 });
 
 const shareBoard: ShareLeaderboard = {
   lastCloseOn: "2026-03-02",
   rows: [
-    { share: exampleFund, changePercent: "12.4" },
+    { share: exampleFund, change: { eur: "4.95", percent: "12.4" } },
     {
       share: {
         id: "4fad7a5c-ce61-40b2-9354-6f7a8b9cadb4",
@@ -176,7 +213,7 @@ const shareBoard: ShareLeaderboard = {
         kind: "manual",
         symbol: null,
       },
-      changePercent: "-3.05",
+      change: { eur: "-1.22", percent: "-3.05" },
     },
   ],
 };
@@ -206,11 +243,14 @@ describe("GET /leaderboards/shares", () => {
     expect(input?.safeParse({}).success).toBe(false);
   });
 
-  it("accepts the ranked shares, and refuses a change that isn't a decimal string", () => {
+  it("accepts the ranked shares with their change, and refuses a change that isn't decimal strings", () => {
     expect(shareLeaderboardSchema.parse(shareBoard)).toEqual(shareBoard);
+    expect(shareLeaderboardSchema.shape.rows.element.shape.change).toBe(
+      priceChangeSchema,
+    );
     const asNumber = {
       ...shareBoard,
-      rows: [{ share: exampleFund, changePercent: 12.4 }],
+      rows: [{ share: exampleFund, change: { eur: 4.95, percent: 12.4 } }],
     };
     expect(shareLeaderboardSchema.safeParse(asNumber).success).toBe(false);
   });

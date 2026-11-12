@@ -75,10 +75,20 @@ describe("POST /setup", () => {
     expect(setupBodySchema.safeParse(withoutPassword).success).toBe(false);
   });
 
-  it("marks the email and display name personal", () => {
-    expect(anonymizeKind(setupBodySchema.shape.email)).toBe("personal");
-    expect(anonymizeKind(setupBodySchema.shape.displayName)).toBe("personal");
+  it("leaves its fields unmarked: a request isn't anonymized", () => {
+    expect(anonymizeKind(setupBodySchema.shape.email)).toBeUndefined();
+    expect(anonymizeKind(setupBodySchema.shape.displayName)).toBeUndefined();
     expect(anonymizeKind(setupBodySchema.shape.password)).toBeUndefined();
+  });
+
+  it("trims the display name", () => {
+    expect(
+      setupBodySchema.parse({ ...body, displayName: "  Alex Martin " })
+        .displayName,
+    ).toBe("Alex Martin");
+    expect(
+      setupBodySchema.safeParse({ ...body, displayName: "   " }).success,
+    ).toBe(false);
   });
 
   it("is in the OpenAPI document, with its statuses", async () => {

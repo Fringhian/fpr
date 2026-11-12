@@ -17,7 +17,7 @@ const fund: AdminShare = {
   name: "Example World Fund",
   kind: "market",
   symbol: "EXW.PA",
-  latestPriceAt: null,
+  latestPrice: null,
   holders: [
     {
       id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70",
@@ -31,7 +31,16 @@ const fund: AdminShare = {
 
 const groups: AdminShareGroups = {
   needsAttention: [fund],
-  tracked: [{ ...fund, latestPriceAt: "2026-03-02T17:30:00+01:00" }],
+  tracked: [
+    {
+      ...fund,
+      latestPrice: {
+        at: "2026-03-02T17:30:00+01:00",
+        priceEur: "40.10",
+        source: "intraday",
+      },
+    },
+  ],
   manual: [{ ...fund, kind: "manual", symbol: null, holders: [] }],
   notHeld: [{ ...fund, holders: [], hasShareChanges: false }],
 };
@@ -43,13 +52,13 @@ describe("adminShareGroupsSchema", () => {
     expect(adminShareGroupsSchema.parse(empty)).toEqual(empty);
   });
 
-  it("refuses a missing group, or a share without its price time or flag", () => {
+  it("refuses a missing group, or a share without its latest price or flag", () => {
     const { notHeld: _, ...withoutNotHeld } = groups;
     expect(adminShareGroupsSchema.safeParse(withoutNotHeld).success).toBe(
       false,
     );
-    const { latestPriceAt: __, ...withoutPriceTime } = fund;
-    expect(adminShareSchema.safeParse(withoutPriceTime).success).toBe(false);
+    const { latestPrice: __, ...withoutPrice } = fund;
+    expect(adminShareSchema.safeParse(withoutPrice).success).toBe(false);
     const { hasShareChanges: ___, ...withoutFlag } = fund;
     expect(adminShareSchema.safeParse(withoutFlag).success).toBe(false);
   });

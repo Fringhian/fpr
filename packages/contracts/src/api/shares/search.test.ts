@@ -1,15 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { pricesLookup } from "../../prices/shares.js";
+import {
+  isinTakenDetailsSchema,
+  type LookupResult,
+  lookupResultSchema,
+} from "../../schemas/share.js";
 import {
   lookUpShares,
   type ShareListItem,
-  type ShareLookupResult,
   searchShares,
   shareListItemSchema,
   shareListSchema,
   shareLookupBodySchema,
-  shareLookupResultSchema,
   shareSearchQuerySchema,
 } from "./search.js";
 
@@ -26,8 +30,7 @@ const item: ShareListItem = {
     priceEur: "40.10",
     source: "close",
   },
-  changeEur: "1.10",
-  changePercent: "2.8",
+  change: { eur: "1.10", percent: "2.8" },
   series: [
     { at: "2026-02-27T22:59:59Z", priceEur: "39.00" },
     { at: "2026-03-02T22:59:59Z", priceEur: "40.10" },
@@ -86,8 +89,7 @@ describe("GET /shares", () => {
       shareListItemSchema.safeParse({
         ...item,
         latestPrice: null,
-        changeEur: null,
-        changePercent: null,
+        change: null,
         series: [],
         holders: [],
       }).success,
@@ -158,7 +160,7 @@ describe("GET /shares", () => {
 });
 
 describe("POST /shares/lookup", () => {
-  const result: ShareLookupResult = {
+  const result: LookupResult = {
     shares: [
       {
         id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f71",
@@ -168,7 +170,7 @@ describe("POST /shares/lookup", () => {
         symbol: "EXF.PA",
       },
     ],
-    listingsWithoutIsin: [
+    listings: [
       {
         symbol: "EXT.LSE",
         name: "Example Tracker",
@@ -189,10 +191,18 @@ describe("POST /shares/lookup", () => {
         "forbidden",
         "internal_error",
         "invalid_request",
+        "isin_taken",
+        "not_found",
         "provider_unavailable",
         "unauthenticated",
       ].sort(),
     );
+    expect(errorMap.isin_taken.data).toBe(isinTakenDetailsSchema);
+  });
+
+  it("answers as the price service's lookup does", () => {
+    expect(lookUpShares["~orpc"].outputSchema).toBe(lookupResultSchema);
+    expect(pricesLookup["~orpc"].outputSchema).toBe(lookupResultSchema);
   });
 
   it("accepts a query, and a listing's symbol with the ISIN a member typed", () => {
@@ -223,17 +233,14 @@ describe("POST /shares/lookup", () => {
   });
 
   it("accepts the stored shares and the listings without an ISIN", () => {
-    expect(shareLookupResultSchema.parse(result)).toEqual(result);
+    expect(lookupResultSchema.parse(result)).toEqual(result);
     expect(
-      shareLookupResultSchema.safeParse({ shares: [], listingsWithoutIsin: [] })
-        .success,
+      lookupResultSchema.safeParse({ shares: [], listings: [] }).success,
     ).toBe(true);
     expect(
-      shareLookupResultSchema.safeParse({
+      lookupResultSchema.safeParse({
         ...result,
-        listingsWithoutIsin: [
-          { ...result.listingsWithoutIsin[0], tradingCurrency: "pence" },
-        ],
+        listings: [{ ...result.listings[0], tradingCurrency: "pence" }],
       }).success,
     ).toBe(false);
   });

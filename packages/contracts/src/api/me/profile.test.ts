@@ -74,13 +74,24 @@ describe("GET /me", () => {
         content: {
           "application/json": {
             schema: {
-              properties: {
-                error: {
+              oneOf: [
+                {
                   properties: {
-                    code: { enum: ["unauthenticated", "access_ended"] },
+                    error: {
+                      properties: { code: { const: "unauthenticated" } },
+                      required: ["code"],
+                    },
                   },
                 },
-              },
+                {
+                  properties: {
+                    error: {
+                      properties: { code: { const: "access_ended" } },
+                      required: ["code"],
+                    },
+                  },
+                },
+              ],
             },
           },
         },

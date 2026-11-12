@@ -9,15 +9,13 @@ import {
   deletePortfolioChange,
   updatePortfolioChange,
 } from "./changes.js";
-import { getPortfolio } from "./holdings.js";
+import { getPortfolio, getPortfolioHoldingAt } from "./holdings.js";
 import { getPortfolioLog } from "./log.js";
 
 export {
   getPortfolioBalanceHistory,
   type PortfolioBalanceHistory,
-  type PortfolioBalancePoint,
   portfolioBalanceHistorySchema,
-  portfolioBalancePointSchema,
 } from "./balance-history.js";
 export {
   deletePortfolioCash,
@@ -39,10 +37,13 @@ export {
 } from "./changes.js";
 export {
   getPortfolio,
+  getPortfolioHoldingAt,
   type Portfolio,
-  type PortfolioGain,
   type PortfolioHolding,
-  portfolioGainSchema,
+  type PortfolioHoldingAt,
+  type PortfolioHoldingAtQuery,
+  portfolioHoldingAtQuerySchema,
+  portfolioHoldingAtSchema,
   portfolioHoldingSchema,
   portfolioSchema,
 } from "./holdings.js";
@@ -57,6 +58,7 @@ export {
 /** A member's holdings, share changes, cash balances, and log. */
 export const portfolioContract = {
   get: getPortfolio,
+  holdingAt: getPortfolioHoldingAt,
   log: getPortfolioLog,
   addChange: addPortfolioChange,
   updateChange: updatePortfolioChange,

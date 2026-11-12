@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { personal } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { profileRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
-import { meEditorRoles, meSchema } from "./profile.js";
+import { meSchema } from "./profile.js";
 
 /** The largest picture `PUT /me/avatar` stores: 2 MB. */
 export const avatarMaxBytes = 2 * 1024 * 1024;
@@ -32,10 +33,7 @@ export const avatarSchema = personal(
   z.file().meta({ description: "The uploaded JPEG, PNG, or WebP picture." }),
 );
 
-/** Who `GET /users/{userId}/avatar` shows a picture to: anonymous viewers see none. */
-export const avatarViewerRoles = ["admin", "member", "guest"] as const;
-
-export const setMeAvatar = signedInRoute(meEditorRoles)
+export const setMeAvatar = signedInRoute(profileRoles)
   .route({ method: "PUT", path: "/me/avatar", summary: "Upload a picture" })
   .input(avatarUploadSchema)
   .output(meSchema)
@@ -48,7 +46,7 @@ export const setMeAvatar = signedInRoute(meEditorRoles)
     ),
   );
 
-export const deleteMeAvatar = signedInRoute(meEditorRoles)
+export const deleteMeAvatar = signedInRoute(profileRoles)
   .route({
     method: "DELETE",
     path: "/me/avatar",
@@ -57,7 +55,8 @@ export const deleteMeAvatar = signedInRoute(meEditorRoles)
   .output(meSchema)
   .errors(errorMap("forbidden"));
 
-export const getUserAvatar = signedInRoute(avatarViewerRoles)
+/** Anonymous viewers see no pictures. */
+export const getUserAvatar = signedInRoute(profileRoles)
   .route({
     method: "GET",
     path: "/users/{userId}/avatar",

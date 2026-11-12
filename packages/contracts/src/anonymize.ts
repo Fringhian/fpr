@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 /**
- * What the anonymizer replaces in a field, for an anonymous viewer:
- * - `personal`: a display name, picture, or email;
- * - `euro`: an amount or series in euros, replaced with percentages;
+ * What the anonymizer does to a field, for an anonymous viewer:
+ * - `personal`: a display name, picture, or email, replaced;
+ * - `euro`: an amount in euros, removed. The percentage beside it stays, and
+ *   a member's balance, which has none, leaves the ranks without amounts;
  * - `quantity`: a quantity held, or cash, replaced with its weight in the
  *   portfolio.
  */
@@ -33,7 +34,7 @@ export function personal<T extends z.ZodType>(schema: T): T {
   return mark(schema, "personal");
 }
 
-/** An amount or series in euros. */
+/** An amount in euros, with its percentage beside it. */
 export function euro<T extends z.ZodType>(schema: T): T {
   return mark(schema, "euro");
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { valueChangedDetailsSchema } from "../../schemas/share.js";
 import {
   addShareValue,
   deleteShareValue,
@@ -8,8 +9,6 @@ import {
   getShareValues,
   type ShareValue,
   type ShareValueEvent,
-  shareValueBodySchema,
-  shareValueChangedDetailsSchema,
   shareValueDeleteBodySchema,
   shareValueEventSchema,
   shareValueEventsSchema,
@@ -165,13 +164,14 @@ describe("POST /shares/{id}/values", () => {
     );
   });
 
+  const input = addShareValue["~orpc"].inputSchema;
+
   it("accepts a moment and a value above zero", () => {
     const body = { at: value.at, priceEur: value.priceEur };
-    expect(shareValueBodySchema.parse(body)).toEqual(body);
-    expect(
-      addShareValue["~orpc"].inputSchema?.safeParse({ id: shareId, ...body })
-        .success,
-    ).toBe(true);
+    expect(input?.parse({ id: shareId, ...body })).toEqual({
+      id: shareId,
+      ...body,
+    });
   });
 
   it.each([
@@ -180,7 +180,8 @@ describe("POST /shares/{id}/values", () => {
     ["a moment without its offset", { at: "2026-03-02T05:10:00" }],
   ])("refuses %s", (_, change) => {
     expect(
-      shareValueBodySchema.safeParse({
+      input?.safeParse({
+        id: shareId,
         at: value.at,
         priceEur: value.priceEur,
         ...change,
@@ -278,12 +279,17 @@ describe("PATCH /shares/{id}/values/{at}", () => {
   });
 
   it("carries the stored value in value_changed's details", () => {
-    expect(shareValueChangedDetailsSchema.parse({ priceEur: "40.50" })).toEqual(
-      { priceEur: "40.50" },
-    );
+    expect(valueChangedDetailsSchema.parse({ priceEur: "40.50" })).toEqual({
+      priceEur: "40.50",
+    });
     expect(
-      shareValueChangedDetailsSchema.safeParse({ priceEur: 40.5 }).success,
+      valueChangedDetailsSchema.safeParse({ priceEur: 40.5 }).success,
     ).toBe(false);
+    for (const route of [addShareValue, updateShareValue, deleteShareValue]) {
+      expect(route["~orpc"].errorMap.value_changed.data).toBe(
+        valueChangedDetailsSchema,
+      );
+    }
   });
 });
 

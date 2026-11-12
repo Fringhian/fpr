@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../anonymize.js";
-import { personSchema } from "./person.js";
+import { displayNameSchema, emailSchema, personSchema } from "./person.js";
 import { isinSchema } from "./share.js";
 import { dateSchema, timestampSchema } from "./time.js";
 
@@ -42,6 +42,22 @@ describe("dateSchema", () => {
   it("accepts a day and refuses a moment", () => {
     expect(dateSchema.safeParse("2026-03-02").success).toBe(true);
     expect(dateSchema.safeParse("2026-03-02T17:30:00Z").success).toBe(false);
+  });
+});
+
+describe("emailSchema", () => {
+  it("accepts an email, unmarked, and refuses anything else", () => {
+    expect(emailSchema.safeParse("alex.martin@example.com").success).toBe(true);
+    expect(emailSchema.safeParse("alex.martin").success).toBe(false);
+    expect(anonymizeKind(emailSchema)).toBeUndefined();
+  });
+});
+
+describe("displayNameSchema", () => {
+  it("trims, and refuses an empty name or one over 40 characters", () => {
+    expect(displayNameSchema.parse("  Alex Martin ")).toBe("Alex Martin");
+    expect(displayNameSchema.safeParse("   ").success).toBe(false);
+    expect(displayNameSchema.safeParse("a".repeat(41)).success).toBe(false);
   });
 });
 

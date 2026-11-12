@@ -3,28 +3,29 @@ import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { periodSchema } from "../../period.js";
-import { roles } from "../../roles.js";
+import { adminRoles, roles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { currencySchema } from "../../schemas/money.js";
+import { positionSchema } from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { pricePointSchema } from "../../schemas/share.js";
 import { dateSchema, timestampSchema } from "../../schemas/time.js";
-import {
-  shareCurrencySchema,
-  shareIdParamsSchema,
-  sharePositionSchema,
-  shareQuoteSchema,
-} from "./schemas.js";
+import { shareIdParamsSchema, shareQuoteSchema } from "./schemas.js";
 
 /** A share's page. */
 export const shareDetailSchema = shareQuoteSchema.extend({
   /** The exchange of the listing FPR prices, or `null` for a manual share. */
   exchange: z.string().nullable(),
   /** The currency the provider quotes the share in, or `null` for a manual share. */
-  tradingCurrency: shareCurrencySchema.nullable(),
+  tradingCurrency: currencySchema.nullable(),
   /** The day the provider's history starts, when it starts after the share's first holding. */
   historyStartsOn: dateSchema.nullable(),
-  /** The signed-in member's position, or `null` when they hold none or have no portfolio. */
-  position: sharePositionSchema.nullable(),
+  /**
+   * The signed-in member's position, its gain since they bought, each
+   * purchase valued at the share's price on its day, or `null` when they hold
+   * none or have no portfolio.
+   */
+  position: positionSchema.nullable(),
 });
 
 export type ShareDetail = z.infer<typeof shareDetailSchema>;
@@ -64,8 +65,11 @@ export const shareHolderChangeSchema = z.object({
 
 export type ShareHolderChange = z.infer<typeof shareHolderChangeSchema>;
 
-/** A member with share changes on the share, and their position on it now. */
-export const shareHolderSchema = sharePositionSchema.extend({
+/**
+ * A member with share changes on the share, and their position on it now,
+ * its gain since they bought.
+ */
+export const shareHolderSchema = positionSchema.extend({
   person: personSchema,
   /** Oldest first. */
   changes: z.array(shareHolderChangeSchema),
@@ -89,7 +93,7 @@ export const getShareHolders = signedInRoute(roles)
   .output(shareHoldersSchema)
   .errors(errorMap("invalid_request", "not_found"));
 
-export const deleteShare = signedInRoute(["admin"])
+export const deleteShare = signedInRoute(adminRoles)
   .route({
     method: "DELETE",
     path: "/shares/{id}",

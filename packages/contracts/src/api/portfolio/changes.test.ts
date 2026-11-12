@@ -114,6 +114,12 @@ describe("POST /users/{userId}/changes", () => {
     expect(input?.safeParse(withoutShare).success).toBe(false);
     expect(input?.safeParse(withoutMoment).success).toBe(false);
   });
+
+  it("takes an optional client-generated id, a UUID, against double saves", () => {
+    expect(input?.parse({ ...body, id })).toEqual({ ...body, id });
+    expect(input?.safeParse({ ...body, id: "save-1" }).success).toBe(false);
+    expect(addPortfolioChange["~orpc"].route.successStatus).toBe(201);
+  });
 });
 
 describe("PATCH /changes/{id}", () => {

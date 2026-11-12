@@ -1,18 +1,14 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { adminRoles } from "../../roles.js";
+import { resetKeySchema } from "../../schemas/access.js";
 import { idSchema } from "../../schemas/ids.js";
 import { timestampSchema } from "../../schemas/time.js";
 import { adminPersonSchema, adminPersonWithLinkSchema } from "./people.js";
 
-/**
- * A one-time password reset key. A secret, returned once and never logged or
- * stored: only its hash is stored.
- */
-export const adminResetKeySchema = z.string().min(1);
-
 /** A reset key, shown once, with the moment it stops working: 24 hours on. */
 export const adminResetKeyResultSchema = z.object({
-  resetKey: adminResetKeySchema,
+  resetKey: resetKeySchema,
   expiresAt: timestampSchema,
 });
 
@@ -20,7 +16,7 @@ export type AdminResetKeyResult = z.infer<typeof adminResetKeyResultSchema>;
 
 const personInput = z.object({ id: idSchema });
 
-const adminRoute = signedInRoute(["admin"]);
+const adminRoute = signedInRoute(adminRoles);
 
 export const adminRevoke = adminRoute
   .route({

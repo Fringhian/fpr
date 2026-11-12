@@ -2,9 +2,9 @@ import { z } from "zod";
 import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { idSchema } from "../../schemas/ids.js";
+import { writerRoles } from "../../roles.js";
+import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { timestampSchema } from "../../schemas/time.js";
-import { portfolioWriterRoles } from "./changes.js";
 
 /** Cash in euros: zero or more. */
 export const portfolioCashAmountSchema = decimalSchema.refine(
@@ -22,7 +22,12 @@ export const portfolioCashBalanceSchema = z.object({
 
 export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;
 
-export const setPortfolioCash = signedInRoute(portfolioWriterRoles)
+/**
+ * With an `id` already stored for the member, answers that cash balance as it
+ * is, with `201`, and saves nothing. An `id` another member's cash balance has
+ * is refused with `forbidden`.
+ */
+export const setPortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "POST",
     path: "/users/{userId}/cash-balances",
@@ -32,6 +37,7 @@ export const setPortfolioCash = signedInRoute(portfolioWriterRoles)
   .input(
     z.object({
       userId: idSchema,
+      id: clientIdSchema,
       amountEur: portfolioCashAmountSchema,
       effectiveAt: timestampSchema,
     }),
@@ -41,7 +47,7 @@ export const setPortfolioCash = signedInRoute(portfolioWriterRoles)
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
 
-export const updatePortfolioCash = signedInRoute(portfolioWriterRoles)
+export const updatePortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "PATCH",
     path: "/cash-balances/{id}",
@@ -65,7 +71,7 @@ export const updatePortfolioCash = signedInRoute(portfolioWriterRoles)
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
 
-export const deletePortfolioCash = signedInRoute(portfolioWriterRoles)
+export const deletePortfolioCash = signedInRoute(writerRoles)
   .route({
     method: "DELETE",
     path: "/cash-balances/{id}",

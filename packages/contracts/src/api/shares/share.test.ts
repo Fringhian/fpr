@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { gainSchema } from "../../schemas/performance.js";
 import {
   deleteShare,
   getShare,
@@ -43,13 +44,12 @@ const detail: ShareDetail = {
     priceEur: "112.48",
     source: "intraday",
   },
-  changeEur: "3.02",
-  changePercent: "2.76",
+  change: { eur: "3.02", percent: "2.76" },
   position: {
     quantity: "12",
     valueEur: "1349.76",
-    gainSinceBoughtEur: "80.16",
-    gainSinceBoughtPercent: "6.31",
+    weight: "10.9",
+    gain: { eur: "80.16", percent: "6.31" },
   },
 };
 
@@ -62,8 +62,8 @@ const holder: ShareHolder = {
   },
   quantity: "12",
   valueEur: "1349.76",
-  gainSinceBoughtEur: "80.16",
-  gainSinceBoughtPercent: "6.31",
+  weight: "10.9",
+  gain: { eur: "80.16", percent: "6.31" },
   changes: [
     {
       id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f72",
@@ -138,7 +138,17 @@ describe("GET /shares/{id}", () => {
                     properties: {
                       quantity: { "x-anonymize": "quantity" },
                       valueEur: { "x-anonymize": "euro" },
-                      gainSinceBoughtEur: { "x-anonymize": "euro" },
+                      gain: {
+                        anyOf: [
+                          {
+                            properties: {
+                              eur: { "x-anonymize": "euro" },
+                              percent: {},
+                            },
+                          },
+                          { type: "null" },
+                        ],
+                      },
                     },
                   },
                   { type: "null" },
@@ -215,7 +225,8 @@ describe("GET /shares/{id}/holders", () => {
     expect(anonymizeKind(shape.person.shape.avatarUrl)).toBe("personal");
     expect(anonymizeKind(shape.quantity)).toBe("quantity");
     expect(anonymizeKind(shape.valueEur)).toBe("euro");
-    expect(anonymizeKind(shape.gainSinceBoughtEur)).toBe("euro");
+    expect(anonymizeKind(shape.weight)).toBeUndefined();
+    expect(shape.gain.unwrap()).toBe(gainSchema);
     expect(anonymizeKind(shareHolderChangeSchema.shape.quantityDelta)).toBe(
       "quantity",
     );

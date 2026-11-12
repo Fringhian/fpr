@@ -8,7 +8,6 @@ import {
   accessClaimBodySchema,
   accessClaimResponseSchema,
   accessKeyErrorDetailsSchema,
-  accessKeySchema,
   accessKeyStates,
   accessSignInBodySchema,
   checkAccessKey,
@@ -26,25 +25,6 @@ const waitingPasswordUser: AccessCheckResponse = {
   displayName: "Alex Martin",
   hasPassword: false,
 };
-
-describe("accessKeySchema", () => {
-  it("accepts 43 base64url characters", () => {
-    expect(accessKeySchema.safeParse(key).success).toBe(true);
-    expect(accessKeySchema.safeParse(`${key.slice(0, 41)}-_`).success).toBe(
-      true,
-    );
-  });
-
-  it.each([
-    ["a shorter key", key.slice(1)],
-    ["a longer key", `${key}A`],
-    ["padding", `${key.slice(1)}=`],
-    ["base64 characters", `${key.slice(2)}+/`],
-    ["an empty key", ""],
-  ])("refuses %s", (_, value) => {
-    expect(accessKeySchema.safeParse(value).success).toBe(false);
-  });
-});
 
 describe("POST /access/check", () => {
   it("is public, and declares each refusal", () => {
@@ -192,6 +172,15 @@ describe("invalid_access_key", () => {
     });
     expect(accessKeyErrorDetailsSchema.safeParse({}).success).toBe(false);
   });
+
+  it("declares its details on the routes that answer it", () => {
+    for (const route of [claimAccessKey, signInWithAccessKey]) {
+      expect(route["~orpc"].errorMap.invalid_access_key).toEqual({
+        status: 422,
+        data: accessKeyErrorDetailsSchema,
+      });
+    }
+  });
 });
 
 describe("the OpenAPI document", () => {
@@ -231,5 +220,13 @@ describe("the OpenAPI document", () => {
     expect(checkResponse).toMatch(
       /"displayName":\{[^}]*"x-anonymize":"personal"\}/,
     );
+
+    const invalidKey = JSON.stringify(claim?.responses?.["422"]);
+    expect(invalidKey).toContain('"code":{"const":"invalid_access_key"}');
+    expect(invalidKey).toContain('"required":["code","details"]');
+    expect(invalidKey).toContain('"state":{"enum":["waiting"');
+    expect(paths?.["/access/sign-in"]?.post?.responses?.["204"]).toEqual({
+      description: "OK",
+    });
   });
 });

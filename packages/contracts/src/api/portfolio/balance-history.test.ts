@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { memberSeriesPointSchema } from "../../schemas/performance.js";
 import {
   getPortfolioBalanceHistory,
   type PortfolioBalanceHistory,
   portfolioBalanceHistorySchema,
-  portfolioBalancePointSchema,
 } from "./balance-history.js";
 
 const userId = "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f70";
@@ -15,12 +15,14 @@ const history: PortfolioBalanceHistory = {
     {
       at: "2026-03-02T23:59:59+01:00",
       balanceEur: "1001.67",
+      gain: { eur: "0", percent: "0" },
       provisional: false,
       incomplete: false,
     },
     {
       at: "2026-03-03T10:30:00+01:00",
       balanceEur: "1012.40",
+      gain: { eur: "10.73", percent: "1.07" },
       provisional: true,
       incomplete: true,
     },
@@ -69,25 +71,34 @@ describe("GET /users/{userId}/balance-history", () => {
     ).toBe(true);
   });
 
-  it("refuses a balance as a number or a point without its markers", () => {
+  it("uses the member series point the race uses", () => {
+    expect(portfolioBalanceHistorySchema.shape.points.element).toBe(
+      memberSeriesPointSchema,
+    );
+  });
+
+  it("refuses a balance as a number, a point without its gain, or without its markers", () => {
     const [point] = history.points;
     expect(
-      portfolioBalancePointSchema.safeParse({ ...point, balanceEur: 1001.67 })
+      memberSeriesPointSchema.safeParse({ ...point, balanceEur: 1001.67 })
         .success,
     ).toBe(false);
-    const { provisional: _, ...withoutMarker } = point ?? {};
-    expect(portfolioBalancePointSchema.safeParse(withoutMarker).success).toBe(
+    const { gain: _, ...withoutGain } = point ?? {};
+    expect(memberSeriesPointSchema.safeParse(withoutGain).success).toBe(false);
+    const { provisional: __, ...withoutMarker } = point ?? {};
+    expect(memberSeriesPointSchema.safeParse(withoutMarker).success).toBe(
       false,
     );
   });
 
-  it("marks the series and each balance euro", () => {
-    expect(anonymizeKind(portfolioBalanceHistorySchema.shape.points)).toBe(
-      "euro",
-    );
-    expect(anonymizeKind(portfolioBalancePointSchema.shape.balanceEur)).toBe(
-      "euro",
-    );
+  it("marks each balance and euro gain, and keeps the percentage beside them", () => {
+    expect(
+      anonymizeKind(portfolioBalanceHistorySchema.shape.points),
+    ).toBeUndefined();
+    const { shape } = memberSeriesPointSchema;
+    expect(anonymizeKind(shape.balanceEur)).toBe("euro");
+    expect(anonymizeKind(shape.gain.shape.eur)).toBe("euro");
+    expect(anonymizeKind(shape.gain.shape.percent)).toBeUndefined();
   });
 
   it("is in the OpenAPI document, with its roles and markers", async () => {
@@ -105,9 +116,13 @@ describe("GET /users/{userId}/balance-history", () => {
               schema: {
                 properties: {
                   points: {
-                    "x-anonymize": "euro",
                     items: {
-                      properties: { balanceEur: { "x-anonymize": "euro" } },
+                      properties: {
+                        balanceEur: { "x-anonymize": "euro" },
+                        gain: {
+                          properties: { eur: { "x-anonymize": "euro" } },
+                        },
+                      },
                     },
                   },
                 },

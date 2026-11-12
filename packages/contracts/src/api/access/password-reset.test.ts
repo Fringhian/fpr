@@ -49,10 +49,10 @@ describe("POST /password-reset/check", () => {
     ).toBe(false);
   });
 
-  it("marks the email personal", () => {
-    expect(anonymizeKind(passwordResetCheckBodySchema.shape.email)).toBe(
-      "personal",
-    );
+  it("leaves the email unmarked: a request isn't anonymized", () => {
+    expect(
+      anonymizeKind(passwordResetCheckBodySchema.shape.email),
+    ).toBeUndefined();
   });
 });
 
@@ -82,8 +82,8 @@ describe("POST /password-reset", () => {
     ).toBe(false);
   });
 
-  it("marks the email personal", () => {
-    expect(anonymizeKind(passwordResetBodySchema.shape.email)).toBe("personal");
+  it("leaves the email unmarked: a request isn't anonymized", () => {
+    expect(anonymizeKind(passwordResetBodySchema.shape.email)).toBeUndefined();
   });
 });
 

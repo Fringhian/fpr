@@ -1,14 +1,11 @@
 import { z } from "zod";
 import { quantity } from "../../anonymize.js";
-import { errorMap, signedInRoute } from "../../contract.js";
+import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { errorStatus } from "../../errors.js";
-import { idSchema } from "../../schemas/ids.js";
+import { writerRoles } from "../../roles.js";
+import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { shareSummarySchema } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
-
-/** The roles that write a portfolio: a member their own, the admin anyone's. */
-export const portfolioWriterRoles = ["admin", "member"] as const;
 
 /** Shares added, above zero, or removed, below zero: never zero. */
 export const portfolioQuantityDeltaSchema = decimalSchema.refine(
@@ -43,14 +40,17 @@ export type PortfolioHoldingBelowZeroDetails = z.infer<
 >;
 
 /** `holding_below_zero`, with the entry it would break in `details`. */
-const holdingBelowZeroError = {
-  holding_below_zero: {
-    status: errorStatus.holding_below_zero,
-    data: portfolioHoldingBelowZeroDetailsSchema,
-  },
-};
+const holdingBelowZeroError = errorWithDetails(
+  "holding_below_zero",
+  portfolioHoldingBelowZeroDetailsSchema,
+);
 
-export const addPortfolioChange = signedInRoute(portfolioWriterRoles)
+/**
+ * With an `id` already stored for the member, answers that share change as it
+ * is, with `201`, and saves nothing. An `id` another member's share change has
+ * is refused with `forbidden`.
+ */
+export const addPortfolioChange = signedInRoute(writerRoles)
   .route({
     method: "POST",
     path: "/users/{userId}/changes",
@@ -60,6 +60,7 @@ export const addPortfolioChange = signedInRoute(portfolioWriterRoles)
   .input(
     z.object({
       userId: idSchema,
+      id: clientIdSchema,
       shareId: idSchema,
       quantityDelta: portfolioQuantityDeltaSchema,
       effectiveAt: timestampSchema,
@@ -71,7 +72,7 @@ export const addPortfolioChange = signedInRoute(portfolioWriterRoles)
   )
   .errors(holdingBelowZeroError);
 
-export const updatePortfolioChange = signedInRoute(portfolioWriterRoles)
+export const updatePortfolioChange = signedInRoute(writerRoles)
   .route({
     method: "PATCH",
     path: "/changes/{id}",
@@ -96,7 +97,7 @@ export const updatePortfolioChange = signedInRoute(portfolioWriterRoles)
   )
   .errors(holdingBelowZeroError);
 
-export const deletePortfolioChange = signedInRoute(portfolioWriterRoles)
+export const deletePortfolioChange = signedInRoute(writerRoles)
   .route({
     method: "DELETE",
     path: "/changes/{id}",

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createOpenApiDocument } from "../../openapi.js";
+import { isinTakenDetailsSchema } from "../../schemas/share.js";
 import {
   createManualShare,
   type ShareManualBody,
   shareManualBodySchema,
   updateShare,
 } from "./manual.js";
-import { shareIsinTakenDetailsSchema } from "./schemas.js";
 
 const document = await createOpenApiDocument();
 
@@ -111,8 +111,23 @@ describe("PATCH /shares/{id}", () => {
   });
 
   it("names the share that has the ISIN in isin_taken's details", () => {
-    expect(shareIsinTakenDetailsSchema.parse({ shareId })).toEqual({ shareId });
-    expect(shareIsinTakenDetailsSchema.safeParse({}).success).toBe(false);
+    for (const route of [createManualShare, updateShare]) {
+      expect(route["~orpc"].errorMap.isin_taken).toEqual({
+        status: 409,
+        data: isinTakenDetailsSchema,
+      });
+    }
+    const conflict = JSON.stringify(
+      document.paths?.["/shares/{id}"]?.patch?.responses?.["409"],
+    );
+    expect(conflict).toContain('"code":{"const":"isin_taken"}');
+    expect(conflict).toContain('"shareId":{"type":"string","format":"uuid"');
+  });
+
+  it("refuses a name over 100 characters", () => {
+    expect(
+      input?.safeParse({ id: shareId, name: "x".repeat(101) }).success,
+    ).toBe(false);
   });
 
   it("is in the OpenAPI document with the id in the path and the edit in the body", () => {

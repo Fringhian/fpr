@@ -1,10 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { anonymizeKind } from "../../anonymize.js";
 import { createOpenApiDocument } from "../../openapi.js";
+import { memberSeriesPointSchema } from "../../schemas/performance.js";
 import { getRace, type Race, raceSchema } from "./race.js";
 
+function point(
+  at: string,
+  balanceEur: string,
+  eur: string,
+  percent: string,
+  provisional = false,
+) {
+  return {
+    at,
+    balanceEur,
+    gain: { eur, percent },
+    provisional,
+    incomplete: false,
+  };
+}
+
 const race: Race = {
-  unit: "percent",
   lastCloseOn: "2026-03-02",
   latestPricesAt: "2026-03-03T14:30:00+01:00",
   refreshesRunning: true,
@@ -18,13 +34,11 @@ const race: Race = {
       },
       measuredFrom: null,
       incomplete: false,
-      closes: [
-        { on: "2026-02-27", gain: "0" },
-        { on: "2026-03-02", gain: "1.25" },
-      ],
-      provisional: [
-        { at: "2026-03-03T09:30:00+01:00", gain: "1.10" },
-        { at: "2026-03-03T14:30:00+01:00", gain: "1.42" },
+      points: [
+        point("2026-02-27T23:59:59+01:00", "12220.00", "0", "0"),
+        point("2026-03-02T23:59:59+01:00", "12372.75", "152.75", "1.25"),
+        point("2026-03-03T09:30:00+01:00", "12354.40", "134.40", "1.10", true),
+        point("2026-03-03T14:30:00+01:00", "12393.50", "173.50", "1.42", true),
       ],
     },
     {
@@ -36,8 +50,10 @@ const race: Race = {
       },
       measuredFrom: "2026-03-02",
       incomplete: true,
-      closes: [{ on: "2026-03-02", gain: "0" }],
-      provisional: [{ at: "2026-03-03T14:30:00+01:00", gain: "-0.80" }],
+      points: [
+        point("2026-03-02T23:59:59+01:00", "5000.00", "0", "0"),
+        point("2026-03-03T14:30:00+01:00", "4960.00", "-40.00", "-0.80", true),
+      ],
     },
   ],
   notStarted: [
@@ -50,7 +66,7 @@ const race: Race = {
   ],
 };
 
-const [eurOption, percentOption] = raceSchema.options;
+const row = raceSchema.shape.members.element.shape;
 
 describe("GET /race", () => {
   it("is declared for every role, with the session and input codes", () => {
@@ -67,19 +83,17 @@ describe("GET /race", () => {
     );
   });
 
-  it("takes the period and unit as query strings", () => {
+  it("takes the period as a query string, and no unit", () => {
     const input = getRace["~orpc"].inputSchema;
-    expect(input?.safeParse({ period: "1D", unit: "percent" }).success).toBe(
-      true,
-    );
-    expect(input?.safeParse({ unit: "percent" }).success).toBe(false);
-    expect(input?.safeParse({ period: "1D", unit: "EUR" }).success).toBe(false);
+    expect(input?.parse({ period: "1D", unit: "percent" })).toEqual({
+      period: "1D",
+    });
+    expect(input?.safeParse({}).success).toBe(false);
   });
 
-  it("accepts closes then provisional points, in percent or euros, before any price too", () => {
+  it("accepts closes then provisional points in euros and percent, before any price too", () => {
     expect(raceSchema.parse(race)).toEqual(race);
-    const inEuros = { ...race, unit: "eur" };
-    expect(raceSchema.parse(inEuros)).toEqual(inEuros);
+    expect(raceSchema.shape).not.toHaveProperty("unit");
     const empty = {
       ...race,
       latestPricesAt: null,
@@ -89,49 +103,39 @@ describe("GET /race", () => {
     expect(raceSchema.parse(empty)).toEqual(empty);
   });
 
-  it("refuses a provisional point without its time, a close with one, and a gain as a number", () => {
+  it("refuses a point without its time, a day alone, and a gain as a number", () => {
     const [alex] = race.members;
-    const withRows = (row: object) => ({ ...race, members: [row] });
+    const withPoint = (changed: object) => ({
+      ...race,
+      members: [{ ...alex, points: [{ ...alex?.points[0], ...changed }] }],
+    });
+    expect(raceSchema.safeParse(withPoint({ at: undefined })).success).toBe(
+      false,
+    );
+    expect(raceSchema.safeParse(withPoint({ at: "2026-03-02" })).success).toBe(
+      false,
+    );
     expect(
-      raceSchema.safeParse(
-        withRows({ ...alex, provisional: [{ on: "2026-03-03", gain: "1" }] }),
-      ).success,
-    ).toBe(false);
-    expect(
-      raceSchema.safeParse(
-        withRows({
-          ...alex,
-          closes: [{ on: "2026-03-02T17:30:00+01:00", gain: "1" }],
-        }),
-      ).success,
-    ).toBe(false);
-    expect(
-      raceSchema.safeParse(
-        withRows({ ...alex, closes: [{ on: "2026-03-02", gain: 1.25 }] }),
-      ).success,
+      raceSchema.safeParse(withPoint({ gain: { eur: 1, percent: 1 } })).success,
     ).toBe(false);
   });
 
-  it("carries the measured-from, incomplete and not-started markers", () => {
-    const row = percentOption.shape.members.element.shape;
+  it("uses the shared series point, and the markers", () => {
+    expect(row.points.element).toBe(memberSeriesPointSchema);
     expect(row.measuredFrom.safeParse("2026-03-02").success).toBe(true);
     expect(row.incomplete.safeParse(true).success).toBe(true);
-    expect(
-      percentOption.shape.notStarted.safeParse(race.notStarted).success,
-    ).toBe(true);
+    expect(raceSchema.shape.notStarted.safeParse(race.notStarted).success).toBe(
+      true,
+    );
   });
 
-  it("marks names and pictures personal, euro gains euro, and keeps percentages", () => {
-    const eurRow = eurOption.shape.members.element.shape;
-    const percentRow = percentOption.shape.members.element.shape;
-    expect(anonymizeKind(eurRow.member.shape.displayName)).toBe("personal");
-    expect(anonymizeKind(eurRow.member.shape.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(eurRow.closes.element.shape.gain)).toBe("euro");
-    expect(anonymizeKind(eurRow.provisional.element.shape.gain)).toBe("euro");
-    expect(anonymizeKind(percentRow.closes.element.shape.gain)).toBeUndefined();
-    expect(
-      anonymizeKind(percentRow.provisional.element.shape.gain),
-    ).toBeUndefined();
+  it("marks names and pictures personal, euro amounts euro, and keeps percentages", () => {
+    const { shape } = memberSeriesPointSchema;
+    expect(anonymizeKind(row.member.shape.displayName)).toBe("personal");
+    expect(anonymizeKind(row.member.shape.avatarUrl)).toBe("personal");
+    expect(anonymizeKind(shape.balanceEur)).toBe("euro");
+    expect(anonymizeKind(shape.gain.shape.eur)).toBe("euro");
+    expect(anonymizeKind(shape.gain.shape.percent)).toBeUndefined();
   });
 
   it("is in the OpenAPI document, with its roles, markers and error codes", async () => {
@@ -147,6 +151,6 @@ describe("GET /race", () => {
       "500",
     ]);
     const json = JSON.stringify(operation?.responses?.["200"]);
-    expect(json.match(/"x-anonymize":"euro"/g)).toHaveLength(2);
+    expect(json).toContain('"x-anonymize":"euro"');
   });
 });

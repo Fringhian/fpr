@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { personal } from "../../anonymize.js";
 import { errorMap, publicRoute } from "../../contract.js";
-import { displayNameSchema } from "../../schemas/person.js";
-import { passwordSchema } from "./password.js";
+import { passwordSchema } from "../../schemas/access.js";
+import { displayNameSchema, emailSchema } from "../../schemas/person.js";
 
 /** Whether `/setup` is still open: it closes once an admin exists. */
 export const setupStatusSchema = z.object({
@@ -14,8 +13,8 @@ export type SetupStatus = z.infer<typeof setupStatusSchema>;
 /** The first admin, with the `ADMIN_BOOTSTRAP_KEY` value. */
 export const setupBodySchema = z.object({
   bootstrapKey: z.string().min(1),
-  email: personal(z.email()),
-  displayName: personal(displayNameSchema),
+  email: emailSchema,
+  displayName: displayNameSchema,
   password: passwordSchema,
 });
 

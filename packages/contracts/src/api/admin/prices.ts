@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { adminRoles } from "../../roles.js";
 import { timestampSchema } from "../../schemas/time.js";
 
 /** A finished price refresh. */
@@ -15,7 +16,7 @@ export type AdminRefreshResult = z.infer<typeof adminRefreshResultSchema>;
  * Runs the intraday refresh now and answers once it is done: missing closes
  * first, then the latest prices in one batch.
  */
-export const adminRefreshPrices = signedInRoute(["admin"])
+export const adminRefreshPrices = signedInRoute(adminRoles)
   .route({
     method: "POST",
     path: "/admin/prices/refresh",

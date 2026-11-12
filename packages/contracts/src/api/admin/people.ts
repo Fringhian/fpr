@@ -1,9 +1,13 @@
 import { z } from "zod";
 import { personal } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
-import { roleSchema } from "../../roles.js";
+import { adminAreaRoles, adminRoles, Role, roleSchema } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
-import { displayNameSchema, personSchema } from "../../schemas/person.js";
+import {
+  displayNameSchema,
+  emailSchema,
+  personSchema,
+} from "../../schemas/person.js";
 import { timestampSchema } from "../../schemas/time.js";
 
 /**
@@ -28,7 +32,7 @@ export const adminAccessStatusSchema = z.enum(adminAccessStatuses);
 export type AdminAccessStatus = z.infer<typeof adminAccessStatusSchema>;
 
 /** The roles a person moves between. Nobody becomes or stops being `anonymous`. */
-export const adminChangeableRoleSchema = roleSchema.exclude(["anonymous"]);
+export const adminChangeableRoleSchema = roleSchema.exclude([Role.anonymous]);
 
 /**
  * The link that gives a person access: `<PUBLIC_URL>/access/<key>`. A secret,
@@ -40,7 +44,7 @@ export const adminAccessLinkSchema = z.url();
 export const adminPersonSchema = personSchema.extend({
   role: roleSchema,
   /** The sign-in email, or `null` for an anonymous viewer, who has none. */
-  email: personal(z.email().nullable()),
+  email: personal(emailSchema.nullable()),
   accessStatus: adminAccessStatusSchema,
   /** The deadline for the key's first use. */
   claimBefore: timestampSchema,
@@ -75,9 +79,9 @@ export const adminAddPersonSchema = z.discriminatedUnion("role", [
   z.object({
     ...personFields,
     role: adminChangeableRoleSchema,
-    email: z.email(),
+    email: emailSchema,
   }),
-  z.object({ ...personFields, role: z.literal("anonymous") }),
+  z.object({ ...personFields, role: z.literal(Role.anonymous) }),
 ]);
 
 export type AdminAddPerson = z.infer<typeof adminAddPersonSchema>;
@@ -91,16 +95,16 @@ export const adminUpdatePersonSchema = z.object({
   id: idSchema,
   displayName: displayNameSchema.optional(),
   /** Refused for an anonymous viewer, who has no email. */
-  email: z.email().optional(),
+  email: emailSchema.optional(),
   role: roleSchema.optional(),
   accessUntil: timestampSchema.nullable().optional(),
 });
 
 export type AdminUpdatePerson = z.infer<typeof adminUpdatePersonSchema>;
 
-const adminRoute = signedInRoute(["admin"]);
+const adminRoute = signedInRoute(adminRoles);
 
-export const adminPeople = signedInRoute(["admin", "anonymous"])
+export const adminPeople = signedInRoute(adminAreaRoles)
   .route({
     method: "GET",
     path: "/admin/people",

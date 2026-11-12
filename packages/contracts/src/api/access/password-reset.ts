@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { personal } from "../../anonymize.js";
 import { errorMap, publicRoute } from "../../contract.js";
-import { passwordSchema } from "./password.js";
+import { passwordSchema, resetKeySchema } from "../../schemas/access.js";
+import { emailSchema } from "../../schemas/person.js";
 
 /** Page 1 of a password reset: the person's email and their reset key. */
 export const passwordResetCheckBodySchema = z.object({
-  email: personal(z.email()),
-  key: z.string().min(1),
+  email: emailSchema,
+  key: resetKeySchema,
 });
 
 export type PasswordResetCheckBody = z.infer<

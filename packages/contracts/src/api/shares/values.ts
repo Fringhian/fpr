@@ -1,12 +1,21 @@
 import { z } from "zod";
-import { errorMap, signedInRoute } from "../../contract.js";
-import { decimalSchema } from "../../decimal.js";
-import { roles } from "../../roles.js";
+import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
+import { roles, writerRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { priceEurSchema } from "../../schemas/money.js";
 import { personSchema } from "../../schemas/person.js";
-import { pricePointSchema } from "../../schemas/share.js";
+import {
+  pricePointSchema,
+  valueChangedDetailsSchema,
+} from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
-import { shareIdParamsSchema, sharePriceEurSchema } from "./schemas.js";
+import { shareIdParamsSchema } from "./schemas.js";
+
+/** `value_changed`, with the value point's stored price in `details`. */
+const valueChangedError = errorWithDetails(
+  "value_changed",
+  valueChangedDetailsSchema,
+);
 
 /**
  * A manual share's value point: what one unit was worth at a moment, and who
@@ -42,6 +51,8 @@ export const shareValueActionSchema = z.enum(shareValueActions);
 
 export type ShareValueAction = z.infer<typeof shareValueActionSchema>;
 
+const action = shareValueActionSchema.enum;
+
 const shareValueEventBaseSchema = z.object({
   id: idSchema,
   /** The moment of the value point concerned. */
@@ -59,19 +70,19 @@ const shareValueEventBaseSchema = z.object({
  */
 export const shareValueEventSchema = z.discriminatedUnion("action", [
   shareValueEventBaseSchema.extend({
-    action: z.literal("added"),
-    priceEur: decimalSchema,
+    action: z.literal(action.added),
+    priceEur: priceEurSchema,
     previousPriceEur: z.null(),
   }),
   shareValueEventBaseSchema.extend({
-    action: z.literal("edited"),
-    priceEur: decimalSchema,
-    previousPriceEur: decimalSchema,
+    action: z.literal(action.edited),
+    priceEur: priceEurSchema,
+    previousPriceEur: priceEurSchema,
   }),
   shareValueEventBaseSchema.extend({
-    action: z.literal("deleted"),
+    action: z.literal(action.deleted),
     priceEur: z.null(),
-    previousPriceEur: decimalSchema,
+    previousPriceEur: priceEurSchema,
   }),
 ]);
 
@@ -94,44 +105,20 @@ export const getShareValueEvents = signedInRoute(roles)
   .output(shareValueEventsSchema)
   .errors(errorMap("invalid_request", "not_found"));
 
-/** `POST /shares/{id}/values`: a new value point. */
-export const shareValueBodySchema = z.object({
-  at: timestampSchema,
-  priceEur: sharePriceEurSchema,
-});
-
-export type ShareValueBody = z.infer<typeof shareValueBodySchema>;
-
-/**
- * The `details` of `value_changed`: the value point's stored price, which the
- * editor confirms their value over or keeps.
- */
-export const shareValueChangedDetailsSchema = z.object({
-  priceEur: decimalSchema,
-});
-
-export type ShareValueChangedDetails = z.infer<
-  typeof shareValueChangedDetailsSchema
->;
-
-export const addShareValue = signedInRoute(["admin", "member"])
+/** `POST /shares/{id}/values` takes a value point: `{ at, priceEur }`. */
+export const addShareValue = signedInRoute(writerRoles)
   .route({
     method: "POST",
     path: "/shares/{id}/values",
     summary: "Add a value point to a manual share",
     successStatus: 201,
   })
-  .input(shareIdParamsSchema.extend(shareValueBodySchema.shape))
+  .input(shareIdParamsSchema.extend(pricePointSchema.shape))
   .output(shareValueSchema)
   .errors(
-    errorMap(
-      "invalid_request",
-      "forbidden",
-      "not_found",
-      "future_moment",
-      "value_changed",
-    ),
-  );
+    errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
+  )
+  .errors(valueChangedError);
 
 /**
  * A value point in a path: its share's id and its moment, an ISO 8601
@@ -150,13 +137,13 @@ export type ShareValueParams = z.infer<typeof shareValueParamsSchema>;
  * last saw.
  */
 export const shareValueUpdateBodySchema = z.object({
-  priceEur: sharePriceEurSchema,
-  expectedPriceEur: decimalSchema,
+  priceEur: priceEurSchema,
+  expectedPriceEur: priceEurSchema,
 });
 
 export type ShareValueUpdateBody = z.infer<typeof shareValueUpdateBodySchema>;
 
-export const updateShareValue = signedInRoute(["admin", "member"])
+export const updateShareValue = signedInRoute(writerRoles)
   .route({
     method: "PATCH",
     path: "/shares/{id}/values/{at}",
@@ -164,18 +151,17 @@ export const updateShareValue = signedInRoute(["admin", "member"])
   })
   .input(shareValueParamsSchema.extend(shareValueUpdateBodySchema.shape))
   .output(shareValueSchema)
-  .errors(
-    errorMap("invalid_request", "forbidden", "not_found", "value_changed"),
-  );
+  .errors(errorMap("invalid_request", "forbidden", "not_found"))
+  .errors(valueChangedError);
 
 /** `DELETE /shares/{id}/values/{at}`: the price the editor last saw. */
 export const shareValueDeleteBodySchema = z.object({
-  expectedPriceEur: decimalSchema,
+  expectedPriceEur: priceEurSchema,
 });
 
 export type ShareValueDeleteBody = z.infer<typeof shareValueDeleteBodySchema>;
 
-export const deleteShareValue = signedInRoute(["admin", "member"])
+export const deleteShareValue = signedInRoute(writerRoles)
   .route({
     method: "DELETE",
     path: "/shares/{id}/values/{at}",
@@ -185,11 +171,6 @@ export const deleteShareValue = signedInRoute(["admin", "member"])
   .input(shareValueParamsSchema.extend(shareValueDeleteBodySchema.shape))
   .output(z.void())
   .errors(
-    errorMap(
-      "invalid_request",
-      "forbidden",
-      "not_found",
-      "value_changed",
-      "last_value_point",
-    ),
-  );
+    errorMap("invalid_request", "forbidden", "not_found", "last_value_point"),
+  )
+  .errors(valueChangedError);
