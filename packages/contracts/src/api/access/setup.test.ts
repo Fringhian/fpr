@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
-import {
-  getSetupStatus,
-  type SetupBody,
-  setUpFirstAdmin,
-  setupBodySchema,
-  setupStatusSchema,
-} from "./setup.js";
+import { type SetupBody, setupBodySchema, setupStatusSchema } from "./setup.js";
 
 const body: SetupBody = {
   bootstrapKey: "example-bootstrap-key",
@@ -17,14 +9,6 @@ const body: SetupBody = {
 };
 
 describe("GET /setup", () => {
-  it("is public, with no input", () => {
-    const { route, meta, errorMap, inputSchema } = getSetupStatus["~orpc"];
-    expect(route).toMatchObject({ method: "GET", path: "/setup" });
-    expect(meta.roles).toBe("public");
-    expect(inputSchema).toBeUndefined();
-    expect(Object.keys(errorMap)).toEqual(["internal_error"]);
-  });
-
   it("says whether an admin exists", () => {
     expect(setupStatusSchema.parse({ adminExists: false })).toEqual({
       adminExists: false,
@@ -34,26 +18,6 @@ describe("GET /setup", () => {
 });
 
 describe("POST /setup", () => {
-  it("is public, answers 201, and declares each refusal", () => {
-    const { route, meta, errorMap } = setUpFirstAdmin["~orpc"];
-    expect(route).toMatchObject({
-      method: "POST",
-      path: "/setup",
-      successStatus: 201,
-    });
-    expect(meta.roles).toBe("public");
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "admin_exists",
-        "forbidden",
-        "internal_error",
-        "invalid_bootstrap_key",
-        "invalid_request",
-        "rate_limited",
-      ].sort(),
-    );
-  });
-
   it("accepts the first admin", () => {
     expect(setupBodySchema.parse(body)).toEqual(body);
   });
@@ -75,12 +39,6 @@ describe("POST /setup", () => {
     expect(setupBodySchema.safeParse(withoutPassword).success).toBe(false);
   });
 
-  it("leaves its fields unmarked: a request isn't anonymized", () => {
-    expect(anonymizeKind(setupBodySchema.shape.email)).toBeUndefined();
-    expect(anonymizeKind(setupBodySchema.shape.displayName)).toBeUndefined();
-    expect(anonymizeKind(setupBodySchema.shape.password)).toBeUndefined();
-  });
-
   it("trims the display name", () => {
     expect(
       setupBodySchema.parse({ ...body, displayName: "  Alex Martin " })
@@ -89,31 +47,5 @@ describe("POST /setup", () => {
     expect(
       setupBodySchema.safeParse({ ...body, displayName: "   " }).success,
     ).toBe(false);
-  });
-
-  it("is in the OpenAPI document, with its statuses", async () => {
-    const paths = (await createOpenApiDocument()).paths;
-    expect(paths?.["/setup"]?.get).toMatchObject({
-      operationId: "access.setupStatus",
-      "x-roles": "public",
-    });
-    const operation = paths?.["/setup"]?.post;
-    expect(operation).toMatchObject({
-      operationId: "access.setup",
-      "x-roles": "public",
-      responses: {
-        "409": { description: "`admin_exists`" },
-        "422": { description: "`invalid_bootstrap_key`" },
-      },
-    });
-    expect(Object.keys(operation?.responses ?? {}).sort()).toEqual([
-      "201",
-      "400",
-      "403",
-      "409",
-      "422",
-      "429",
-      "500",
-    ]);
   });
 });

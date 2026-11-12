@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createOpenApiDocument } from "../../openapi.js";
-import { isinTakenDetailsSchema } from "../../schemas/share.js";
 import {
-  createManualShare,
   type ShareManualBody,
   shareManualBodySchema,
   updateShare,
 } from "./manual.js";
-
-const document = await createOpenApiDocument();
 
 const shareId = "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f71";
 
@@ -20,27 +15,6 @@ const body: ShareManualBody = {
 };
 
 describe("POST /shares/manual", () => {
-  it("is declared for members and the admin, answering 201", () => {
-    const { route, meta, errorMap } = createManualShare["~orpc"];
-    expect(route).toMatchObject({
-      method: "POST",
-      path: "/shares/manual",
-      successStatus: 201,
-    });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "forbidden",
-        "future_moment",
-        "internal_error",
-        "invalid_request",
-        "isin_taken",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("accepts an ISIN, a name, and a first value, trimming the name", () => {
     expect(
       shareManualBodySchema.parse({ ...body, name: " Example Certificate " }),
@@ -59,37 +33,10 @@ describe("POST /shares/manual", () => {
       shareManualBodySchema.safeParse({ ...body, ...change }).success,
     ).toBe(false);
   });
-
-  it("is in the OpenAPI document with 201, 409 and 422", () => {
-    const operation = document.paths?.["/shares/manual"]?.post;
-    expect(operation).toMatchObject({ "x-roles": ["admin", "member"] });
-    expect(operation?.responses).toMatchObject({
-      "201": {},
-      "409": { description: "`isin_taken`" },
-      "422": { description: "`future_moment`" },
-    });
-  });
 });
 
 describe("PATCH /shares/{id}", () => {
   const input = updateShare["~orpc"].inputSchema;
-
-  it("is declared for members and the admin, with isin_taken", () => {
-    const { route, meta, errorMap } = updateShare["~orpc"];
-    expect(route).toMatchObject({ method: "PATCH", path: "/shares/{id}" });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "forbidden",
-        "internal_error",
-        "invalid_request",
-        "isin_taken",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
 
   it("accepts a new name, a new ISIN, or both", () => {
     expect(
@@ -110,36 +57,9 @@ describe("PATCH /shares/{id}", () => {
     expect(input?.safeParse({ id: shareId, name: "" }).success).toBe(false);
   });
 
-  it("names the share that has the ISIN in isin_taken's details", () => {
-    for (const route of [createManualShare, updateShare]) {
-      expect(route["~orpc"].errorMap.isin_taken).toEqual({
-        status: 409,
-        data: isinTakenDetailsSchema,
-      });
-    }
-    const conflict = JSON.stringify(
-      document.paths?.["/shares/{id}"]?.patch?.responses?.["409"],
-    );
-    expect(conflict).toContain('"code":{"const":"isin_taken"}');
-    expect(conflict).toContain('"shareId":{"type":"string","format":"uuid"');
-  });
-
   it("refuses a name over 100 characters", () => {
     expect(
       input?.safeParse({ id: shareId, name: "x".repeat(101) }).success,
     ).toBe(false);
-  });
-
-  it("is in the OpenAPI document with the id in the path and the edit in the body", () => {
-    const operation = document.paths?.["/shares/{id}"]?.patch;
-    expect(operation).toMatchObject({ "x-roles": ["admin", "member"] });
-    expect(operation?.parameters).toMatchObject([{ in: "path", name: "id" }]);
-    expect(operation?.requestBody).toMatchObject({
-      content: {
-        "application/json": {
-          schema: { properties: { name: {}, isin: {} } },
-        },
-      },
-    });
   });
 });

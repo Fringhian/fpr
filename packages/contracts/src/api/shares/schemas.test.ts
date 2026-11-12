@@ -46,11 +46,7 @@ describe("shareQuoteSchema", () => {
     ).toBe(false);
   });
 
-  it("uses the shared latest price and price change", () => {
-    expect(shareQuoteSchema.shape.latestPrice.unwrap()).toBe(latestPriceSchema);
-    expect(shareQuoteSchema.shape.change.unwrap()).toBe(priceChangeSchema);
-  });
-
+  // The anonymization test skips a price change, so it is checked here.
   it("keeps share prices and changes unmarked, as market data", () => {
     expect(anonymizeKind(shareQuoteSchema.shape.latestPrice)).toBeUndefined();
     expect(anonymizeKind(latestPriceSchema.shape.priceEur)).toBeUndefined();

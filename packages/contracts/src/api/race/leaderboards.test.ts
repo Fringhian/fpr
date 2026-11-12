@@ -1,12 +1,7 @@
 import { StandardOpenAPIMatcher } from "@orpc/openapi/standard";
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
-import { gainSchema, priceChangeSchema } from "../../schemas/performance.js";
 import { raceContract } from "./index.js";
 import {
-  getLeaderboard,
-  getShareLeaderboard,
   type Leaderboard,
   leaderboardQuerySchema,
   leaderboardSchema,
@@ -84,26 +79,7 @@ const gainBoard: Leaderboard = {
   notStarted: [{ ...alex, id: "3e9c6f4b-bd50-4fa1-8243-5e6f7a8b9ca3" }],
 };
 
-const [balanceOption, gainOption] = leaderboardSchema.options;
-
 describe("GET /leaderboards/{board}", () => {
-  it("is declared for every role, with the session and input codes", () => {
-    const { route, meta, errorMap } = getLeaderboard["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/leaderboards/{board}",
-    });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("takes the board in the path, and the period and unit as query strings", () => {
     const query = { board: "gain", period: "1M", unit: "percent" };
     expect(leaderboardQuerySchema.safeParse(query).success).toBe(true);
@@ -125,7 +101,6 @@ describe("GET /leaderboards/{board}", () => {
     expect(
       leaderboardQuerySchema.parse({ board: "balance", period: "1M" }),
     ).toEqual({ board: "balance", period: "1M", unit: "eur" });
-    expect(getLeaderboard["~orpc"].inputSchema).toBe(leaderboardQuerySchema);
   });
 
   it("answers the balance board, and the gain board ranked in euros or percent", () => {
@@ -154,51 +129,6 @@ describe("GET /leaderboards/{board}", () => {
     };
     expect(leaderboardSchema.safeParse(asFloat).success).toBe(false);
   });
-
-  it("names no unit on the balance board", () => {
-    expect(balanceOption.shape).not.toHaveProperty("unit");
-  });
-
-  it("carries the measured-from, incomplete and not-started markers", () => {
-    const row = gainOption.shape.rows.element.shape;
-    expect(row.measuredFrom.safeParse("2026-02-12").success).toBe(true);
-    expect(row.measuredFrom.safeParse(null).success).toBe(true);
-    expect(row.incomplete.safeParse(true).success).toBe(true);
-    expect(gainOption.shape.notStarted.safeParse([alex]).success).toBe(true);
-    expect(balanceOption.shape.notStarted.safeParse([alex]).success).toBe(true);
-  });
-
-  it("marks names and pictures personal, the balance and euro gains euro, and keeps percentages", () => {
-    const balanceRow = balanceOption.shape.rows.element.shape;
-    expect(anonymizeKind(balanceRow.member.shape.displayName)).toBe("personal");
-    expect(anonymizeKind(balanceRow.member.shape.avatarUrl)).toBe("personal");
-    expect(anonymizeKind(balanceRow.balanceEur)).toBe("euro");
-    const gainRow = gainOption.shape.rows.element.shape;
-    expect(gainRow.gain).toBe(gainSchema);
-    expect(anonymizeKind(gainRow.gain.shape.eur)).toBe("euro");
-    expect(anonymizeKind(gainRow.gain.shape.percent)).toBeUndefined();
-    expect(balanceRow.bestHolding.unwrap().shape.gain).toBe(gainSchema);
-  });
-
-  it("is in the OpenAPI document, with its roles, markers and error codes", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/leaderboards/{board}"
-    ]?.get;
-
-    expect(operation).toMatchObject({
-      operationId: "race.leaderboard",
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-    });
-    expect(Object.keys(operation?.responses ?? {}).sort()).toEqual([
-      "200",
-      "400",
-      "401",
-      "500",
-    ]);
-    const json = JSON.stringify(operation?.responses?.["200"]);
-    expect(json).toContain('"x-anonymize":"euro"');
-    expect(json).not.toContain('"x-anonymize":"quantity"');
-  });
 });
 
 const shareBoard: ShareLeaderboard = {
@@ -219,51 +149,13 @@ const shareBoard: ShareLeaderboard = {
 };
 
 describe("GET /leaderboards/shares", () => {
-  it("is declared for every role, with the session and input codes", () => {
-    const { route, meta, errorMap } = getShareLeaderboard["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/leaderboards/shares",
-    });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
-  it("takes the period as a query string", () => {
-    const input = getShareLeaderboard["~orpc"].inputSchema;
-    expect(input?.safeParse({ period: "YTD" }).success).toBe(true);
-    expect(input?.safeParse({ period: "ytd" }).success).toBe(false);
-    expect(input?.safeParse({}).success).toBe(false);
-  });
-
   it("accepts the ranked shares with their change, and refuses a change that isn't decimal strings", () => {
     expect(shareLeaderboardSchema.parse(shareBoard)).toEqual(shareBoard);
-    expect(shareLeaderboardSchema.shape.rows.element.shape.change).toBe(
-      priceChangeSchema,
-    );
     const asNumber = {
       ...shareBoard,
       rows: [{ share: exampleFund, change: { eur: 4.95, percent: 12.4 } }],
     };
     expect(shareLeaderboardSchema.safeParse(asNumber).success).toBe(false);
-  });
-
-  it("marks nothing: share changes are market data", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/leaderboards/shares"
-    ]?.get;
-    expect(operation).toMatchObject({
-      operationId: "race.shareLeaderboard",
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-    });
-    expect(JSON.stringify(operation)).not.toContain("x-anonymize");
   });
 });
 

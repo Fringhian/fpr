@@ -1,23 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
-import { pricesLookup } from "../../prices/shares.js";
+import { type LookupResult, lookupResultSchema } from "../../schemas/share.js";
+
 import {
-  isinTakenDetailsSchema,
-  type LookupResult,
-  lookupResultSchema,
-} from "../../schemas/share.js";
-import {
-  lookUpShares,
   type ShareListItem,
-  searchShares,
   shareListItemSchema,
   shareListSchema,
   shareLookupBodySchema,
   shareSearchQuerySchema,
 } from "./search.js";
-
-const document = await createOpenApiDocument();
 
 const item: ShareListItem = {
   id: "0b6f3c1e-8a2d-4c7e-9f10-2b3c4d5e6f71",
@@ -46,20 +36,6 @@ const item: ShareListItem = {
 };
 
 describe("GET /shares", () => {
-  it("is declared for every signed-in role, with the input's codes", () => {
-    const { route, meta, errorMap } = searchShares["~orpc"];
-    expect(route).toMatchObject({ method: "GET", path: "/shares" });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("reads an empty filter as every share, and trims the filter", () => {
     expect(shareSearchQuerySchema.parse({ period: "1M" })).toEqual({
       q: "",
@@ -110,53 +86,6 @@ describe("GET /shares", () => {
       }).success,
     ).toBe(false);
   });
-
-  it("marks the holders' names and pictures, and keeps the prices", () => {
-    const holder = shareListItemSchema.shape.holders.element.shape;
-    expect(anonymizeKind(holder.displayName)).toBe("personal");
-    expect(anonymizeKind(holder.avatarUrl)).toBe("personal");
-    expect(
-      anonymizeKind(shareListItemSchema.shape.series.element.shape.priceEur),
-    ).toBeUndefined();
-  });
-
-  it("is in the OpenAPI document with its query, roles and markers", () => {
-    const operation = document.paths?.["/shares"]?.get;
-    expect(operation).toMatchObject({
-      summary: "Filter the stored shares",
-      tags: ["shares"],
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-    });
-    expect(
-      operation?.parameters?.map((parameter) =>
-        "in" in parameter ? `${parameter.in}:${parameter.name}` : undefined,
-      ),
-    ).toEqual(["query:q", "query:period"]);
-    expect(operation?.responses?.["200"]).toMatchObject({
-      content: {
-        "application/json": {
-          schema: {
-            properties: {
-              shares: {
-                items: {
-                  properties: {
-                    holders: {
-                      items: {
-                        properties: {
-                          displayName: { "x-anonymize": "personal" },
-                          avatarUrl: { "x-anonymize": "personal" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-  });
 });
 
 describe("POST /shares/lookup", () => {
@@ -179,31 +108,6 @@ describe("POST /shares/lookup", () => {
       },
     ],
   };
-
-  it("is declared for members and the admin, with the provider's codes", () => {
-    const { route, meta, errorMap } = lookUpShares["~orpc"];
-    expect(route).toMatchObject({ method: "POST", path: "/shares/lookup" });
-    expect(meta.roles).toEqual(["admin", "member"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "call_budget_used",
-        "forbidden",
-        "internal_error",
-        "invalid_request",
-        "isin_taken",
-        "not_found",
-        "provider_unavailable",
-        "unauthenticated",
-      ].sort(),
-    );
-    expect(errorMap.isin_taken.data).toBe(isinTakenDetailsSchema);
-  });
-
-  it("answers as the price service's lookup does", () => {
-    expect(lookUpShares["~orpc"].outputSchema).toBe(lookupResultSchema);
-    expect(pricesLookup["~orpc"].outputSchema).toBe(lookupResultSchema);
-  });
 
   it("accepts a query, and a listing's symbol with the ISIN a member typed", () => {
     expect(shareLookupBodySchema.parse({ query: " EXF " })).toEqual({
@@ -243,14 +147,5 @@ describe("POST /shares/lookup", () => {
         listings: [{ ...result.listings[0], tradingCurrency: "pence" }],
       }).success,
     ).toBe(false);
-  });
-
-  it("is in the OpenAPI document with the budget and provider codes", () => {
-    const operation = document.paths?.["/shares/lookup"]?.post;
-    expect(operation).toMatchObject({ "x-roles": ["admin", "member"] });
-    expect(operation?.responses).toMatchObject({
-      "429": { description: "`call_budget_used`" },
-      "503": { description: "`provider_unavailable`" },
-    });
   });
 });

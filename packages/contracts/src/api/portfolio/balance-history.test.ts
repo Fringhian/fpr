@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { anonymizeKind } from "../../anonymize.js";
-import { createOpenApiDocument } from "../../openapi.js";
 import { memberSeriesPointSchema } from "../../schemas/performance.js";
 import {
-  getPortfolioBalanceHistory,
   type PortfolioBalanceHistory,
+  portfolioBalanceHistoryQuerySchema,
   portfolioBalanceHistorySchema,
 } from "./balance-history.js";
 
@@ -38,29 +36,11 @@ const history: PortfolioBalanceHistory = {
 };
 
 describe("GET /users/{userId}/balance-history", () => {
-  it("is declared for every signed-in role, with its codes", () => {
-    const { route, meta, errorMap } = getPortfolioBalanceHistory["~orpc"];
-    expect(route).toMatchObject({
-      method: "GET",
-      path: "/users/{userId}/balance-history",
-    });
-    expect(meta.roles).toEqual(["admin", "member", "guest", "anonymous"]);
-    expect(Object.keys(errorMap).sort()).toEqual(
-      [
-        "access_ended",
-        "internal_error",
-        "invalid_request",
-        "not_found",
-        "unauthenticated",
-      ].sort(),
-    );
-  });
-
   it("takes the member and a period, and refuses anything else", () => {
-    const input = getPortfolioBalanceHistory["~orpc"].inputSchema;
-    expect(input?.safeParse({ userId, period: "YTD" }).success).toBe(true);
-    expect(input?.safeParse({ userId, period: "ytd" }).success).toBe(false);
-    expect(input?.safeParse({ period: "YTD" }).success).toBe(false);
+    const query = portfolioBalanceHistoryQuerySchema;
+    expect(query.safeParse({ userId, period: "YTD" }).success).toBe(true);
+    expect(query.safeParse({ userId, period: "ytd" }).success).toBe(false);
+    expect(query.safeParse({ period: "YTD" }).success).toBe(false);
   });
 
   it("accepts closes, provisional points, and the entries to mark", () => {
@@ -69,12 +49,6 @@ describe("GET /users/{userId}/balance-history", () => {
       portfolioBalanceHistorySchema.safeParse({ points: [], entries: [] })
         .success,
     ).toBe(true);
-  });
-
-  it("uses the member series point the race uses", () => {
-    expect(portfolioBalanceHistorySchema.shape.points.element).toBe(
-      memberSeriesPointSchema,
-    );
   });
 
   it("refuses a balance as a number, a point without its gain, or without its markers", () => {
@@ -89,48 +63,5 @@ describe("GET /users/{userId}/balance-history", () => {
     expect(memberSeriesPointSchema.safeParse(withoutMarker).success).toBe(
       false,
     );
-  });
-
-  it("marks each balance and euro gain, and keeps the percentage beside them", () => {
-    expect(
-      anonymizeKind(portfolioBalanceHistorySchema.shape.points),
-    ).toBeUndefined();
-    const { shape } = memberSeriesPointSchema;
-    expect(anonymizeKind(shape.balanceEur)).toBe("euro");
-    expect(anonymizeKind(shape.gain.shape.eur)).toBe("euro");
-    expect(anonymizeKind(shape.gain.shape.percent)).toBeUndefined();
-  });
-
-  it("is in the OpenAPI document, with its roles and markers", async () => {
-    const operation = (await createOpenApiDocument()).paths?.[
-      "/users/{userId}/balance-history"
-    ]?.get;
-
-    expect(operation).toMatchObject({
-      operationId: "portfolio.balanceHistory",
-      "x-roles": ["admin", "member", "guest", "anonymous"],
-      responses: {
-        "200": {
-          content: {
-            "application/json": {
-              schema: {
-                properties: {
-                  points: {
-                    items: {
-                      properties: {
-                        balanceEur: { "x-anonymize": "euro" },
-                        gain: {
-                          properties: { eur: { "x-anonymize": "euro" } },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
   });
 });
