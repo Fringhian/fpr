@@ -6,3 +6,4 @@ export {
   type Db,
   ping,
 } from "./database.js";
+export { migrateToLatest } from "./migrate.js";
