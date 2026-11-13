@@ -26,7 +26,9 @@ export const migration: Migration = {
             when 'market' then provider_symbol is not null
               and exchange is not null
               and trading_currency is not null
-            else provider_symbol is null and exchange is null
+            else provider_symbol is null
+              and exchange is null
+              and trading_currency is null
           end
         )
       )

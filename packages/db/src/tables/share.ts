@@ -11,7 +11,7 @@ export interface ShareTable {
   /** Not empty. */
   name: string;
   kind: ShareKind;
-  /** The 3-letter code the provider quotes the share in, such as `USD` or `GBX`. Set for a market share. */
+  /** The 3-letter code the provider quotes the share in, such as `USD` or `GBX`. Set for a market share, empty for a manual one. */
   tradingCurrency: string | null;
   /** The provider's symbol of the one listing FPR prices. Set for a market share, empty for a manual one. */
   providerSymbol: string | null;
