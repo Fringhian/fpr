@@ -9,7 +9,8 @@ Postgres 18, accessed by the API and the price service through one shared intern
 It holds:
 
 - **Connection pool**: one `pg` pool per process, configured from `DATABASE_URL`, behind a Kysely instance. `createDb()` opens it, `ping()` runs `select 1` for the health endpoints, and `close()` waits for running queries and closes every connection on shutdown.
-- **Migrations**: the one schema history for the whole system, run with Kysely's migrator by the API image before the server starts. Better Auth's tables are created by a migration in the same history, generated from Better Auth's schema. Every migration stays compatible with the running code: additions ship first, removals in a later deploy.
+- **Migrations**: the one schema history for the whole system, run with Kysely's migrator by the API image before the server starts. Each migration is a file in `src/migrations/`, named `NNNN_description.ts` and numbered from `0001`, and listed in `src/migrations/index.ts`. `migrateToLatest()` runs the pending ones in name order, in one transaction, and refuses a migration that sorts before one already applied. A migration is never edited once it has run: a change is a new migration. Better Auth's tables are created by a migration in the same history, generated from Better Auth's schema. Every migration stays compatible with the running code: additions ship first, removals in a later deploy.
+- **Test databases**: `createTestDatabase()`, from `@fpr/db/testing`, creates a database named `fpr_test_…` on the Postgres server at `DATABASE_URL`, migrates it, and returns it with a `drop()` that removes it. Each test file that touches the database gets its own.
 - **Row types**: one TypeScript type per table, used by every process that reads or writes it.
 - **One query module per table**, built with Kysely. A module holds the queries for its table and no workflow logic.
 
