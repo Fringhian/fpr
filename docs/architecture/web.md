@@ -131,4 +131,17 @@ The web image builds the app and serves it with nginx. nginx serves `index.html`
 
 nginx serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.
 
+Every response nginx sends, `/api/*` and errors included, carries these security headers, once each. nginx drops the API's own values for them.
+
+| Header | Value |
+| --- | --- |
+| `Content-Security-Policy` | `default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'` |
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `no-referrer` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` |
+| `Cross-Origin-Opener-Policy` | `same-origin` |
+
+Under this policy, every script, font, request, and worker comes from the app's own origin, and no script is inline: the fonts ship with the build, and the service worker registers from a file. Inline styles, `data:` images, and `blob:` images, such as a picture's preview before upload, are allowed.
+
 In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix.

@@ -14,7 +14,7 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 | `victorialogs` | `victoriametrics/victoria-logs` | Yes, on its own hostname |
 | `vector` | `deploy/vector.Dockerfile`: `timberio/vector` with `deploy/vector.yaml` | No |
 
-`web` forwards `/api` to `api`. `api` calls `prices`. `web` and `victorialogs` each need a hostname, and TLS is the host's reverse proxy's job.
+`web` forwards `/api` to `api`. `api` calls `prices`. `web` and `victorialogs` each need a hostname, and TLS is the host's reverse proxy's job: it redirects HTTP to HTTPS and sends `Strict-Transport-Security`. `web` sends the other security headers itself (`web.md` › Serving).
 
 Every image is pinned to an exact version, in `compose.yaml` or in the Dockerfile that builds on it.
 
