@@ -2,19 +2,20 @@ import type { ReactNode } from "react";
 
 const ROOT_FONT_SIZE = 16;
 
-function readToken(variable: string): string {
-  const value = getComputedStyle(document.documentElement)
+/** A CSS variable's value as the page computes it from `theme.css`. */
+export function readToken(variable: `--${string}`): string {
+  return getComputedStyle(document.documentElement)
     .getPropertyValue(variable)
     .trim();
-  const rem = /^(-?[\d.]+)rem$/.exec(value);
-  return rem ? `${value} · ${Number(rem[1]) * ROOT_FONT_SIZE}px` : value;
 }
 
-/** The value of a theme variable as `theme.css` defines it, read from the page. */
+/** A token's value, with its pixel size when it is in rem. */
 export function TokenValue({ variable }: { variable: `--${string}` }) {
+  const value = readToken(variable);
+  const rem = /^(-?[\d.]+)rem$/.exec(value);
   return (
-    <code className="text-xs text-ink-soft tabular-nums">
-      {readToken(variable)}
+    <code className="text-xs text-secondary tabular-nums">
+      {rem ? `${value} · ${Number(rem[1]) * ROOT_FONT_SIZE}px` : value}
     </code>
   );
 }
@@ -30,9 +31,9 @@ export function Specimen({
   children: ReactNode;
 }) {
   return (
-    <main className="min-h-dvh bg-snow p-l font-sans text-ink">
+    <main className="min-h-dvh bg-page p-l font-sans text-primary">
       <h1 className="text-xl font-semibold">{title}</h1>
-      <p className="mt-xs mb-l max-w-[70ch] text-m text-ink-soft">{lead}</p>
+      <p className="mt-xs mb-l max-w-[70ch] text-m text-secondary">{lead}</p>
       {children}
     </main>
   );

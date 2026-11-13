@@ -60,25 +60,25 @@ function Scale() {
       title="Typography"
       lead="Figtree for everything. Six sizes, each with one job: a new size needs a new role."
     >
-      <ul className="rounded-l bg-paper px-m shadow-outline">
+      <ul className="rounded-l bg-surface px-m shadow-outline">
         {SCALE.map(({ role, token, className, weight, use }) => (
           <li
             key={token}
-            className="grid gap-s border-b-[1.5px] border-snowlinepy-m last:border-b-0 tablet:grid-cols-[14rem_1fr] tablet:items-baseline"
+            className="grid gap-s border-b-[1.5px] border-dividerpy-m last:border-b-0 tablet:grid-cols-[14rem_1fr] tablet:items-baseline"
           >
             <div className="grid">
               <span className="text-s font-semibold">{role}</span>
-              <span className="text-xs text-ink-soft">
+              <span className="text-xs text-secondary">
                 text-{token} · weight {weight}
               </span>
-              <span className="text-xs text-ink-soft">
+              <span className="text-xs text-secondary">
                 size <TokenValue variable={`--text-${token}`} />
               </span>
-              <span className="text-xs text-ink-soft">
+              <span className="text-xs text-secondary">
                 line height{" "}
                 <TokenValue variable={`--text-${token}--line-height`} />
               </span>
-              <span className="text-xs text-ink-soft">{use}</span>
+              <span className="text-xs text-secondary">{use}</span>
             </div>
             <p className={className}>{SAMPLE}</p>
           </li>
@@ -94,7 +94,7 @@ function Weights() {
       title="Weights and figures"
       lead="Three weights, and tabular figures wherever numbers line up."
     >
-      <div className="grid gap-s rounded-l bg-paper p-m text-m shadow-outline">
+      <div className="grid gap-s rounded-l bg-surface p-m text-m shadow-outline">
         {WEIGHTS.map(({ label, className }) => (
           <p key={label} className={className}>
             {label} · {SAMPLE}

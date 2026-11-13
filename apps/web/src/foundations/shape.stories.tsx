@@ -32,18 +32,18 @@ function Corners() {
         {CORNERS.map(({ token, className, use }) => (
           <li key={token} className="grid gap-xs">
             <div
-              className={`h-[4rem] w-[6rem] bg-tint shadow-outline ${className}`}
+              className={`h-[4rem] w-[6rem] bg-highlight shadow-outline ${className}`}
             />
             <span className="text-s font-semibold">rounded-{token}</span>
             <TokenValue variable={`--radius-${token}`} />
-            <span className="text-xs text-ink-soft">{use}</span>
+            <span className="text-xs text-secondary">{use}</span>
           </li>
         ))}
         <li className="grid gap-xs">
-          <div className="h-[4rem] w-[6rem] rounded-full bg-tint shadow-outline" />
+          <div className="h-[4rem] w-[6rem] rounded-full bg-highlight shadow-outline" />
           <span className="text-s font-semibold">rounded-full</span>
-          <span className="text-xs text-ink-soft">Fully round</span>
-          <span className="text-xs text-ink-soft">Capsules, pictures</span>
+          <span className="text-xs text-secondary">Fully round</span>
+          <span className="text-xs text-secondary">Capsules, pictures</span>
         </li>
       </ul>
     </Specimen>
@@ -60,11 +60,11 @@ function Elevation() {
         {SHADOWS.map(({ token, className, use }) => (
           <li key={token} className="grid w-[12rem] gap-s">
             <div
-              className={`flex h-[6rem] items-end rounded-l bg-paper p-s text-s font-semibold ${className}`}
+              className={`flex h-[6rem] items-end rounded-l bg-surface p-s text-s font-semibold ${className}`}
             >
               shadow-{token}
             </div>
-            <span className="text-xs text-ink-soft">{use}</span>
+            <span className="text-xs text-secondary">{use}</span>
           </li>
         ))}
       </ul>

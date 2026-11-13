@@ -29,12 +29,15 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 
 ## Tokens
 
-`src/theme.css` is the Tailwind `@theme` block and the only place a design value is defined. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
+`src/theme.css` is the only place a design value is defined. It holds two layers:
+
+- The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes.
+- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
 
 | Namespace | Tokens | Example |
 | --- | --- | --- |
-| Colour | `ink`, `ink-soft`, `ink-sky`, `sky`, `ridge`, `snow`, `paper`, `snowline`, `tint`, `context`, `gain`, `loss`, `link` | `text-ink-soft`, `bg-snow` |
-| Member colour | `member-1` to `member-10`, each with `member-N-pastel` | `bg-member-3-pastel` |
+| Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `error`, `link` | `text-secondary`, `bg-surface` |
+| Member colour | `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`, in this order, each with its `-pastel` | `bg-cobalt-pastel` |
 | Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
 | Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |
 | Radius | `s` 12, `m` 14, `l` 22, `xl` 24 px, and `full` | `rounded-l` |

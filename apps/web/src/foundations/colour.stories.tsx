@@ -1,118 +1,124 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Specimen, TokenValue } from "./specimen";
+import { readToken, Specimen, TokenValue } from "./specimen";
 
-const SEMANTIC = [
+const PALETTE = [
+  "charcoal",
+  "slate",
+  "cocoa",
+  "peach",
+  "lilac",
+  "snow",
+  "white",
+  "sand",
+  "blush",
+  "fog",
+  "pine",
+  "brick",
+  "indigo",
+] as const;
+
+const ROLES = [
   {
-    name: "Charcoal ink",
-    token: "ink",
-    swatch: "bg-ink",
-    role: "Text, selected controls, main buttons, sign outlines, focus ring",
+    token: "primary",
+    swatch: "bg-primary",
+    use: "Main text, main buttons, anything selected, sign outlines, focus ring",
   },
   {
-    name: "Soft ink",
-    token: "ink-soft",
-    swatch: "bg-ink-soft",
-    role: "Secondary text, units, times, axis labels",
+    token: "on-primary",
+    swatch: "bg-on-primary",
+    use: "Text and icons on primary",
   },
   {
-    name: "Sky ink",
-    token: "ink-sky",
-    swatch: "bg-ink-sky",
-    role: "Secondary text on the sky",
+    token: "secondary",
+    swatch: "bg-secondary",
+    use: "Secondary text, units, times, axis labels",
   },
   {
-    name: "Morning peach",
-    token: "sky",
-    swatch: "bg-sky",
-    role: "Page bar and page header",
+    token: "on-sky",
+    swatch: "bg-on-sky",
+    use: "Secondary text on the sky",
+  },
+  { token: "page", swatch: "bg-page", use: "Page ground, near ridge" },
+  {
+    token: "surface",
+    swatch: "bg-surface",
+    use: "Cards, signs, dialogs, sheets",
   },
   {
-    name: "Lilac ridge",
-    token: "ridge",
-    swatch: "bg-ridge",
-    role: "Far ridge under the header",
+    token: "highlight",
+    swatch: "bg-highlight",
+    use: "Your own row, menu highlight, icon circles",
+  },
+  { token: "sky", swatch: "bg-sky", use: "Page bar and page header" },
+  { token: "ridge", swatch: "bg-ridge", use: "Far ridge under the header" },
+  {
+    token: "divider",
+    swatch: "bg-divider",
+    use: "Outlines and dividers",
   },
   {
-    name: "Warm snow",
-    token: "snow",
-    swatch: "bg-snow",
-    role: "Page ground, near ridge",
+    token: "muted",
+    swatch: "bg-muted",
+    use: "Other members’ lines in the race; never text",
   },
   {
-    name: "Paper white",
-    token: "paper",
-    swatch: "bg-paper",
-    role: "Cards, signs, dialogs, sheets",
+    token: "positive",
+    swatch: "bg-positive",
+    use: "Gains, always with a + sign",
   },
   {
-    name: "Snowline",
-    token: "snowline",
-    swatch: "bg-snowline",
-    role: "Outlines and dividers",
+    token: "negative",
+    swatch: "bg-negative",
+    use: "Losses, always with a − sign",
   },
-  {
-    name: "Your tint",
-    token: "tint",
-    swatch: "bg-tint",
-    role: "Your own row, menu highlight, icon circles",
-  },
-  {
-    name: "Context grey",
-    token: "context",
-    swatch: "bg-context",
-    role: "Other members in the race",
-  },
-  {
-    name: "Gain",
-    token: "gain",
-    swatch: "bg-gain",
-    role: "Gains, with a + sign",
-  },
-  {
-    name: "Loss",
-    token: "loss",
-    swatch: "bg-loss",
-    role: "Losses and errors, with a − sign",
-  },
-  { name: "Link", token: "link", swatch: "bg-link", role: "Text links" },
+  { token: "error", swatch: "bg-error", use: "Errors and failed checks" },
+  { token: "link", swatch: "bg-link", use: "Text links" },
 ] as const;
 
 const MEMBERS = [
-  { name: "Vermilion", line: "bg-member-1", picture: "bg-member-1-pastel" },
-  { name: "Cobalt", line: "bg-member-2", picture: "bg-member-2-pastel" },
-  { name: "Green", line: "bg-member-3", picture: "bg-member-3-pastel" },
-  { name: "Violet", line: "bg-member-4", picture: "bg-member-4-pastel" },
-  { name: "Amber", line: "bg-member-5", picture: "bg-member-5-pastel" },
-  { name: "Pink", line: "bg-member-6", picture: "bg-member-6-pastel" },
-  { name: "Cyan", line: "bg-member-7", picture: "bg-member-7-pastel" },
-  { name: "Lime", line: "bg-member-8", picture: "bg-member-8-pastel" },
-  { name: "Sienna", line: "bg-member-9", picture: "bg-member-9-pastel" },
+  { name: "vermilion", line: "bg-vermilion", picture: "bg-vermilion-pastel" },
+  { name: "cobalt", line: "bg-cobalt", picture: "bg-cobalt-pastel" },
+  { name: "green", line: "bg-green", picture: "bg-green-pastel" },
+  { name: "violet", line: "bg-violet", picture: "bg-violet-pastel" },
+  { name: "amber", line: "bg-amber", picture: "bg-amber-pastel" },
+  { name: "pink", line: "bg-pink", picture: "bg-pink-pastel" },
+  { name: "cyan", line: "bg-cyan", picture: "bg-cyan-pastel" },
+  { name: "lime", line: "bg-lime", picture: "bg-lime-pastel" },
+  { name: "sienna", line: "bg-sienna", picture: "bg-sienna-pastel" },
   {
-    name: "Periwinkle",
-    line: "bg-member-10",
-    picture: "bg-member-10-pastel",
+    name: "periwinkle",
+    line: "bg-periwinkle",
+    picture: "bg-periwinkle-pastel",
   },
 ] as const;
 
-function SemanticColours() {
+/** The palette colour a role points at, found by its value in the page. */
+function paletteOf(role: string): string {
+  const value = readToken(`--color-${role}`);
+  return (
+    PALETTE.find((name) => readToken(`--palette-${name}`) === value) ?? value
+  );
+}
+
+function Palette() {
   return (
     <Specimen
-      title="Colour"
-      lead="Warm, light grounds under a peach sky, charcoal ink, and two state colours. Charcoal means selected; a member colour never marks selection, and the sky never marks state."
+      title="Palette"
+      lead="Every hue of the look, named by what it is. The palette generates no classes: components use the roles, which point at it."
     >
-      <ul className="grid grid-cols-1 gap-s tablet:grid-cols-2 desktop:grid-cols-4">
-        {SEMANTIC.map(({ name, token, swatch, role }) => (
+      <ul className="grid grid-cols-2 gap-s tablet:grid-cols-4 desktop:grid-cols-7">
+        {PALETTE.map((name) => (
           <li
-            key={token}
-            className="overflow-hidden rounded-l bg-paper shadow-outline"
+            key={name}
+            className="overflow-hidden rounded-l bg-surface shadow-outline"
           >
-            <div className={`h-[4rem] ${swatch}`} />
-            <div className="grid gap-xs p-s">
+            <div
+              className="h-[4rem]"
+              style={{ background: `var(--palette-${name})` }}
+            />
+            <div className="grid p-s">
               <span className="text-s font-semibold">{name}</span>
-              <span className="text-xs text-ink-soft">
-                {token} · <TokenValue variable={`--color-${token}`} />
-              </span>
-              <span className="text-xs text-ink-soft">{role}</span>
+              <TokenValue variable={`--palette-${name}`} />
             </div>
           </li>
         ))}
@@ -121,41 +127,65 @@ function SemanticColours() {
   );
 }
 
-function MemberColours() {
+function Roles() {
+  return (
+    <Specimen
+      title="Colour roles"
+      lead="What components use: each role points at a palette colour. Primary means selected; the sky never marks state."
+    >
+      <ul className="grid grid-cols-1 gap-s tablet:grid-cols-2 desktop:grid-cols-3">
+        {ROLES.map(({ token, swatch, use }) => (
+          <li
+            key={token}
+            className="flex items-center gap-s rounded-m bg-surface p-s shadow-outline"
+          >
+            <span
+              className={`size-[2.5rem] flex-none rounded-s shadow-outline ${swatch}`}
+            />
+            <span className="grid">
+              <span className="text-s font-semibold">{token}</span>
+              <span className="text-xs text-secondary">
+                palette {paletteOf(token)}
+              </span>
+              <span className="text-xs text-secondary">{use}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Specimen>
+  );
+}
+
+function Members() {
   return (
     <Specimen
       title="Member colours"
       lead="Ten colours, one per person, in this order. Full colour for their line and bar, the pastel for their picture. A colour always comes with a name, an initial, a photo or a sign."
     >
       <ol className="grid grid-cols-1 gap-s tablet:grid-cols-2">
-        {MEMBERS.map(({ name, line, picture }, index) => {
-          const n = index + 1;
-          return (
-            <li
-              key={name}
-              className="flex items-center gap-s rounded-m bg-paper px-s py-s shadow-outline"
+        {MEMBERS.map(({ name, line, picture }, index) => (
+          <li
+            key={name}
+            className="flex items-center gap-s rounded-m bg-surface p-s shadow-outline"
+          >
+            <span
+              className={`inline-flex size-[2rem] flex-none items-center justify-center rounded-full font-semibold uppercase ${picture}`}
             >
-              <span
-                className={`inline-flex size-[2rem] flex-none items-center justify-center rounded-full font-semibold ${picture}`}
-              >
-                {name[0]}
+              {name[0]}
+            </span>
+            <span className="grid w-[7rem] flex-none">
+              <span className="text-s font-semibold">{name}</span>
+              <span className="text-xs text-secondary">colour {index + 1}</span>
+            </span>
+            <span className={`h-s flex-1 rounded-full ${line}`} />
+            <span className="grid w-[10rem] flex-none text-xs text-secondary">
+              <TokenValue variable={`--color-${name}`} />
+              <span>
+                pastel <TokenValue variable={`--color-${name}-pastel`} />
               </span>
-              <span className="w-[6rem] flex-none text-s font-semibold">
-                {name}
-              </span>
-              <span className={`h-s flex-1 rounded-full ${line}`} />
-              <span className="grid w-[11rem] flex-none text-xs text-ink-soft">
-                <span>
-                  member-{n} · <TokenValue variable={`--color-member-${n}`} />
-                </span>
-                <span>
-                  member-{n}-pastel ·{" "}
-                  <TokenValue variable={`--color-member-${n}-pastel`} />
-                </span>
-              </span>
-            </li>
-          );
-        })}
+            </span>
+          </li>
+        ))}
       </ol>
     </Specimen>
   );
@@ -170,6 +200,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Semantic: Story = { render: () => <SemanticColours /> };
+export const PaletteColours: Story = {
+  name: "Palette",
+  render: () => <Palette />,
+};
 
-export const Members: Story = { render: () => <MemberColours /> };
+export const ColourRoles: Story = {
+  name: "Roles",
+  render: () => <Roles />,
+};
+
+export const MemberColours: Story = {
+  name: "Members",
+  render: () => <Members />,
+};

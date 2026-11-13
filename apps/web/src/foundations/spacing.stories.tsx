@@ -15,14 +15,14 @@ function Spacing() {
       title="Spacing"
       lead="Five steps for padding, gaps, margins and sizes. Tight inside groups, generous between sections, more space above a heading than below it."
     >
-      <ul className="grid gap-s rounded-l bg-paper p-m shadow-outline">
+      <ul className="grid gap-s rounded-l bg-surface p-m shadow-outline">
         {STEPS.map(({ token, bar }) => (
           <li key={token} className="flex items-center gap-m">
             <span className="w-[12rem] text-s">
               <span className="font-semibold">{token}</span> ·{" "}
               <TokenValue variable={`--spacing-${token}`} />
             </span>
-            <span className={`h-m bg-member-2 ${bar}`} />
+            <span className={`h-m bg-cobalt ${bar}`} />
           </li>
         ))}
       </ul>

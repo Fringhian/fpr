@@ -28,7 +28,7 @@ function Breakpoints() {
       title="Breakpoints"
       lead="Mobile first: phone is the unprefixed base, then tablet and desktop. Switch the viewport to see the current one change."
     >
-      <p className="mb-l rounded-l bg-paper p-m text-l font-semibold shadow-rest">
+      <p className="mb-l rounded-l bg-surface p-m text-l font-semibold shadow-rest">
         Current width: <span className="tablet:hidden">phone</span>
         <span className="hidden tablet:inline desktop:hidden">tablet</span>
         <span className="hidden desktop:inline">desktop</span>
@@ -37,18 +37,18 @@ function Breakpoints() {
         {BREAKPOINTS.map(({ name, prefix, variable, use }) => (
           <li
             key={name}
-            className="grid gap-xs rounded-l bg-paper p-m shadow-outline"
+            className="grid gap-xs rounded-l bg-surface p-m shadow-outline"
           >
             <span className="text-s font-semibold">{name}</span>
-            <span className="text-xs text-ink-soft">Prefix: {prefix}</span>
+            <span className="text-xs text-secondary">Prefix: {prefix}</span>
             {variable === undefined ? (
-              <span className="text-xs text-ink-soft">From 0</span>
+              <span className="text-xs text-secondary">From 0</span>
             ) : (
-              <span className="text-xs text-ink-soft">
+              <span className="text-xs text-secondary">
                 From <TokenValue variable={variable} />
               </span>
             )}
-            <span className="text-xs text-ink-soft">{use}</span>
+            <span className="text-xs text-secondary">{use}</span>
           </li>
         ))}
       </ul>
