@@ -2,7 +2,10 @@ import { CamelCasePlugin, Kysely, PostgresDialect, sql } from "kysely";
 import pg from "pg";
 import type { AccessKeyTable } from "./tables/access-key.js";
 import type { AccountTable } from "./tables/account.js";
+import type { CashBalanceTable } from "./tables/cash-balance.js";
+import type { CurrentPositionView } from "./tables/current-position.js";
 import type { ManualPriceEventTable } from "./tables/manual-price-event.js";
+import type { PortfolioChangeTable } from "./tables/portfolio-change.js";
 import type { PriceTable } from "./tables/price.js";
 import type { ResetKeyTable } from "./tables/reset-key.js";
 import type { SessionTable } from "./tables/session.js";
@@ -12,8 +15,8 @@ import type { VerificationTable } from "./tables/verification.js";
 import { typeParsers } from "./type-parsers.js";
 
 /**
- * Every table, keyed by its camelCase name, with its row type. Tables are
- * added here with the migration that creates them.
+ * Every table and view, keyed by its camelCase name, with its row type.
+ * Tables are added here with the migration that creates them.
  */
 export interface Database {
   user: UserTable;
@@ -25,6 +28,9 @@ export interface Database {
   shares: ShareTable;
   prices: PriceTable;
   manualPriceEvents: ManualPriceEventTable;
+  portfolioChanges: PortfolioChangeTable;
+  cashBalances: CashBalanceTable;
+  currentPositions: CurrentPositionView;
 }
 
 export type Db = Kysely<Database>;
