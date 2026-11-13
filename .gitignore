@@ -12,3 +12,5 @@ DESIGN.md
 coverage/
 .vscode/
 .claude/worktrees/
+storybook-static/
+*storybook.log

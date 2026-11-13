@@ -59,6 +59,29 @@ jobs:
 
       - run: pnpm build
 
+  storybook:
+    name: Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @fpr/web build-storybook
+
+      # Runs every story in Chromium. An accessibility violation fails the job.
+      - run: pnpm --filter @fpr/web exec playwright install --with-deps chromium
+
+      - run: pnpm --filter @fpr/web test-storybook
+
   docker:
     name: Docker image (${{ matrix.app }})
     runs-on: ubuntu-latest
