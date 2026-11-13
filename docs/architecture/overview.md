@@ -42,10 +42,11 @@ flowchart LR
 
 ## Logging
 
-`api` and `prices` log with pino: one JSON line per event on standard output. Vector collects every container's output and stores it in VictoriaLogs, which keeps it and serves a search interface on its own hostname, behind its own login. See `deployment.md`.
+`api` and `prices` log with pino: one JSON line per event on standard output. `web`'s nginx writes one JSON access line per request. Vector collects every container's output and stores it in VictoriaLogs, which keeps it and serves a search interface on its own hostname, behind its own login. See `deployment.md`.
 
-- Every line has the time, the level (`info`, `warn`, or `error`), the service, and a message.
+- Every pino line has the time, the level (`info`, `warn`, or `error`), the service, and a message.
 - `api` logs every request with pino-http: a request id, the method, the route, the status, the duration, and the signed-in person's id. The response carries the same id in `X-Request-Id`.
+- `web` logs each request with its time, client address, method, path, status, size, duration, and request id. A request proxied to `api` carries the id `api` returns in `X-Request-Id`, the same id as its `api` lines. Every other request has an empty `request_id`. `/access/…` requests are not logged.
 - Every error is logged at `error` with its stack trace and its request id or price run.
 - `prices` logs every run and every provider call. See `prices.md`.
 - Passwords, access keys, reset keys, and session cookies are never logged: pino's `redact` removes them, and auth request bodies are not logged.
