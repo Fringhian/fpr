@@ -2,8 +2,11 @@ import { CamelCasePlugin, Kysely, PostgresDialect, sql } from "kysely";
 import pg from "pg";
 import type { AccessKeyTable } from "./tables/access-key.js";
 import type { AccountTable } from "./tables/account.js";
+import type { ManualPriceEventTable } from "./tables/manual-price-event.js";
+import type { PriceTable } from "./tables/price.js";
 import type { ResetKeyTable } from "./tables/reset-key.js";
 import type { SessionTable } from "./tables/session.js";
+import type { ShareTable } from "./tables/share.js";
 import type { UserTable } from "./tables/user.js";
 import type { VerificationTable } from "./tables/verification.js";
 import { typeParsers } from "./type-parsers.js";
@@ -19,6 +22,9 @@ export interface Database {
   verification: VerificationTable;
   accessKeys: AccessKeyTable;
   resetKeys: ResetKeyTable;
+  shares: ShareTable;
+  prices: PriceTable;
+  manualPriceEvents: ManualPriceEventTable;
 }
 
 export type Db = Kysely<Database>;
