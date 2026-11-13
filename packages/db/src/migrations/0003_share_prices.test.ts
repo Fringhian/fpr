@@ -173,12 +173,16 @@ describe("shares", () => {
         "shares_listing_check",
       );
     }
-    for (const changes of [{ providerSymbol: "EXF.PA" }, { exchange: "PA" }]) {
+    for (const changes of [
+      { providerSymbol: "EXF.PA" },
+      { exchange: "PA" },
+      { tradingCurrency: "EUR" },
+    ]) {
       await expect(insertShare(manualShare(changes))).rejects.toThrow(
         "shares_listing_check",
       );
     }
-    await insertShare(manualShare({ tradingCurrency: "EUR" }));
+    await insertShare(manualShare());
   });
 
   it("keeps a share once its creator is deleted, with created_by empty", async () => {

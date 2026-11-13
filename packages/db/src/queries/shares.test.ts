@@ -72,15 +72,27 @@ describe("update", () => {
     const row = await insert(db, marketShare());
     const changed = await update(db, row.id, {
       kind: "manual",
+      tradingCurrency: null,
       providerSymbol: null,
       exchange: null,
     });
     expect(changed).toMatchObject({
       kind: "manual",
+      tradingCurrency: null,
       providerSymbol: null,
       exchange: null,
-      tradingCurrency: "USD",
     });
+  });
+
+  it("refuses a manual share that keeps its listing", async () => {
+    const row = await insert(db, marketShare());
+    await expect(
+      update(db, row.id, {
+        kind: "manual",
+        providerSymbol: null,
+        exchange: null,
+      }),
+    ).rejects.toThrow("shares_listing_check");
   });
 
   it("returns the share unchanged when nothing changes", async () => {
