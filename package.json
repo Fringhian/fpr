@@ -12,7 +12,8 @@
     "typecheck": "pnpm --recursive --if-present run typecheck",
     "format": "biome check --write .",
     "prepare": "lefthook install",
-    "contracts:openapi": "pnpm --filter @fpr/contracts run openapi"
+    "contracts:openapi": "pnpm --filter @fpr/contracts run openapi",
+    "db:migrate": "pnpm --filter @fpr/api run db:migrate"
   },
   "engines": {
     "node": ">=24 <25"
