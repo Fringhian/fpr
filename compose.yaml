@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
     ports:
-      - 127.0.0.1:${WEB_PORT:-8080}:80
+      - 127.0.0.1:${WEB_PORT:-8081}:80
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
       interval: 10s
@@ -134,8 +134,11 @@ services:
     networks: [logs]
     restart: unless-stopped
 
+  # Its configuration, deploy/vector.yaml, is built into the image.
   vector:
-    image: timberio/vector:0.60.0-alpine
+    build:
+      context: .
+      dockerfile: deploy/vector.Dockerfile
     environment:
       # Lets deploy/vector.yaml read the two variables below, the only ones
       # this container has.
@@ -144,7 +147,6 @@ services:
       LOGS_PASSWORD: ${LOGS_PASSWORD:?Set LOGS_PASSWORD in .env}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./deploy/vector.yaml:/etc/vector/vector.yaml:ro
     depends_on: [victorialogs]
     networks: [logs]
     restart: unless-stopped

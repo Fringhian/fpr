@@ -63,6 +63,7 @@ fpr/
 │   ├── contracts/        # @fpr/contracts: route contracts, with /prices and /openapi
 │   └── db/               # @fpr/db: pool, migrations, row types, queries
 ├── deploy/
+│   ├── vector.Dockerfile # the vector image, with vector.yaml built in
 │   └── vector.yaml       # vector's log collection
 ├── docs/
 │   ├── architecture/
