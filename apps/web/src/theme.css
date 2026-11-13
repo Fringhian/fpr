@@ -20,11 +20,11 @@
   --color-ridge: #e6dcf6;
   --color-snow: #fffcf8;
   --color-paper: #ffffff;
-  --color-line: #f1e3d8;
+  --color-snowline: #f1e3d8;
   --color-tint: #fff0e4;
-  --color-grey: #d9d6dc;
-  --color-up: #12793f;
-  --color-down: #bf3539;
+  --color-context: #d9d6dc;
+  --color-gain: #12793f;
+  --color-loss: #bf3539;
   --color-link: #3f5bd8;
 
   /* Member colours, in order, each with its pastel */
@@ -79,9 +79,9 @@
   --radius-xl: 1.5rem;
 
   /* Elevation: a resting card, the one hero, what floats */
-  --shadow-outline: 0 0 0 1.5px var(--color-line);
+  --shadow-outline: 0 0 0 1.5px var(--color-snowline);
   --shadow-rest:
-    0 0 0 1.5px var(--color-line), 0 12px 30px rgb(122 91 76 / 0.12);
+    0 0 0 1.5px var(--color-snowline), 0 12px 30px rgb(122 91 76 / 0.12);
   --shadow-float:
     0 10px 30px rgb(20 20 40 / 0.14), 0 0 0 1px rgb(20 20 40 / 0.06);
 

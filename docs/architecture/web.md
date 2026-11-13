@@ -33,7 +33,7 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 
 | Namespace | Tokens | Example |
 | --- | --- | --- |
-| Colour | `ink`, `ink-soft`, `ink-sky`, `sky`, `ridge`, `snow`, `paper`, `line`, `tint`, `grey`, `up`, `down`, `link` | `text-ink-soft`, `bg-snow` |
+| Colour | `ink`, `ink-soft`, `ink-sky`, `sky`, `ridge`, `snow`, `paper`, `snowline`, `tint`, `context`, `gain`, `loss`, `link` | `text-ink-soft`, `bg-snow` |
 | Member colour | `member-1` to `member-10`, each with `member-N-pastel` | `bg-member-3-pastel` |
 | Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
 | Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |

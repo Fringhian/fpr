@@ -46,8 +46,8 @@ const SEMANTIC = [
   },
   {
     name: "Snowline",
-    token: "line",
-    swatch: "bg-line",
+    token: "snowline",
+    swatch: "bg-snowline",
     role: "Outlines and dividers",
   },
   {
@@ -58,20 +58,20 @@ const SEMANTIC = [
   },
   {
     name: "Context grey",
-    token: "grey",
-    swatch: "bg-grey",
+    token: "context",
+    swatch: "bg-context",
     role: "Other members in the race",
   },
   {
     name: "Gain",
-    token: "up",
-    swatch: "bg-up",
+    token: "gain",
+    swatch: "bg-gain",
     role: "Gains, with a + sign",
   },
   {
     name: "Loss",
-    token: "down",
-    swatch: "bg-down",
+    token: "loss",
+    swatch: "bg-loss",
     role: "Losses and errors, with a − sign",
   },
   { name: "Link", token: "link", swatch: "bg-link", role: "Text links" },

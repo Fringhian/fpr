@@ -64,7 +64,7 @@ function Scale() {
         {SCALE.map(({ role, token, className, weight, use }) => (
           <li
             key={token}
-            className="grid gap-s border-b-[1.5px] border-line py-m last:border-b-0 tablet:grid-cols-[14rem_1fr] tablet:items-baseline"
+            className="grid gap-s border-b-[1.5px] border-snowlinepy-m last:border-b-0 tablet:grid-cols-[14rem_1fr] tablet:items-baseline"
           >
             <div className="grid">
               <span className="text-s font-semibold">{role}</span>
