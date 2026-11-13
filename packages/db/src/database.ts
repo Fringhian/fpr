@@ -1,13 +1,21 @@
 import { CamelCasePlugin, Kysely, PostgresDialect, sql } from "kysely";
 import pg from "pg";
+import type { AccountTable } from "./tables/account.js";
+import type { SessionTable } from "./tables/session.js";
+import type { UserTable } from "./tables/user.js";
+import type { VerificationTable } from "./tables/verification.js";
 import { typeParsers } from "./type-parsers.js";
 
 /**
  * Every table, keyed by its camelCase name, with its row type. Tables are
  * added here with the migration that creates them.
  */
-// biome-ignore lint/suspicious/noEmptyInterface: tables are added with their migrations
-export interface Database {}
+export interface Database {
+  user: UserTable;
+  account: AccountTable;
+  session: SessionTable;
+  verification: VerificationTable;
+}
 
 export type Db = Kysely<Database>;
 

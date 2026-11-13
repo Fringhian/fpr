@@ -9,10 +9,10 @@ Postgres 18, accessed by the API and the price service through one shared intern
 It holds:
 
 - **Connection pool**: one `pg` pool per process, configured from `DATABASE_URL`, behind a Kysely instance. `createDb()` opens it, `ping()` runs `select 1` for the health endpoints, and `close()` waits for running queries and closes every connection on shutdown.
-- **Migrations**: the one schema history for the whole system, run with Kysely's migrator by the API image before the server starts. Each migration is a file in `src/migrations/`, named `NNNN_description.ts` and numbered from `0001`, and listed in `src/migrations/index.ts`. `migrateToLatest()` runs the pending ones in name order, in one transaction, and refuses a migration that sorts before one already applied. A migration is never edited once it has run: a change is a new migration. Better Auth's tables are created by a migration in the same history, generated from Better Auth's schema. Every migration stays compatible with the running code: additions ship first, removals in a later deploy.
+- **Migrations**: the one schema history for the whole system, run with Kysely's migrator by the API image before the server starts. Each migration is a file in `src/migrations/`, named `NNNN_description.ts` and numbered from `0001`, and listed in `src/migrations/index.ts`. `migrateToLatest()` runs the pending ones in name order, in one transaction, and refuses a migration that sorts before one already applied. A migration is never edited once it has run: a change is a new migration. Better Auth's tables are created by a migration in the same history, generated from Better Auth's schema in `apps/api/src/auth.ts`. `pnpm --filter @fpr/api auth:schema` prints the SQL that brings the database at `DATABASE_URL` to that schema, and nothing once it matches. Every migration stays compatible with the running code: additions ship first, removals in a later deploy.
 - **Test databases**: `createTestDatabase()`, from `@fpr/db/testing`, creates a database named `fpr_test_…` on the Postgres server at `DATABASE_URL`, migrates it, and returns it with a `drop()` that removes it. Each test file that touches the database gets its own.
-- **Row types**: one TypeScript type per table, used by every process that reads or writes it.
-- **One query module per table**, built with Kysely. A module holds the queries for its table and no workflow logic.
+- **Row types**: one TypeScript type per table, used by every process that reads or writes it, in `src/tables/`. Each table's file exports the table, its selected row, its insert, and its update, such as `UserTable`, `User`, `NewUser`, and `UserUpdate`.
+- **One query module per table**, built with Kysely, in `src/queries/`, exported as a namespace named after the table in the plural, such as `users.findById(db, id)`. A module holds the queries for its table and no workflow logic.
 
 All identifiers are lowercase snake_case, including Better Auth's columns, which are mapped from its defaults. Every table carries `created_at`.
 
@@ -64,7 +64,7 @@ erDiagram
     text role
     text display_name
     text avatar_key
-    smallint color
+    integer color
     text locale
     timestamptz onboarded_at
   }
@@ -144,9 +144,10 @@ erDiagram
 
 ### `user`
 
-One row per person the admin added. Better Auth's table, extended with FPR's columns.
+One row per person the admin added. Better Auth's table, extended with FPR's columns. Better Auth's `name` and `image` fields are stored in `display_name` and `avatar_key`, and `role`, `color`, `locale`, and `onboarded_at` are Better Auth additional fields that no Better Auth endpoint accepts as input.
 
-- `email`: the sign-in name. Unique. For an anonymous viewer, a generated address nobody sees.
+- `email`: the sign-in name, in lowercase. Unique. For an anonymous viewer, a generated address nobody sees.
+- `email_verified`: Better Auth's. Always `false`: FPR doesn't verify emails.
 - `role`: `admin`, `member`, `guest`, or `anonymous`.
 - `display_name`: the name shown on leaderboards. 1 to 40 characters.
 - `avatar_key`: the uploaded picture's object key in S3-compatible storage. Empty means the person's initial on their colour.
@@ -253,6 +254,7 @@ Beyond the primary keys and unique columns:
 | --- | --- | --- |
 | `account` | `user_id` | Better Auth's sign-in |
 | `session` | `user_id` | Signing a person out everywhere |
+| `verification` | `identifier` | Better Auth's token lookups |
 | `access_keys`, `reset_keys` | `user_id`; `created_by` | A person's keys; deleting an admin |
 | `shares` | `created_by` | Deleting a person |
 | `portfolio_changes` | (`user_id`, `share_id`, `effective_at`) | A holding at a moment, a person's log, the holding check |
