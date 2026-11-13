@@ -62,3 +62,42 @@ jobs:
           push: false
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+  # Deploys a push to main once every other job has passed, by calling the
+  # host's deploy webhook. Without the secrets, as on a fork, it deploys nothing.
+  deploy:
+    name: Deploy
+    needs: [check, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    env:
+      DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+      DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+      # One `Name: value` header per line, such as an access proxy's credentials.
+      DEPLOY_EXTRA_HEADERS: ${{ secrets.DEPLOY_EXTRA_HEADERS }}
+    steps:
+      - name: Skip without deploy secrets
+        if: env.DEPLOY_WEBHOOK_URL == '' || env.DEPLOY_TOKEN == ''
+        run: echo "::notice::DEPLOY_WEBHOOK_URL or DEPLOY_TOKEN is not set, so nothing is deployed."
+
+      # Any answer but 200 fails the job, including an access proxy's
+      # redirect to its login page.
+      - name: Call the deploy webhook
+        if: env.DEPLOY_WEBHOOK_URL != '' && env.DEPLOY_TOKEN != ''
+        run: |
+          headers=(-H "Authorization: Bearer $DEPLOY_TOKEN")
+          while IFS= read -r line; do
+            line="${line%$'\r'}"
+            if [ -n "$line" ]; then headers+=(-H "$line"); fi
+          done <<< "$DEPLOY_EXTRA_HEADERS"
+          status=$(curl -sS -o response.txt -w '%{http_code}' --max-time 60 "${headers[@]}" "$DEPLOY_WEBHOOK_URL")
+          if [ "$status" != "200" ]; then
+            echo "::error::The deploy webhook answered $status."
+            head -c 2000 response.txt
+            exit 1
+          fi
+          echo "The deploy webhook accepted the deploy."

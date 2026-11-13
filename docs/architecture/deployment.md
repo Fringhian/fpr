@@ -81,8 +81,16 @@ GitHub Actions runs on every pull request and every push to `main`: install, `bi
 
 ## Deploy
 
-A push to `main` deploys only once CI has passed on it. The last CI job calls the host's deploy webhook, with the URL and token stored as GitHub Actions secrets, `DEPLOY_WEBHOOK_URL` and `DEPLOY_TOKEN`. When the host sits behind an access proxy, `DEPLOY_EXTRA_HEADERS` adds its credentials. Without these secrets, as on a fork, the deploy job is skipped.
+A push to `main` deploys only once CI has passed on it. The last CI job, `deploy`, calls the host's deploy webhook with a `GET`, with the URL and token stored as GitHub Actions secrets, `DEPLOY_WEBHOOK_URL` and `DEPLOY_TOKEN`, the token sent as `Authorization: Bearer`. When the host sits behind an access proxy, `DEPLOY_EXTRA_HEADERS` adds its credentials: one `Name: value` header per line. Without `DEPLOY_WEBHOOK_URL` and `DEPLOY_TOKEN`, as on a fork, the job deploys nothing and passes. Any answer other than `200`, including an access proxy's redirect to its login page, fails the job.
+
+| Secret | Purpose |
+| --- | --- |
+| `DEPLOY_WEBHOOK_URL` | The host's deploy webhook |
+| `DEPLOY_TOKEN` | A token that can only trigger deploys |
+| `DEPLOY_EXTRA_HEADERS` | Optional. Extra headers, one `Name: value` per line, such as `CF-Access-Client-Id` and `CF-Access-Client-Secret` for Cloudflare Access |
 
 ## Coolify
 
 On Coolify, FPR is one Docker Compose resource built from the repository's `compose.yaml`, set as the resource's Docker Compose location. The FPR domain is set on the `web` service, and the logs domain on the `victorialogs` service with the internal port `9428`. The variables are set in the resource's environment. Coolify's proxy holds port `8080` on the host, which is why `WEB_PORT` defaults to `8081`. Coolify's own deploy-on-push is off: CI triggers each deploy through the resource's deploy webhook, with a deploy-only Coolify token.
+
+When an access proxy guards the Coolify dashboard, the deploy endpoint, `/api/v1/deploy`, has its own access rule that admits a service token and nothing else, and that service token's headers are `DEPLOY_EXTRA_HEADERS`.
