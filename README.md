@@ -66,6 +66,7 @@ Before each commit, Biome formats the staged files and blocks the commit on any 
 - `pnpm format` formats it and applies safe fixes.
 - `pnpm test` runs every test, and `pnpm typecheck` checks the types. Tests that touch the database need `pnpm dev:deps` running.
 - `pnpm db:migrate` applies the migrations a pull brings in.
+- `pnpm storybook` opens Storybook on http://localhost:6006. `pnpm --filter @fpr/web test-storybook` runs every story in Chromium with its accessibility checks, after `pnpm --filter @fpr/web exec playwright install chromium`.
 
 ## Documentation
 

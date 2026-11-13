@@ -23,7 +23,17 @@
 
 TanStack Router's Vite plugin generates `src/routeTree.gen.ts` from `src/routes/` and splits each route into its own chunk. The generated file is committed and left out of Biome.
 
+The fonts ship with the build: Figtree, from `@fontsource-variable/figtree`, imported in `src/index.css`.
+
 The full UI conventions are in the `fpr-ui` skill. The design reference lives in `design/`, kept outside git: the wireframes, the user flows, the final screens, and the design system.
+
+## Storybook
+
+- Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
+- Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
+- The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
+- The accessibility addon checks every story, and a violation fails it.
+- `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
 
 ## Design
 
