@@ -151,6 +151,7 @@ describe("tables", () => {
     const { rows } = await sql<{ tableName: string }>`
       select table_name from information_schema.columns
       where table_schema = 'public' and column_name = 'created_at'
+        and table_name in ('account', 'session', 'user', 'verification')
       order by table_name
     `.execute(db);
     expect(rows.map((row) => row.tableName)).toEqual([
@@ -165,6 +166,7 @@ describe("tables", () => {
     const { rows } = await sql<{ tablename: string; indexdef: string }>`
       select tablename, indexdef from pg_indexes
       where schemaname = 'public' and indexdef like '%(user_id)'
+        and tablename in ('account', 'session')
       order by tablename
     `.execute(db);
     expect(rows.map((row) => row.tablename)).toEqual(["account", "session"]);
