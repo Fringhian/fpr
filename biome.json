@@ -33,6 +33,11 @@
       "quoteStyle": "double"
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "markdown": {
     "formatter": {
       "enabled": false
