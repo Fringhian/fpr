@@ -27,6 +27,22 @@ The fonts ship with the build: Figtree, from `@fontsource-variable/figtree`, imp
 
 The full UI conventions are in the `fpr-ui` skill. The design reference lives in `design/`, kept outside git: the wireframes, the user flows, the final screens, and the design system.
 
+## Tokens
+
+`src/theme.css` is the Tailwind `@theme` block and the only place a design value is defined. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
+
+| Namespace | Tokens | Example |
+| --- | --- | --- |
+| Colour | `ink`, `ink-soft`, `ink-sky`, `sky`, `ridge`, `snow`, `paper`, `line`, `tint`, `grey`, `up`, `down`, `link` | `text-ink-soft`, `bg-snow` |
+| Member colour | `member-1` to `member-10`, each with `member-N-pastel` | `bg-member-3-pastel` |
+| Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
+| Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |
+| Radius | `s` 12, `m` 14, `l` 22, `xl` 24 px, and `full` | `rounded-l` |
+| Shadow | `outline`, `rest`, `float` | `shadow-rest` |
+| Breakpoint | `tablet` from 40rem, `desktop` from 70rem | `tablet:grid-cols-2` |
+
+The Foundations stories in `src/foundations/` show every token with the value it has in the page.
+
 ## Storybook
 
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
