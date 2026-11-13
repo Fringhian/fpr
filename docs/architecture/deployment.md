@@ -71,13 +71,14 @@ Postgres holds all of FPR's data, the bucket holds the profile pictures, and the
 - `pnpm install` installs the Git hooks.
 - `pnpm dev` runs `web`, `api`, and `prices` in watch mode, with `api` and `prices` on `tsx`, reading the root `.env`. `web` listens on `5173`, `api` on `PORT`, by default `3000`, and `prices` on `3001`.
 - `pnpm dev:mock` runs `web` alone, on mock responses built from the contracts.
-- `pnpm db:migrate` runs migrations against `DATABASE_URL`.
+- `pnpm db:migrate` runs migrations against `DATABASE_URL`, with the same entry point as the API image, `apps/api/src/migrate.ts`.
+- `pnpm test` needs Postgres: tests that touch the database create their own databases on the server at `DATABASE_URL`, read from the environment or else from the root `.env`.
 - `pnpm db:seed` fills a development database with invented people holding manual shares and a few widely traded listings.
 - Development uses the real provider, with its own `PRICE_PROVIDER_API_KEY`, so it never spends the live instance's daily calls.
 
 ## CI
 
-GitHub Actions runs on every pull request and every push to `main`: install, `biome ci`, typecheck, a check that `openapi.json` matches the contracts, Vitest, build, a Storybook build with its accessibility checks, and a Docker build of each app. Tests that touch the database run against a Postgres service container, migrated from scratch, with the provider's and Frankfurter's HTTP calls mocked. A pull request merges only when CI passes.
+GitHub Actions runs on every pull request and every push to `main`: install, `biome ci`, typecheck, a check that `openapi.json` matches the contracts, Vitest, build, a Storybook build with its accessibility checks, and a Docker build of each app. Tests that touch the database run against a `postgres:18` service container, which `pnpm db:migrate` migrates from scratch before the tests, and each test file creates its own migrated database on it, with the provider's and Frankfurter's HTTP calls mocked. A pull request merges only when CI passes.
 
 ## Deploy
 

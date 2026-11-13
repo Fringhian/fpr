@@ -44,7 +44,13 @@ FPR runs on Node 24 with pnpm, and its dependencies run in Docker.
    pnpm dev:deps
    ```
 
-4. Run the web app, the API, and the price service in watch mode.
+4. Create the database's tables.
+
+   ```sh
+   pnpm db:migrate
+   ```
+
+5. Run the web app, the API, and the price service in watch mode.
 
    ```sh
    pnpm dev
@@ -58,7 +64,8 @@ Before each commit, Biome formats the staged files and blocks the commit on any 
 
 - `pnpm lint` checks the repository with Biome.
 - `pnpm format` formats it and applies safe fixes.
-- `pnpm test` runs every test, and `pnpm typecheck` checks the types.
+- `pnpm test` runs every test, and `pnpm typecheck` checks the types. Tests that touch the database need `pnpm dev:deps` running.
+- `pnpm db:migrate` applies the migrations a pull brings in.
 
 ## Documentation
 
