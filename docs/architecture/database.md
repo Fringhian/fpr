@@ -64,7 +64,7 @@ erDiagram
     text role
     text display_name
     text avatar_key
-    smallint color
+    integer color
     text locale
     timestamptz onboarded_at
   }

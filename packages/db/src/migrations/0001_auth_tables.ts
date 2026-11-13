@@ -8,8 +8,6 @@ import type { Migration } from "kysely/migration";
  *
  * - every id defaults to `uuidv7()`;
  * - `user.email_verified` defaults to `false`;
- * - `user.color` is a `smallint`, which the CLI reports as a different type
- *   from its `integer` and otherwise accepts;
  * - FPR's checks on `user`: `role`, `display_name`, `color`, and `locale`.
  */
 export const migration: Migration = {
@@ -26,7 +24,7 @@ export const migration: Migration = {
         updated_at timestamptz not null default now(),
         role text not null
           check (role in ('admin', 'member', 'guest', 'anonymous')),
-        color smallint not null check (color between 1 and 10),
+        color integer not null check (color between 1 and 10),
         locale text check (locale in ('fr', 'en')),
         onboarded_at timestamptz
       )
