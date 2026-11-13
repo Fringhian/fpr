@@ -1,3 +1,91 @@
 @theme {
+  /* Tailwind's default scales are reset: only the tokens below generate classes. */
+  --color-*: initial;
+  --spacing-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --breakpoint-*: initial;
+
   --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Semantic colours */
+  --color-ink: #23262f;
+  --color-ink-soft: #626573;
+  --color-ink-sky: #7a5b4c;
+  --color-sky: #ffe6d3;
+  --color-ridge: #e6dcf6;
+  --color-snow: #fffcf8;
+  --color-paper: #ffffff;
+  --color-line: #f1e3d8;
+  --color-tint: #fff0e4;
+  --color-grey: #d9d6dc;
+  --color-up: #12793f;
+  --color-down: #bf3539;
+  --color-link: #3f5bd8;
+
+  /* Member colours, in order, each with its pastel */
+  --color-member-1: #f0522b;
+  --color-member-2: #2f5bff;
+  --color-member-3: #0fa968;
+  --color-member-4: #8b46f2;
+  --color-member-5: #e39a00;
+  --color-member-6: #e8418a;
+  --color-member-7: #12a8c4;
+  --color-member-8: #8fa800;
+  --color-member-9: #a65a2a;
+  --color-member-10: #5e60ce;
+  --color-member-1-pastel: #ffd8c9;
+  --color-member-2-pastel: #d5e2ff;
+  --color-member-3-pastel: #cbf1de;
+  --color-member-4-pastel: #e6daff;
+  --color-member-5-pastel: #ffeab3;
+  --color-member-6-pastel: #ffd4e6;
+  --color-member-7-pastel: #c9eef5;
+  --color-member-8-pastel: #e3f2bc;
+  --color-member-9-pastel: #f1dccb;
+  --color-member-10-pastel: #dcddfb;
+
+  /* Text: caption, small, body, title, headline, display */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.35;
+  --text-s: 0.875rem;
+  --text-s--line-height: 1.4;
+  --text-m: 1rem;
+  --text-m--line-height: 1.5;
+  --text-l: 1.25rem;
+  --text-l--line-height: 1.3;
+  --text-xl: 1.6875rem;
+  --text-xl--line-height: 1.18;
+  --text-xl--letter-spacing: -0.015em;
+  --text-display: 2.125rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.015em;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-s: 0.5rem;
+  --spacing-m: 1rem;
+  --spacing-l: 1.5rem;
+  --spacing-xl: 2.5rem;
+
+  /* Corners: inputs, rows, cards, dialogs and sheets */
+  --radius-s: 0.75rem;
+  --radius-m: 0.875rem;
+  --radius-l: 1.375rem;
+  --radius-xl: 1.5rem;
+
+  /* Elevation: a resting card, the one hero, what floats */
+  --shadow-outline: 0 0 0 1.5px var(--color-line);
+  --shadow-rest:
+    0 0 0 1.5px var(--color-line), 0 12px 30px rgb(122 91 76 / 0.12);
+  --shadow-float:
+    0 10px 30px rgb(20 20 40 / 0.14), 0 0 0 1px rgb(20 20 40 / 0.06);
+
+  /* Breakpoints: phone is the unprefixed base */
+  --breakpoint-tablet: 40rem;
+  --breakpoint-desktop: 70rem;
 }
