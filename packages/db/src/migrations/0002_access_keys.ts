@@ -4,7 +4,8 @@ import type { Migration } from "kysely/migration";
 /**
  * FPR's keys: `access_keys`, a person's access, and `reset_keys`, one-time
  * password resets. Each stores only the hash of its key. A person's keys go
- * with them; the admin who created a key is set to empty when deleted.
+ * with them; the admin who created a key is set to empty when deleted. A
+ * person holds at most one access key that is not revoked.
  */
 export const migration: Migration = {
   async up(db: Kysely<unknown>) {
@@ -40,6 +41,12 @@ export const migration: Migration = {
     `.execute(db);
     await sql`
       create index access_keys_created_by_idx on access_keys (created_by)
+    `.execute(db);
+    // A person holds at most one key that is not revoked: replacing a link
+    // revokes the old key before creating the new one.
+    await sql`
+      create unique index access_keys_one_unrevoked_per_user_idx
+        on access_keys (user_id) where revoked_at is null
     `.execute(db);
     await sql`
       create index reset_keys_user_id_idx on reset_keys (user_id)
