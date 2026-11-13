@@ -3,6 +3,7 @@ packages:
   - packages/*
 
 ignoredBuiltDependencies:
+  - esbuild
   - lefthook
 
 saveExact: true
