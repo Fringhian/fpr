@@ -8,7 +8,15 @@ export {
 } from "./database.js";
 export { migrateToLatest } from "./migrate.js";
 export * as accessKeys from "./queries/access-keys.js";
+export type { CashBalanceChanges } from "./queries/cash-balances.js";
+export * as cashBalances from "./queries/cash-balances.js";
+export * as currentPositions from "./queries/current-positions.js";
 export * as manualPriceEvents from "./queries/manual-price-events.js";
+export type {
+  BelowZero,
+  PortfolioChangeChanges,
+} from "./queries/portfolio-changes.js";
+export * as portfolioChanges from "./queries/portfolio-changes.js";
 export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
 export * as resetKeys from "./queries/reset-keys.js";
@@ -29,12 +37,28 @@ export type {
   NewAccount,
 } from "./tables/account.js";
 export type {
+  CashBalance,
+  CashBalanceTable,
+  CashBalanceUpdate,
+  NewCashBalance,
+} from "./tables/cash-balance.js";
+export type {
+  CurrentPosition,
+  CurrentPositionView,
+} from "./tables/current-position.js";
+export type {
   ManualPriceAction,
   ManualPriceEvent,
   ManualPriceEventTable,
   ManualPriceEventUpdate,
   NewManualPriceEvent,
 } from "./tables/manual-price-event.js";
+export type {
+  NewPortfolioChange,
+  PortfolioChange,
+  PortfolioChangeTable,
+  PortfolioChangeUpdate,
+} from "./tables/portfolio-change.js";
 export type {
   NewPrice,
   Price,
