@@ -38,6 +38,10 @@ The provider sits behind one interface, `PriceProvider`, in `apps/prices/src/pro
 
 `PRICE_PROVIDER` selects the implementation and `PRICE_PROVIDER_API_KEY` holds its key. The implementation is `eodhd`.
 
+- Prices come back in the listing's trading currency, as decimal strings exactly as the provider sent them, never through a floating-point number.
+- `latest` leaves out a listing with no latest price, such as a fund.
+- A failed call rejects with a `ProviderError`: `not_found` for a symbol the provider doesn't carry, `unavailable` for any other failure, timeout, or unreadable answer. A request times out after 15 seconds. The provider sends each request once: retries are the schedule's.
+
 A provider fits FPR when it:
 
 - covers the exchanges and fund types the instance's members hold;
@@ -53,12 +57,12 @@ A share the provider doesn't know is created as a manual share.
 
 | Method | EODHD endpoint | Cost |
 | --- | --- | --- |
-| `lookup(query)` | `GET /search/{query}`: every listing of the ISIN or ticker, with its code, exchange, country, currency, ISIN, type, and whether it is the primary listing | 1 call |
-| `latest(symbols)` | `GET /real-time/{symbol}?s={other symbols}`: the latest price of several listings in one request, with each price's time | 1 call per listing |
+| `lookup(query)` | `GET /search/{query}?limit=50`: every listing of the ISIN or ticker, with its code, exchange, country, currency, ISIN, type, and whether it is the primary listing | 1 call |
+| `latest(symbols)` | `GET /real-time/{symbol}?s={other symbols}`: the latest price of up to 20 listings in one request, with each price's time. More listings take one request per 20, one after the other, and a failed request stops the rest | 1 call per listing |
 | `closes(symbol, from, to)` | `GET /eod/{symbol}?from=&to=`: one row per trading day. FPR stores `close`, the price as traded, and ignores `adjusted_close` | 1 call |
 
 - A listing's symbol is its code and its exchange: `ABC.PA`, `ABC.XETRA`, `ABC.LSE`, `ABC.US`.
-- A request for an unknown symbol is billed. `GET /user`, the account's usage, costs no call.
+- A request for an unknown symbol is billed. `GET /eod` answers it with `404`. `GET /user`, the account's usage, costs no call.
 - Latest prices are delayed by 15 to 20 minutes.
 - London listings are quoted in `GBX`.
 - A fund (type `FUND`) has no latest price. It is priced by its daily closes alone, published one or two trading days late.
@@ -157,11 +161,13 @@ Every value point added, edited, or deleted also writes a row to `manual_price_e
 
 ## Logs
 
-The service logs with pino, as described in `overview.md`. It writes a line for every run, provider call, and error: the run, the shares priced, the day's call count, and each failure with its share and day. Each daily-closes run also logs the calls left on the provider account, read from EODHD's `GET /user` at no cost.
+The service logs with pino, as described in `overview.md`. It writes a line for every run, provider call, and error: the run, the shares priced, the day's call count, and each failure with its share and day.
+
+Each provider call writes one line: the provider, the endpoint, the symbols or query asked for, the calls it is billed, the HTTP status, and the duration. A failed call is logged at `error`, or at `warn` for an unknown symbol. Rows the provider returns without a usable value, such as a listing without a currency, are dropped and counted in a `warn` line. The API key travels in the request URL, so the URL is never logged, and pino's `redact` removes the key from any other field. Each daily-closes run also logs the calls left on the provider account, read from EODHD's `GET /user` at no cost.
 
 ## Tests
 
-Tests replace the HTTP responses of the provider and of Frankfurter with Vitest mocks. No test reaches the network, and CI needs no provider key.
+Tests replace the HTTP responses of the provider and of Frankfurter with Vitest mocks. Each provider takes its `fetch` as an option, and tests pass a mock. No test reaches the network, and CI needs no provider key.
 
 ## Configuration
 
