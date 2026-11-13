@@ -8,3 +8,8 @@ services:
   rustfs:
     ports:
       - 127.0.0.1:9000:9000
+
+  # The working copy's configuration, so an edit applies on restart without a rebuild.
+  vector:
+    volumes:
+      - ./deploy/vector.yaml:/etc/vector/vector.yaml:ro
