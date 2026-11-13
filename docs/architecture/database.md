@@ -181,7 +181,7 @@ A person's access, kept for as long as they have it.
 - `revoked_at`: when the admin revoked it. Restoring access clears it.
 - `created_by`: the admin who created it.
 
-A person has access when they hold a key that is claimed, not revoked, and not past `access_until`. The API checks this on every request. An anonymous viewer signs in with the key itself, as many times as needed while it gives access. Replacing a lost link revokes the old key and creates a new one.
+A person has access when they hold a key that is claimed, not revoked, and not past `access_until`. The API checks this on every request. An anonymous viewer signs in with the key itself, as many times as needed while it gives access. Replacing a lost link revokes the old key and creates a new one. A person's current key is their latest one.
 
 ### `reset_keys`
 
@@ -189,8 +189,10 @@ A one-time password reset for one person.
 
 - `user_id`: the only person it can reset.
 - `code_hash`: the hash of the key, shown to the admin once.
-- `expires_at`: 24 hours after creation.
-- `used_at`, `revoked_at`.
+- `expires_at`: 24 hours after creation by default.
+- `used_at`: when the person reset their password with it. A key is used once, and only before `expires_at` and while not revoked.
+- `revoked_at`: when a newer reset key for the same person replaced it.
+- `created_by`: the admin who created it.
 
 ### `shares`
 
