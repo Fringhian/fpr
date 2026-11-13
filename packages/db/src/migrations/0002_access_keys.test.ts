@@ -88,11 +88,34 @@ describe("access_keys", () => {
   });
 
   it("refuses a second key with the same hash", async () => {
-    const userId = await insertPerson();
-    await insertAccessKey(userId);
-    await expect(insertAccessKey(userId)).rejects.toThrow(
+    await insertAccessKey(await insertPerson());
+    const other = await insertPerson({ email: "sam@example.com", color: 2 });
+    await expect(insertAccessKey(other)).rejects.toThrow(
       "access_keys_code_hash_key",
     );
+  });
+
+  it("gives a person at most one key that is not revoked", async () => {
+    const userId = await insertPerson();
+    const first = await insertAccessKey(userId, "first");
+    await expect(insertAccessKey(userId, "second")).rejects.toThrow(
+      "access_keys_one_unrevoked_per_user_idx",
+    );
+
+    await db
+      .updateTable("accessKeys")
+      .set({ revokedAt: new Date() })
+      .where("id", "=", first.id)
+      .execute();
+    await insertAccessKey(userId, "second");
+
+    await expect(
+      db
+        .updateTable("accessKeys")
+        .set({ revokedAt: null })
+        .where("id", "=", first.id)
+        .execute(),
+    ).rejects.toThrow("access_keys_one_unrevoked_per_user_idx");
   });
 
   it("refuses a key for nobody", async () => {
@@ -198,5 +221,8 @@ describe("tables", () => {
         );
       }
     }
+    expect(definitions).toContainEqual(
+      "CREATE UNIQUE INDEX access_keys_one_unrevoked_per_user_idx ON public.access_keys USING btree (user_id) WHERE (revoked_at IS NULL)",
+    );
   });
 });
