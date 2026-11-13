@@ -181,7 +181,7 @@ A person's access, kept for as long as they have it.
 - `revoked_at`: when the admin revoked it. Restoring access clears it.
 - `created_by`: the admin who created it.
 
-A person has access when they hold a key that is claimed, not revoked, and not past `access_until`. The API checks this on every request. An anonymous viewer signs in with the key itself, as many times as needed while it gives access. Replacing a lost link revokes the old key and creates a new one.
+A person has access when they hold a key that is claimed, not revoked, and not past `access_until`. The API checks this on every request. An anonymous viewer signs in with the key itself, as many times as needed while it gives access. Replacing a lost link revokes the old key and creates a new one. A person holds at most one key that is not revoked, and their current key is their latest one.
 
 ### `reset_keys`
 
@@ -189,8 +189,10 @@ A one-time password reset for one person.
 
 - `user_id`: the only person it can reset.
 - `code_hash`: the hash of the key, shown to the admin once.
-- `expires_at`: 24 hours after creation.
-- `used_at`, `revoked_at`.
+- `expires_at`: 24 hours after creation by default.
+- `used_at`: when the person reset their password with it. A key is used once, and only before `expires_at` and while not revoked.
+- `revoked_at`: when a newer reset key for the same person replaced it.
+- `created_by`: the admin who created it.
 
 ### `shares`
 
@@ -256,6 +258,7 @@ Beyond the primary keys and unique columns:
 | `session` | `user_id` | Signing a person out everywhere |
 | `verification` | `identifier` | Better Auth's token lookups |
 | `access_keys`, `reset_keys` | `user_id`; `created_by` | A person's keys; deleting an admin |
+| `access_keys` | `user_id`, unique, only where `revoked_at` is empty | One key that is not revoked per person |
 | `shares` | `created_by` | Deleting a person |
 | `portfolio_changes` | (`user_id`, `share_id`, `effective_at`) | A holding at a moment, a person's log, the holding check |
 | `portfolio_changes` | (`share_id`, `effective_at`) | A share's holders and markers, the deletion check |
