@@ -62,7 +62,7 @@ A share the provider doesn't know is created as a manual share.
 | `closes(symbol, from, to)` | `GET /eod/{symbol}?from=&to=`: one row per trading day. FPR stores `close`, the price as traded, and ignores `adjusted_close` | 1 call |
 
 - A listing's symbol is its code and its exchange: `ABC.PA`, `ABC.XETRA`, `ABC.LSE`, `ABC.US`.
-- A request for an unknown symbol is billed. `GET /eod` answers it with `404`. `GET /user`, the account's usage, costs no call.
+- A request for an unknown symbol is billed. `GET /eod` answers it with `404`. `GET /real-time` answers it with `200` and a row of `"NA"` values, which `latest` leaves out. `GET /user`, the account's usage, costs no call.
 - Latest prices are delayed by 15 to 20 minutes.
 - London listings are quoted in `GBX`.
 - A fund (type `FUND`) has no latest price. It is priced by its daily closes alone, published one or two trading days late.
