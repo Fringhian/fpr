@@ -86,6 +86,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Quantities keep their decimals as entered: 74.328 units.
 - The first holding of a market share, or an entry dated before its stored history, is saved at once, and its prices are fetched right after. Until they arrive, the share shows "price pending" and the member's total is marked incomplete, never counted at €0. A failed fetch is retried every 30 minutes.
 - Removing shares doesn't change cash, and adding shares doesn't spend it.
+- Setting cash twice for the same moment keeps both entries in the log, and the one recorded last is the cash from that moment.
 - A manual share shows its value with "as of" the date of its last value point.
 - Leaving the change flow midway asks to confirm. Changes already saved in the session stay.
 - A change or cash balance saved twice by a double press is saved once: the button is disabled while saving, and each save carries an id the web app generates, so a repeated request answers the entry already saved instead of creating a second one.
