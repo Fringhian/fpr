@@ -36,7 +36,7 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 
 | Namespace | Tokens | Example |
 | --- | --- | --- |
-| Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `error`, `link` | `text-secondary`, `bg-surface` |
+| Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `success`, `warning`, `error`, `link` | `text-secondary`, `bg-surface` |
 | Member colour | `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`, in this order, each with its `-pastel` | `bg-cobalt-pastel` |
 | Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
 | Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |

@@ -46,6 +46,8 @@
   --color-muted: var(--palette-fog);
   --color-positive: var(--palette-pine);
   --color-negative: var(--palette-brick);
+  --color-success: var(--palette-pine);
+  --color-warning: var(--palette-brick);
   --color-error: var(--palette-brick);
   --color-link: var(--palette-indigo);
 

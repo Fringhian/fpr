@@ -71,7 +71,21 @@ const ROLES = [
     swatch: "bg-negative",
     use: "Losses, always with a − sign",
   },
-  { token: "error", swatch: "bg-error", use: "Errors and failed checks" },
+  {
+    token: "success",
+    swatch: "bg-success",
+    use: "Done and active: “Saved”, “Active”",
+  },
+  {
+    token: "warning",
+    swatch: "bg-warning",
+    use: "Needs attention: “Price pending”, “Incomplete”, “Revoked”",
+  },
+  {
+    token: "error",
+    swatch: "bg-error",
+    use: "Invalid input, and anything that failed",
+  },
   { token: "link", swatch: "bg-link", use: "Text links" },
 ] as const;
 
