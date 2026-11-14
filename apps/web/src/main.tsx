@@ -4,11 +4,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
-import { pickLanguage } from "./lib/language.ts";
+import { DEFAULT_LANGUAGE } from "./lib/language.ts";
 import { routeTree } from "./routeTree.gen.ts";
 import "./index.css";
 
-const i18n = createI18n(pickLanguage(navigator.languages));
+const i18n = createI18n(DEFAULT_LANGUAGE);
 syncDocumentLanguage(i18n);
 
 const queryClient = new QueryClient();

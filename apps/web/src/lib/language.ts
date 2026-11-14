@@ -3,7 +3,10 @@ export const LANGUAGES = ["en", "fr"] as const;
 
 export type Language = (typeof LANGUAGES)[number];
 
-/** The language used when none of the reader's languages is supported. */
+/**
+ * The language FPR starts in, until a person picks one in Settings, and the
+ * one `pickLanguage` falls back to.
+ */
 export const DEFAULT_LANGUAGE: Language = "fr";
 
 export function isLanguage(value: string): value is Language {

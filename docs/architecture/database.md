@@ -155,7 +155,7 @@ One row per person the admin added. Better Auth's table, extended with FPR's col
 - `display_name`: the name shown on leaderboards. 1 to 40 characters.
 - `avatar_key`: the uploaded picture's object key in S3-compatible storage. Empty means the person's initial on their colour.
 - `color`: the person's colour, from 1 to 10. Set when the person is added, to the first colour nobody has. The API refuses a colour another person has, unless all ten are taken.
-- `locale`: `fr` or `en`, once the person picks one in Settings. Empty until then, and the web app follows the browser's language.
+- `locale`: `fr` or `en`, once the person picks one in Settings. Empty until then, and the web app is in French.
 - `onboarded_at`: when the person finished onboarding. Empty until then. Anonymous viewers get it when added.
 
 A person's pseudonym and their picture as anonymous viewers see it are derived from their `id` and a server secret, and are not stored.

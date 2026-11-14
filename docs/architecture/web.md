@@ -141,8 +141,8 @@ Share search lives on `/shares`, and the record flow reuses it.
 - `react-i18next` translates them. `src/lib/i18n.ts` creates the i18next instance with both files bundled, and `main.tsx` provides it to the app through `I18nextProvider`. The page's `lang` attribute follows its language.
 - Translation keys are typed from `en.json`: an unknown key fails the type check.
 - `src/locales/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
-- A signed-in person sees the language they chose in Settings. Until they choose, it follows the browser, as before sign-in.
-- Before sign-in, pages use the first of the browser's languages (`navigator.languages`) that is English or French, otherwise French: `pickLanguage` in `src/lib/language.ts`.
+- FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language: `DEFAULT_LANGUAGE` in `src/lib/language.ts`.
+- A signed-in person sees the language they chose in Settings.
 - The API sends codes and data, never sentences: errors as codes. The web app writes the words.
 
 ### Formatting
