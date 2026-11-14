@@ -69,6 +69,50 @@ When a value has no registered token, write the arbitrary value — `pt-[2.5rem]
 
 ## Readable classes
 
+### Split classes with `cn`, one argument per breakpoint
+
+Every `className` with a breakpoint or state class is written with `cn`, its classes split into groups, in this order:
+
+```tsx
+cn(
+  "classes common to every breakpoint",
+  "phone classes (unprefixed)",
+  "tablet: classes",
+  "desktop: classes",
+)
+```
+
+- A property that changes at any breakpoint is declared at every breakpoint, in each group, even where its value repeats. The common group never holds it.
+
+  ```tsx
+  // No padding on phone, padding from tablet up
+  cn("bg-primary", "p-0", "tablet:p-xs", "desktop:p-xs")
+  ```
+
+  Never `cn("bg-primary tablet:p-xs")`: the phone value is implicit and the desktop value is inherited, so no group reads on its own.
+- States (`hover:`, `focus-visible:`, `open:`, `disabled:`…) follow the same principle: each state gets its own argument after the breakpoint groups, and every property a state changes has its resting value written out above it, never left implicit.
+
+  ```tsx
+  cn(
+    "rounded-full bg-surface text-s font-semibold",
+    "px-m",
+    "tablet:px-l",
+    "desktop:px-l",
+    "hover:bg-highlight",
+    "focus-visible:bg-highlight",
+  )
+  ```
+- The groups are positional: an empty group is an empty string, so the phone group is always the second argument.
+
+  ```tsx
+  cn("", "hidden", "tablet:inline", "desktop:hidden")
+  ```
+- `cn` also joins a class chosen at runtime, as its own argument: `cn("h-s rounded-full", line)`. Never a template literal.
+- A class list with no breakpoint or state class and nothing chosen at runtime stays a plain string.
+- `cn` lives in `src/lib/cn.ts`: `clsx`, then `tailwind-merge` taught the scales of `theme.css`. A new scale or token name in `theme.css` is added to its config too, with a test in `cn.test.ts`.
+
+### Variants and utilities
+
 - State styles use named custom variants defined once in `theme.css` (`@custom-variant open (&[data-open]);` → `open:bg-surface-raised`), not raw `data-[…]:` selectors.
 - A pattern repeated across components becomes a named `@utility` (e.g. `focus-ring`), not a copied class chain.
 

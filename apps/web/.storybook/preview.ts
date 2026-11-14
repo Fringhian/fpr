@@ -5,7 +5,14 @@ const preview: Preview = {
   parameters: {
     options: {
       storySort: {
-        order: ["Foundations", "Atoms", "Molecules", "Organisms", "Templates"],
+        order: [
+          "Foundations",
+          ["Colour", "Typography", "Spacing", "Shape", "Breakpoints"],
+          "Atoms",
+          "Molecules",
+          "Organisms",
+          "Templates",
+        ],
       },
     },
     viewport: {

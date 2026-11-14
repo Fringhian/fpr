@@ -1,3 +1,115 @@
+/*
+ * The palette: every hue of the look, named by what it is. Plain variables,
+ * so they generate no classes; the roles below point at them.
+ */
+:root {
+  --palette-charcoal: #23262f;
+  --palette-slate: #626573;
+  --palette-cocoa: #7a5b4c;
+  --palette-peach: #ffe6d3;
+  --palette-lilac: #e6dcf6;
+  --palette-snow: #fffcf8;
+  --palette-white: #ffffff;
+  --palette-sand: #f1e3d8;
+  --palette-blush: #fff0e4;
+  --palette-fog: #d9d6dc;
+  --palette-pine: #12793f;
+  --palette-brick: #bf3539;
+  --palette-indigo: #3f5bd8;
+}
+
 @theme {
+  /* Tailwind's default scales are reset: only the tokens below generate classes. */
+  --color-*: initial;
+  --spacing-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --breakpoint-*: initial;
+
   --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Colour roles. Primary is also the colour of anything selected. */
+  --color-primary: var(--palette-charcoal);
+  --color-on-primary: var(--palette-white);
+  --color-secondary: var(--palette-slate);
+  --color-on-sky: var(--palette-cocoa);
+  --color-page: var(--palette-snow);
+  --color-surface: var(--palette-white);
+  --color-highlight: var(--palette-blush);
+  --color-sky: var(--palette-peach);
+  --color-ridge: var(--palette-lilac);
+  --color-divider: var(--palette-sand);
+  --color-muted: var(--palette-fog);
+  --color-positive: var(--palette-pine);
+  --color-negative: var(--palette-brick);
+  --color-success: var(--palette-pine);
+  --color-warning: var(--palette-brick);
+  --color-error: var(--palette-brick);
+  --color-link: var(--palette-indigo);
+
+  /* Member colours, in order: the line and bar, then the pastel picture */
+  --color-vermilion: #f0522b;
+  --color-cobalt: #2f5bff;
+  --color-green: #0fa968;
+  --color-violet: #8b46f2;
+  --color-amber: #e39a00;
+  --color-pink: #e8418a;
+  --color-cyan: #12a8c4;
+  --color-lime: #8fa800;
+  --color-sienna: #a65a2a;
+  --color-periwinkle: #5e60ce;
+  --color-vermilion-pastel: #ffd8c9;
+  --color-cobalt-pastel: #d5e2ff;
+  --color-green-pastel: #cbf1de;
+  --color-violet-pastel: #e6daff;
+  --color-amber-pastel: #ffeab3;
+  --color-pink-pastel: #ffd4e6;
+  --color-cyan-pastel: #c9eef5;
+  --color-lime-pastel: #e3f2bc;
+  --color-sienna-pastel: #f1dccb;
+  --color-periwinkle-pastel: #dcddfb;
+
+  /* Text: caption, small, body, title, headline, display */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.35;
+  --text-s: 0.875rem;
+  --text-s--line-height: 1.4;
+  --text-m: 1rem;
+  --text-m--line-height: 1.5;
+  --text-l: 1.25rem;
+  --text-l--line-height: 1.3;
+  --text-xl: 1.6875rem;
+  --text-xl--line-height: 1.18;
+  --text-xl--letter-spacing: -0.015em;
+  --text-display: 2.125rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.015em;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-s: 0.5rem;
+  --spacing-m: 1rem;
+  --spacing-l: 1.5rem;
+  --spacing-xl: 2.5rem;
+
+  /* Corners: inputs, rows, cards, dialogs and sheets */
+  --radius-s: 0.75rem;
+  --radius-m: 0.875rem;
+  --radius-l: 1.375rem;
+  --radius-xl: 1.5rem;
+
+  /* Elevation: a resting card, the one hero, what floats */
+  --shadow-outline: 0 0 0 1.5px var(--palette-sand);
+  --shadow-rest:
+    0 0 0 1.5px var(--palette-sand), 0 12px 30px rgb(122 91 76 / 0.12);
+  --shadow-float:
+    0 10px 30px rgb(20 20 40 / 0.14), 0 0 0 1px rgb(20 20 40 / 0.06);
+
+  /* Breakpoints: phone is the unprefixed base */
+  --breakpoint-tablet: 40rem;
+  --breakpoint-desktop: 70rem;
 }
