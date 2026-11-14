@@ -50,6 +50,8 @@ FPR runs on Node 24 with pnpm, and its dependencies run in Docker.
    pnpm db:migrate
    ```
 
+   To start from an invented race instead of an empty database, run `pnpm db:seed`. It creates the tables too, and prints the shared password and the access links.
+
 5. Run the web app, the API, and the price service in watch mode.
 
    ```sh
