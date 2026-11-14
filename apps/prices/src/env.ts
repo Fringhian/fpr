@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { providerNames } from "./providers/index.js";
 
 /**
- * The variables this process reads now. Later tickets add the provider and
- * schedule variables listed in `docs/architecture/prices.md`.
+ * The variables this process reads now. Later tickets add the schedule
+ * variables listed in `docs/architecture/prices.md`.
  */
 export const envSchema = z.object({
   /** The port it listens on. */
@@ -11,6 +12,10 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   /** The bearer token the API sends with every request except `/health`. */
   PRICES_TOKEN: z.string().min(1),
+  /** The price provider implementation. */
+  PRICE_PROVIDER: z.enum(providerNames),
+  /** The price provider's API key. */
+  PRICE_PROVIDER_API_KEY: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

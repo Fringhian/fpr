@@ -7,7 +7,7 @@ const preview: Preview = {
       storySort: {
         order: [
           "Foundations",
-          ["Colour", "Typography", "Spacing", "Shape", "Breakpoints"],
+          ["Colour", "Typography", "Spacing", "Shape", "Breakpoints", "Icons"],
           "Atoms",
           "Molecules",
           "Organisms",

@@ -3,6 +3,7 @@ import { close, createDb } from "@fpr/db";
 import { createApp } from "./app.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { createProvider } from "./providers/index.js";
 
 function main(): void {
   let env: ReturnType<typeof loadEnv>;
@@ -20,9 +21,17 @@ function main(): void {
     onIdleError: (error) =>
       logger.error({ err: error }, "idle database connection failed"),
   });
+  const provider = createProvider({
+    name: env.PRICE_PROVIDER,
+    apiKey: env.PRICE_PROVIDER_API_KEY,
+    logger,
+  });
   const app = createApp({ db, logger, token: env.PRICES_TOKEN });
   const server: Server = app.listen(env.PORT, () => {
-    logger.info({ port: env.PORT }, "prices listening");
+    logger.info(
+      { port: env.PORT, provider: provider.name },
+      "prices listening",
+    );
   });
 
   let shuttingDown = false;
