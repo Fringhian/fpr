@@ -18,6 +18,16 @@
   --palette-indigo: #3f5bd8;
 }
 
+/*
+ * The ridge: the two shapes of its 600 × 64 tile, the far ridge and the near
+ * one, two layers of soft lobes. Shapes only, used as masks: the `ridge` and
+ * `page` colour roles fill them.
+ */
+:root {
+  --ridge-far: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='64' viewBox='0 0 600 64'><path d='M0 30 C60 30 90 8 150 8 C210 8 240 28 300 28 C360 28 390 12 450 12 C510 12 540 30 600 30 V64 H0Z'/></svg>");
+  --ridge-near: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='64' viewBox='0 0 600 64'><path d='M0 46 C75 46 110 30 180 30 C250 30 280 44 340 44 C400 44 440 34 500 34 C550 34 575 46 600 46 V64 H0Z'/></svg>");
+}
+
 @theme {
   /* Tailwind's default scales are reset: only the tokens below generate classes. */
   --color-*: initial;
