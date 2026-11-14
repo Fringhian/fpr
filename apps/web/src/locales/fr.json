@@ -1,0 +1,24 @@
+{
+  "foundations": {
+    "formatting": {
+      "title": "Formats",
+      "lead": "Chaque nombre, montant et date s’écrit dans la langue du lecteur. Changez de langue dans la barre d’outils pour voir les deux.",
+      "input": "Reçu de l’API : {{value}}",
+      "sentence": "Phrase",
+      "money": "Montant",
+      "balance": "Solde, en euros entiers",
+      "gain": "Gain",
+      "loss": "Perte en pourcentage",
+      "weight": "Poids",
+      "quantity": "Quantité, avec ses décimales telles que saisies",
+      "date": "Date",
+      "dateLong": "Date, en toutes lettres",
+      "dateWeekday": "Date, avec le jour",
+      "time": "Heure",
+      "asOf": "à {{time}}",
+      "closeOf": "clôture du {{date}}",
+      "quote": "Nom cité",
+      "question": "Vendre {{quantity}} parts ?"
+    }
+  }
+}

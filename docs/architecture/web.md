@@ -51,6 +51,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
+- The language menu in the toolbar shows every story in English or French, through the `locale` global; a story can fix its own with `globals: { locale: "fr" }`. "Foundations/Formatting" shows every formatter in the chosen language.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
 
@@ -119,10 +120,39 @@ Share search lives on `/shares`, and the record flow reuses it.
 ## Languages
 
 - Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`. No text is written directly in a component.
+- `react-i18next` translates them. `src/lib/i18n.ts` creates the i18next instance with both files bundled, and `main.tsx` provides it to the app through `I18nextProvider`. The page's `lang` attribute follows its language.
+- Translation keys are typed from `en.json`: an unknown key fails the type check.
+- `src/locales/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
 - A signed-in person sees the language they chose in Settings. Until they choose, it follows the browser, as before sign-in.
-- Before sign-in, pages use the first of the browser's languages (`navigator.languages`) that is English or French, otherwise French.
-- Numbers, amounts, and dates are formatted with `Intl` for the current language: `1 234,56 €` in French, `€1,234.56` in English.
+- Before sign-in, pages use the first of the browser's languages (`navigator.languages`) that is English or French, otherwise French: `pickLanguage` in `src/lib/language.ts`.
 - The API sends codes and data, never sentences: errors as codes. The web app writes the words.
+
+### Formatting
+
+Numbers, amounts, and dates are formatted with `Intl` by the pure functions of `src/lib/format.ts`, each given the value and the language. English formats as `en-GB` and French as `fr-FR`: the day before the month, and the 24-hour clock.
+
+| Function | Takes | English | French |
+| --- | --- | --- | --- |
+| `formatMoney` | a decimal string, in cents or whole euros | `€1,234.56`, `€12,374` | `1 234,56 €`, `12 374 €` |
+| `formatMoney`, signed | the same | `+€512.00`, `−€18.30` | `+512,00 €`, `−18,30 €` |
+| `formatPercent` | a decimal string in percent, one decimal | `16.2%`, `+4.2%`, `−1.3%` | `16,2 %`, `+4,2 %`, `−1,3 %` |
+| `formatGain` | a gain: euros and a percentage or `null` | `+€512 (+4.2%)` | `+512 € (+4,2 %)` |
+| `formatQuantity` | a decimal string, with the decimals it was entered with | `74.328`, `10`, `1.50` | `74,328`, `10`, `1,50` |
+| `formatDate` | a day (`YYYY-MM-DD`) or a timestamp | `5 Mar`, `5 March 2026`, `Thu 5 Mar` | `5 mars`, `5 mars 2026`, `jeu. 5 mars` |
+| `formatTime` | a timestamp | `14:30` | `14:30` |
+
+- Every amount, quantity, and percentage arrives as the decimal string the API sends, and `Intl` formats that string exactly, with no floating-point rounding. A value that isn't a decimal string throws a `RangeError`.
+- A quantity keeps the fractional digits its string has, so it reads as entered.
+- A signed value has a sign unless it rounds to zero. An unsigned one has a minus only when negative, and never shows a negative zero.
+- Every minus is the minus sign `−` (U+2212), never a hyphen.
+- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone, or in the `timeZone` given.
+
+### Typography
+
+- English uses curly quotes and apostrophes (“ ” ’) and the ellipsis `…`.
+- French uses « » and the narrow no-break space U+202F: after «, before ; : ! ? and », and between a number's digit groups, its sign, and its unit. Every space inside a formatted French number is U+202F, whatever the browser's `Intl` data writes.
+- `quote` in `src/lib/typography.ts` quotes a text in the language's marks: “World Index ETF” or « World Index ETF ».
+- The locales' test refuses straight quotes and apostrophes, `...`, « » in English, and a French ; : ! ? « » without its narrow no-break space.
 
 ## Data
 

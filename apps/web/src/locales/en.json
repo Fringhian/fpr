@@ -1,0 +1,24 @@
+{
+  "foundations": {
+    "formatting": {
+      "title": "Formatting",
+      "lead": "Every number, amount, and date is written for the reader’s language. Switch the language in the toolbar to see both.",
+      "input": "From the API: {{value}}",
+      "sentence": "Sentence",
+      "money": "Amount",
+      "balance": "Balance, in whole euros",
+      "gain": "Gain",
+      "loss": "Loss in percent",
+      "weight": "Weight",
+      "quantity": "Quantity, with its decimals as entered",
+      "date": "Date",
+      "dateLong": "Date, in full",
+      "dateWeekday": "Date, with the weekday",
+      "time": "Time",
+      "asOf": "as of {{time}}",
+      "closeOf": "close of {{date}}",
+      "quote": "Quoted name",
+      "question": "Sell {{quantity}} units?"
+    }
+  }
+}
