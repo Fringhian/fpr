@@ -113,3 +113,46 @@
   --breakpoint-tablet: 40rem;
   --breakpoint-desktop: 70rem;
 }
+
+/*
+ * Shared utilities and state variants.
+ *
+ * Each state variant matches the data attribute Base UI sets and, where they
+ * exist, the native state and its ARIA attribute, so one class styles a
+ * native element and a Base UI part alike. `open`, `disabled` and `checked` extend Tailwind's
+ * built-in variants of the same name; `invalid` replaces it.
+ */
+
+/* The keyboard focus ring, applied with `focus-visible:focus-ring`. */
+@utility focus-ring {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Dialogs, sheets, popovers, menus and disclosures that are open */
+@custom-variant open (&:is([open], :popover-open, :open, [data-open]));
+/* A trigger whose popup is open */
+@custom-variant popup-open (&[data-popup-open]);
+/* A popup's first frame, before it transitions in */
+@custom-variant starting-style (&[data-starting-style]);
+/* A popup's last frame, as it transitions out */
+@custom-variant ending-style (&[data-ending-style]);
+/* A control that can't be used, natively or with `aria-disabled` */
+@custom-variant disabled (
+  &:is(:disabled, [data-disabled], [aria-disabled="true"])
+);
+/* A checkbox, radio or switch that is on */
+@custom-variant checked (&:is(:checked, [data-checked], [aria-checked="true"]));
+/* A toggle that is pressed */
+@custom-variant pressed (&:is([data-pressed], [aria-pressed="true"]));
+/* The selected option of a list */
+@custom-variant selected (&:is([data-selected], [aria-selected="true"]));
+/* The option or menu item under the pointer or the arrow keys */
+@custom-variant highlighted (&[data-highlighted]);
+/* The current page's link or the active tab */
+@custom-variant current (
+  &:is([data-active], [aria-current]:not([aria-current="false"]))
+);
+/* A field its validation marks invalid. Native `:invalid` is left out: it
+   matches an empty required field before anyone types. */
+@custom-variant invalid (&:is([data-invalid], [aria-invalid="true"]));
