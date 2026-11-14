@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { cn } from "../lib/cn";
 import { readToken, Specimen, TokenValue } from "./specimen";
 
 const PALETTE = [
@@ -120,7 +121,14 @@ function Palette() {
       title="Palette"
       lead="Every hue of the look, named by what it is. The palette generates no classes: components use the roles, which point at it."
     >
-      <ul className="grid grid-cols-2 gap-s tablet:grid-cols-4 desktop:grid-cols-7">
+      <ul
+        className={cn(
+          "grid gap-s",
+          "grid-cols-2",
+          "tablet:grid-cols-4",
+          "desktop:grid-cols-7",
+        )}
+      >
         {PALETTE.map((name) => (
           <li
             key={name}
@@ -147,14 +155,24 @@ function Roles() {
       title="Colour roles"
       lead="What components use: each role points at a palette colour. Primary means selected; the sky never marks state."
     >
-      <ul className="grid grid-cols-1 gap-s tablet:grid-cols-2 desktop:grid-cols-3">
+      <ul
+        className={cn(
+          "grid gap-s",
+          "grid-cols-1",
+          "tablet:grid-cols-2",
+          "desktop:grid-cols-3",
+        )}
+      >
         {ROLES.map(({ token, swatch, use }) => (
           <li
             key={token}
             className="flex items-center gap-s rounded-m bg-surface p-s shadow-outline"
           >
             <span
-              className={`size-[2.5rem] flex-none rounded-s shadow-outline ${swatch}`}
+              className={cn(
+                "size-xl flex-none rounded-s shadow-outline",
+                swatch,
+              )}
             />
             <span className="grid">
               <span className="text-s font-semibold">{token}</span>
@@ -176,14 +194,24 @@ function Members() {
       title="Member colours"
       lead="Ten colours, one per person, in this order. Full colour for their line and bar, the pastel for their picture. A colour always comes with a name, an initial, a photo or a sign."
     >
-      <ol className="grid grid-cols-1 gap-s tablet:grid-cols-2">
+      <ol
+        className={cn(
+          "grid gap-s",
+          "grid-cols-1",
+          "tablet:grid-cols-2",
+          "desktop:grid-cols-2",
+        )}
+      >
         {MEMBERS.map(({ name, line, picture }, index) => (
           <li
             key={name}
             className="flex items-center gap-s rounded-m bg-surface p-s shadow-outline"
           >
             <span
-              className={`inline-flex size-[2rem] flex-none items-center justify-center rounded-full font-semibold uppercase ${picture}`}
+              className={cn(
+                "inline-flex size-[2rem] flex-none items-center justify-center rounded-full font-semibold uppercase",
+                picture,
+              )}
             >
               {name[0]}
             </span>
@@ -191,7 +219,7 @@ function Members() {
               <span className="text-s font-semibold">{name}</span>
               <span className="text-xs text-secondary">colour {index + 1}</span>
             </span>
-            <span className={`h-s flex-1 rounded-full ${line}`} />
+            <span className={cn("h-s flex-1 rounded-full", line)} />
             <span className="grid w-[10rem] flex-none text-xs text-secondary">
               <TokenValue variable={`--color-${name}`} />
               <span>

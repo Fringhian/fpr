@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { cn } from "../lib/cn";
 import { Specimen, TokenValue } from "./specimen";
 
 const CORNERS = [
@@ -32,7 +33,10 @@ function Corners() {
         {CORNERS.map(({ token, className, use }) => (
           <li key={token} className="grid gap-xs">
             <div
-              className={`h-[4rem] w-[6rem] bg-highlight shadow-outline ${className}`}
+              className={cn(
+                "h-[4rem] w-[6rem] bg-highlight shadow-outline",
+                className,
+              )}
             />
             <span className="text-s font-semibold">rounded-{token}</span>
             <TokenValue variable={`--radius-${token}`} />
@@ -60,7 +64,10 @@ function Elevation() {
         {SHADOWS.map(({ token, className, use }) => (
           <li key={token} className="grid w-[12rem] gap-s">
             <div
-              className={`flex h-[6rem] items-end rounded-l bg-surface p-s text-s font-semibold ${className}`}
+              className={cn(
+                "flex h-[6rem] items-end rounded-l bg-surface p-s text-s font-semibold",
+                className,
+              )}
             >
               shadow-{token}
             </div>

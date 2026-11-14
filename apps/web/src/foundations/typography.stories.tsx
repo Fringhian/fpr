@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { cn } from "../lib/cn";
 import { Specimen, TokenValue } from "./specimen";
 
 const SAMPLE = "This month, you’re up €512 (+4.2%)";
@@ -64,7 +65,13 @@ function Scale() {
         {SCALE.map(({ role, token, className, weight, use }) => (
           <li
             key={token}
-            className="grid gap-s border-b-[1.5px] border-dividerpy-m last:border-b-0 tablet:grid-cols-[14rem_1fr] tablet:items-baseline"
+            className={cn(
+              "grid gap-s border-b-[1.5px] border-divider py-m",
+              "grid-cols-1 items-stretch",
+              "tablet:grid-cols-[14rem_1fr] tablet:items-baseline",
+              "desktop:grid-cols-[14rem_1fr] desktop:items-baseline",
+              "last:border-b-0",
+            )}
           >
             <div className="grid">
               <span className="text-s font-semibold">{role}</span>

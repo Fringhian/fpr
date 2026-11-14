@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { cn } from "../lib/cn";
 import { Specimen, TokenValue } from "./specimen";
 
 const STEPS = [
@@ -22,7 +23,7 @@ function Spacing() {
               <span className="font-semibold">{token}</span> ·{" "}
               <TokenValue variable={`--spacing-${token}`} />
             </span>
-            <span className={`h-m bg-cobalt ${bar}`} />
+            <span className={cn("h-m bg-cobalt", bar)} />
           </li>
         ))}
       </ul>

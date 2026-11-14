@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { cn } from "../lib/cn";
 import { Specimen, TokenValue } from "./specimen";
 
 const BREAKPOINTS = [
@@ -29,11 +30,25 @@ function Breakpoints() {
       lead="Mobile first: phone is the unprefixed base, then tablet and desktop. Switch the viewport to see the current one change."
     >
       <p className="mb-l rounded-l bg-surface p-m text-l font-semibold shadow-rest">
-        Current width: <span className="tablet:hidden">phone</span>
-        <span className="hidden tablet:inline desktop:hidden">tablet</span>
-        <span className="hidden desktop:inline">desktop</span>
+        Current width:{" "}
+        <span className={cn("", "inline", "tablet:hidden", "desktop:hidden")}>
+          phone
+        </span>
+        <span className={cn("", "hidden", "tablet:inline", "desktop:hidden")}>
+          tablet
+        </span>
+        <span className={cn("", "hidden", "tablet:hidden", "desktop:inline")}>
+          desktop
+        </span>
       </p>
-      <ul className="grid gap-s tablet:grid-cols-3">
+      <ul
+        className={cn(
+          "grid gap-s",
+          "grid-cols-1",
+          "tablet:grid-cols-3",
+          "desktop:grid-cols-3",
+        )}
+      >
         {BREAKPOINTS.map(({ name, prefix, variable, use }) => (
           <li
             key={name}
