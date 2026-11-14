@@ -1,4 +1,4 @@
-import type { Locale, Role } from "@fpr/db";
+import type { CashBalance, PortfolioChange, Price, Share, User } from "@fpr/db";
 
 /**
  * The invented race `pnpm db:seed` writes. Every person, email, and manual
@@ -23,14 +23,15 @@ export type PersonKey =
   | "morgan"
   | "viewer";
 
-export interface SeedPerson {
+/**
+ * A person's columns, with seed-only fields: a key the other entries refer
+ * to, since ids don't exist yet, and the day they joined.
+ */
+export interface SeedPerson
+  extends Pick<User, "displayName" | "role" | "color" | "locale"> {
   key: PersonKey;
-  displayName: string;
   /** Empty for the anonymous viewer, who gets `<id>@anonymous.invalid`. */
   email: string | null;
-  role: Role;
-  color: number;
-  locale: Locale | null;
   /**
    * The day the admin added them. `null`: added when the seed runs, with a
    * link waiting for first use.
@@ -115,13 +116,17 @@ export const people: readonly SeedPerson[] = [
 
 export type ListingKey = "apple" | "microsoft" | "lvmh" | "asml" | "spy";
 
-export interface SeedListing {
+/** The listing columns a market share always has. */
+type ListingColumns = "providerSymbol" | "exchange" | "tradingCurrency";
+
+/**
+ * A market share's columns, with its listing set, and the seed-only fields
+ * its closes are invented from.
+ */
+export interface SeedListing
+  extends Pick<Share, "isin" | "name">,
+    Readonly<{ [Column in ListingColumns]: NonNullable<Share[Column]> }> {
   key: ListingKey;
-  isin: string;
-  name: string;
-  providerSymbol: string;
-  exchange: string;
-  tradingCurrency: string;
   /** The invented close, in EUR, a week before the race starts. */
   firstCloseEur: number;
   /** The mean change of the log price per trading day. */
@@ -190,19 +195,16 @@ export const listings: readonly SeedListing[] = [
 
 export type ManualShareKey = "realEstate" | "privateEquity";
 
-export interface SeedValuePoint {
+/** A manual price, entered by a seeded person on a day of the race. */
+export interface SeedValuePoint extends Pick<Price, "priceEur"> {
   day: number;
-  priceEur: string;
   enteredBy: PersonKey;
   /** The value first entered, when someone edited it since. */
-  edited?: { priceEur: string; enteredBy: PersonKey };
+  edited?: Pick<Price, "priceEur"> & { enteredBy: PersonKey };
 }
 
-export interface SeedManualShare {
+export interface SeedManualShare extends Pick<Share, "isin" | "name"> {
   key: ManualShareKey;
-  /** Invented, with a valid check digit. */
-  isin: string;
-  name: string;
   createdBy: PersonKey;
   createdDay: number;
   valuePoints: readonly SeedValuePoint[];
@@ -249,48 +251,46 @@ export const manualShares: readonly SeedManualShare[] = [
 export type ShareKey = ListingKey | ManualShareKey;
 
 /** A purchase, with a positive quantity, or a sale, with a negative one. */
-export interface SeedChange {
+export interface SeedChange extends Pick<PortfolioChange, "quantityDelta"> {
   person: PersonKey;
   share: ShareKey;
   day: number;
-  quantity: string;
 }
 
 export const changes: readonly SeedChange[] = [
-  { person: "alex", share: "apple", day: 5, quantity: "12" },
-  { person: "alex", share: "lvmh", day: 5, quantity: "3" },
-  { person: "alex", share: "spy", day: 40, quantity: "6" },
-  { person: "alex", share: "realEstate", day: 60, quantity: "40" },
-  { person: "alex", share: "apple", day: 110, quantity: "-4" },
-  { person: "alex", share: "asml", day: 150, quantity: "2" },
+  { person: "alex", share: "apple", day: 5, quantityDelta: "12" },
+  { person: "alex", share: "lvmh", day: 5, quantityDelta: "3" },
+  { person: "alex", share: "spy", day: 40, quantityDelta: "6" },
+  { person: "alex", share: "realEstate", day: 60, quantityDelta: "40" },
+  { person: "alex", share: "apple", day: 110, quantityDelta: "-4" },
+  { person: "alex", share: "asml", day: 150, quantityDelta: "2" },
 
-  { person: "sam", share: "microsoft", day: 10, quantity: "8" },
-  { person: "sam", share: "spy", day: 10, quantity: "10" },
-  { person: "sam", share: "microsoft", day: 70, quantity: "4" },
-  { person: "sam", share: "spy", day: 180, quantity: "-10" },
-  { person: "sam", share: "asml", day: 185, quantity: "3" },
+  { person: "sam", share: "microsoft", day: 10, quantityDelta: "8" },
+  { person: "sam", share: "spy", day: 10, quantityDelta: "10" },
+  { person: "sam", share: "microsoft", day: 70, quantityDelta: "4" },
+  { person: "sam", share: "spy", day: 180, quantityDelta: "-10" },
+  { person: "sam", share: "asml", day: 185, quantityDelta: "3" },
 
-  { person: "robin", share: "realEstate", day: 20, quantity: "100" },
-  { person: "robin", share: "privateEquity", day: 20, quantity: "5" },
-  { person: "robin", share: "lvmh", day: 90, quantity: "2" },
-  { person: "robin", share: "privateEquity", day: 160, quantity: "2.5" },
+  { person: "robin", share: "realEstate", day: 20, quantityDelta: "100" },
+  { person: "robin", share: "privateEquity", day: 20, quantityDelta: "5" },
+  { person: "robin", share: "lvmh", day: 90, quantityDelta: "2" },
+  { person: "robin", share: "privateEquity", day: 160, quantityDelta: "2.5" },
 
-  { person: "jordan", share: "spy", day: 30, quantity: "3.5" },
-  { person: "jordan", share: "asml", day: 30, quantity: "1" },
-  { person: "jordan", share: "lvmh", day: 100, quantity: "1" },
-  { person: "jordan", share: "asml", day: 140, quantity: "-1" },
-  { person: "jordan", share: "spy", day: 210, quantity: "2" },
+  { person: "jordan", share: "spy", day: 30, quantityDelta: "3.5" },
+  { person: "jordan", share: "asml", day: 30, quantityDelta: "1" },
+  { person: "jordan", share: "lvmh", day: 100, quantityDelta: "1" },
+  { person: "jordan", share: "asml", day: 140, quantityDelta: "-1" },
+  { person: "jordan", share: "spy", day: 210, quantityDelta: "2" },
 
-  { person: "charlie", share: "apple", day: 130, quantity: "20" },
-  { person: "charlie", share: "microsoft", day: 130, quantity: "5" },
-  { person: "charlie", share: "apple", day: 200, quantity: "0.75" },
+  { person: "charlie", share: "apple", day: 130, quantityDelta: "20" },
+  { person: "charlie", share: "microsoft", day: 130, quantityDelta: "5" },
+  { person: "charlie", share: "apple", day: 200, quantityDelta: "0.75" },
 ];
 
 /** The cash a person holds from a day on, in EUR. */
-export interface SeedCash {
+export interface SeedCash extends Pick<CashBalance, "amountEur"> {
   person: PersonKey;
   day: number;
-  amountEur: string;
 }
 
 export const cash: readonly SeedCash[] = [

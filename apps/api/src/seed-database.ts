@@ -350,7 +350,7 @@ export async function seedDatabase(
       await portfolioChanges.insert(trx, {
         userId,
         shareId: shareId(change.share),
-        quantityDelta: change.quantity,
+        quantityDelta: change.quantityDelta,
         effectiveAt: at(change.day),
         createdBy: userId,
         createdAt: at(change.day),
