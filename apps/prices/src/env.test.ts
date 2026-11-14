@@ -4,6 +4,8 @@ import { loadEnv } from "./env.js";
 const valid = {
   DATABASE_URL: "postgres://localhost/fpr",
   PRICES_TOKEN: "test-token",
+  PRICE_PROVIDER: "eodhd",
+  PRICE_PROVIDER_API_KEY: "test-key",
 };
 
 describe("loadEnv", () => {
@@ -16,11 +18,13 @@ describe("loadEnv", () => {
   });
 
   it("names a missing DATABASE_URL", () => {
-    expect(() => loadEnv({ PRICES_TOKEN: "x" })).toThrow(/DATABASE_URL/);
+    expect(() => loadEnv({ ...valid, DATABASE_URL: undefined })).toThrow(
+      /DATABASE_URL/,
+    );
   });
 
   it("names a missing PRICES_TOKEN", () => {
-    expect(() => loadEnv({ DATABASE_URL: "postgres://x" })).toThrow(
+    expect(() => loadEnv({ ...valid, PRICES_TOKEN: undefined })).toThrow(
       /PRICES_TOKEN/,
     );
   });
@@ -28,6 +32,31 @@ describe("loadEnv", () => {
   it("rejects an empty PRICES_TOKEN", () => {
     expect(() => loadEnv({ ...valid, PRICES_TOKEN: "" })).toThrow(
       /PRICES_TOKEN/,
+    );
+  });
+
+  it("reads the provider and its key", () => {
+    expect(loadEnv(valid)).toMatchObject({
+      PRICE_PROVIDER: "eodhd",
+      PRICE_PROVIDER_API_KEY: "test-key",
+    });
+  });
+
+  it("rejects a provider it has no implementation for", () => {
+    expect(() => loadEnv({ ...valid, PRICE_PROVIDER: "other" })).toThrow(
+      /PRICE_PROVIDER/,
+    );
+  });
+
+  it("names a missing PRICE_PROVIDER", () => {
+    expect(() => loadEnv({ ...valid, PRICE_PROVIDER: "" })).toThrow(
+      /PRICE_PROVIDER/,
+    );
+  });
+
+  it("names a missing PRICE_PROVIDER_API_KEY", () => {
+    expect(() => loadEnv({ ...valid, PRICE_PROVIDER_API_KEY: "" })).toThrow(
+      /PRICE_PROVIDER_API_KEY/,
     );
   });
 });

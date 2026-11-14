@@ -46,6 +46,24 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 
 The Foundations stories in `src/foundations/` show every token with the value it has in the page.
 
+## Type and icons
+
+- Figtree is the one typeface. `@fontsource-variable/figtree`, imported in `src/index.css`, ships it with the build as woff2 files with `font-display: swap`, on a variable weight axis from 300 to 900.
+- Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
+- Figures that line up, such as amounts, percentages, ranks, and times, use Tailwind's `tabular-nums`.
+- Icons are Phosphor, drawn through `Icon` in `src/components/ui/icon.tsx`:
+
+| Prop | Values |
+| --- | --- |
+| `icon` | A Phosphor icon, imported from its own module: `import { HouseIcon } from "@phosphor-icons/react/House"` |
+| `size` | `s` 16 px in text, `m` 20 px in navigation, `l` 24 px for page actions and state icons |
+| `weight` | `regular` (default), or `fill` for the current navigation item |
+| `label` | Names the icon for screen readers, with `role="img"` and `aria-label`. Without it, the icon is `aria-hidden` |
+
+- Each icon is imported from its own module, never from the package root, so the dev server and the bundle load only the icons in use.
+- An icon takes the current text colour.
+- The `Foundations/Icons` story shows every icon the design system lists, its use, and its Phosphor name, then the sizes and both weights.
+
 ## Storybook
 
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
