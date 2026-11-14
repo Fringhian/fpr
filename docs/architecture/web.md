@@ -11,6 +11,7 @@
 | Server state | TanStack Query |
 | Request and response types | `@fpr/contracts` |
 | Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
+| Class helpers | `cn` (`clsx` and `tailwind-merge`) in `src/lib/cn.ts`; component variants with `class-variance-authority` |
 | Components | Base UI, wrapped as the app's own components in `src/components/ui/` |
 | Component workshop | Storybook, one story per component |
 | Charts | TradingView Lightweight Charts |
@@ -44,7 +45,12 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 | Shadow | `outline`, `rest`, `float` | `shadow-rest` |
 | Breakpoint | `tablet` from 40rem, `desktop` from 70rem | `tablet:grid-cols-2` |
 
-The Foundations stories in `src/foundations/` show every token with the value it has in the page.
+After the tokens, `theme.css` defines the shared utilities and the state variants:
+
+- `focus-ring`, the keyboard focus ring: a 2 px charcoal outline, 2 px off the edge, applied with `focus-visible:focus-ring`.
+- One variant per component state: `open`, `popup-open`, `starting-style`, `ending-style`, `disabled`, `checked`, `pressed`, `selected`, `highlighted`, `current`, `invalid`. Each matches Base UI's data attribute and, where they exist, the native state and its ARIA attribute.
+
+The Foundations stories in `src/foundations/` show every token with the value it has in the page, and the focus ring on the page, surface and sky backgrounds.
 
 ## Storybook
 
