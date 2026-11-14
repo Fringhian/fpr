@@ -2,7 +2,7 @@ import pino, { type DestinationStream, type Logger } from "pino";
 
 /**
  * Fields that never reach a log line, whatever object they sit in: passwords,
- * bearer tokens, and the Authorization header.
+ * bearer tokens, the provider's API key, and the Authorization header.
  */
 export const redactPaths = [
   "password",
@@ -11,6 +11,12 @@ export const redactPaths = [
   "*.token",
   "PRICES_TOKEN",
   "*.PRICES_TOKEN",
+  "PRICE_PROVIDER_API_KEY",
+  "*.PRICE_PROVIDER_API_KEY",
+  "apiKey",
+  "*.apiKey",
+  "api_token",
+  "*.api_token",
   "authorization",
   "*.authorization",
   "*.headers.authorization",
