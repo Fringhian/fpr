@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "db:migrate": "NODE_ENV=development tsx --env-file-if-exists=../../.env --conditions=@fpr/source src/migrate.ts",
-    "auth:schema": "auth generate --config auth.config.ts --output /dev/stdout --yes"
+    "auth:schema": "auth generate --config auth.config.ts --output /dev/stdout --yes",
+    "db:seed": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=../../.env --conditions=@fpr/source src/seed.ts"
   },
   "packageManager": "pnpm@10.33.2",
   "dependencies": {

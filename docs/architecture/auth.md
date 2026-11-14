@@ -32,7 +32,7 @@ The API enforces every cell of this table. The web app hides what a role can't u
 
 An access key is a person's access, for as long as they have it. Every person, admins included, has exactly one key that gives access at a time.
 
-- A key is 32 random bytes, encoded in base64url. Only its SHA-256 hash is stored, in `access_keys.code_hash`.
+- A key is 32 random bytes, encoded in base64url. Only its SHA-256 hash is stored, in hexadecimal, in `access_keys.code_hash`.
 - The admin sees the key once, as a link: `<PUBLIC_URL>/access/<key>`.
 - The key never stays in a URL: the web app sends it to the API in a request body, then removes it from the address bar and the browser history. Pages send no referrer, and `web` doesn't log `/access/` paths.
 - A person has access when their key is claimed, not revoked, and not past `access_until`.

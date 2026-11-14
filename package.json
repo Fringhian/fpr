@@ -14,7 +14,8 @@
     "prepare": "lefthook install",
     "contracts:openapi": "pnpm --filter @fpr/contracts run openapi",
     "db:migrate": "pnpm --filter @fpr/api run db:migrate",
-    "storybook": "pnpm --filter @fpr/web run storybook"
+    "storybook": "pnpm --filter @fpr/web run storybook",
+    "db:seed": "pnpm --filter @fpr/api run db:seed"
   },
   "engines": {
     "node": ">=24 <25"
