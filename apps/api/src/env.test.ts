@@ -7,8 +7,18 @@ const valid = {
 };
 
 describe("loadEnv", () => {
-  it("defaults PORT to 3000", () => {
-    expect(loadEnv(valid)).toEqual({ ...valid, PORT: 3000 });
+  it("defaults PORT to 3000 and RACE_TIMEZONE to Europe/Paris", () => {
+    expect(loadEnv(valid)).toEqual({
+      ...valid,
+      PORT: 3000,
+      RACE_TIMEZONE: "Europe/Paris",
+    });
+  });
+
+  it("names RACE_TIMEZONE when it is not a time zone", () => {
+    expect(() => loadEnv({ ...valid, RACE_TIMEZONE: "Mars/Olympus" })).toThrow(
+      "RACE_TIMEZONE",
+    );
   });
 
   it("defaults an empty PORT to 3000", () => {

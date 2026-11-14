@@ -11,7 +11,21 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   /** The instance's origin, used for links and the origin check. */
   PUBLIC_URL: z.url(),
+  /** The race's time zone: days, closes, and schedules follow it. */
+  RACE_TIMEZONE: z
+    .string()
+    .refine(isTimeZone, "Expected an IANA time zone, such as Europe/Paris")
+    .default("Europe/Paris"),
 });
+
+function isTimeZone(name: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: name });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export type Env = z.infer<typeof envSchema>;
 
