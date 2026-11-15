@@ -52,6 +52,26 @@
     },
     "takenBy": "{{colour}}, couleur de {{name}}"
   },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Marchés ouverts · cours à {{time}}",
+      "closed": "Marchés fermés · clôture du {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progression",
+      "value": "Étape {{step}} sur {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Chargement…"
+    }
+  },
+  "menu": {
+    "more": "Plus d’actions",
+    "moreFor": "Plus d’actions pour {{subject}}"
+  },
+  "popover": {
+    "helpLink": "En savoir plus dans Comment fonctionne FPR"
+  },
   "controls": {
     "period": {
       "label": "Période",
@@ -76,19 +96,6 @@
       "label": "Langue",
       "fr": "Français",
       "en": "English"
-    }
-  },
-  "smallParts": {
-    "marketStatus": {
-      "open": "Marchés ouverts · cours à {{time}}",
-      "closed": "Marchés fermés · clôture du {{date}}"
-    },
-    "stepProgress": {
-      "label": "Progression",
-      "value": "Étape {{step}} sur {{total}}"
-    },
-    "loadingPlaceholder": {
-      "default": "Chargement…"
     }
   }
 }
