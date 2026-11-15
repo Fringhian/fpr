@@ -33,16 +33,18 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 `src/theme.css` is the only place a design value is defined. It holds two layers:
 
 - The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes. Beside it, the ridge's two shapes, `--ridge-far` and `--ridge-near`, also plain variables.
-- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
+- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, inset shadow, and breakpoint scales are reset, so only these tokens generate classes:
 
 | Namespace | Tokens | Example |
 | --- | --- | --- |
 | Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `success`, `warning`, `error`, `link`, and the medals `gold`, `silver`, `bronze` | `text-secondary`, `bg-surface` |
+| Soft fill | `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`: the pale ground of each state role, under text of that role at 4.5:1 or more | `bg-positive-soft text-positive` |
 | Member colour | `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`, in this order, each with its `-pastel` | `bg-cobalt-pastel` |
 | Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
-| Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |
-| Radius | `s` 12, `m` 14, `l` 22, `xl` 24 px, and `full` | `rounded-l` |
+| Spacing | `0`, `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s`, `inset-0` |
+| Radius | `s` 12, `m` 14, `card` 18, `l` 22, `xl` 24 px, and `full`. `card` is the corner of person rows, option cards and popovers | `rounded-l`, `rounded-card` |
 | Shadow | `outline`, `rest`, `float` | `shadow-rest` |
+| Inset shadow | `outline`, the divider line drawn inside the edge of inputs, options and flat cards; `inset-shadow-<colour>` recolours it | `inset-shadow-outline`, `invalid:inset-shadow-error` |
 | Breakpoint | `tablet` from 40rem, `desktop` from 70rem | `tablet:grid-cols-2` |
 
 After the tokens, `theme.css` defines the shared utilities and the state variants:
@@ -80,6 +82,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
+- The test run bundles every dependency before the first story runs: Vite scans the stories and the app's `index.html`, and `optimizeDeps.include` in `vitest.storybook.config.ts` lists the libraries the components build on, so the browser never reloads mid-run.
 
 ## Design
 
