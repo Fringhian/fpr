@@ -20,5 +20,18 @@
       "quote": "Nom cité",
       "question": "Vendre {{quantity}} parts ?"
     }
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Marchés ouverts · cours à {{time}}",
+      "closed": "Marchés fermés · clôture du {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progression",
+      "value": "Étape {{step}} sur {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Chargement…"
+    }
   }
 }
