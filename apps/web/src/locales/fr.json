@@ -58,5 +58,20 @@
     "point": "{{date}} : {{values}}",
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, provisoire"
+  },
+  "holdingCard": {
+    "units_one": "{{quantity}} part",
+    "units_many": "{{quantity}} de parts",
+    "units_other": "{{quantity}} parts",
+    "asOfTime": "à {{time}}",
+    "asOfDate": "au {{date}}",
+    "closeOf": "clôture du {{date}}",
+    "curve": "{{name}}, cours sur la période",
+    "loadingPrices": "Chargement de ses cours…",
+    "notCounted": "pas encore compté",
+    "ofPortfolio": "du portefeuille",
+    "cash": "Liquidités",
+    "setOn": "Définies le {{date}}",
+    "updateCash": "Modifier les liquidités"
   }
 }

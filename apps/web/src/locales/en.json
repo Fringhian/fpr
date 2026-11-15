@@ -58,5 +58,19 @@
     "point": "{{date}}: {{values}}",
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, not final"
+  },
+  "holdingCard": {
+    "units_one": "{{quantity}} unit",
+    "units_other": "{{quantity}} units",
+    "asOfTime": "as of {{time}}",
+    "asOfDate": "as of {{date}}",
+    "closeOf": "close of {{date}}",
+    "curve": "{{name}}, price over the period",
+    "loadingPrices": "Loading its prices…",
+    "notCounted": "not counted yet",
+    "ofPortfolio": "of the portfolio",
+    "cash": "Cash",
+    "setOn": "Set on {{date}}",
+    "updateCash": "Update cash"
   }
 }
