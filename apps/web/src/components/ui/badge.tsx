@@ -35,8 +35,9 @@ const badge = cva(
 
 /**
  * The states a badge names: a share entered by hand, a share whose prices
- * haven't arrived, a balance that leaves such a share out, an access link in use, not opened yet, or revoked, a share
- * held in the past, a change just saved.
+ * haven't arrived, a balance that leaves such a share out, an access link in
+ * use, not opened yet, or revoked, a share held in the past, a change just
+ * saved.
  */
 export type BadgeState =
   | "manual"
