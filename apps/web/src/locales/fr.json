@@ -1,4 +1,13 @@
 {
+  "badge": {
+    "manual": "Saisie manuelle",
+    "pricePending": "Cours en attente",
+    "active": "Actif",
+    "waitingForFirstUse": "Pas encore utilisé",
+    "revoked": "Révoqué",
+    "heldBefore": "Détenue auparavant",
+    "saved": "Enregistré"
+  },
   "foundations": {
     "formatting": {
       "title": "Formats",
@@ -28,6 +37,21 @@
     "close": "Fermer",
     "cancel": "Annuler"
   },
+  "swatch": {
+    "colours": {
+      "vermilion": "Vermillon",
+      "cobalt": "Cobalt",
+      "green": "Vert",
+      "violet": "Violet",
+      "amber": "Ambre",
+      "pink": "Rose",
+      "cyan": "Cyan",
+      "lime": "Citron vert",
+      "sienna": "Terre de Sienne",
+      "periwinkle": "Pervenche"
+    },
+    "takenBy": "{{colour}}, couleur de {{name}}"
+  },
   "controls": {
     "period": {
       "label": "Période",
@@ -52,6 +76,19 @@
       "label": "Langue",
       "fr": "Français",
       "en": "English"
+    }
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Marchés ouverts · cours à {{time}}",
+      "closed": "Marchés fermés · clôture du {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progression",
+      "value": "Étape {{step}} sur {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Chargement…"
     }
   }
 }
