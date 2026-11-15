@@ -25,6 +25,8 @@ const badge = cva(
         active: SUCCESS,
         waitingForFirstUse: NEUTRAL,
         revoked: WARNING,
+        ended: WARNING,
+        expired: WARNING,
         heldBefore: SOFT,
         saved: SUCCESS,
       },
@@ -34,8 +36,9 @@ const badge = cva(
 
 /**
  * The states a badge names: a share entered by hand, a share whose prices
- * haven't arrived, an access link in use, not opened yet, or revoked, a share
- * held in the past, a change just saved.
+ * haven't arrived, an access link in use, not opened yet, or revoked, access
+ * past its end date, a link never used before its deadline, a share held in
+ * the past, a change just saved.
  */
 export type BadgeState =
   | "manual"
@@ -43,6 +46,8 @@ export type BadgeState =
   | "active"
   | "waitingForFirstUse"
   | "revoked"
+  | "ended"
+  | "expired"
   | "heldBefore"
   | "saved";
 
