@@ -20,6 +20,14 @@
     "notStarted_many": "{{names}} n’ont pas encore commencé.",
     "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
+  "standings": {
+    "title": "Classement",
+    "titleOver": "Classement · {{period}}",
+    "empty": {
+      "title": "Personne n’est encore dans la course",
+      "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
+    }
+  },
   "foundations": {
     "formatting": {
       "title": "Formats",
