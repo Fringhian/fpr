@@ -23,5 +23,10 @@
   },
   "button": {
     "saving": "Enregistrement…"
+  },
+  "allocationBar": {
+    "label": "Répartition",
+    "other": "Autres",
+    "cash": "Liquidités"
   }
 }

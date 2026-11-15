@@ -23,5 +23,10 @@
   },
   "button": {
     "saving": "Saving…"
+  },
+  "allocationBar": {
+    "label": "How it’s split",
+    "other": "Other",
+    "cash": "Cash"
   }
 }
