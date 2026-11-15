@@ -18,6 +18,9 @@
   --palette-mint: #e4f3ea;
   --palette-rose: #f9e3e3;
   --palette-indigo: #3f5bd8;
+  --palette-gold: #d9a514;
+  --palette-silver: #a3abb5;
+  --palette-bronze: #b9773e;
 }
 
 /*
@@ -62,6 +65,10 @@
   --color-warning: var(--palette-brick);
   --color-error: var(--palette-brick);
   --color-link: var(--palette-indigo);
+  /* Medals: the rings of the first three pictures in the standings */
+  --color-gold: var(--palette-gold);
+  --color-silver: var(--palette-silver);
+  --color-bronze: var(--palette-bronze);
 
   /* Soft fills: the pale ground of each state role, under text of that role */
   --color-positive-soft: var(--palette-mint);

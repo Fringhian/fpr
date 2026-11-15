@@ -18,6 +18,9 @@ const PALETTE = [
   "mint",
   "rose",
   "indigo",
+  "gold",
+  "silver",
+  "bronze",
 ] as const;
 
 const ROLES = [
@@ -90,6 +93,21 @@ const ROLES = [
     use: "Invalid input, and anything that failed",
   },
   { token: "link", swatch: "bg-link", use: "Text links" },
+  {
+    token: "gold",
+    swatch: "bg-gold",
+    use: "The first picture’s ring in the standings",
+  },
+  {
+    token: "silver",
+    swatch: "bg-silver",
+    use: "The second picture’s ring in the standings",
+  },
+  {
+    token: "bronze",
+    swatch: "bg-bronze",
+    use: "The third picture’s ring in the standings",
+  },
 ] as const;
 
 const SOFT_FILLS = [
