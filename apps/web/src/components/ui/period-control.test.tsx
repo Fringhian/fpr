@@ -58,4 +58,16 @@ describe("PeriodControl", () => {
     expect(button(markup, "€")).toContain("disabled");
     expect(button(markup, "%")).toContain('aria-pressed="true"');
   });
+
+  it("fills its capsules for the sky by default, or for snow", () => {
+    const value = { period: "1M", unit: "percent" } as const;
+    const sky = render(<PeriodControl value={value} onChange={ignore} />);
+    const snow = render(
+      <PeriodControl value={value} onChange={ignore} backdrop="snow" />,
+    );
+    expect(sky).toContain("bg-surface/75");
+    expect(sky).not.toContain("bg-divider/50");
+    expect(snow).toContain("bg-divider/50");
+    expect(snow).not.toContain("bg-surface/75");
+  });
 });

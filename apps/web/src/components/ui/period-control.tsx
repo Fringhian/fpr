@@ -91,13 +91,21 @@ interface PeriodControlOwnProps {
   anonymous?: boolean;
   /** The icon at the end of the phone capsule, which opens the sheet. A caret by default. */
   icon?: IconProps["icon"] | undefined;
+  /** What the control sits on: the sky, by default, or snow on a page without a header sentence. */
+  backdrop?: Segment.Backdrop;
 }
+
+/** The phone capsule's fill on each backdrop, at rest and hovered or open. */
+const CAPSULE = {
+  sky: ["bg-surface/75", "hover:bg-surface", "popup-open:bg-surface"],
+  snow: ["bg-divider/50", "hover:bg-divider", "popup-open:bg-divider"],
+} as const satisfies Record<Segment.Backdrop, readonly string[]>;
 
 export type PeriodControlProps = PeriodControlOwnProps &
   Omit<ComponentProps<"div">, keyof PeriodControlOwnProps>;
 
 /**
- * The shared period and € / %, on the sky. From tablet up, the period
+ * The shared period and € / %, on the sky or on snow. From tablet up, the period
  * capsules and the € / % capsules in a row; on phone, one capsule naming
  * both (“This month · %”) that opens a sheet holding the two rows. CSS picks
  * the layout. Controlled: the owner keeps the setting.
@@ -107,6 +115,7 @@ export function PeriodControl({
   onChange,
   anonymous = false,
   icon = CaretDownIcon,
+  backdrop = "sky",
   className,
   ...props
 }: PeriodControlProps) {
@@ -133,20 +142,19 @@ export function PeriodControl({
         <Segments
           setting={setting}
           anonymous={anonymous}
-          backdrop="sky"
+          backdrop={backdrop}
           onChange={onChange}
         />
       </div>
       <Dialog.Root>
         <Dialog.Trigger
           className={cn(
-            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full bg-surface/75 py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
+            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
             "inline-flex",
             "tablet:hidden",
             "desktop:hidden",
-            "hover:bg-surface",
-            "popup-open:bg-surface",
             "focus-visible:focus-ring",
+            CAPSULE[backdrop],
           )}
         >
           {summary}
