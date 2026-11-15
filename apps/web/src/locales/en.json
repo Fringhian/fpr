@@ -1,4 +1,13 @@
 {
+  "badge": {
+    "manual": "Manual",
+    "pricePending": "Price pending",
+    "active": "Active",
+    "waitingForFirstUse": "Waiting for first use",
+    "revoked": "Revoked",
+    "heldBefore": "Held before",
+    "saved": "Saved"
+  },
   "foundations": {
     "formatting": {
       "title": "Formatting",
@@ -30,6 +39,10 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password"
   },
+  "dialog": {
+    "close": "Close",
+    "cancel": "Cancel"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
@@ -44,6 +57,26 @@
       "periwinkle": "Periwinkle"
     },
     "takenBy": "{{colour}}, taken by {{name}}"
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Markets open · prices as of {{time}}",
+      "closed": "Markets closed · close of {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progress",
+      "value": "Step {{step}} of {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Loading…"
+    }
+  },
+  "menu": {
+    "more": "More actions",
+    "moreFor": "More actions for {{subject}}"
+  },
+  "popover": {
+    "helpLink": "More in How FPR works"
   },
   "controls": {
     "period": {

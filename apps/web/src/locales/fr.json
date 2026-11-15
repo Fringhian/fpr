@@ -1,4 +1,13 @@
 {
+  "badge": {
+    "manual": "Saisie manuelle",
+    "pricePending": "Cours en attente",
+    "active": "Actif",
+    "waitingForFirstUse": "Pas encore utilisé",
+    "revoked": "Révoqué",
+    "heldBefore": "Détenue auparavant",
+    "saved": "Enregistré"
+  },
   "foundations": {
     "formatting": {
       "title": "Formats",
@@ -30,6 +39,10 @@
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe"
   },
+  "dialog": {
+    "close": "Fermer",
+    "cancel": "Annuler"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermillon",
@@ -44,6 +57,26 @@
       "periwinkle": "Pervenche"
     },
     "takenBy": "{{colour}}, couleur de {{name}}"
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Marchés ouverts · cours à {{time}}",
+      "closed": "Marchés fermés · clôture du {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progression",
+      "value": "Étape {{step}} sur {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Chargement…"
+    }
+  },
+  "menu": {
+    "more": "Plus d’actions",
+    "moreFor": "Plus d’actions pour {{subject}}"
+  },
+  "popover": {
+    "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
   "controls": {
     "period": {
