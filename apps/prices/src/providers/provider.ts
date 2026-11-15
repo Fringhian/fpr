@@ -42,8 +42,9 @@ export interface ProviderClose {
 }
 
 /**
- * The one interface every price provider implements. Every method logs each
- * HTTP call it makes, and rejects with a `ProviderError` when a call fails.
+ * The one interface every price provider implements. Every method counts each
+ * HTTP call it makes against the day's `CallBudget`, logs it, and rejects with
+ * a `ProviderError` when a call fails or would pass the day's cap.
  */
 export interface PriceProvider {
   readonly name: ProviderName;
@@ -68,8 +69,12 @@ export interface PriceProvider {
 /**
  * `not_found`: the provider doesn't carry the symbol. `unavailable`: the call
  * failed, timed out, was refused, or returned a body that can't be read.
+ * `call_budget_used`: the call would pass the day's cap, so it was not sent.
  */
-export type ProviderErrorReason = "not_found" | "unavailable";
+export type ProviderErrorReason =
+  | "not_found"
+  | "unavailable"
+  | "call_budget_used";
 
 /** A failed provider call. Its message never holds the API key. */
 export class ProviderError extends Error {
