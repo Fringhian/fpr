@@ -8,11 +8,17 @@ import { UserGearIcon } from "@phosphor-icons/react/UserGear";
 import { UsersThreeIcon } from "@phosphor-icons/react/UsersThree";
 import { WalletIcon } from "@phosphor-icons/react/Wallet";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
+import {
+  PeriodControl,
+  type PeriodSetting,
+} from "../../molecules/period-control/period-control";
+import * as PageBar from "../page-bar/page-bar";
 import * as Navigation from "./navigation";
 
 /** The icons the Controls panel offers for each item, by name. */
@@ -74,7 +80,19 @@ type NavigationArgs = Omit<
     tabBar: boolean;
   };
 
-/** A page laid out with the parts the controls switch on: the side navigation, the phone's top bar, the tab bar. */
+/** The pages that show the period control. */
+const PERIOD_PAGES: readonly (Navigation.Destination | "none")[] = [
+  "home",
+  "members",
+  "portfolio",
+  "shares",
+];
+
+/**
+ * A page laid out with the parts the controls switch on: the side navigation,
+ * the phone's top bar, the tab bar. With `back`, the page sits under the
+ * current one, and the top bar leads with a back link to it.
+ */
 function AppFrame({
   current,
   side,
@@ -87,16 +105,29 @@ function AppFrame({
   peopleIcon,
   trackedSharesIcon,
   moreIcon,
+  back = false,
   ...props
-}: NavigationArgs) {
+}: NavigationArgs & { back?: boolean }) {
   const { t } = useTranslation();
   const text = TEXTS[useLanguage()];
+  const [setting, setSetting] = useState<PeriodSetting>({
+    period: "1M",
+    unit: "percent",
+  });
 
-  // The page's title: the current item's name, or How FPR works, a page without an item.
+  // How FPR works is a page without an item.
   const title =
     current === "none"
       ? t("navigation.help")
       : t(`navigation.items.${current}`);
+  const left =
+    back && current !== "none" ? (
+      <PageBar.Back href={Navigation.HREFS[current]}>{title}</PageBar.Back>
+    ) : (
+      <PageBar.Title render={(titleProps) => <h1 {...titleProps} />}>
+        {title}
+      </PageBar.Title>
+    );
 
   return (
     <Navigation.Root
@@ -114,11 +145,22 @@ function AppFrame({
       <div className="flex font-sans text-primary">
         {side ? <Navigation.Side /> : null}
         <main className="min-w-0 flex-1">
-          {topBar ? <Navigation.TopBar title={<h1>{title}</h1>} /> : null}
+          {topBar ? (
+            <Navigation.TopBar title={left}>
+              {PERIOD_PAGES.includes(current) ? (
+                <PeriodControl
+                  value={setting}
+                  onChange={setSetting}
+                  backdrop="snow"
+                  anonymous={props.userRole === "anonymous"}
+                />
+              ) : null}
+            </Navigation.TopBar>
+          ) : null}
           <div
             className={cn(
               "grid gap-m",
-              "px-m pt-s pb-[calc(6rem+env(safe-area-inset-bottom))]",
+              "px-m pt-0 pb-[calc(6rem+env(safe-area-inset-bottom))]",
               "tablet:px-l tablet:pt-l tablet:pb-l",
               "desktop:px-l desktop:pt-l desktop:pb-l",
             )}
@@ -157,7 +199,7 @@ The app’s navigation: a sidebar on desktop, a rail on tablet, and on phone a t
 | --- | --- |
 | \`Navigation.Root\` | Holds what every part reads: \`userRole\`, \`current\`, \`account\`, \`renderLink\`, \`onSettings\`, \`onSignOut\`, and each item’s icon. It renders no element. |
 | \`Navigation.Side\` | The rail on tablet, each icon above its name, and the sidebar on desktop, each icon before its name, with the account menu at its bottom. Hidden on phone. |
-| \`Navigation.TopBar\` | The phone’s top bar: \`title\` (the page’s title or back link), its \`children\` (such as the period button), then your picture, which opens the account menu. Hidden from tablet up. |
+| \`Navigation.TopBar\` | The phone’s top bar, built from the page bar’s parts: \`title\` on the left (\`PageBar.Title\`, or \`PageBar.Back\` on a page under another), then \`PageBar.Controls\` holding its \`children\` (such as \`PeriodControl\`) and your picture, which opens the account menu. 70px high, like \`PageBar.Root\` on phone, under the top safe area. Hidden from tablet up. |
 | \`Navigation.TabBar\` | The phone’s floating tab bar: a capsule 16px above the bottom edge and the safe area, 80% white over a blur, opaque where the browser can’t blur. Nothing floats beside it. Hidden from tablet up. |
 
 - **Items**: Home, Members, Portfolio and Shares, then an Admin group with People and Tracked shares. Guests and anonymous viewers have no Portfolio. The admin has the Admin group, and so do anonymous viewers, who read the admin area without changing anything. The admin area works on tablet and desktop, so the tab bar never shows it. \`destinationsFor(role)\` returns the items a role sees.
@@ -343,6 +385,21 @@ export const Phone: Story = {
   tags: ["!autodocs"],
   args: { current: "members" },
   globals: { viewport: { value: "phone" } },
+};
+
+/** A member’s page, under Members: the top bar leads with `PageBar.Back`, a 44px target, in place of the title. */
+export const PhoneBackLink: Story = {
+  name: "Phone, back link",
+  tags: ["!autodocs"],
+  args: { current: "members" },
+  globals: { viewport: { value: "phone" } },
+  render: (args) => <AppFrame {...args} back />,
+  play: async ({ canvasElement }) => {
+    const banner = within(canvasElement).getByRole("banner");
+    await expect(
+      within(banner).getByRole("link", { name: "Back to Members" }),
+    ).toHaveAttribute("href", "/members");
+  },
 };
 
 /** A guest’s tab bar: three items, without Portfolio. */

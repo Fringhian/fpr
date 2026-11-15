@@ -9,7 +9,8 @@ import { Icon, type IconProps } from "../../foundations/icon/icon";
  * The bar at the top of every page: the title or the back link on the left,
  * the period control on the right, and nothing else. On a page with a header
  * sentence it is the first thing in `Sky.Header`, on the sky; on a page
- * without one it starts the page, on snow. The page's gutters frame it.
+ * without one it starts the page, on snow. The page's gutters frame it. On
+ * phone, `Navigation.TopBar` is this bar with the account menu at its right end.
  */
 export function Root({ className, ...props }: ComponentProps<"div">) {
   return (

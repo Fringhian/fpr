@@ -144,7 +144,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 
 - Desktop: a sidebar with Home, Members, Portfolio, and Shares, then an Admin group with People and Tracked shares for admins. The account menu at its bottom opens Settings, How FPR works, and Sign out.
 - Tablet: a navigation rail with the same items, each icon above its name, and the account menu at its bottom.
-- Phone: a top bar with the page title or a back link and the account menu, and a floating tab bar with the same four items: a pill above the content, which scrolls under it behind a light blur (`backdrop-filter`, with an opaque fallback). Nothing floats beside it: on Portfolio, Record a change is a full-width button under the chart. The admin area works on tablet and desktop.
+- Phone: a top bar, which is the page bar with the account menu at its right end, under the top safe area, and a floating tab bar with the same four items: a pill above the content, which scrolls under it behind a light blur (`backdrop-filter`, with an opaque fallback). Nothing floats beside it: on Portfolio, Record a change is a full-width button under the chart. The admin area works on tablet and desktop.
 - Guests and anonymous viewers have no Portfolio item.
 - Every page starts with a page bar: the title or back link on the left, the period and unit on the right, and nothing else.
 - The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL. Tablet and desktop show them as the full bar in the page bar; the phone shows one button in the top bar, which opens a sheet with both.

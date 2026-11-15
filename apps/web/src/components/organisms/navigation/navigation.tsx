@@ -17,10 +17,10 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import type { MemberColor } from "../../../lib/member-color";
-import { Picture } from "../../atoms/picture/picture";
+import { Picture, type PictureProps } from "../../atoms/picture/picture";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 import * as Menu from "../../molecules/menu/menu";
+import * as PageBar from "../page-bar/page-bar";
 
 /** Who is signed in: it decides which items the navigation shows. */
 export type Role = "admin" | "member" | "guest" | "anonymous";
@@ -74,14 +74,7 @@ export function destinationsFor(role: Role): {
 }
 
 /** The signed-in person, as their picture shows them. */
-export interface Account {
-  /** Their display name, or an anonymous viewer's pseudonym. */
-  name: string;
-  /** Their colour. */
-  color: MemberColor;
-  /** Their photo's URL. An anonymous viewer has none. */
-  photo?: string | null | undefined;
-}
+export type Account = Pick<PictureProps, "name" | "color" | "photo">;
 
 /** Each item's icon, any Phosphor icon. The current item draws its fill weight. */
 interface NavigationIcons {
@@ -201,7 +194,7 @@ const item = cva(
           "",
           "min-h-[3.5rem] flex-col justify-center gap-xs rounded-l px-[0.125rem] py-s text-xs",
           "tablet:min-h-[3.5rem] tablet:flex-col tablet:justify-center tablet:gap-xs tablet:rounded-l tablet:px-[0.125rem] tablet:py-s tablet:text-xs",
-          "desktop:min-h-[0] desktop:rounded-full desktop:flex-row desktop:justify-start desktop:gap-[0.625rem] desktop:px-[0.75rem] desktop:py-s desktop:text-s",
+          "desktop:min-h-0 desktop:rounded-full desktop:flex-row desktop:justify-start desktop:gap-[0.625rem] desktop:px-[0.75rem] desktop:py-s desktop:text-s",
         ],
         tab: "flex-1 flex-col justify-center gap-[0.125rem] rounded-full py-[0.375rem] text-xs",
       },
@@ -260,19 +253,22 @@ function AccountMenu({ place }: { place: "side" | "top" }) {
           side
             ? cn(
                 "flex cursor-pointer items-center rounded-full bg-transparent text-s font-medium text-primary",
-                "size-xl justify-center gap-s self-center p-[0]",
-                "tablet:size-xl tablet:justify-center tablet:gap-s tablet:self-center tablet:p-[0]",
+                "size-xl justify-center gap-s self-center p-0",
+                "tablet:size-xl tablet:justify-center tablet:gap-s tablet:self-center tablet:p-0",
                 "desktop:h-auto desktop:w-full desktop:justify-start desktop:gap-s desktop:self-stretch desktop:px-[0.625rem] desktop:py-s",
                 "hover:bg-highlight",
                 "focus-visible:focus-ring",
                 "popup-open:bg-highlight",
               )
             : cn(
-                "inline-grid size-xl shrink-0 cursor-pointer place-items-center rounded-full bg-transparent",
+                // The ::after box widens the 40px button's touch target to 44px.
+                "relative inline-grid size-xl shrink-0 cursor-pointer place-items-center rounded-full bg-transparent after:absolute after:-inset-[0.125rem]",
                 "",
                 "",
                 "",
+                "hover:bg-highlight",
                 "focus-visible:focus-ring",
+                "popup-open:bg-highlight",
               )
         }
       >
@@ -344,7 +340,7 @@ export function Side({ className, ...props }: SideProps) {
       aria-label={t("navigation.label")}
       {...props}
       className={cn(
-        "sticky top-[0] h-dvh shrink-0 flex-col overflow-y-auto border-e-[1.5px] border-divider bg-page pb-[calc(var(--spacing-m)+env(safe-area-inset-bottom))] font-sans text-primary",
+        "sticky top-0 h-dvh shrink-0 flex-col overflow-y-auto border-e-[1.5px] border-divider bg-page pb-[calc(var(--spacing-m)+env(safe-area-inset-bottom))] font-sans text-primary",
         "hidden",
         "tablet:flex tablet:w-[5.25rem] tablet:gap-xs tablet:px-s tablet:pt-[calc(var(--spacing-m)+env(safe-area-inset-top))]",
         "desktop:flex desktop:w-[12.5rem] desktop:gap-[0.125rem] desktop:px-[0.75rem] desktop:pt-[calc(1.125rem+env(safe-area-inset-top))]",
@@ -355,7 +351,7 @@ export function Side({ className, ...props }: SideProps) {
         className={cn(
           "text-m font-semibold tracking-[0.08em]",
           "pb-[0.75rem] text-center",
-          "tablet:px-[0] tablet:pb-[0.75rem] tablet:text-center",
+          "tablet:px-0 tablet:pb-[0.75rem] tablet:text-center",
           "desktop:px-[0.625rem] desktop:pb-[0.875rem] desktop:text-start",
         )}
       >
@@ -392,7 +388,7 @@ export function Side({ className, ...props }: SideProps) {
               "flex flex-col border-divider",
               "mt-s gap-xs border-t-[1.5px] pt-s",
               "tablet:mt-s tablet:gap-xs tablet:border-t-[1.5px] tablet:pt-s",
-              "desktop:mt-[0] desktop:gap-[0.125rem] desktop:border-t-0 desktop:pt-[0]",
+              "desktop:mt-0 desktop:gap-[0.125rem] desktop:border-t-0 desktop:pt-0",
             )}
           >
             {admin.map((destination) => (
@@ -458,19 +454,16 @@ export function TabBar({ className, ...props }: TabBarProps) {
   );
 }
 
-interface TopBarOwnProps {
-  /** The page's title or its back link, on the left. */
+export type TopBarProps = {
+  /** The left end: `PageBar.Title`, or `PageBar.Back` on a page under another. */
   title: ReactNode;
-  /** Controls between the title and your picture, such as the period button. */
+  /** The controls before your picture, such as `PeriodControl`. */
   children?: ReactNode;
-}
-
-export type TopBarProps = TopBarOwnProps &
-  Omit<ComponentProps<"header">, keyof TopBarOwnProps>;
+} & Omit<ComponentProps<"header">, "title" | "children">;
 
 /**
- * The phone's top bar: the page's title or back link, then your picture,
- * which opens the account menu. It pads for the safe area at the top. Hidden
+ * The phone's top bar: the page bar's parts, with your picture at the right
+ * end opening the account menu. It pads for the safe area at the top. Hidden
  * from tablet up, where the page bar and the side navigation take its place.
  */
 export function TopBar({ title, children, className, ...props }: TopBarProps) {
@@ -478,18 +471,20 @@ export function TopBar({ title, children, className, ...props }: TopBarProps) {
     <header
       {...props}
       className={cn(
-        "items-center gap-s pt-[env(safe-area-inset-top)] font-sans text-primary",
-        "flex min-h-[calc(3.5rem+env(safe-area-inset-top))] px-m",
+        "pt-[env(safe-area-inset-top)] font-sans",
+        "block px-m",
         "tablet:hidden",
         "desktop:hidden",
         className,
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center text-l font-semibold">
+      <PageBar.Root>
         {title}
-      </div>
-      {children}
-      <AccountMenu place="top" />
+        <PageBar.Controls>
+          {children}
+          <AccountMenu place="top" />
+        </PageBar.Controls>
+      </PageBar.Root>
     </header>
   );
 }
