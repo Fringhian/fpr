@@ -13,12 +13,13 @@ import {
 } from "@fpr/contracts";
 import { accessKeys } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
-import { implement } from "@orpc/server";
+import { implement, os } from "@orpc/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { Auth } from "../src/auth.js";
 import type { ApiContext } from "../src/orpc.js";
-import { requestPipeline, signedIn } from "../src/pipeline.js";
+import { assertMayWriteUser } from "../src/ownership.js";
+import { requestPipeline, signedIn } from "../src/pipeline/index.js";
 import {
   addPerson,
   createTestAuth,
@@ -94,7 +95,16 @@ const testRouter = {
     .handler(({ context }) => context.viewer),
   portfolioWrite: api.portfolioWrite
     .use(signedIn)
-    .handler(({ context }) => context.viewer),
+    .handler(({ context, input }) => {
+      assertMayWriteUser(context.viewer, input.userId);
+      return context.viewer;
+    }),
+  // A route outside any contract, so it declares no access.
+  undeclared: os
+    .$context<ApiContext>()
+    .use(requestPipeline)
+    .route({ method: "GET", path: "/undeclared" })
+    .handler(() => ({})),
 };
 
 let test: TestDatabase;
@@ -406,75 +416,97 @@ describe("role guard", () => {
       }
     });
   });
+});
 
-  describe("a {userId} write", () => {
-    const write = (role: Role, userId: string, body: unknown) =>
-      call(`/users/${userId}/things`, {
-        method: "POST",
-        cookie: people[role].cookie,
-        body,
-      });
-    const valid = { amountEur: "12.50" };
-
-    it("lets a member write their own data", async () => {
-      const response = await write("member", people.member.id, valid);
-
-      expect(response.status).toBe(200);
-    });
-
-    it("lets a member write their own data with their id in capitals", async () => {
-      const response = await write(
-        "member",
-        people.member.id.toUpperCase(),
-        valid,
-      );
-
-      expect(response.status).toBe(200);
-    });
-
-    it("refuses a member another member's data with forbidden, before reading the body", async () => {
-      const response = await write("member", people.admin.id, {});
-
-      expect(response.status).toBe(403);
-      expect(await errorCode(response)).toBe("forbidden");
-    });
-
-    it("ignores a userId in the body, which the path's replaces", async () => {
-      const response = await write("member", people.admin.id, {
-        ...valid,
-        userId: people.member.id,
-      });
-
-      expect(response.status).toBe(403);
-    });
-
-    it("lets the admin write anyone's data", async () => {
-      const response = await write("admin", people.member.id, valid);
-
-      expect(response.status).toBe(200);
-      expect(await response.json()).toEqual({
-        id: people.admin.id,
-        role: "admin",
-      });
-    });
-
-    it.each(["guest", "anonymous"] as const)(
-      "refuses a %s even their own id",
-      async (role) => {
-        const response = await write(role, people[role].id, valid);
-
-        expect(response.status).toBe(403);
-      },
+describe("a route that declares no access", () => {
+  it.each([
+    ["without a session", undefined],
+    ["for the admin", "admin"],
+  ] as const)("is refused with forbidden %s", async (_, role) => {
+    const response = await call(
+      "/undeclared",
+      role === undefined ? {} : { cookie: people[role].cookie },
     );
 
-    it("lets every role read anyone's data", async () => {
-      for (const role of roles) {
-        const response = await call(`/users/${people.admin.id}/things`, {
-          cookie: people[role].cookie,
-        });
-        expect(response.status).toBe(200);
-      }
+    expect(response.status).toBe(403);
+    expect(await errorCode(response)).toBe("forbidden");
+  });
+});
+
+describe("ownership, checked by a {userId} write's handler", () => {
+  const write = (role: Role, userId: string, body: unknown) =>
+    call(`/users/${userId}/things`, {
+      method: "POST",
+      cookie: people[role].cookie,
+      body,
     });
+  const valid = { amountEur: "12.50" };
+
+  it("lets a member write their own data", async () => {
+    const response = await write("member", people.member.id, valid);
+
+    expect(response.status).toBe(200);
+  });
+
+  it("lets a member write their own data with their id in capitals", async () => {
+    const response = await write(
+      "member",
+      people.member.id.toUpperCase(),
+      valid,
+    );
+
+    expect(response.status).toBe(200);
+  });
+
+  it("refuses a member another member's data with forbidden", async () => {
+    const response = await write("member", people.admin.id, valid);
+
+    expect(response.status).toBe(403);
+    expect(await errorCode(response)).toBe("forbidden");
+  });
+
+  it("comes after input validation: another member's data with an invalid body is invalid_request", async () => {
+    const response = await write("member", people.admin.id, {});
+
+    expect(response.status).toBe(400);
+    expect(await errorCode(response)).toBe("invalid_request");
+  });
+
+  it("ignores a userId in the body, which the path's replaces", async () => {
+    const response = await write("member", people.admin.id, {
+      ...valid,
+      userId: people.member.id,
+    });
+
+    expect(response.status).toBe(403);
+  });
+
+  it("lets the admin write anyone's data", async () => {
+    const response = await write("admin", people.member.id, valid);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: people.admin.id,
+      role: "admin",
+    });
+  });
+
+  it.each(["guest", "anonymous"] as const)(
+    "leaves the %s refused by the role guard, even on their own id",
+    async (role) => {
+      const response = await write(role, people[role].id, valid);
+
+      expect(response.status).toBe(403);
+    },
+  );
+
+  it("lets every role read anyone's data", async () => {
+    for (const role of roles) {
+      const response = await call(`/users/${people.admin.id}/things`, {
+        cookie: people[role].cookie,
+      });
+      expect(response.status).toBe(200);
+    }
   });
 });
 

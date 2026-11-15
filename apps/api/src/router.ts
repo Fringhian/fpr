@@ -1,7 +1,8 @@
 import { apiContract } from "@fpr/contracts";
 import { implement } from "@orpc/server";
+import { apiError } from "./errors.js";
 import type { ApiContext } from "./orpc.js";
-import { apiError, requestPipeline, signedIn } from "./pipeline.js";
+import { requestPipeline, signedIn } from "./pipeline/index.js";
 
 /**
  * Every route of `apiContract`, behind the request pipeline. A handler reads

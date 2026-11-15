@@ -9,7 +9,7 @@ import { type Auth, authBasePath } from "./auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
 import { mountRouter } from "./orpc.js";
-import { authAccessCheck } from "./pipeline.js";
+import { authAccessCheck } from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
 
 export interface AppOptions {
