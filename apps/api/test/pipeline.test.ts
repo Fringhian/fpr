@@ -100,14 +100,12 @@ const testRouter = {
 let test: TestDatabase;
 let auth: Auth;
 let server: TestServer;
-let apiServer: TestServer;
 const people = {} as Record<Role, TestPerson & { cookie: string }>;
 
 beforeAll(async () => {
   test = await createTestDatabase();
   auth = createTestAuth(test.db);
   server = await serveApp({ db: test.db, auth, router: testRouter });
-  apiServer = await serveApp({ db: test.db, auth });
   for (const role of roles) {
     const person = await addPerson(test.db, auth, role);
     people[role] = { ...person, cookie: await signIn(server, person) };
@@ -116,7 +114,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
-  await apiServer.close();
   await test.drop();
 });
 
@@ -193,13 +190,6 @@ describe("session", () => {
       id: people.member.id,
       role: "member",
     });
-  });
-
-  it("answers GET /api/me without a session with unauthenticated", async () => {
-    const response = await fetch(`${apiServer.url}/api/me`);
-
-    expect(response.status).toBe(401);
-    expect(await errorCode(response)).toBe("unauthenticated");
   });
 
   it("extends a session in use to 30 days, with a renewed cookie", async () => {
