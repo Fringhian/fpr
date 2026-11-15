@@ -361,7 +361,7 @@ export const TabletAnonymous: Story = {
   globals: { viewport: { value: "tablet" } },
 };
 
-/** The account menu from the phone’s top bar. */
+/** The account menu from the phone’s top bar, as a sheet rising from the bottom. */
 export const PhoneAccountMenu: Story = {
   name: "Phone, account menu",
   tags: ["!autodocs"],
@@ -373,8 +373,13 @@ export const PhoneAccountMenu: Story = {
     await userEvent.click(
       within(banner).getByRole("button", { name: "Sam, your account" }),
     );
+    const sheet = await page.findByRole("dialog", {
+      name: "Sam, your account",
+    });
     await waitFor(() =>
-      expect(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible(),
+      expect(
+        within(sheet).getByRole("button", { name: "Sign out" }),
+      ).toBeVisible(),
     );
   },
 };
