@@ -30,6 +30,17 @@ describe("Swatch.Item", () => {
     expect(markup).toContain(">S</span>");
   });
 
+  it("takes className as a string or as a function of its state", () => {
+    expect(render(<Swatch.Item color="cyan" className="mx-s" />)).toMatch(
+      /role="radio"[^>]*class="[^"]*mx-s|class="[^"]*mx-s[^"]*"[^>]*role="radio"/,
+    );
+    const byState = (state: { disabled: boolean }) =>
+      state.disabled ? "is-off" : "is-on";
+    expect(
+      render(<Swatch.Item color="cyan" disabled className={byState} />),
+    ).toContain("is-off");
+  });
+
   it("ignores a blank owner", () => {
     const markup = render(<Swatch.Item color="green" takenBy="  " />);
     expect(markup).toContain('aria-label="Green"');
