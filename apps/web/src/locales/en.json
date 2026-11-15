@@ -33,6 +33,25 @@
   "button": {
     "saving": "Saving…"
   },
+  "dialog": {
+    "close": "Close",
+    "cancel": "Cancel"
+  },
+  "swatch": {
+    "colours": {
+      "vermilion": "Vermilion",
+      "cobalt": "Cobalt",
+      "green": "Green",
+      "violet": "Violet",
+      "amber": "Amber",
+      "pink": "Pink",
+      "cyan": "Cyan",
+      "lime": "Lime",
+      "sienna": "Sienna",
+      "periwinkle": "Periwinkle"
+    },
+    "takenBy": "{{colour}}, taken by {{name}}"
+  },
   "smallParts": {
     "marketStatus": {
       "open": "Markets open · prices as of {{time}}",
@@ -76,9 +95,12 @@
       "separator": " · "
     }
   },
-  "dialog": {
-    "close": "Close",
-    "cancel": "Cancel"
+  "menu": {
+    "more": "More actions",
+    "moreFor": "More actions for {{subject}}"
+  },
+  "popover": {
+    "helpLink": "More in How FPR works"
   },
   "controls": {
     "period": {
