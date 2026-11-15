@@ -33,6 +33,12 @@
   "button": {
     "saving": "Saving…"
   },
+  "field": {
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
   "dialog": {
     "close": "Close",
     "cancel": "Cancel"

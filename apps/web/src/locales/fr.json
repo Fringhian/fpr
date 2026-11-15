@@ -33,6 +33,12 @@
   "button": {
     "saving": "Enregistrement…"
   },
+  "field": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
+  },
   "dialog": {
     "close": "Fermer",
     "cancel": "Annuler"
