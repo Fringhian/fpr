@@ -51,14 +51,22 @@ export type BadgeState =
   | "heldBefore"
   | "saved";
 
-export interface BadgeProps extends Omit<ComponentProps<"span">, "children"> {
+export interface BadgeOwnProps {
   /** The state the badge names. Its words and colour follow from it. */
   state: BadgeState;
 }
 
-/** A small capsule label for a state, its words in the reader's language. */
+/** The badge writes its own words, so it takes no `children`. */
+export type BadgeProps = BadgeOwnProps &
+  Omit<ComponentProps<"span">, keyof BadgeOwnProps | "children">;
+
+/**
+ * A small capsule label for a state, its words in the reader's language.
+ * Every other prop goes to the `<span>`, `className` included.
+ */
 export function Badge({ state, className, ...props }: BadgeProps) {
   const { t } = useTranslation();
+
   return (
     <span {...props} className={cn(badge({ state }), className)}>
       {t(`badge.${state}`)}
