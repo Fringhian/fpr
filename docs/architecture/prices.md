@@ -126,7 +126,7 @@ That is about 600 calls per trading day. On the Free plan, about 12,500 calls a 
 
 `PROVIDER_DAILY_CALL_LIMIT` caps the calls the service spends in a day, 1,000 by default. Lookups are refused with a message once the calls left in the day are no more than the day's remaining scheduled calls, so lookups never use the schedule's share. Once the cap is reached, the schedule waits for the next day. The count is kept in memory, restarts at zero at midnight and when the service restarts, and is logged with every run.
 
-The count lives in `CallBudget`, in `apps/prices/src/budget.ts`:
+The count lives in `CallBudget`, in `apps/prices/src/market/budget.ts`:
 
 - Every provider request counts its billed calls before it is sent, since the provider bills a request that fails. A request whose calls would pass the cap is not sent: it rejects with a `ProviderError` `call_budget_used`, and a batch of `latest` stops there.
 - Each schedule registers the calls it still makes today, from the current moment to midnight in `RACE_TIMEZONE`. The day's remaining scheduled calls are their sum.

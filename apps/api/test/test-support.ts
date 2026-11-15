@@ -13,10 +13,8 @@ import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth.js";
 import { createLogger } from "../src/logger.js";
 
-/** The instance's origin in tests. */
 export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
-/** Every test person's password. */
 export const TEST_PASSWORD = "a long enough password";
 
 /** Better Auth on a test database, as `index.ts` builds it. */
@@ -75,7 +73,6 @@ export async function serveApp(options: {
 export interface TestPerson {
   id: string;
   email: string;
-  /** Their access key's id. */
   keyId: string;
 }
 
