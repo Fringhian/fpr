@@ -1,4 +1,5 @@
 import type { Logger } from "pino";
+import type { CallBudget } from "../budget.js";
 import { ProviderError, type ProviderName } from "./provider.js";
 
 /** The `fetch` a provider sends its requests with. Tests pass a mock. */
@@ -7,11 +8,15 @@ export type Fetch = typeof fetch;
 /** A provider request takes at most this long before it counts as failed. */
 export const providerTimeoutMs = 15_000;
 
-/** What a provider's requests share: its name, its logger, and its `fetch`. */
+/**
+ * What a provider's requests share: its name, its logger, its `fetch`, and the
+ * day's call budget every request is counted against.
+ */
 export interface ProviderHttp {
   provider: ProviderName;
   logger: Logger;
   fetch: Fetch;
+  budget: CallBudget;
 }
 
 /** Fields that describe a call in its log line. Never the URL, which holds the key. */
@@ -49,21 +54,35 @@ export function parseJsonExact(text: string): unknown {
 
 /**
  * Sends one provider request and returns its JSON body, with every number as
- * a decimal string. Logs one line per call: the provider, the endpoint, what
- * was asked, the calls billed, the status, and the duration. Rejects with a
- * `ProviderError`: `not_found` on a 404, `unavailable` on any other failure.
+ * a decimal string. Counts its calls against the day's budget before sending
+ * it, since the provider bills a request even when it fails. Logs one line per
+ * call: the provider, the endpoint, what was asked, the calls billed, the
+ * day's count, the status, and the duration. Rejects with a `ProviderError`:
+ * `call_budget_used`, unsent, when the calls would pass the day's cap,
+ * `not_found` on a 404, `unavailable` on any other failure.
  */
 export async function callProvider(
   http: ProviderHttp,
   call: ProviderCall,
 ): Promise<unknown> {
-  const started = performance.now();
-  const line = {
+  const fields = {
     provider: http.provider,
     endpoint: call.endpoint,
     ...call.fields,
     calls: call.calls,
   };
+  if (!http.budget.trySpend(call.calls)) {
+    http.logger.warn(
+      { ...fields, ...http.budget.logFields() },
+      "provider call refused: daily call cap reached",
+    );
+    throw new ProviderError(
+      "call_budget_used",
+      `${http.provider} ${call.endpoint}: daily call cap reached`,
+    );
+  }
+  const line = { ...fields, callsToday: http.budget.spent() };
+  const started = performance.now();
   const duration = (): number => Math.round(performance.now() - started);
 
   let response: Response;

@@ -84,6 +84,9 @@ importers:
       '@fpr/db':
         specifier: workspace:*
         version: link:../../packages/db
+      big.js:
+        specifier: 7.0.1
+        version: 7.0.1
       express:
         specifier: 5.3.0
         version: 5.3.0
@@ -97,6 +100,9 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
     devDependencies:
+      '@types/big.js':
+        specifier: 7.0.0
+        version: 7.0.0
       '@types/express':
         specifier: 5.0.6
         version: 5.0.6
@@ -139,6 +145,9 @@ importers:
       i18next:
         specifier: 27.1.1
         version: 27.1.1(typescript@7.0.2)
+      lightweight-charts:
+        specifier: 5.2.1
+        version: 5.2.1
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -2274,6 +2283,9 @@ packages:
   exsolve@1.2.0:
     resolution: {integrity: sha512-h1pQPR9XoeSMdntRNCjyTznaume4UpfXrULBnlkZ2CUM/G5eSa+pBByGldO5uR8dxbPC+OuJXsPPNf+JZ81ADg==}
 
+  fancy-canvas@2.1.0:
+    resolution: {integrity: sha512-nifxXJ95JNLFR2NgRV4/MxVP45G9909wJTEKz5fg/TZS20JJZA6hfgRVh/bC9bwl2zBtBNcYPjiBE4njQHVBwQ==}
+
   fast-copy@4.3.1:
     resolution: {integrity: sha512-CRzQaTFOFUs6PuhsAq7lk9Zqr995soJBcFNZlfJS/5keTSl1awREV9dZW4xS2nX4pWbhIIR0xp4h+J8PQxCkvg==}
 
@@ -2595,6 +2607,9 @@ packages:
   lightningcss@1.33.0:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
+
+  lightweight-charts@5.2.1:
+    resolution: {integrity: sha512-IVwoK1RLFiLPubaKIjNbtjWLnpPMqiABSrTay6whmNa8L1+19292VtHJ+BWyPUuLCwF0tcQlhEWd1CLB2a1nsQ==}
 
   lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
@@ -5304,6 +5319,8 @@ snapshots:
 
   exsolve@1.2.0: {}
 
+  fancy-canvas@2.1.0: {}
+
   fast-copy@4.3.1: {}
 
   fast-safe-stringify@2.1.1: {}
@@ -5549,6 +5566,10 @@ snapshots:
       lightningcss-linux-x64-musl: 1.33.0
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
+
+  lightweight-charts@5.2.1:
+    dependencies:
+      fancy-canvas: 2.1.0
 
   lilconfig@2.1.0: {}
 
