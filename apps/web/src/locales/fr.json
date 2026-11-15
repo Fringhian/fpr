@@ -3,7 +3,7 @@
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
     "active": "Actif",
-    "waitingForFirstUse": "En attente de première utilisation",
+    "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
@@ -33,6 +33,25 @@
   "button": {
     "saving": "Enregistrement…"
   },
+  "dialog": {
+    "close": "Fermer",
+    "cancel": "Annuler"
+  },
+  "swatch": {
+    "colours": {
+      "vermilion": "Vermillon",
+      "cobalt": "Cobalt",
+      "green": "Vert",
+      "violet": "Violet",
+      "amber": "Ambre",
+      "pink": "Rose",
+      "cyan": "Cyan",
+      "lime": "Citron vert",
+      "sienna": "Terre de Sienne",
+      "periwinkle": "Pervenche"
+    },
+    "takenBy": "{{colour}}, couleur de {{name}}"
+  },
   "smallParts": {
     "marketStatus": {
       "open": "Marchés ouverts · cours à {{time}}",
@@ -52,21 +71,6 @@
   },
   "popover": {
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
-  },
-  "swatch": {
-    "colours": {
-      "vermilion": "Vermillon",
-      "cobalt": "Cobalt",
-      "green": "Vert",
-      "violet": "Violet",
-      "amber": "Ambre",
-      "pink": "Rose",
-      "cyan": "Cyan",
-      "lime": "Citron vert",
-      "sienna": "Terre de Sienne",
-      "periwinkle": "Pervenche"
-    },
-    "takenBy": "{{colour}}, couleur de {{name}}"
   },
   "navigation": {
     "label": "Principale",
