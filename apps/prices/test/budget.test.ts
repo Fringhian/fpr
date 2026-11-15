@@ -1,7 +1,7 @@
 import { Writable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { type CallBudget, createCallBudget } from "../src/budget.js";
 import { createLogger } from "../src/logger.js";
+import { type CallBudget, createCallBudget } from "../src/market/budget.js";
 import {
   createEodhdProvider,
   eodhdLatestBatchSize,
