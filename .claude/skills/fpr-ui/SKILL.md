@@ -34,6 +34,9 @@ impeccable's `PRODUCT.md`, `DESIGN.md` (the tokens and rules of the look), and `
 - Storybook runs in `apps/web` with the Vite builder and loads the real `theme.css` and fonts.
 - Every component in `src/components/ui/` has a story file beside it. Stories are grouped Foundations, Atoms, Molecules, Organisms, Templates, like the design system.
 - A story shows every variant and state of its component, and the widths where it changes.
+- A component's props are its stories' `args`, with `argTypes` giving each one its control (`inline-radio` for a variant, `boolean`, `text`), so every variant can be changed live in the Controls panel. A prop that takes a component, such as an icon, is picked by name: a `select` of names, and the story's `render` turns the name into the component (a `mapping` can't show its starting value in the panel). A prop that only makes sense with another one uses `if: { arg: … }`.
+- A component's story file carries `tags: ["autodocs"]`: its Docs page lists every prop, with the controls, from the component's own types and doc comments.
+- A catalogue with nothing to configure (a token page, a list of every icon) is a fixed `render`, with `parameters: { controls: { disable: true } }`.
 - The accessibility addon runs on every story. A story with violations doesn't merge.
 
 impeccable serves this workflow:
