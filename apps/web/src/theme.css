@@ -16,6 +16,9 @@
   --palette-pine: #12793f;
   --palette-brick: #bf3539;
   --palette-indigo: #3f5bd8;
+  --palette-gold: #d9a514;
+  --palette-silver: #a3abb5;
+  --palette-bronze: #b9773e;
 }
 
 /*
@@ -60,6 +63,10 @@
   --color-warning: var(--palette-brick);
   --color-error: var(--palette-brick);
   --color-link: var(--palette-indigo);
+  /* Medals: the rings of the first three pictures in the standings */
+  --color-gold: var(--palette-gold);
+  --color-silver: var(--palette-silver);
+  --color-bronze: var(--palette-bronze);
 
   /* Member colours, in order: the line and bar, then the pastel picture */
   --color-vermilion: #f0522b;
