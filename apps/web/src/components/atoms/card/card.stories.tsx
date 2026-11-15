@@ -5,8 +5,8 @@ import { Card } from "./card";
 
 /** The demo texts, in the toolbar's language. They are the stories' content, not the card's. */
 const TEXTS = {
-  en: { title: "World Index ETF", body: "12 units · €103.12 · as of 14:30" },
-  fr: { title: "World Index ETF", body: "12 parts · 103,12 € · à 14:30" },
+  en: { title: "World Index ETF", body: "Its price, its curve and its value." },
+  fr: { title: "World Index ETF", body: "Son cours, sa courbe et sa valeur." },
 } as const satisfies Record<Language, Record<string, string>>;
 
 function Content() {
