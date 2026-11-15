@@ -21,6 +21,9 @@
       "question": "Sell {{quantity}} units?"
     }
   },
+  "button": {
+    "saving": "Saving…"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
@@ -81,8 +84,5 @@
       "them": "Open {{name}}’s page"
     },
     "backToYou": "Back to you"
-  },
-  "button": {
-    "saving": "Saving…"
   }
 }

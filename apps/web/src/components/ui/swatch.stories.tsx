@@ -1,13 +1,22 @@
+import { CheckIcon } from "@phosphor-icons/react/Check";
+import { CheckFatIcon } from "@phosphor-icons/react/CheckFat";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MEMBER_COLORS, type MemberColor } from "../../lib/member-color";
 import type { ItemProps } from "./swatch";
 import * as Swatch from "./swatch";
 
-/** One swatch's args: its own props, and whether its group has it selected. */
+/** The icons the controls offer for a selected swatch, by name. */
+const CHECK_ICONS = { check: CheckIcon, "check-fat": CheckFatIcon } as const;
+
+/**
+ * One swatch's args: its own props, its check icon picked by name, and
+ * whether its group's value is its colour.
+ */
 type SwatchArgs = Pick<
   ItemProps,
   "color" | "takenBy" | "disabled" | "className"
 > & {
+  checkIcon: keyof typeof CHECK_ICONS;
   selected: boolean;
 };
 
@@ -54,8 +63,14 @@ const meta = {
   component: Swatch.Item,
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-  args: { color: "cobalt", takenBy: "", disabled: false, selected: false },
   argTypes: {
+    checkIcon: {
+      options: Object.keys(CHECK_ICONS),
+      control: { type: "select" },
+      description:
+        "The icon a selected swatch shows, any Phosphor icon; picked by name here. A check by default.",
+      table: { type: { summary: "Icon" } },
+    },
     color: {
       control: { type: "select" },
       options: MEMBER_COLORS,
@@ -65,11 +80,33 @@ const meta = {
       control: { type: "text" },
       table: { type: { summary: "string" } },
     },
-    className: { control: false, table: { type: { summary: "string" } } },
+    className: {
+      control: false,
+      table: { type: { summary: "string | (state) => string" } },
+    },
     disabled: {
       control: { type: "boolean" },
       description: "The swatch can't be picked, as a colour someone has.",
     },
+  },
+} satisfies Meta<typeof Swatch.Item>;
+
+export default meta;
+
+type Story = StoryObj<SwatchArgs>;
+
+const DEFAULTS: SwatchArgs = {
+  color: "cobalt",
+  takenBy: "",
+  disabled: false,
+  checkIcon: "check",
+  selected: false,
+};
+
+/** One swatch in its group: the args set the swatch, and whether the group's value is its colour. */
+const oneSwatch = {
+  args: DEFAULTS,
+  argTypes: {
     selected: {
       name: "Group value",
       control: { type: "boolean" },
@@ -77,36 +114,37 @@ const meta = {
         "`Swatch.Group`'s `value` is this swatch's colour: the swatch is selected.",
     },
   },
-  render: ({ selected, ...item }) => (
+  render: ({ selected, checkIcon, ...item }) => (
     <Swatch.Group
       key={`${item.color}-${String(selected)}`}
       aria-label="Colour"
       defaultValue={selected ? item.color : undefined}
     >
-      <Swatch.Item {...item} />
+      <Swatch.Item {...item} checkIcon={CHECK_ICONS[checkIcon]} />
     </Swatch.Group>
   ),
-} satisfies Meta<SwatchArgs>;
-
-export default meta;
-
-type Story = StoryObj<typeof meta>;
+} satisfies Story;
 
 /** Free: anyone can pick it. */
-export const Free: Story = {};
+export const Free: Story = { ...oneSwatch };
 
 /** Selected: a check and a charcoal ring. */
-export const Selected: Story = { args: { selected: true } };
+export const Selected: Story = {
+  ...oneSwatch,
+  args: { ...DEFAULTS, selected: true },
+};
 
 /** Taken: faded, with its owner's initial, and can't be picked. */
 export const Taken: Story = {
-  args: { color: "vermilion", takenBy: "Sam", disabled: true },
+  ...oneSwatch,
+  args: { ...DEFAULTS, color: "vermilion", takenBy: "Sam", disabled: true },
 };
 
 /** Once all ten are taken, colours can be shared: a taken swatch can be picked, and the selected one doesn't fade. */
 export const SelectedShared: Story = {
+  ...oneSwatch,
   name: "Selected and shared",
-  args: { color: "green", takenBy: "Lea", selected: true },
+  args: { ...DEFAULTS, color: "green", takenBy: "Lea", selected: true },
 };
 
 /** The ten colours in the picker, as onboarding and Settings show them. */

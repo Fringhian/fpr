@@ -75,12 +75,14 @@ interface PictureOwnProps {
 }
 
 export type PictureProps = PictureOwnProps &
-  Omit<ComponentProps<"span">, keyof PictureOwnProps | "children">;
+  Omit<ComponentProps<typeof Avatar.Root>, keyof PictureOwnProps | "children">;
 
 /**
  * A person's picture: their initial on the pastel of their colour, or their
  * photo, in a circle. It is an image named by the person's name; pass
- * `aria-hidden` where the name is written beside it.
+ * `aria-hidden` where the name is written beside it. Every other prop goes to
+ * Base UI's avatar, `className` included: a string, or a function of its
+ * state.
  */
 export function Picture({
   name,
@@ -92,17 +94,26 @@ export function Picture({
   ...props
 }: PictureProps) {
   const language = useLanguage();
+
+  const classes = cn(picture({ size, medal }), PASTELS[color]);
+  const initial = initialOf(name, language);
+
   return (
     <Avatar.Root
       role="img"
       aria-label={name}
       {...props}
-      className={cn(picture({ size, medal }), PASTELS[color], className)}
+      className={(state) =>
+        cn(
+          classes,
+          typeof className === "function" ? className(state) : className,
+        )
+      }
     >
       {photo ? (
         <Avatar.Image src={photo} alt="" className="size-full object-cover" />
       ) : null}
-      <Avatar.Fallback>{initialOf(name, language)}</Avatar.Fallback>
+      <Avatar.Fallback>{initial}</Avatar.Fallback>
     </Avatar.Root>
   );
 }

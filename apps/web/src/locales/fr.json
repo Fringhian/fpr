@@ -21,6 +21,9 @@
       "question": "Vendre {{quantity}} parts ?"
     }
   },
+  "button": {
+    "saving": "Enregistrement…"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermillon",
@@ -81,8 +84,5 @@
       "them": "Ouvrir la page de {{name}}"
     },
     "backToYou": "Revenir à vous"
-  },
-  "button": {
-    "saving": "Enregistrement…"
   }
 }
