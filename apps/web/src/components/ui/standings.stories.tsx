@@ -192,7 +192,7 @@ type Story = StoryObj<StandingsArgs>;
 /** A link to the member's page, the opened lane's content in every story. */
 function pageLink(member: StandingsMember) {
   return (
-    <TextLink href={`#${member.id}`} caret className="text-s">
+    <TextLink href={`#${member.id}`} toPage className="text-s">
       Open {member.name}’s page
     </TextLink>
   );
