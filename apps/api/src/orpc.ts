@@ -29,11 +29,6 @@ function isErrorCode(code: string): code is ErrorCode {
   return (errorCodes as readonly string[]).includes(code);
 }
 
-interface Issue {
-  path?: readonly PropertyKey[];
-  code?: string;
-}
-
 /**
  * The `invalid_request` details of oRPC's validation issues: each issue's path
  * and code, without Zod's text. A symbol in a path, which JSON can't carry,
@@ -41,14 +36,15 @@ interface Issue {
  */
 function toInvalidRequestDetails(issues: unknown): InvalidRequestDetails {
   return {
-    issues: (Array.isArray(issues) ? (issues as Issue[]) : []).map(
-      ({ path = [], code }) => ({
-        path: path.flatMap((key) =>
-          typeof key === "symbol" ? [] : [key as string | number],
-        ),
-        code: validationIssueCodeSchema.catch("custom").parse(code),
-      }),
-    ),
+    issues: (Array.isArray(issues)
+      ? (issues as { path?: readonly PropertyKey[]; code?: string }[])
+      : []
+    ).map(({ path = [], code }) => ({
+      path: path.flatMap((key) =>
+        typeof key === "symbol" ? [] : [key as string | number],
+      ),
+      code: validationIssueCodeSchema.catch("custom").parse(code),
+    })),
   };
 }
 

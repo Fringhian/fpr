@@ -72,7 +72,6 @@ export const authSchema = {
   "advanced" | "user" | "session" | "account" | "verification"
 >;
 
-/** Where Better Auth's endpoints are served: `/api/auth/*`. */
 export const authBasePath = "/api/auth";
 
 /** How long a session lasts: 30 days, extended on use. */
@@ -105,19 +104,7 @@ function clientAddress(request: Request): string | null {
     : getIP(request, { advanced: { ipAddress: ipAddressOptions } });
 }
 
-/** Passwords are 12 to 128 characters long. */
 export const passwordLength = { min: 12, max: 128 } as const;
-
-export interface CreateAuthOptions {
-  /** The process's pool. Better Auth reads and writes through it. */
-  db: Db;
-  /** `BETTER_AUTH_SECRET`. */
-  secret: string;
-  /** `PUBLIC_URL`: the only origin Better Auth trusts. */
-  baseURL: string;
-  /** Where Better Auth's warnings and errors go, as pino lines. */
-  logger?: Logger;
-}
 
 /**
  * Better Auth for FPR: email and password only, with no public sign-up and
@@ -133,7 +120,20 @@ export interface CreateAuthOptions {
  * Better Auth names its columns itself, so it gets the pool without the
  * camelCase plugin, which would rename the rows it reads back.
  */
-export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
+export function createAuth({
+  db,
+  secret,
+  baseURL,
+  logger,
+}: {
+  db: Db;
+  /** `BETTER_AUTH_SECRET`. */
+  secret: string;
+  /** `PUBLIC_URL`: the only origin Better Auth trusts. */
+  baseURL: string;
+  /** Receives Better Auth's warnings and errors as pino lines. */
+  logger?: Logger;
+}) {
   let missingAddressLogged = false;
 
   /**
