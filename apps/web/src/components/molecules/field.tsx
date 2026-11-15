@@ -3,7 +3,7 @@ import { Field as BaseField } from "@base-ui/react/field";
 import { type ComponentProps, createContext, use, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { Input, type InputProps } from "./input";
+import { Input, type InputProps } from "../atoms/input";
 
 /** Whether the field around a control is disabled, so the Show button follows it. */
 const FieldDisabled = createContext(false);
