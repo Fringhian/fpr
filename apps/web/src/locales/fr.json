@@ -2,11 +2,21 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
+  },
+  "lane": {
+    "you": "· vous",
+    "best": "Meilleure : {{share}}",
+    "bestShare": "Meilleure action",
+    "since": "depuis le {{date}}",
+    "notStarted_one": "{{names}} n’a pas encore commencé.",
+    "notStarted_many": "{{names}} n’ont pas encore commencé.",
+    "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
   "foundations": {
     "formatting": {
@@ -32,6 +42,12 @@
   },
   "button": {
     "saving": "Enregistrement…"
+  },
+  "field": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "dialog": {
     "close": "Fermer",
@@ -63,6 +79,39 @@
     },
     "loadingPlaceholder": {
       "default": "Chargement…"
+    }
+  },
+  "sentence": {
+    "greeting": {
+      "morning": "Bonjour, {{name}}",
+      "afternoon": "Bonjour, {{name}}",
+      "evening": "Bonsoir, {{name}}"
+    },
+    "period": {
+      "1D": { "start": "Aujourd’hui", "inline": "aujourd’hui" },
+      "1W": { "start": "Cette semaine", "inline": "cette semaine" },
+      "1M": { "start": "Ce mois-ci", "inline": "ce mois-ci" },
+      "3M": { "start": "Sur trois mois", "inline": "sur trois mois" },
+      "YTD": {
+        "start": "Depuis le 1er janvier",
+        "inline": "depuis le 1er janvier"
+      },
+      "all": { "start": "Depuis le début", "inline": "depuis le début" }
+    },
+    "headline": {
+      "up": "{{period}}, vous gagnez <gain>{{amount}}</gain>",
+      "down": "{{period}}, vous perdez <gain>{{amount}}</gain>",
+      "flat": "{{period}}, vous êtes stable à <gain>{{amount}}</gain>",
+      "leader": "{{period}}, {{name}} est en tête avec <gain>{{amount}}</gain>"
+    },
+    "story": {
+      "theyLead": "<sign>{{name}} est en tête</sign> avec <gain/>",
+      "youLead": "<sign>Vous menez la course</sign>",
+      "alone": "Vous ouvrez la course",
+      "everyoneDown": "Tout le monde est en baisse {{period}}",
+      "starShare": "titre vedette <chip/>",
+      "starShareFirst": "Titre vedette <chip/>",
+      "separator": " · "
     }
   },
   "menu": {
@@ -109,5 +158,16 @@
       "YTD": "Cette année",
       "all": "Depuis le début"
     }
+  },
+  "allocationBar": {
+    "label": "Répartition",
+    "other": "Autres",
+    "cash": "Liquidités"
+  },
+  "chart": {
+    "keys": "Les flèches gauche et droite passent d’un jour à l’autre, Début et Fin vont au premier et au dernier jour, et Échap quitte.",
+    "point": "{{date}} : {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, provisoire"
   }
 }
