@@ -3,7 +3,7 @@
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
     "active": "Actif",
-    "waitingForFirstUse": "En attente de première utilisation",
+    "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
@@ -44,32 +44,47 @@
     },
     "loadingPlaceholder": {
       "default": "Chargement…"
-    }
-  },
-  "controls": {
-    "period": {
-      "label": "Période",
-      "1D": "1J",
-      "1W": "1S",
-      "1M": "1M",
-      "3M": "3M",
-      "YTD": "Depuis janv.",
-      "all": "Tout"
     },
-    "unit": {
-      "label": "Unité",
-      "euro": "€",
-      "percent": "%"
+    "swatch": {
+      "colours": {
+        "vermilion": "Vermillon",
+        "cobalt": "Cobalt",
+        "green": "Vert",
+        "violet": "Violet",
+        "amber": "Ambre",
+        "pink": "Rose",
+        "cyan": "Cyan",
+        "lime": "Citron vert",
+        "sienna": "Terre de Sienne",
+        "periwinkle": "Pervenche"
+      },
+      "takenBy": "{{colour}}, couleur de {{name}}"
     },
-    "standings": {
-      "label": "Classement par",
-      "gain": "Gain",
-      "balance": "Solde"
-    },
-    "language": {
-      "label": "Langue",
-      "fr": "Français",
-      "en": "English"
+    "controls": {
+      "period": {
+        "label": "Période",
+        "1D": "1J",
+        "1W": "1S",
+        "1M": "1M",
+        "3M": "3M",
+        "YTD": "Depuis janv.",
+        "all": "Tout"
+      },
+      "unit": {
+        "label": "Unité",
+        "euro": "€",
+        "percent": "%"
+      },
+      "standings": {
+        "label": "Classement par",
+        "gain": "Gain",
+        "balance": "Solde"
+      },
+      "language": {
+        "label": "Langue",
+        "fr": "Français",
+        "en": "English"
+      }
     }
   }
 }

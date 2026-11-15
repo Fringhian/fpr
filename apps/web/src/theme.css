@@ -15,7 +15,12 @@
   --palette-fog: #d9d6dc;
   --palette-pine: #12793f;
   --palette-brick: #bf3539;
+  --palette-mint: #e4f3ea;
+  --palette-rose: #f9e3e3;
   --palette-indigo: #3f5bd8;
+  --palette-gold: #d9a514;
+  --palette-silver: #a3abb5;
+  --palette-bronze: #b9773e;
 }
 
 /*
@@ -60,6 +65,16 @@
   --color-warning: var(--palette-brick);
   --color-error: var(--palette-brick);
   --color-link: var(--palette-indigo);
+  /* Medals: the rings of the first three pictures in the standings */
+  --color-gold: var(--palette-gold);
+  --color-silver: var(--palette-silver);
+  --color-bronze: var(--palette-bronze);
+
+  /* Soft fills: the pale ground of each state role, under text of that role */
+  --color-positive-soft: var(--palette-mint);
+  --color-negative-soft: var(--palette-rose);
+  --color-success-soft: var(--palette-mint);
+  --color-warning-soft: var(--palette-rose);
 
   /* Member colours, in order: the line and bar, then the pastel picture */
   --color-vermilion: #f0522b;
@@ -99,16 +114,19 @@
   --text-display--line-height: 1.15;
   --text-display--letter-spacing: -0.015em;
 
-  /* Spacing */
+  /* Spacing: 0 for no space at all (`p-0`, `inset-0`), then the scale */
+  --spacing-0: 0rem;
   --spacing-xs: 0.25rem;
   --spacing-s: 0.5rem;
   --spacing-m: 1rem;
   --spacing-l: 1.5rem;
   --spacing-xl: 2.5rem;
 
-  /* Corners: inputs, rows, cards, dialogs and sheets */
+  /* Corners: inputs, rows, cards, dialogs and sheets. `card` is the corner of
+     person rows, option cards and popovers. */
   --radius-s: 0.75rem;
   --radius-m: 0.875rem;
+  --radius-card: 1.125rem;
   --radius-l: 1.375rem;
   --radius-xl: 1.5rem;
 
@@ -118,6 +136,10 @@
     0 0 0 1.5px var(--palette-sand), 0 12px 30px rgb(122 91 76 / 0.12);
   --shadow-float:
     0 10px 30px rgb(20 20 40 / 0.14), 0 0 0 1px rgb(20 20 40 / 0.06);
+
+  /* The outline ring drawn inside the edge: inputs, options, flat cards.
+     `inset-shadow-<colour>` recolours it for a state. */
+  --inset-shadow-outline: inset 0 0 0 1.5px var(--palette-sand);
 
   /* Breakpoints: phone is the unprefixed base */
   --breakpoint-tablet: 40rem;

@@ -44,32 +44,47 @@
     },
     "loadingPlaceholder": {
       "default": "Loading…"
-    }
-  },
-  "controls": {
-    "period": {
-      "label": "Period",
-      "1D": "1D",
-      "1W": "1W",
-      "1M": "1M",
-      "3M": "3M",
-      "YTD": "YTD",
-      "all": "All"
     },
-    "unit": {
-      "label": "Unit",
-      "euro": "€",
-      "percent": "%"
+    "swatch": {
+      "colours": {
+        "vermilion": "Vermilion",
+        "cobalt": "Cobalt",
+        "green": "Green",
+        "violet": "Violet",
+        "amber": "Amber",
+        "pink": "Pink",
+        "cyan": "Cyan",
+        "lime": "Lime",
+        "sienna": "Sienna",
+        "periwinkle": "Periwinkle"
+      },
+      "takenBy": "{{colour}}, taken by {{name}}"
     },
-    "standings": {
-      "label": "Standings by",
-      "gain": "Gain",
-      "balance": "Balance"
-    },
-    "language": {
-      "label": "Language",
-      "fr": "Français",
-      "en": "English"
+    "controls": {
+      "period": {
+        "label": "Period",
+        "1D": "1D",
+        "1W": "1W",
+        "1M": "1M",
+        "3M": "3M",
+        "YTD": "YTD",
+        "all": "All"
+      },
+      "unit": {
+        "label": "Unit",
+        "euro": "€",
+        "percent": "%"
+      },
+      "standings": {
+        "label": "Standings by",
+        "gain": "Gain",
+        "balance": "Balance"
+      },
+      "language": {
+        "label": "Language",
+        "fr": "Français",
+        "en": "English"
+      }
     }
   }
 }
