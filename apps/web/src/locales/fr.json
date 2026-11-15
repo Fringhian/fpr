@@ -21,6 +21,9 @@
       "question": "Vendre {{quantity}} parts ?"
     }
   },
+  "button": {
+    "saving": "Enregistrement…"
+  },
   "controls": {
     "period": {
       "label": "Période",

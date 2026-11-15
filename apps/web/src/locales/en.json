@@ -21,6 +21,9 @@
       "question": "Sell {{quantity}} units?"
     }
   },
+  "button": {
+    "saving": "Saving…"
+  },
   "controls": {
     "period": {
       "label": "Period",
