@@ -71,4 +71,31 @@ describe("Chart", () => {
       expect(markup).not.toMatch(/h-\[13rem\]|h-\[2\.125rem\]/);
     }
   });
+
+  it("draws the overlay on the line chart only, and keeps its own props off the div", () => {
+    const overlay = () => <span data-testid="line-ends" />;
+    const line = render(
+      <Chart
+        lines={LINES}
+        label="World Index ETF, price"
+        unit="money"
+        overlay={overlay}
+        onSelectLine={() => {}}
+      />,
+    );
+    const sparkline = render(
+      <Chart
+        variant="sparkline"
+        lines={LINES}
+        label="World Index ETF, rising"
+        unit="money"
+        overlay={overlay}
+        onSelectLine={() => {}}
+      />,
+    );
+
+    expect(line).toContain('data-testid="line-ends"');
+    expect(sparkline).not.toContain('data-testid="line-ends"');
+    expect(line + sparkline).not.toMatch(/overlay=|onselectline=/i);
+  });
 });
