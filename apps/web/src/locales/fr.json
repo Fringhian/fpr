@@ -43,5 +43,11 @@
   },
   "popover": {
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
+  },
+  "chart": {
+    "keys": "Les flèches gauche et droite passent d’un jour à l’autre, Début et Fin vont au premier et au dernier jour, et Échap quitte.",
+    "point": "{{date}} : {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, provisoire"
   }
 }
