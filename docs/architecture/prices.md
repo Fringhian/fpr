@@ -141,7 +141,7 @@ Each share's `trading_currency` is the currency the provider quotes it in. The s
 - The ECB publishes one rate per currency each working day, around 16:00 Central European Time. A price is converted with the rate of its day, or the last rate published before it on weekends, holidays, and intraday. An intraday price converted before its day's rate is published takes the previous working day's rate.
 - A price quoted in pence (`GBX`) is divided by 100 before converting from GBP.
 - Rates are not stored. Each run fetches them for its date range in one request, `GET /v1/{from}..{to}`, which returns every currency the ECB publishes for each working day of the range, starting with the last working day on or before `from`. A run whose prices are all in EUR sends no request.
-- A price in EUR is stored as the provider sent it. Any other price is divided by its rate with exact decimal arithmetic, never through a floating-point number, and rounded half away from zero to 6 decimal places. Trailing zeros are dropped.
+- A price in EUR is stored as the provider sent it. Any other price is divided by its rate with exact decimal arithmetic (`big.js`), never through a floating-point number, and rounded once, half away from zero, to 6 decimal places. Trailing zeros are dropped.
 - A price in a currency the ECB doesn't publish, or one that rounds to zero, is not converted: its share and day are logged as a failure and nothing is stored for them.
 - A failed rates request fails the run's conversions, and the run logs it as an error. Frankfurter is sent each request once, and times out after 15 seconds.
 
