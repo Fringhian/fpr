@@ -3,13 +3,9 @@ import { cn } from "../../lib/cn";
 import * as Sky from "./sky";
 
 interface SkyPageProps {
-  /** The sky and its ridge, for a page with a header sentence (Home, Portfolio, a member, a share). Without it, the page starts on warm snow. */
   sky: boolean;
-  /** The page bar's title. */
   title: string;
-  /** The line above the header sentence, on the sky. */
   greeting: string;
-  /** The header sentence. One too long for the header means the page has no sky, never a moved ridge. */
   sentence: string;
 }
 
@@ -34,7 +30,7 @@ function PageBar({ title }: { title: string }) {
 /** A page's top, with or without the sky. */
 function SkyPage({ sky, title, greeting, sentence }: SkyPageProps) {
   return (
-    <main className="min-h-dvh bg-page font-sans text-primary">
+    <main className="bg-page font-sans text-primary">
       {sky ? (
         <Sky.Root className={cn("pb-xl", gutters)}>
           <Sky.Band />
@@ -59,8 +55,7 @@ function SkyPage({ sky, title, greeting, sentence }: SkyPageProps) {
             <p className="text-s text-secondary">
               Content starts right under the header: 240px from the page top on
               phone, 236px from tablet up, just below the near ridge, so the
-              whole ridge shows above the card. The ridge’s top sits 206px from
-              the top on phone, 200px from tablet up, on every page that has it.
+              whole ridge shows above the card.
             </p>
           </article>
         </Sky.Root>
@@ -80,11 +75,30 @@ function SkyPage({ sky, title, greeting, sentence }: SkyPageProps) {
   );
 }
 
+const DESCRIPTION = `
+The page background: a peach sky behind the top of the page, closed by a lilac ridge at one fixed height, then warm snow. Import it as a namespace: \`import * as Sky from "…/sky"\`.
+
+| Part | What it is |
+| --- | --- |
+| \`Sky.Root\` | The page ground, warm snow. A page without a header sentence renders it alone. |
+| \`Sky.Band\` | The sky behind the top of the page, closed by the ridge. |
+| \`Sky.Header\` | The page bar and the header sentence, over the sky. Content starts right under it: 240px from the top on phone, 236px from tablet up. |
+| \`Sky.Ridge\` | The ridge alone, for any sky panel that ends in it. |
+
+- The ridge is one 600 × 64 tile, repeated across and never stretched: 52px high on phone, 64px from tablet up. Its top sits 206px from the top on phone, 200px from tablet up, on every page that has it.
+- Only a page with a header sentence has the sky (Home, Portfolio, a member, a share). A header that doesn’t fit means no sky, never a moved ridge.
+
+On this page every story renders at the page’s own width, a desktop width. The **Phone** and **Tablet** stories in the sidebar show the narrower ones, and the viewport menu switches any story.
+`;
+
 const meta = {
   title: "Foundations/Sky and ridge",
   component: SkyPage,
   tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
+  parameters: {
+    layout: "fullscreen",
+    docs: { description: { component: DESCRIPTION } },
+  },
   args: {
     sky: true,
     title: "Home",
@@ -92,10 +106,26 @@ const meta = {
     sentence: "This month, you’re up €512 (+4.2%)",
   },
   argTypes: {
-    sky: { control: { type: "boolean" } },
-    title: { control: { type: "text" } },
-    greeting: { control: { type: "text" }, if: { arg: "sky" } },
-    sentence: { control: { type: "text" }, if: { arg: "sky" } },
+    sky: {
+      description:
+        "The sky and its ridge, for a page with a header sentence. Without it, the page starts on warm snow.",
+      control: { type: "boolean" },
+    },
+    title: {
+      description: "The page bar’s title.",
+      control: { type: "text" },
+    },
+    greeting: {
+      description: "The line above the header sentence, on the sky.",
+      control: { type: "text" },
+      if: { arg: "sky" },
+    },
+    sentence: {
+      description:
+        "The header sentence. One too long for the header means the page has no sky.",
+      control: { type: "text" },
+      if: { arg: "sky" },
+    },
   },
 } satisfies Meta<typeof SkyPage>;
 
@@ -103,12 +133,21 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Phone: Story = { globals: { viewport: { value: "phone" } } };
-
-export const Tablet: Story = { globals: { viewport: { value: "tablet" } } };
-
+/** The page with the sky, configured in the Controls panel. */
 export const Desktop: Story = { globals: { viewport: { value: "desktop" } } };
 
+/** The Docs page can't narrow a story, so the narrower widths live in the sidebar only. */
+export const Tablet: Story = {
+  tags: ["!autodocs"],
+  globals: { viewport: { value: "tablet" } },
+};
+
+export const Phone: Story = {
+  tags: ["!autodocs"],
+  globals: { viewport: { value: "phone" } },
+};
+
+/** A page without a header sentence: no sky, no ridge. */
 export const WithoutSky: Story = { args: { sky: false } };
 
 /** The ridge alone closes any sky panel, such as the desktop step flow’s. Above its lobes it is transparent, over the sky. */

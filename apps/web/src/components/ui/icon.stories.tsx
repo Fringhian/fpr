@@ -91,7 +91,7 @@ function Scale() {
       title="Sizes and weights"
       lead="16 px in text, 20 px in navigation, 24 px for page actions and state icons. The fill weight marks the current navigation item."
     >
-      <ul className="mb-l flex flex-wrap gap-l">
+      <ul className="mb-l flex flex-wrap items-end gap-l">
         {SIZES.map(({ size, px, use }) => (
           <li key={size} className="grid justify-items-start gap-xs">
             <Icon icon={HouseIcon} size={size} />
