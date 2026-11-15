@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 /** `l` 56 px, over a state; `m` 40 px, beside a line of text. */
 export type StateIconSize = "m" | "l";

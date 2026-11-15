@@ -3,9 +3,9 @@ import { XIcon } from "@phosphor-icons/react/X";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { Button } from "./button";
-import type { IconProps } from "./icon";
-import { IconButton } from "./icon-button";
+import { Button } from "../atoms/button";
+import { IconButton } from "../atoms/icon-button";
+import type { IconProps } from "../foundations/icon";
 
 /**
  * Holds the dialog’s state, open or closed. Base UI’s `Dialog.Root`: `open` and `onOpenChange` to control it, `defaultOpen` to start open.

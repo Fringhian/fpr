@@ -6,7 +6,7 @@ import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
 import { initialOf } from "../../lib/initial";
 import type { MemberColor } from "../../lib/member-color";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 const FILLS = {
   vermilion: "bg-vermilion",

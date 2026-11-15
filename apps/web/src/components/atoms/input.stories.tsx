@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { cn } from "../../lib/cn";
-import { Icon } from "./icon";
+import { Icon } from "../foundations/icon";
 import { Input, type InputProps } from "./input";
 
 /** Stands in for the small text button the end slot holds, until the Button atom lands. */

@@ -2,7 +2,7 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 const iconButton = cva(
   [

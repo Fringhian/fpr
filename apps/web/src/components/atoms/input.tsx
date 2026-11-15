@@ -1,7 +1,7 @@
 import { Input as BaseInput } from "@base-ui/react/input";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 const box = cn(
   "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-ring-[1.5px] inset-ring-divider",

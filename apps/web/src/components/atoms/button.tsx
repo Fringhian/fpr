@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 const button = cva(
   [

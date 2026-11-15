@@ -1,7 +1,7 @@
 import { useRender } from "@base-ui/react/use-render";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 export interface TextLinkOwnProps {
   /** Ends the link with `toPageIcon`: it goes to another page. */

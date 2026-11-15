@@ -16,9 +16,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { usePhone } from "../../lib/use-phone";
-import * as Dialog from "./dialog";
-import type { IconProps } from "./icon";
-import { IconButton } from "./icon-button";
+import { IconButton } from "../atoms/icon-button";
+import type { IconProps } from "../foundations/icon";
+import * as Dialog from "../organisms/dialog";
 
 /** What the parts of a menu opened as a sheet share: the trigger's id, which names the sheet, and how to close it. */
 interface Sheet {

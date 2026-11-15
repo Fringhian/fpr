@@ -12,10 +12,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { usePhone } from "../../lib/use-phone";
-import * as Dialog from "./dialog";
-import type { IconProps } from "./icon";
-import { IconButton } from "./icon-button";
-import { TextLink, type TextLinkProps } from "./text-link";
+import { IconButton } from "../atoms/icon-button";
+import { TextLink, type TextLinkProps } from "../atoms/text-link";
+import type { IconProps } from "../foundations/icon";
+import * as Dialog from "../organisms/dialog";
 
 /** The address of How FPR works. Each section is a fragment of it: `/help#cash`. */
 export const HELP_PATH = "/help";

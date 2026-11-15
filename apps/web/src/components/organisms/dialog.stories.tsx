@@ -7,7 +7,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
-import { Button } from "./button";
+import { Button } from "../atoms/button";
 import * as Dialog from "./dialog";
 
 /** The demo texts, in the toolbar’s language. They are the stories’ content, not the dialog’s. */
