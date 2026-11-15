@@ -40,7 +40,7 @@ The provider sits behind one interface, `PriceProvider`, in `apps/prices/src/pro
 
 - Prices come back in the listing's trading currency, as decimal strings exactly as the provider sent them, never through a floating-point number.
 - `latest` leaves out a listing with no latest price, such as a fund.
-- A failed call rejects with a `ProviderError`: `not_found` for a symbol the provider doesn't carry, `unavailable` for any other failure, timeout, or unreadable answer. A request times out after 15 seconds. The provider sends each request once: retries are the schedule's.
+- A failed call rejects with a `ProviderError`: `not_found` for a symbol the provider doesn't carry, `unavailable` for any other failure, timeout, or unreadable answer, and `call_budget_used`, unsent, for a call past the day's cap (see Call volume). A request times out after 15 seconds. The provider sends each request once: retries are the schedule's.
 
 A provider fits FPR when it:
 
@@ -126,14 +126,24 @@ That is about 600 calls per trading day. On the Free plan, about 12,500 calls a 
 
 `PROVIDER_DAILY_CALL_LIMIT` caps the calls the service spends in a day, 1,000 by default. Lookups are refused with a message once the calls left in the day are no more than the day's remaining scheduled calls, so lookups never use the schedule's share. Once the cap is reached, the schedule waits for the next day. The count is kept in memory, restarts at zero at midnight and when the service restarts, and is logged with every run.
 
+The count lives in `CallBudget`, in `apps/prices/src/budget.ts`:
+
+- Every provider request counts its billed calls before it is sent, since the provider bills a request that fails. A request whose calls would pass the cap is not sent: it rejects with a `ProviderError` `call_budget_used`, and a batch of `latest` stops there.
+- Each schedule registers the calls it still makes today, from the current moment to midnight in `RACE_TIMEZONE`. The day's remaining scheduled calls are their sum.
+- A lookup or a history fill of `n` calls runs when the calls left minus `n` still cover the remaining scheduled calls, and is refused with `call_budget_used` otherwise.
+- A run's log line carries `callsToday`, `callsLeft`, and `callLimit`.
+
 ## Currency
 
 Each share's `trading_currency` is the currency the provider quotes it in. The service converts every price to EUR, then stores it.
 
-- Exchange rates are the European Central Bank's reference rates, read from Frankfurter, a free API with no key, at `RATES_URL`.
-- The ECB publishes one rate per currency each working day, around 16:00 Central European Time. A price is converted with the rate of its day, or the last rate published before it on weekends, holidays, and intraday.
+- Exchange rates are the European Central Bank's reference rates, read from Frankfurter, a free API with no key, at `RATES_URL`. They are how much of each currency one euro buys.
+- The ECB publishes one rate per currency each working day, around 16:00 Central European Time. A price is converted with the rate of its day, or the last rate published before it on weekends, holidays, and intraday. An intraday price converted before its day's rate is published takes the previous working day's rate.
 - A price quoted in pence (`GBX`) is divided by 100 before converting from GBP.
-- Rates are not stored. The service fetches them for each run's date range.
+- Rates are not stored. Each run fetches them for its date range in one request, `GET /v1/{from}..{to}`, which returns every currency the ECB publishes for each working day of the range, starting with the last working day on or before `from`. A run whose prices are all in EUR sends no request.
+- A price in EUR is stored as the provider sent it. Any other price is divided by its rate with exact decimal arithmetic (`big.js`), never through a floating-point number, and rounded once, half away from zero, to 6 decimal places. Trailing zeros are dropped.
+- A price in a currency the ECB doesn't publish, or one that rounds to zero, is not converted: its share and day are logged as a failure and nothing is stored for them.
+- A failed rates request fails the run's conversions, and the run logs it as an error. Frankfurter is sent each request once, and times out after 15 seconds.
 
 ## Endpoints
 
@@ -163,7 +173,7 @@ Every value point added, edited, or deleted also writes a row to `manual_price_e
 
 The service logs with pino, as described in `overview.md`. It writes a line for every run, provider call, and error: the run, the shares priced, the day's call count, and each failure with its share and day.
 
-Each provider call writes one line: the provider, the endpoint, the symbols or query asked for, the calls it is billed, the HTTP status, and the duration. A failed call is logged at `error`, or at `warn` for an unknown symbol. Rows the provider returns without a usable value, such as a listing without a currency, are dropped and counted in a `warn` line. The API key travels in the request URL, so the URL is never logged, and pino's `redact` removes the key from any other field. Each daily-closes run also logs the calls left on the provider account, read from EODHD's `GET /user` at no cost.
+Each provider call writes one line: the provider, the endpoint, the symbols or query asked for, the calls it is billed, the day's count with them (`callsToday`), the HTTP status, and the duration. A failed call is logged at `error`, or at `warn` for an unknown symbol. A call refused at the daily cap is logged at `warn` with the day's count. Each rates request writes one line: `source: "frankfurter"`, its date range, the days returned, the HTTP status, and the duration, at `error` when it fails. Rows the provider returns without a usable value, such as a listing without a currency, are dropped and counted in a `warn` line. The API key travels in the request URL, so the URL is never logged, and pino's `redact` removes the key from any other field. Each daily-closes run also logs the calls left on the provider account, read from EODHD's `GET /user` at no cost.
 
 ## Tests
 
@@ -179,4 +189,4 @@ Tests replace the HTTP responses of the provider and of Frankfurter with Vitest 
 | `RATES_URL` | The exchange-rate API. Default `https://api.frankfurter.dev` |
 | `PROVIDER_DAILY_CALL_LIMIT` | The daily call cap. Default `1000` |
 | `REFRESH_SCHEDULE` | The intraday refresh, as a cron expression. Default `*/30 9-22 * * 1-5` |
-| `RACE_TIMEZONE` | The schedules' time zone. Default `Europe/Paris` |
+| `RACE_TIMEZONE` | The time zone of the schedules and of the daily call count's midnight. Default `Europe/Paris` |

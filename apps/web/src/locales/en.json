@@ -2,11 +2,20 @@
   "badge": {
     "manual": "Manual",
     "pricePending": "Price pending",
+    "incomplete": "Incomplete",
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
     "revoked": "Revoked",
     "heldBefore": "Held before",
     "saved": "Saved"
+  },
+  "lane": {
+    "you": "· you",
+    "best": "Best: {{share}}",
+    "bestShare": "Best share",
+    "since": "since {{date}}",
+    "notStarted_one": "{{names}} hasn’t started yet.",
+    "notStarted_other": "{{names}} haven’t started yet."
   },
   "foundations": {
     "formatting": {
@@ -32,6 +41,12 @@
   },
   "button": {
     "saving": "Saving…"
+  },
+  "field": {
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "dialog": {
     "close": "Close",
@@ -63,6 +78,36 @@
     },
     "loadingPlaceholder": {
       "default": "Loading…"
+    }
+  },
+  "sentence": {
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}"
+    },
+    "period": {
+      "1D": { "start": "Today", "inline": "today" },
+      "1W": { "start": "This week", "inline": "this week" },
+      "1M": { "start": "This month", "inline": "this month" },
+      "3M": { "start": "Over three months", "inline": "over three months" },
+      "YTD": { "start": "This year", "inline": "this year" },
+      "all": { "start": "Since the start", "inline": "since the start" }
+    },
+    "headline": {
+      "up": "{{period}}, you’re up <gain>{{amount}}</gain>",
+      "down": "{{period}}, you’re down <gain>{{amount}}</gain>",
+      "flat": "{{period}}, you’re flat at <gain>{{amount}}</gain>",
+      "leader": "{{period}}, {{name}} leads at <gain>{{amount}}</gain>"
+    },
+    "story": {
+      "theyLead": "<sign>{{name}} leads</sign> at <gain/>",
+      "youLead": "<sign>You lead the race</sign>",
+      "alone": "You’re the first one in",
+      "everyoneDown": "Everyone is down {{period}}",
+      "starShare": "star share <chip/>",
+      "starShareFirst": "Star share <chip/>",
+      "separator": " · "
     }
   },
   "menu": {
@@ -117,5 +162,22 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "periodControl": {
+    "title": "Period",
+    "summary": "{{period}} · {{unit}}",
+    "period": {
+      "1D": "Today",
+      "1W": "This week",
+      "1M": "This month",
+      "3M": "3 months",
+      "YTD": "This year",
+      "all": "All time"
+    }
+  },
+  "allocationBar": {
+    "label": "How it’s split",
+    "other": "Other",
+    "cash": "Cash"
   }
 }

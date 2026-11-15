@@ -240,6 +240,8 @@ FPR is a Progressive Web App. It installs to a phone's home screen or a computer
 
 The web image builds the app and serves it with nginx. nginx serves `index.html` for every unknown path, so routes load directly, and forwards `/api/*` to the API. The browser sees one origin, and session cookies need no cross-site settings.
 
+nginx takes the client's address from the header the host's reverse proxy sets, `CLIENT_IP_HEADER`, logs it, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address). `apps/web/client-ip.conf.template` holds the `real_ip_header` line, written with `CLIENT_IP_HEADER` when the container starts.
+
 nginx serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.
 
 Every response nginx sends, `/api/*` and errors included, carries these security headers, once each. nginx drops the API's own values for them.
@@ -255,4 +257,4 @@ Every response nginx sends, `/api/*` and errors included, carries these security
 
 Under this policy, every script, font, request, and worker comes from the app's own origin, and no script is inline: the fonts ship with the build, and the service worker registers from a file. Inline styles, `data:` images, and `blob:` images, such as a picture's preview before upload, are allowed.
 
-In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix.
+In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix and sending the client's address in `X-Forwarded-For`.

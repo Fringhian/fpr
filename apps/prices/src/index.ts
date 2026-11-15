@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 import { close, createDb } from "@fpr/db";
 import { createApp } from "./app.js";
+import { createCallBudget } from "./budget.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
 import { createProvider } from "./providers/index.js";
@@ -21,15 +22,25 @@ function main(): void {
     onIdleError: (error) =>
       logger.error({ err: error }, "idle database connection failed"),
   });
+  const budget = createCallBudget({
+    limit: env.PROVIDER_DAILY_CALL_LIMIT,
+    timeZone: env.RACE_TIMEZONE,
+  });
   const provider = createProvider({
     name: env.PRICE_PROVIDER,
     apiKey: env.PRICE_PROVIDER_API_KEY,
     logger,
+    budget,
   });
   const app = createApp({ db, logger, token: env.PRICES_TOKEN });
   const server: Server = app.listen(env.PORT, () => {
     logger.info(
-      { port: env.PORT, provider: provider.name },
+      {
+        port: env.PORT,
+        provider: provider.name,
+        timeZone: env.RACE_TIMEZONE,
+        ...budget.logFields(),
+      },
       "prices listening",
     );
   });
