@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { type Decimal, formatMoney, formatPercent } from "../../../lib/format";
@@ -14,8 +14,10 @@ import type { MemberColor } from "../../../lib/member-color";
 import type { TimeOfDay } from "../../../lib/time-of-day";
 import { Chip } from "../../atoms/chip/chip";
 import { GainValue } from "../../atoms/gain-value/gain-value";
-import { Picture } from "../../atoms/picture/picture";
-import { TrailSign } from "../../atoms/trail-sign/trail-sign";
+import {
+  TrailSign,
+  type TrailSignPerson,
+} from "../../atoms/trail-sign/trail-sign";
 
 /**
  * The header sentence's block: the greeting, the headline, then the story
@@ -81,18 +83,8 @@ export function Wide({ className, ...props }: ComponentProps<"span">) {
 /** The race's periods, as `@fpr/contracts` names them. */
 export type Period = "1D" | "1W" | "1M" | "3M" | "YTD" | "all";
 
-/** A person the sentence draws with their picture. */
-export interface SentencePerson {
-  /** The display name, or an anonymous viewer's pseudonym. */
-  name: string;
-  /** Their member colour, which their picture sits on. */
-  color: MemberColor;
-  /** Their photo's URL; without one, the picture is their initial. */
-  photo?: string | null | undefined;
-}
-
 /** The member who leads the race, with their gain over the period. */
-export interface SentenceLeader extends SentencePerson {
+export interface SentenceLeader extends TrailSignPerson {
   /** Their gain over the period, as the API sends it: no `eur` for an anonymous viewer. */
   gain: GainInput;
 }
@@ -193,31 +185,6 @@ function headlineAmount(
   return money ?? percent;
 }
 
-/** A trail sign with a person's picture; `Trans` gives it its words. */
-function PersonSign({
-  person,
-  children,
-}: {
-  person: SentencePerson;
-  children?: ReactNode;
-}) {
-  return (
-    <TrailSign
-      picture={
-        <Picture
-          name={person.name}
-          color={person.color}
-          photo={person.photo ?? null}
-          size="xs"
-          aria-hidden
-        />
-      }
-    >
-      {children}
-    </TrailSign>
-  );
-}
-
 /** “Sam leads at +6.1%”: the leader's sign, then their gain in the unit setting. */
 function TheyLead({
   leader,
@@ -231,7 +198,7 @@ function TheyLead({
       i18nKey="sentence.story.theyLead"
       values={{ name: leader.name }}
       components={{
-        sign: <PersonSign person={leader} />,
+        sign: <TrailSign person={leader} />,
         gain: <GainValue gain={leader.gain} unit={unit} />,
       }}
     />
@@ -239,11 +206,11 @@ function TheyLead({
 }
 
 /** “You lead the race”, on your own sign. */
-function YouLead({ you }: { you: SentencePerson }) {
+function YouLead({ you }: { you: TrailSignPerson }) {
   return (
     <Trans
       i18nKey="sentence.story.youLead"
-      components={{ sign: <PersonSign person={you} /> }}
+      components={{ sign: <TrailSign person={you} /> }}
     />
   );
 }

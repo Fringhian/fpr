@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { formatMoney, formatPercent } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
-import { TrailSign, type TrailSignProps } from "./trail-sign";
+import {
+  TrailSign,
+  type TrailSignPerson,
+  type TrailSignProps,
+} from "./trail-sign";
 
 /** The demo words on the signs, in the toolbar’s language. They are the stories’ content, not the sign’s. */
 const WORDS = {
@@ -10,26 +14,16 @@ const WORDS = {
   fr: { leads: "Sam en tête", you: "Vous" },
 } as const satisfies Record<Language, Record<string, string>>;
 
-/** Stands in for the Picture atom: a person's initial on their pastel, at 20 px. */
-function PlaceholderPicture({ initial }: { initial: string }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-flex size-[1.25rem] shrink-0 items-center justify-center rounded-full bg-vermilion-pastel text-[0.5rem] leading-none font-semibold"
-    >
-      {initial}
-    </span>
-  );
-}
+const SAM = {
+  name: "Sam",
+  color: "vermilion",
+} as const satisfies TrailSignPerson;
 
-/** The sign that names the leader, with or without the picture part. */
-function LeaderSign({ picture }: { picture: boolean }) {
+function LeaderSign({ person }: { person: boolean }) {
   const language = useLanguage();
 
   return (
-    <TrailSign
-      picture={picture ? <PlaceholderPicture initial="S" /> : undefined}
-    >
+    <TrailSign person={person ? SAM : undefined}>
       {WORDS[language].leads}
     </TrailSign>
   );
@@ -44,16 +38,16 @@ function Uses() {
 
   return (
     <div className="flex flex-wrap items-center gap-s">
-      <LeaderSign picture />
+      <LeaderSign person />
       <TrailSign>{you}</TrailSign>
       <TrailSign>{balance}</TrailSign>
     </div>
   );
 }
 
-/** The playground's args: the picture part is switched on and off. */
-type PlaygroundArgs = Omit<TrailSignProps, "picture" | "children"> & {
-  picture: boolean;
+/** The playground switches the person on and off. */
+type PlaygroundArgs = Omit<TrailSignProps, "person" | "children"> & {
+  person: boolean;
 };
 
 const meta = {
@@ -76,9 +70,9 @@ const meta = {
         "What the sign says: “Sam leads”, “You +4.2%”, “€12,374”. Fixed in these stories.",
       control: false,
     },
-    picture: {
+    person: {
       description:
-        "The person's picture, at 20 px, before the words. A placeholder stands in for it in these stories.",
+        "The person the sign names, `{ name, color, photo }`: their picture, at 20 px, before the words. Without one, the sign is words alone. Sam, in vermilion, stands in for them in these stories.",
       control: { type: "boolean" },
     },
     className: {
@@ -92,8 +86,8 @@ export default meta;
 
 /** One sign, configured in the Controls panel. */
 export const Playground = {
-  args: { picture: true },
-  render: ({ picture }) => <LeaderSign picture={picture} />,
+  args: { person: true },
+  render: ({ person }) => <LeaderSign person={person} />,
 } satisfies StoryObj<PlaygroundArgs>;
 
 /** With a picture for a person, plain for you and for an amount. */
