@@ -2,24 +2,11 @@ import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { CheckIcon } from "@phosphor-icons/react/Check";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { initialOf } from "../../../lib/initial";
-import type { MemberColor } from "../../../lib/member-color";
+import { MEMBER_FILLS, type MemberColor } from "../../../lib/member-color";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
-
-const FILLS = {
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
-} as const satisfies Record<MemberColor, string>;
 
 const group = cn(
   "",
@@ -52,12 +39,7 @@ export function Group({ className, ...props }: GroupProps) {
   return (
     <RadioGroup<MemberColor>
       {...props}
-      className={(state) =>
-        cn(
-          group,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(group, className)}
     />
   );
 }
@@ -99,19 +81,18 @@ export function Item({
   const label = owner
     ? t("swatch.takenBy", { colour: name, name: owner })
     : name;
-  const classes = cn(item, FILLS[color], owner ? "opacity-[0.35]" : null);
+  const classes = cn(
+    item,
+    MEMBER_FILLS[color],
+    owner ? "opacity-[0.35]" : null,
+  );
 
   return (
     <Radio.Root<MemberColor>
       aria-label={label}
       {...props}
       value={color}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(classes, className)}
     >
       <Radio.Indicator className="flex">
         <Icon icon={checkIcon} size="s" />

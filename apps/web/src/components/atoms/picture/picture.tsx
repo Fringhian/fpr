@@ -1,7 +1,7 @@
 import { Avatar } from "@base-ui/react/avatar";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { initialOf } from "../../../lib/initial";
 import type { MemberColor } from "../../../lib/member-color";
@@ -103,12 +103,7 @@ export function Picture({
       role="img"
       aria-label={name}
       {...props}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(classes, className)}
     >
       {photo ? (
         <Avatar.Image src={photo} alt="" className="size-full object-cover" />

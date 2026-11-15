@@ -2,25 +2,16 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { type BarScale, barGeometry } from "../../../lib/bar-track";
 import { cn } from "../../../lib/cn";
-import type { MemberColor } from "../../../lib/member-color";
+import { MEMBER_FILLS, type MemberColor } from "../../../lib/member-color";
 
 /** A bar's colour: a member's, or the colour of a gain's sign. */
 export type BarTrackColor = MemberColor | "positive" | "negative";
 
 const BAR_COLORS = {
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
+  ...MEMBER_FILLS,
   positive: "bg-positive",
   negative: "bg-negative",
-} as const satisfies Record<BarTrackColor, string>;
+} as const satisfies Record<BarTrackColor, `bg-${string}`>;
 
 const track = cva("relative block", {
   variants: {
@@ -37,7 +28,8 @@ export interface BarTrackOwnProps {
   amount: number | null;
   /**
    * The lowest and highest amounts of every track drawn side by side, from
-   * `barScale`, so their zero lines line up and their lengths compare.
+   * `barScale`, or from `unitScale` in the amount's unit, so their zero lines
+   * line up and their lengths compare.
    */
   scale: BarScale;
   /** The bar's colour: a member's colour, or `positive` / `negative` for a gain's sign. */

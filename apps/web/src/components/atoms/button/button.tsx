@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 const button = cva(
@@ -13,7 +13,7 @@ const button = cva(
     "",
     "",
     "focus-visible:focus-ring",
-    "disabled:not-aria-busy:cursor-not-allowed disabled:not-aria-busy:opacity-[0.45]",
+    "disabled:not-aria-busy:dimmed",
     "aria-busy:cursor-progress",
   ],
   {
@@ -123,20 +123,16 @@ export function Button({
 
   const busy = loading === true;
   const arrow = size === "step" && next;
-  const classes = button({ intent, size, next: arrow });
-
   return (
     <BaseButton
       {...props}
       disabled={disabled || busy}
       focusableWhenDisabled={busy}
       aria-busy={busy || undefined}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(
+        button({ intent, size, next: arrow }),
+        className,
+      )}
     >
       <span className={cn(face, busy ? "invisible" : "")}>
         {icon ? <Icon icon={icon} size="s" /> : null}

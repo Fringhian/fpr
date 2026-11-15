@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
+import { capsule } from "../chip/chip";
 
 export interface TrailSignOwnProps {
   /** What the sign says: “Sam leads”, “You +4.2%”, “€12,374”. */
@@ -23,14 +24,11 @@ export function TrailSign({
   className,
   ...props
 }: TrailSignProps) {
-  const start = picture ? "pl-[0.1875rem]" : "pl-[0.75rem]";
-
   return (
     <span
       {...props}
       className={cn(
-        "inline-flex items-center gap-[0.375rem] rounded-full bg-surface py-[0.1875rem] pr-[0.75rem] text-s font-semibold whitespace-nowrap text-primary shadow-[0_0_0_1.5px_var(--color-primary)]",
-        start,
+        capsule({ outline: "strong", picture: Boolean(picture) }),
         className,
       )}
     >

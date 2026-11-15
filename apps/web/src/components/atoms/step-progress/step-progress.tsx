@@ -1,7 +1,7 @@
 import { Progress } from "@base-ui/react/progress";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 
 export interface StepProgressOwnProps {
   /** The step on screen, from 1: it and every step before it are filled. */
@@ -55,12 +55,7 @@ export function StepProgress({
       min={0}
       max={count}
       getAriaValueText={() => valueText}
-      className={(state) =>
-        cn(
-          "flex w-full gap-xs",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("flex w-full gap-xs", className)}
     >
       {Array.from({ length: count }, (_, index) => (
         <span
