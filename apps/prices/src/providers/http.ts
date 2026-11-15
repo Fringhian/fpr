@@ -1,5 +1,5 @@
 import type { Logger } from "pino";
-import type { CallBudget } from "../budget.js";
+import type { CallBudget } from "../market/budget.js";
 import { ProviderError, type ProviderName } from "./provider.js";
 
 /** The `fetch` a provider sends its requests with. Tests pass a mock. */

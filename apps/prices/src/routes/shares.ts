@@ -1,6 +1,6 @@
 import { manualPriceEvents, prices, shares, violatedConstraint } from "@fpr/db";
+import { attentionWindowStart } from "../market/trading-day.js";
 import { service } from "../orpc.js";
-import { attentionWindowStart } from "../trading-day.js";
 import { isinTakenBy, toShareSummary } from "./rows.js";
 
 /**

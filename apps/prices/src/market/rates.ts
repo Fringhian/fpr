@@ -7,8 +7,8 @@ import {
 } from "@fpr/contracts";
 import type { Logger } from "pino";
 import { z } from "zod";
+import { type Fetch, parseJsonExact } from "../providers/http.js";
 import { divideDecimal, shiftDecimal } from "./decimal.js";
-import { type Fetch, parseJsonExact } from "./providers/http.js";
 
 /** Frankfurter's API, the European Central Bank's reference rates. */
 export const frankfurterBaseUrl = "https://api.frankfurter.dev";

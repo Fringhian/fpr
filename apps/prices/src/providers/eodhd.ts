@@ -6,7 +6,7 @@ import {
 } from "@fpr/contracts";
 import type { Logger } from "pino";
 import { z } from "zod";
-import type { CallBudget } from "../budget.js";
+import type { CallBudget } from "../market/budget.js";
 import {
   callProvider,
   type Fetch,
