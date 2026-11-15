@@ -25,6 +25,14 @@ describe("Input", () => {
     );
   });
 
+  it("styles the box with className and passes the rest to the input", () => {
+    const markup = renderToStaticMarkup(
+      <Input aria-label="Name" className="max-w-l" name="displayName" />,
+    );
+    expect(markup).toMatch(/^<div class="[^"]*max-w-l/);
+    expect(markup).toMatch(/<input[^>]*name="displayName"/);
+  });
+
   it("renders the end slot after the input", () => {
     const markup = renderToStaticMarkup(
       <Input aria-label="Password" end={<button type="button">Show</button>} />,

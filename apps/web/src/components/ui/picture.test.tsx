@@ -73,6 +73,23 @@ describe("Picture", () => {
     expect(markup).not.toContain("outline");
   });
 
+  it("takes className as a string or as a function of its state", () => {
+    expect(
+      renderToStaticMarkup(
+        <Picture name="Sam" color="vermilion" size="s" className="mx-s" />,
+      ),
+    ).toMatch(/<span[^>]*class="[^"]*mx-s/);
+
+    const byState = (state: { imageLoadingStatus: string }) =>
+      state.imageLoadingStatus === "loaded" ? "is-photo" : "is-initial";
+
+    expect(
+      renderToStaticMarkup(
+        <Picture name="Sam" color="vermilion" size="s" className={byState} />,
+      ),
+    ).toMatch(/<span[^>]*class="[^"]*is-initial/);
+  });
+
   it("can be hidden from screen readers when the name is beside it", () => {
     const markup = renderToStaticMarkup(
       <Picture name="Sam" color="vermilion" size="s" aria-hidden />,
