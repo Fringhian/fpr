@@ -264,6 +264,7 @@ function LaneFigure({
   if (value.balance === null) {
     return null;
   }
+
   return (
     <span className="font-semibold whitespace-nowrap tabular-nums">
       {formatMoney(value.balance, language, { precision: "euros" })}
