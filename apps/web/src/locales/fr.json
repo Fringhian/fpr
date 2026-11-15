@@ -5,6 +5,8 @@
     "active": "Actif",
     "waitingForFirstUse": "En attente de première utilisation",
     "revoked": "Révoqué",
+    "ended": "Terminé",
+    "expired": "Lien expiré",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
   },
@@ -67,5 +69,9 @@
       "periwinkle": "Pervenche"
     },
     "takenBy": "{{colour}}, couleur de {{name}}"
+  },
+  "personRow": {
+    "until": "Jusqu’au {{date}}",
+    "noEnd": "Sans date de fin"
   }
 }

@@ -5,6 +5,8 @@
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
     "revoked": "Revoked",
+    "ended": "Ended",
+    "expired": "Link expired",
     "heldBefore": "Held before",
     "saved": "Saved"
   },
@@ -67,5 +69,9 @@
       "periwinkle": "Periwinkle"
     },
     "takenBy": "{{colour}}, taken by {{name}}"
+  },
+  "personRow": {
+    "until": "Until {{date}}",
+    "noEnd": "No end date"
   }
 }
