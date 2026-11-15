@@ -75,6 +75,8 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
+- The canvas is the page ground (`--palette-snow`), so a story ends on snow below its content.
+- A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
 

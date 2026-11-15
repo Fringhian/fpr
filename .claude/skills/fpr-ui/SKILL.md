@@ -37,7 +37,9 @@ impeccable's `PRODUCT.md`, `DESIGN.md` (the tokens and rules of the look), and `
 - A component's props are its stories' `args`, with `argTypes` giving each one its control (`inline-radio` for a variant, `boolean`, `text`), so every variant can be changed live in the Controls panel. A prop that takes a component, such as an icon, is picked by name: a `select` of names, and the story's `render` turns the name into the component (a `mapping` can't show its starting value in the panel). A prop that only makes sense with another one uses `if: { arg: … }`.
 - A component's story file carries `tags: ["autodocs"]`: its Docs page lists every prop, with the controls, from the component's own types and doc comments.
 - A catalogue with nothing to configure (a token page, a list of every icon) is a fixed `render`, with `parameters: { controls: { disable: true } }`.
+- A story that only changes the viewport (Phone, Tablet) carries `tags: ["!autodocs"]`: the Docs page renders every story at the page's own width, so it would only repeat the desktop.
 - The accessibility addon runs on every story. A story with violations doesn't merge.
+- Every new or changed story is checked by eye before it merges: screenshots of each story at 375, 768 and 1280 px, and of its Docs page scrolled to the end. Passing tests don't show a stretched block, a repeated story, or a missing description.
 
 impeccable serves this workflow:
 
