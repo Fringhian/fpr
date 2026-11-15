@@ -1,26 +1,26 @@
 import { Collapsible } from "@base-ui/react/collapsible";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
   formatMoney,
   type IsoDate,
-} from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
+} from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
 import {
   type LaneScale,
   type LaneValue,
   laneAmount,
   laneBar,
-} from "../../lib/lane";
-import type { Language } from "../../lib/language";
-import type { MemberColor } from "../../lib/member-color";
-import { Badge } from "../atoms/badge";
-import { Chip } from "../atoms/chip";
-import { GainValue } from "../atoms/gain-value";
-import { Picture, type PictureMedal } from "../atoms/picture";
+} from "../../../lib/lane";
+import type { Language } from "../../../lib/language";
+import type { MemberColor } from "../../../lib/member-color";
+import { Badge } from "../../atoms/badge/badge";
+import { Chip } from "../../atoms/chip/chip";
+import { GainValue } from "../../atoms/gain-value/gain-value";
+import { Picture, type PictureMedal } from "../../atoms/picture/picture";
 
 /** The bar in each member colour. */
 const BARS = {

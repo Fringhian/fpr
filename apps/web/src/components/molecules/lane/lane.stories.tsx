@@ -1,10 +1,10 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { expect, within } from "storybook/test";
-import { type LaneValue, laneScale } from "../../lib/lane";
-import { MEMBER_COLORS } from "../../lib/member-color";
-import type { PictureMedal } from "../atoms/picture";
-import { TextLink } from "../atoms/text-link";
+import { type LaneValue, laneScale } from "../../../lib/lane";
+import { MEMBER_COLORS } from "../../../lib/member-color";
+import type { PictureMedal } from "../../atoms/picture/picture";
+import { TextLink } from "../../atoms/text-link/text-link";
 import { Lane, LaneNotStarted, type LaneProps } from "./lane";
 
 /** An abstract photo, drawn inline: a sun over two hills, no person. */
