@@ -23,6 +23,18 @@ const DATABASE_URL = databaseUrl();
 
 export default defineProject({
   resolve: { conditions: ["@fpr/source", ...defaultClientConditions] },
-  ssr: { resolve: { conditions: ["@fpr/source", ...defaultServerConditions] } },
+  // Tests on Node load packages as Node does: without bundlers' `module`
+  // condition, which points some packages, such as the AWS SDK's, at files
+  // only a bundler resolves.
+  ssr: {
+    resolve: {
+      conditions: [
+        "@fpr/source",
+        ...defaultServerConditions.filter(
+          (condition) => condition !== "module",
+        ),
+      ],
+    },
+  },
   test: { env: DATABASE_URL ? { DATABASE_URL } : {} },
 });
