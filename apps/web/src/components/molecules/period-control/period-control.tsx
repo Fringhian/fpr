@@ -151,7 +151,8 @@ export function PeriodControl({
       <Dialog.Root>
         <Dialog.Trigger
           className={cn(
-            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
+            // The ::after box widens the 36px capsule's touch target to 44px.
+            "relative cursor-pointer items-center gap-xs whitespace-nowrap rounded-full py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary after:absolute after:inset-x-0 after:top-1/2 after:h-[2.75rem] after:-translate-y-1/2",
             "inline-flex",
             "tablet:hidden",
             "desktop:hidden",
