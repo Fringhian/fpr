@@ -1,14 +1,14 @@
 import { type ComponentProps, useId } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { type GainInput, type GainUnit, gainDisplay } from "../../lib/gain";
-import { useLanguage } from "../../lib/i18n";
-import type { MemberColor } from "../../lib/member-color";
-import type { Period } from "../../lib/period";
-import { GainValue } from "../atoms/gain-value";
-import { Picture } from "../atoms/picture";
-import { TextLink, type TextLinkProps } from "../atoms/text-link";
-import { type Mover, MoverList } from "./mover-row";
+import { cn } from "../../../lib/cn";
+import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
+import { useLanguage } from "../../../lib/i18n";
+import type { MemberColor } from "../../../lib/member-color";
+import type { Period } from "../../../lib/period";
+import { GainValue } from "../../atoms/gain-value/gain-value";
+import { Picture } from "../../atoms/picture/picture";
+import { TextLink, type TextLinkProps } from "../../atoms/text-link/text-link";
+import { type Mover, MoverList } from "../mover-row/mover-row";
 
 /** The member the panel shows, as the race and the standings send them. */
 export interface FocusMember {

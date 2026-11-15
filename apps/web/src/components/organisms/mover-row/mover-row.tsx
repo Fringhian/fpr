@@ -1,10 +1,10 @@
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { type GainInput, type GainUnit, gainDisplay } from "../../lib/gain";
-import { useLanguage } from "../../lib/i18n";
-import { type MoverScale, moverBar, moverScale } from "../../lib/mover";
-import { GainValue } from "../atoms/gain-value";
+import { cn } from "../../../lib/cn";
+import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
+import { useLanguage } from "../../../lib/i18n";
+import { type MoverScale, moverBar, moverScale } from "../../../lib/mover";
+import { GainValue } from "../../atoms/gain-value/gain-value";
 
 /** One holding's effect on a member's period. */
 export interface Mover {
