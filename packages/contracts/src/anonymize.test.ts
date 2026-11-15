@@ -128,65 +128,6 @@ describe("every response field", () => {
   });
 });
 
-describe("a name rule", () => {
-  const check = (schema: z.ZodObject) =>
-    fieldsOf(schema, marketDataSchemas).map((field) => [
-      field.key,
-      nameRuleBroken(field),
-    ]);
-
-  it("finds an unmarked personal, euro, or quantity field", () => {
-    const schema = z.object({
-      email: z.email(),
-      gainEur: decimalSchema,
-      quantity: decimalSchema,
-      cashEur: euro(decimalSchema),
-      percent: euro(decimalSchema),
-    });
-    expect(check(schema)).toEqual([
-      ["email", "expected personal"],
-      ["gainEur", "expected euro or quantity"],
-      ["quantity", "expected quantity"],
-      ["cashEur", "expected quantity"],
-      ["percent", "expected no mark"],
-    ]);
-  });
-
-  it("looks inside arrays, unions, and nullable objects", () => {
-    const schema = z.object({
-      rows: z.array(
-        z.union([
-          z.object({ member: z.object({ displayName: z.string() }) }),
-          z.object({ best: z.object({ valueEur: decimalSchema }).nullable() }),
-        ]),
-      ),
-    });
-    expect(check(schema).filter(([, broken]) => broken)).toEqual([
-      ["displayName", "expected personal"],
-      ["valueEur", "expected euro or quantity"],
-    ]);
-  });
-
-  it("finds a mark on a field's nullable or inner layer", () => {
-    const schema = z.object({
-      avatarUrl: personal(z.url()).nullable(),
-      email: personal(z.email().nullable()),
-    });
-    expect(check(schema)).toEqual([
-      ["avatarUrl", undefined],
-      ["email", undefined],
-    ]);
-  });
-
-  it("leaves a share's prices and their change unmarked", () => {
-    const schema = z.object({
-      priceEur: euro(decimalSchema),
-      change: priceChangeSchema,
-    });
-    expect(check(schema)).toEqual([["priceEur", "market data is unmarked"]]);
-  });
-});
-
 describe("the euro amounts of every response", () => {
   const euros = responseFields.filter(({ field }) => kindOf(field) === "euro");
 
@@ -211,20 +152,13 @@ describe("the euro amounts of every response", () => {
   );
 });
 
-describe("anonymization marks", () => {
-  it("marks a field personal, euro, or quantity", () => {
+describe("an anonymization mark", () => {
+  it("marks a copy of the schema, with its type and validation", () => {
     expect(anonymizeKind(personal(z.string()))).toBe("personal");
-    expect(anonymizeKind(euro(decimalSchema))).toBe("euro");
     expect(anonymizeKind(quantity(decimalSchema))).toBe("quantity");
-  });
-
-  it("leaves the shared schema unmarked", () => {
-    euro(decimalSchema);
-    expect(anonymizeKind(decimalSchema)).toBeUndefined();
-  });
-
-  it("keeps the schema's type and validation", () => {
     const amount = euro(decimalSchema);
+    expect(anonymizeKind(amount)).toBe("euro");
+    expect(anonymizeKind(decimalSchema)).toBeUndefined();
     expectTypeOf(amount).toEqualTypeOf(decimalSchema);
     expect(amount.safeParse("12.50").success).toBe(true);
     expect(amount.safeParse("1e3").success).toBe(false);

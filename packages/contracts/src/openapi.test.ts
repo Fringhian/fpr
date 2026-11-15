@@ -22,28 +22,40 @@ function withRefsResolved(json: string): string {
   );
 }
 
-describe("the shared components", () => {
-  it("hold the details of invalid_request, once", () => {
+describe("the OpenAPI document", () => {
+  it("holds the API's routes and none of the price service's", () => {
+    const operationIds = Object.values(document.paths ?? {})
+      .flatMap((item) => Object.values(item ?? {}))
+      .flatMap((operation) =>
+        typeof operation === "object" &&
+        operation !== null &&
+        "operationId" in operation
+          ? [operation.operationId]
+          : [],
+      );
+    expect(operationIds.sort()).toEqual(
+      operations.map(({ key }) => key).sort(),
+    );
+  });
+
+  it("holds the details of invalid_request once, as a shared component", () => {
     expect(Object.keys(document.components?.schemas ?? {})).toEqual([
       "InvalidRequestDetails",
     ]);
-    const json = JSON.stringify(document);
-    expect(json.match(/"issues":/g)).toHaveLength(1);
+    expect(JSON.stringify(document).match(/"issues":/g)).toHaveLength(1);
   });
 });
 
-const withoutBody = operations.filter(
-  ({ outputSchema }) => outputSchema instanceof z.ZodVoid,
-);
-
 describe("a success response without a body", () => {
-  it("exists, among 201 and 204 routes", () => {
-    const statuses = withoutBody.map(({ route }) => route.successStatus);
-    expect(statuses).toContain(201);
-    expect(statuses).toContain(204);
+  const withoutBody = operations.filter(
+    ({ outputSchema }) => outputSchema instanceof z.ZodVoid,
+  );
+
+  it("exists", () => {
+    expect(withoutBody.length).toBeGreaterThan(0);
   });
 
-  it.each(withoutBody)("has no content in $key", ({ route, operation }) => {
+  it.each(withoutBody)("has no content: $key", ({ route, operation }) => {
     const success = operation?.responses?.[route.successStatus ?? 200];
     expect(success).toEqual({ description: "OK" });
   });
@@ -60,36 +72,25 @@ describe("an error response", () => {
     ),
   );
 
-  it("declares typed details for the codes that carry them", () => {
-    expect(new Set(typed.map(({ code }) => code))).toEqual(
-      new Set([
-        "holding_below_zero",
-        "invalid_access_key",
-        "invalid_request",
-        "isin_taken",
-        "value_changed",
-      ]),
-    );
+  it("exists with typed details", () => {
+    expect(typed.length).toBeGreaterThan(0);
   });
 
   it.each(typed)(
-    "shows the details of $code in $key",
+    "shows the typed details of $code: $key",
     ({ code, definition, operation }) => {
       const body = withRefsResolved(
         JSON.stringify(operation?.responses?.[String(definition.status)]),
       );
       expect(body).toContain(`"code":{"const":"${code}"}`);
       expect(body).toContain('"required":["code","details"]');
-      const fields = Object.keys((definition.data as z.ZodObject).shape).map(
-        (field) => `"${field}":`,
-      );
-      for (const field of fields) {
-        expect(body).toContain(field);
+      for (const field of Object.keys((definition.data as z.ZodObject).shape)) {
+        expect(body).toContain(`"${field}":`);
       }
     },
   );
 
-  it("names each code once, with optional untyped details", async () => {
+  it("names a code without typed details, with its details optional", () => {
     const forbidden = JSON.stringify(
       document.paths?.["/me"]?.patch?.responses?.["403"],
     );

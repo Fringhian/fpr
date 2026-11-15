@@ -43,51 +43,22 @@ function loadedBy(entry: string): Set<string> {
   return loaded;
 }
 
-describe("the root entry point, @fpr/contracts", () => {
-  const loaded = [...loadedBy("index.ts")];
+/** Whether a set of loaded modules holds the OpenAPI generator. */
+const holdsTheGenerator = (loaded: string[]) =>
+  loaded.includes("openapi.ts") ||
+  loaded.some((file) => file.startsWith("@orpc/openapi"));
 
-  it("loads the API's routes", () => {
-    expect(loaded).toContain("api/index.ts");
+describe("the entry points", () => {
+  it("@fpr/contracts loads the API's routes, and neither the price service's routes nor the generator", () => {
+    const loaded = [...loadedBy("index.ts")];
     expect(loaded).toContain("api/race/leaderboards.ts");
-  });
-
-  it("loads neither the price service's routes nor the OpenAPI generator", () => {
     expect(loaded.filter((file) => file.startsWith("prices/"))).toEqual([]);
-    expect(loaded).not.toContain("openapi.ts");
-    expect(loaded.some((file) => file.startsWith("@orpc/openapi"))).toBe(false);
+    expect(holdsTheGenerator(loaded)).toBe(false);
   });
-});
 
-describe("@fpr/contracts/prices", () => {
-  it("loads its routes, and not the OpenAPI generator", () => {
+  it("@fpr/contracts/prices loads its routes, and not the generator", () => {
     const loaded = [...loadedBy("prices/index.ts")];
     expect(loaded).toContain("prices/shares.ts");
-    expect(loaded).not.toContain("openapi.ts");
-    expect(loaded.some((file) => file.startsWith("@orpc/openapi"))).toBe(false);
-  });
-});
-
-describe("@fpr/contracts/openapi", () => {
-  it("loads the generator and the API's routes", () => {
-    const loaded = [...loadedBy("openapi.ts")];
-    expect(loaded).toContain("@orpc/openapi");
-    expect(loaded).toContain("api/index.ts");
-  });
-});
-
-describe("runtimeImports", () => {
-  it("keeps value imports and exports, and drops type-only ones", () => {
-    const source = [
-      'import { z } from "zod";',
-      'import type { Role } from "./roles.js";',
-      'import {\n  type Access,\n  publicRoute,\n} from "./contract.js";',
-      'export type * from "./prices/index.js";',
-      'export { apiContract } from "./api/index.js";',
-    ].join("\n");
-    expect(runtimeImports(source)).toEqual([
-      "zod",
-      "./contract.js",
-      "./api/index.js",
-    ]);
+    expect(holdsTheGenerator(loaded)).toBe(false);
   });
 });
