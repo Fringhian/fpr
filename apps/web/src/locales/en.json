@@ -77,5 +77,8 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "button": {
+    "saving": "Saving…"
   }
 }
