@@ -20,5 +20,20 @@
       "quote": "Quoted name",
       "question": "Sell {{quantity}} units?"
     }
+  },
+  "swatch": {
+    "colours": {
+      "vermilion": "Vermilion",
+      "cobalt": "Cobalt",
+      "green": "Green",
+      "violet": "Violet",
+      "amber": "Amber",
+      "pink": "Pink",
+      "cyan": "Cyan",
+      "lime": "Lime",
+      "sienna": "Sienna",
+      "periwinkle": "Periwinkle"
+    },
+    "takenBy": "{{colour}}, taken by {{name}}"
   }
 }
