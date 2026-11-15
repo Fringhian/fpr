@@ -155,6 +155,8 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - Icons are Phosphor, regular weight; the current navigation item uses the fill weight. No character or emoji stands in for an icon.
 - A "Skip to content" link comes first. Every control shows a visible focus ring, and every icon-only button has an accessible label.
 - Charts follow the hover with a crosshair and the same values on keyboard focus. The race draws only the person and the focused member in colour; the others are grey, named by the picture at the end of their line.
+- Every chart is `Chart` in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts: the `line` variant with its axes, crosshair and keyboard, or the `sparkline` for cards. Its colours are the tokens of `theme.css`, read at runtime.
+- The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts, with a link to tradingview.com, as the library's licence asks.
 - Leaving a form with unsaved input asks first, through the router's navigation guard. Deleting asks to confirm, or offers Undo.
 - Motion respects `prefers-reduced-motion`.
 
@@ -238,6 +240,8 @@ FPR is a Progressive Web App. It installs to a phone's home screen or a computer
 
 The web image builds the app and serves it with nginx. nginx serves `index.html` for every unknown path, so routes load directly, and forwards `/api/*` to the API. The browser sees one origin, and session cookies need no cross-site settings.
 
+nginx takes the client's address from the header the host's reverse proxy sets, `CLIENT_IP_HEADER`, logs it, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address). `apps/web/client-ip.conf.template` holds the `real_ip_header` line, written with `CLIENT_IP_HEADER` when the container starts.
+
 nginx serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.
 
 Every response nginx sends, `/api/*` and errors included, carries these security headers, once each. nginx drops the API's own values for them.
@@ -253,4 +257,4 @@ Every response nginx sends, `/api/*` and errors included, carries these security
 
 Under this policy, every script, font, request, and worker comes from the app's own origin, and no script is inline: the fonts ship with the build, and the service worker registers from a file. Inline styles, `data:` images, and `blob:` images, such as a picture's preview before upload, are allowed.
 
-In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix.
+In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix and sending the client's address in `X-Forwarded-For`.

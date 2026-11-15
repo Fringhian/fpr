@@ -1,7 +1,19 @@
 import { type ErrorBody, type ErrorCode, errorStatus } from "@fpr/contracts";
+import { ORPCError } from "@orpc/server";
 import type { ErrorRequestHandler, RequestHandler } from "express";
 
-/** An error the API answers on purpose, with its contract code. */
+/**
+ * An error a contract route answers on purpose, sent with its code's
+ * status.
+ */
+export function apiError(
+  code: ErrorCode,
+  details?: Record<string, unknown>,
+): ORPCError<ErrorCode, Record<string, unknown> | undefined> {
+  return new ORPCError(code, { status: errorStatus[code], data: details });
+}
+
+/** An error an Express route answers on purpose, with its contract code. */
 export class ApiError extends Error {
   readonly code: ErrorCode;
   readonly details: Record<string, unknown> | undefined;

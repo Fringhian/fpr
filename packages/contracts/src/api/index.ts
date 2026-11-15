@@ -1,3 +1,4 @@
+import type { RouteTree } from "../contract.js";
 import { accessContract } from "./access/index.js";
 import { adminContract } from "./admin/index.js";
 import { meContract } from "./me/index.js";
@@ -7,7 +8,7 @@ import { sharesContract } from "./shares/index.js";
 
 /**
  * Every route of the API, one key per area. The OpenAPI document groups the
- * routes by these keys, in this order.
+ * routes by these keys, in this order. Each route declares who may call it.
  */
 export const apiContract = {
   access: accessContract,
@@ -16,6 +17,6 @@ export const apiContract = {
   shares: sharesContract,
   race: raceContract,
   admin: adminContract,
-};
+} satisfies RouteTree;
 
 export type ApiContract = typeof apiContract;

@@ -2,11 +2,31 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
+    "ended": "Terminé",
+    "expired": "Lien expiré",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
+  },
+  "lane": {
+    "you": "· vous",
+    "best": "Meilleure : {{share}}",
+    "bestShare": "Meilleure action",
+    "since": "depuis le {{date}}",
+    "notStarted_one": "{{names}} n’a pas encore commencé.",
+    "notStarted_many": "{{names}} n’ont pas encore commencé.",
+    "notStarted_other": "{{names}} n’ont pas encore commencé."
+  },
+  "standings": {
+    "title": "Classement",
+    "titleOver": "Classement · {{period}}",
+    "empty": {
+      "title": "Personne n’est encore dans la course",
+      "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
+    }
   },
   "foundations": {
     "formatting": {
@@ -32,6 +52,12 @@
   },
   "button": {
     "saving": "Enregistrement…"
+  },
+  "field": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "dialog": {
     "close": "Fermer",
@@ -63,6 +89,39 @@
     },
     "loadingPlaceholder": {
       "default": "Chargement…"
+    }
+  },
+  "sentence": {
+    "greeting": {
+      "morning": "Bonjour, {{name}}",
+      "afternoon": "Bonjour, {{name}}",
+      "evening": "Bonsoir, {{name}}"
+    },
+    "period": {
+      "1D": { "start": "Aujourd’hui", "inline": "aujourd’hui" },
+      "1W": { "start": "Cette semaine", "inline": "cette semaine" },
+      "1M": { "start": "Ce mois-ci", "inline": "ce mois-ci" },
+      "3M": { "start": "Sur trois mois", "inline": "sur trois mois" },
+      "YTD": {
+        "start": "Depuis le 1er janvier",
+        "inline": "depuis le 1er janvier"
+      },
+      "all": { "start": "Depuis le début", "inline": "depuis le début" }
+    },
+    "headline": {
+      "up": "{{period}}, vous gagnez <gain>{{amount}}</gain>",
+      "down": "{{period}}, vous perdez <gain>{{amount}}</gain>",
+      "flat": "{{period}}, vous êtes stable à <gain>{{amount}}</gain>",
+      "leader": "{{period}}, {{name}} est en tête avec <gain>{{amount}}</gain>"
+    },
+    "story": {
+      "theyLead": "<sign>{{name}} est en tête</sign> avec <gain/>",
+      "youLead": "<sign>Vous menez la course</sign>",
+      "alone": "Vous ouvrez la course",
+      "everyoneDown": "Tout le monde est en baisse {{period}}",
+      "starShare": "titre vedette <chip/>",
+      "starShareFirst": "Titre vedette <chip/>",
+      "separator": " · "
     }
   },
   "menu": {
@@ -105,6 +164,45 @@
     },
     "backToYou": "Revenir à vous"
   },
+  "personRow": {
+    "until": "Jusqu’au {{date}}",
+    "noEnd": "Sans date de fin"
+  },
+  "timelineRow": {
+    "bought": "Achat de {{quantity}} {{share}}",
+    "sold": "Vente de {{quantity}} {{share}}",
+    "cashSet": "Liquidités fixées à {{amount}}",
+    "valueAdded": "Valeur de {{price}} ajoutée",
+    "valueEdited": "Valeur corrigée à {{price}}",
+    "held": "{{before}} → {{after}}",
+    "heldSpoken": "de {{before}} à {{after}} parts détenues",
+    "newHolding": "Nouvelle ligne",
+    "firstCash": "Premières liquidités saisies",
+    "was": "au lieu de {{before}}",
+    "madeBy": "par {{name}}",
+    "subject": "{{title}}, {{date}}"
+  },
+  "chart": {
+    "keys": "Les flèches gauche et droite passent d’un jour à l’autre, Début et Fin vont au premier et au dernier jour, et Échap quitte.",
+    "point": "{{date}} : {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, provisoire"
+  },
+  "holdingCard": {
+    "units_one": "{{quantity}} part",
+    "units_many": "{{quantity}} de parts",
+    "units_other": "{{quantity}} parts",
+    "asOfTime": "à {{time}}",
+    "asOfDate": "au {{date}}",
+    "closeOf": "clôture du {{date}}",
+    "curve": "{{name}}, cours sur la période",
+    "loadingPrices": "Chargement de ses cours…",
+    "notCounted": "pas encore compté",
+    "ofPortfolio": "du portefeuille",
+    "cash": "Liquidités",
+    "setOn": "Définies le {{date}}",
+    "updateCash": "Modifier les liquidités"
+  },
   "controls": {
     "period": {
       "label": "Période",
@@ -130,5 +228,22 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "periodControl": {
+    "title": "Période",
+    "summary": "{{period}} · {{unit}}",
+    "period": {
+      "1D": "Aujourd’hui",
+      "1W": "Cette semaine",
+      "1M": "Ce mois-ci",
+      "3M": "3 mois",
+      "YTD": "Cette année",
+      "all": "Depuis le début"
+    }
+  },
+  "allocationBar": {
+    "label": "Répartition",
+    "other": "Autres",
+    "cash": "Liquidités"
   }
 }
