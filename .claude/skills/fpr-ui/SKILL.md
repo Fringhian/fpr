@@ -10,7 +10,8 @@ These conventions win over any other skill's advice on styling or components —
 ## Stack
 
 - `apps/web` — React, Vite, TanStack Router (file-based routes), TanStack Query, Tailwind v4.
-- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. A component lives in the folder of its story's group, with its stories and any `-model.ts` beside it. They move to a package only if a second consumer appears.
+- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. Each component has its own folder in its story's group, `src/components/<group>/<component>/`, holding the component, its stories and any `-model.ts`: `atoms/button/button.tsx` and `atoms/button/button.stories.tsx`. Components shown in one story file share one folder. They move to a package only if a second consumer appears.
+- Imports name the file itself: `../../atoms/button/button`. There are no barrel files (`index.ts`).
 - Components have no unit tests. Their stories are their check, run in Chromium by `test-storybook`.
 
 ## Design workflow
@@ -27,7 +28,7 @@ The design reference lives in `design/`, outside git like a design tool's files:
 impeccable's `PRODUCT.md`, `DESIGN.md` (the tokens and rules of the look), and `.impeccable/` stay outside git too. The repository's `.gitignore` lists them all.
 
 1. The tokens in `DESIGN.md` and the design system move into `apps/web/src/theme.css`. From then on `theme.css` holds every design value.
-2. Each component is built in the `apps/web/src/components/` folder of its story's group from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
+2. Each component is built in its own folder in `apps/web/src/components/<group>/` from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
 3. Each screen is built from its wireframe, its final look in `design/screens.html`, and the components. Once a screen is built, its code is the reference and the design files are not updated for it.
 
 ## Storybook
@@ -176,7 +177,7 @@ cn(
 
   ```tsx
   import { cva, type VariantProps } from "class-variance-authority";
-  import { cn } from "../../lib/cn";
+  import { cn } from "../../../lib/cn";
 
   const button = cva(
     ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:opacity-[0.45]"],
