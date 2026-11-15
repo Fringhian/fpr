@@ -123,9 +123,9 @@ export interface ChartProps {
   /** Classes added to the chart’s own, which win any conflict, such as its height. */
   className?: string;
   /** `line` only: drawn over the chart from where each line ends, and redrawn as it resizes, such as the race's pictures and signs. */
-  overlay?: (layout: ChartLayout) => ReactNode;
+  overlay?: ((layout: ChartLayout) => ReactNode) | undefined;
   /** `line` only: called with a line's `id` when a click or a tap lands on it, or close to it. The pointer turns into a hand over a line. */
-  onSelectLine?: (id: string) => void;
+  onSelectLine?: ((id: string) => void) | undefined;
 }
 
 /** The chart's height by variant: 208px for a line chart, 34px for a sparkline. A `className` height wins. */
@@ -202,6 +202,8 @@ function lineOptions(element: HTMLElement): DeepPartial<ChartOptions> {
     leftPriceScale: {
       visible: true,
       borderVisible: false,
+      // A label cut by the chart's top or bottom edge is left out.
+      entireTextOnly: true,
       scaleMargins: { top: 0.15, bottom: 0.1 },
     },
     rightPriceScale: { visible: false },
@@ -453,8 +455,8 @@ export function Chart({
     return () => {
       cancelAnimationFrame(frame);
       timeScale.unsubscribeSizeChange(update);
+      // The ends stay where they were until measured again, so the overlay never blinks.
       resized.disconnect();
-      setLayout(NO_LAYOUT);
     };
   }, [chart, lines, overlaid]);
 
