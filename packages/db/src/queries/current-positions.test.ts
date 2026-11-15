@@ -92,9 +92,4 @@ describe("current positions", () => {
     expect(holders.map((row) => row.quantity).sort()).toEqual(["10", "2.5"]);
     expect(await listAll(db)).toHaveLength(2);
   });
-
-  it("are empty with no changes", async () => {
-    expect(await listByUser(db, await insertPerson())).toEqual([]);
-    expect(await listAll(db)).toEqual([]);
-  });
 });

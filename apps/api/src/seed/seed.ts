@@ -1,6 +1,6 @@
 import { close, createDb, type Db, migrateToLatest } from "@fpr/db";
-import { loadEnv } from "./env.js";
-import { createLogger } from "./logger.js";
+import { loadEnv } from "../env.js";
+import { createLogger } from "../logger.js";
 import {
   refuseProduction,
   type SeedResult,
