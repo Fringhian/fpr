@@ -2,7 +2,7 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { Field as BaseField } from "@base-ui/react/field";
 import { type ComponentProps, createContext, use, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { Input, type InputProps } from "../../atoms/input/input";
 
 /** Whether the field around a control is disabled, so the Show button follows it. */
@@ -23,12 +23,7 @@ export function Root({ className, disabled = false, ...props }: RootProps) {
       <BaseField.Root
         {...props}
         disabled={disabled}
-        className={(state) =>
-          cn(
-            "flex w-full flex-col",
-            typeof className === "function" ? className(state) : className,
-          )
-        }
+        className={stateClassName("flex w-full flex-col", className)}
       />
     </FieldDisabled>
   );
@@ -41,12 +36,10 @@ export function Label({ className, ...props }: LabelProps) {
   return (
     <BaseField.Label
       {...props}
-      className={(state) =>
-        cn(
-          "mb-[0.375rem] text-s font-medium text-primary",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(
+        "mb-[0.375rem] text-s font-medium text-primary",
+        className,
+      )}
     />
   );
 }
@@ -67,12 +60,10 @@ export function Description({ className, ...props }: DescriptionProps) {
         validity.valid === false ? null : (
           <BaseField.Description
             {...props}
-            className={(state) =>
-              cn(
-                "mt-[0.375rem] text-xs text-secondary",
-                typeof className === "function" ? className(state) : className,
-              )
-            }
+            className={stateClassName(
+              "mt-[0.375rem] text-xs text-secondary",
+              className,
+            )}
           />
         )
       }
@@ -98,12 +89,10 @@ function FieldError({ className, match, children, ...props }: ErrorProps) {
             // An undefined `children` would hide the message `validate` returned.
             {...(children == null ? {} : { children })}
             match={match ?? (validity.valid === false ? true : undefined)}
-            className={(state) =>
-              cn(
-                "mt-[0.375rem] text-xs text-error",
-                typeof className === "function" ? className(state) : className,
-              )
-            }
+            className={stateClassName(
+              "mt-[0.375rem] text-xs text-error",
+              className,
+            )}
           />
         )}
       </BaseField.Validity>

@@ -83,19 +83,19 @@ function Actions({ status }: { status: AccessStatus }) {
 /** The stories’ args: the photo, end date and ⋯ icon are picked by name, and `actions` switches the ⋯ menu on. */
 type PersonRowArgs = Omit<
   PersonRowProps,
-  "photo" | "accessUntil" | "actions" | "moreIcon"
+  "photo" | "accessUntil" | "actions" | "actionsIcon"
 > & {
   photo: PhotoName;
   accessUntil: EndDateName;
   actions: boolean;
-  moreIcon: MoreIconName;
+  actionsIcon: MoreIconName;
 };
 
 function toProps({
   photo,
   accessUntil,
   actions,
-  moreIcon,
+  actionsIcon,
   ...args
 }: PersonRowArgs): PersonRowProps {
   return {
@@ -103,7 +103,7 @@ function toProps({
     photo: PHOTOS[photo],
     accessUntil: END_DATES[accessUntil],
     actions: actions ? <Actions status={args.status} /> : undefined,
-    moreIcon: MORE_ICONS[moreIcon],
+    actionsIcon: MORE_ICONS[actionsIcon],
   };
 }
 
@@ -188,7 +188,7 @@ A person in the admin area: their picture, name, email, access status, end date,
 
 - The status is one of five, each with its badge: waiting for first use, active, link expired (never used before its deadline), ended (past its end date), or revoked. Grey is a plain fact, green works, red keeps the person out.
 - The end date is written with its year, “Until 30 Jun 2027”. With no end date, a dash, read “No end date” by screen readers.
-- The ⋯ menu holds the items the screen passes in \`actions\`; it is named for the person, “More actions for Sam”, and \`moreIcon\` takes any Phosphor icon, three dots by default. Without actions there is no ⋯: an anonymous viewer reads the admin area without changing it.
+- The ⋯ menu holds the items the screen passes in \`actions\`; it is named for the person, “More actions for Sam”, and \`actionsIcon\` takes any Phosphor icon, three dots by default. Without actions there is no ⋯: an anonymous viewer reads the admin area without changing it.
 - An anonymous viewer receives pseudonyms for names, no photos and no emails: the row shows the pseudonym’s initial and leaves the email out.
 - On tablet the email moves under the name. The admin area works on tablet and desktop; on a phone, the status and end date go under the email too.
 
@@ -214,7 +214,7 @@ const configurable = {
     status: "active",
     accessUntil: "none",
     actions: true,
-    moreIcon: "dots-three",
+    actionsIcon: "dots-three",
   },
   argTypes: {
     name: { control: { type: "text" } },
@@ -238,7 +238,7 @@ const configurable = {
         "The ⋯ menu's items. Without them the row has no ⋯. Switched on and off here.",
       control: { type: "boolean" },
     },
-    moreIcon: {
+    actionsIcon: {
       description:
         "The ⋯ button's icon: any Phosphor icon, three dots by default. Picked by name here.",
       control: { type: "select" },

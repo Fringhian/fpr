@@ -2,7 +2,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { XIcon } from "@phosphor-icons/react/X";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { Button } from "../../atoms/button/button";
 import { IconButton } from "../../atoms/icon-button/icon-button";
 import type { IconProps } from "../../foundations/icon/icon";
@@ -18,9 +18,9 @@ export const Trigger = BaseDialog.Trigger;
 
 const popup = cn(
   "fixed flex flex-col overflow-y-auto overscroll-contain bg-surface font-sans text-primary shadow-float outline-none transition-[translate,scale,opacity] duration-200 ease-out",
-  "inset-x-[0] top-auto bottom-[0] m-[0] h-auto max-h-[calc(100dvh-2.5rem)] w-auto gap-[0.75rem] rounded-t-xl rounded-b-none px-[1.125rem] pt-[0.625rem] pb-[calc(1.375rem+env(safe-area-inset-bottom))] translate-none scale-100 opacity-100",
-  "tablet:inset-[0] tablet:m-auto tablet:h-fit tablet:max-h-[calc(100dvh-5rem)] tablet:w-[min(30rem,calc(100vw-3rem))] tablet:gap-[0.875rem] tablet:rounded-xl tablet:p-[1.375rem] tablet:translate-none tablet:scale-100 tablet:opacity-100",
-  "desktop:inset-[0] desktop:m-auto desktop:h-fit desktop:max-h-[calc(100dvh-5rem)] desktop:w-[min(30rem,calc(100vw-3rem))] desktop:gap-[0.875rem] desktop:rounded-xl desktop:p-[1.375rem] desktop:translate-none desktop:scale-100 desktop:opacity-100",
+  "inset-x-0 top-auto bottom-0 m-0 h-auto max-h-[calc(100dvh-2.5rem)] w-auto gap-[0.75rem] rounded-t-xl rounded-b-none px-[1.125rem] pt-[0.625rem] pb-[calc(1.375rem+env(safe-area-inset-bottom))] translate-none scale-100 opacity-100",
+  "tablet:inset-0 tablet:m-auto tablet:h-fit tablet:max-h-[calc(100dvh-5rem)] tablet:w-[min(30rem,calc(100vw-3rem))] tablet:gap-[0.875rem] tablet:rounded-xl tablet:p-[1.375rem] tablet:translate-none tablet:scale-100 tablet:opacity-100",
+  "desktop:inset-0 desktop:m-auto desktop:h-fit desktop:max-h-[calc(100dvh-5rem)] desktop:w-[min(30rem,calc(100vw-3rem))] desktop:gap-[0.875rem] desktop:rounded-xl desktop:p-[1.375rem] desktop:translate-none desktop:scale-100 desktop:opacity-100",
   "starting-style:translate-y-full tablet:starting-style:translate-none tablet:starting-style:scale-[0.96] tablet:starting-style:opacity-0 desktop:starting-style:translate-none desktop:starting-style:scale-[0.96] desktop:starting-style:opacity-0",
   "ending-style:translate-y-full tablet:ending-style:translate-none tablet:ending-style:scale-[0.96] tablet:ending-style:opacity-0 desktop:ending-style:translate-none desktop:ending-style:scale-[0.96] desktop:ending-style:opacity-0",
   "motion-reduce:transition-opacity",
@@ -39,7 +39,7 @@ export function Popup({ className, children, ...props }: PopupProps) {
     <BaseDialog.Portal>
       <BaseDialog.Backdrop
         className={cn(
-          "fixed inset-[0] bg-primary/30 opacity-100 transition-opacity duration-200 ease-out",
+          "fixed inset-0 bg-primary/30 opacity-100 transition-opacity duration-200 ease-out",
           "",
           "",
           "",
@@ -47,15 +47,7 @@ export function Popup({ className, children, ...props }: PopupProps) {
           "ending-style:opacity-0",
         )}
       />
-      <BaseDialog.Popup
-        {...props}
-        className={(state) =>
-          cn(
-            popup,
-            typeof className === "function" ? className(state) : className,
-          )
-        }
-      >
+      <BaseDialog.Popup {...props} className={stateClassName(popup, className)}>
         <span
           aria-hidden="true"
           className={cn(
@@ -92,12 +84,7 @@ export function Title({ className, ...props }: TitleProps) {
   return (
     <BaseDialog.Title
       {...props}
-      className={(state) =>
-        cn(
-          "text-l font-semibold text-primary",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("text-l font-semibold text-primary", className)}
     />
   );
 }
@@ -110,12 +97,7 @@ export function Description({ className, ...props }: DescriptionProps) {
   return (
     <BaseDialog.Description
       {...props}
-      className={(state) =>
-        cn(
-          "text-s text-secondary",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("text-s text-secondary", className)}
     />
   );
 }

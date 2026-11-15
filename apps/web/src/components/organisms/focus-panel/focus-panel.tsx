@@ -1,13 +1,15 @@
+import type { Period } from "@fpr/contracts";
 import { type ComponentProps, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
-import type { Period } from "../../../lib/period";
+import { Card } from "../../atoms/card/card";
 import { GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture } from "../../atoms/picture/picture";
 import { TextLink, type TextLinkProps } from "../../atoms/text-link/text-link";
+import { YouSuffix } from "../../molecules/lane/lane";
 import { type Mover, MoverList } from "../mover-row/mover-row";
 
 /** The member the panel shows, as the race and the standings send them. */
@@ -85,13 +87,11 @@ export function FocusPanel({
   const back = you ? null : (backLink ?? null);
 
   return (
-    <section
+    <Card
+      render={<section />}
       aria-labelledby={nameId}
       {...props}
-      className={cn(
-        "flex min-w-0 flex-col gap-m rounded-l bg-surface p-m shadow-outline",
-        className,
-      )}
+      className={cn("flex min-w-0 flex-col gap-m p-m", className)}
     >
       <header className="flex items-center gap-s">
         <Picture
@@ -104,12 +104,7 @@ export function FocusPanel({
         <div className="min-w-0 flex-1">
           <h2 id={nameId} className="truncate text-m font-semibold">
             {member.name}
-            {you ? (
-              <span className="font-normal text-secondary">
-                {" · "}
-                {t("focusPanel.you")}
-              </span>
-            ) : null}
+            {you ? <YouSuffix /> : null}
           </h2>
           <p className="text-xs text-secondary">
             {t(`focusPanel.period.${who}.${period}`)}
@@ -149,6 +144,6 @@ export function FocusPanel({
           ? t("focusPanel.open.you")
           : t("focusPanel.open.them", { name: member.name })}
       </TextLink>
-    </section>
+    </Card>
   );
 }

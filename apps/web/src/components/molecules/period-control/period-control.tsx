@@ -1,32 +1,24 @@
+import { type Period, periods, units } from "@fpr/contracts";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
+import type { GainUnit } from "../../../lib/gain";
 import * as Segment from "../../atoms/segment/segment";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 import * as Dialog from "../dialog/dialog";
 
-/** The spans a gain is measured over, as the API names them. */
-export const periods = ["1D", "1W", "1M", "3M", "YTD", "all"] as const;
-
-export type Period = (typeof periods)[number];
-
-/** How a gain is expressed, as the API names it: in euros or in percent. */
-export const units = ["eur", "percent"] as const;
-
-export type Unit = (typeof units)[number];
-
 /** The one setting every page shares: its period and its unit. */
 export interface PeriodSetting {
   period: Period;
-  unit: Unit;
+  unit: GainUnit;
 }
 
 /** Each unit's key under `controls.unit`. */
 const UNIT_KEYS = {
   eur: "euro",
   percent: "percent",
-} as const satisfies Record<Unit, string>;
+} as const satisfies Record<GainUnit, string>;
 
 interface SegmentsProps {
   setting: PeriodSetting;
@@ -62,7 +54,7 @@ function Segments({
         ))}
       </Segment.Root>
       {anonymous ? null : (
-        <Segment.Root<Unit>
+        <Segment.Root<GainUnit>
           backdrop={backdrop}
           value={setting.unit}
           onValueChange={(unit) => onChange({ ...setting, unit })}

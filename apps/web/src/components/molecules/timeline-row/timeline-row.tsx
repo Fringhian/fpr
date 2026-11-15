@@ -197,10 +197,7 @@ export function TimelineRow(props: TimelineRowProps) {
     ...rest
   } = props;
   const { title, change } = describe(props, t, language);
-  const day = formatDate(date, language, {
-    ...(timeZone === undefined ? {} : { timeZone }),
-    ...(year === undefined ? {} : { year }),
-  });
+  const day = formatDate(date, language, { timeZone, year });
   const author =
     madeBy === undefined ? null : t("timelineRow.madeBy", { name: madeBy });
   const hasDetail = change !== null || author !== null;

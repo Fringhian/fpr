@@ -34,6 +34,7 @@ import {
 } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
+import { MEMBER_FILLS } from "../../../lib/member-color";
 import {
   type ChartPoint,
   chartDays,
@@ -56,16 +57,7 @@ const SWATCHES = {
   positive: "bg-positive",
   negative: "bg-negative",
   muted: "bg-muted",
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
+  ...MEMBER_FILLS,
 } as const satisfies Record<string, `bg-${string}`>;
 
 /** A line's colour: `primary` for a chart's one line, `positive` or `negative` for a sparkline, `muted` for the context lines, or a member colour. */
@@ -535,7 +527,7 @@ export function Chart({
               : `translateX(calc(${active.x}px + var(--spacing-s)))`,
           }}
           className={cn(
-            "pointer-events-none absolute top-[0] left-[0] z-10 grid gap-xs rounded-s border border-divider bg-surface px-s py-xs shadow-float",
+            "pointer-events-none absolute top-0 left-0 z-10 grid gap-xs rounded-s border border-divider bg-surface px-s py-xs shadow-float",
             "",
             "",
             "",

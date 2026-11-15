@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { laneScale } from "../../../lib/lane";
+import { Card } from "../../atoms/card/card";
 import type { PictureMedal } from "../../atoms/picture/picture";
 import * as Segment from "../../atoms/segment/segment";
 import {
@@ -198,11 +199,12 @@ export function Standings({
   };
 
   return (
-    <section
+    <Card
       {...props}
+      render={<section />}
       aria-labelledby={titleId}
       className={cn(
-        "flex min-w-0 flex-col rounded-l bg-surface shadow-outline",
+        "flex min-w-0 flex-col",
         "p-s",
         "tablet:p-m",
         "desktop:p-m",
@@ -271,6 +273,6 @@ export function Standings({
         </ol>
       )}
       <LaneNotStarted names={notStarted} />
-    </section>
+    </Card>
   );
 }

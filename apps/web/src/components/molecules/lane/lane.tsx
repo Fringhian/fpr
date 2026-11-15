@@ -1,11 +1,12 @@
 import { Collapsible } from "@base-ui/react/collapsible";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import type { BarScale } from "../../../lib/bar-track";
-import { cn } from "../../../lib/cn";
+import { barScale, type UnitScale } from "../../../lib/bar-track";
+import { cn, stateClassName } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
+  formatList,
   formatMoney,
   type IsoDate,
 } from "../../../lib/format";
@@ -48,11 +49,13 @@ export interface LaneOwnProps {
    */
   value: LaneValue;
   /**
-   * The lowest and highest values across every lane of the standings, from
-   * `laneScale`, so the zero line sits at the same place in each lane and the
-   * bars compare. Without it, the lane is measured against itself.
+   * The lowest and highest values across every lane of the standings in each
+   * unit, from `laneScale`, so the zero line sits at the same place in each
+   * lane and the bars of one unit compare. A gain with no percentage (a start
+   * at zero) reads in euros and is drawn on the euro scale. Without it, the
+   * lane is measured against itself.
    */
-  scale?: BarScale | undefined;
+  scale?: UnitScale | undefined;
   /** The day the member's history starts when it is after the period's start: their gain is measured from it, and the lane says “since 12 Feb”. */
   measuredFrom?: IsoDate | null | undefined;
   /** A held share has no price yet: it is left out of the balance, and the lane says “Incomplete”. */
@@ -96,24 +99,16 @@ export function Lane({
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const amount = laneAmount(value);
-  const ownScale = scale ?? {
-    min: Math.min(0, amount ?? 0),
-    max: Math.max(0, amount ?? 0),
-  };
+  const shown = laneAmount(value);
+  const amount = shown === null ? null : Number(shown.amount);
+  const unit = shown?.unit ?? (value.board === "gain" ? value.unit : "eur");
   const hasMarkers = incomplete || measuredFrom !== null;
   const tint = you ? "bg-highlight" : "";
 
   return (
     <Collapsible.Root
       {...props}
-      className={(state) =>
-        cn(
-          "rounded-m",
-          tint,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(cn("rounded-m", tint), className)}
     >
       <Collapsible.Trigger
         className={cn(
@@ -142,12 +137,7 @@ export function Lane({
             )}
           >
             {name}
-            {you ? (
-              <span className="font-normal text-secondary">
-                {" "}
-                {t("lane.you")}
-              </span>
-            ) : null}
+            {you ? <YouSuffix /> : null}
           </span>
           {best ? (
             <span
@@ -174,7 +164,12 @@ export function Lane({
             </span>
           ) : null}
         </span>
-        <BarTrack amount={amount} scale={ownScale} color={color} size="m" />
+        <BarTrack
+          amount={amount}
+          scale={scale?.[unit] ?? barScale([amount])}
+          color={color}
+          size="m"
+        />
         <span
           className={cn(
             "text-end",
@@ -227,6 +222,13 @@ export function Lane({
   );
 }
 
+/** “· you” after the viewer's own name, in a lane or the focus panel. */
+export function YouSuffix() {
+  const { t } = useTranslation();
+
+  return <span className="font-normal text-secondary"> {t("lane.you")}</span>;
+}
+
 /** The lane's value: the signed gain in its colour, or the balance in whole euros. */
 function LaneFigure({
   value,
@@ -256,17 +258,6 @@ function LaneFigure({
   );
 }
 
-const listFormats = new Map<Language, Intl.ListFormat>();
-
-function listFormat(language: Language): Intl.ListFormat {
-  let format = listFormats.get(language);
-  if (!format) {
-    format = new Intl.ListFormat(language, { type: "conjunction" });
-    listFormats.set(language, format);
-  }
-  return format;
-}
-
 export interface LaneNotStartedOwnProps {
   /** The names of the members with no entry yet. Renders nothing when empty. */
   names: readonly string[];
@@ -291,7 +282,7 @@ export function LaneNotStarted({
 
   const sentence = t("lane.notStarted", {
     count: names.length,
-    names: listFormat(language).format(names),
+    names: formatList(names, language),
   });
 
   return names.length === 0 ? null : (

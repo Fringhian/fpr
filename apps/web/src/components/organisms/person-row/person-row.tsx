@@ -1,4 +1,3 @@
-import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
@@ -6,7 +5,6 @@ import { formatDate, type IsoDate, type Timestamp } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
 import { Badge, type BadgeState } from "../../atoms/badge/badge";
-import { IconButton } from "../../atoms/icon-button/icon-button";
 import { Picture } from "../../atoms/picture/picture";
 import type { IconProps } from "../../foundations/icon/icon";
 import * as Menu from "../../molecules/menu/menu";
@@ -69,7 +67,7 @@ interface PersonRowOwnProps {
   /** The ⋯ menu's items, as `Menu.Item`s and a `Menu.Separator`. Without them the row has no ⋯, as for an anonymous viewer, who reads the admin area without changing it. */
   actions?: ReactNode;
   /** The ⋯ button's icon, any Phosphor icon. Three dots by default. */
-  moreIcon?: IconProps["icon"] | undefined;
+  actionsIcon?: IconProps["icon"] | undefined;
 }
 
 export type PersonRowProps = PersonRowOwnProps &
@@ -89,7 +87,7 @@ export function PersonRow({
   status,
   accessUntil,
   actions,
-  moreIcon = DotsThreeIcon,
+  actionsIcon,
   className,
   ...props
 }: PersonRowProps) {
@@ -185,27 +183,16 @@ export function PersonRow({
       </span>
       {actions === undefined ? null : (
         <Menu.Root>
-          <Menu.Trigger
+          <Menu.MoreTrigger
+            subject={name}
+            icon={actionsIcon}
+            size="s"
             className={cn(
               "",
               "col-3 row-[1/span_3]",
               "tablet:col-5 tablet:row-[1/span_2]",
               "desktop:col-6 desktop:row-1",
             )}
-            render={
-              <IconButton
-                icon={moreIcon}
-                label={t("menu.moreFor", { subject: name })}
-                size="s"
-                className={cn(
-                  "",
-                  "",
-                  "",
-                  "",
-                  "popup-open:bg-highlight popup-open:text-primary",
-                )}
-              />
-            }
           />
           <Menu.Popup>{actions}</Menu.Popup>
         </Menu.Root>

@@ -1,7 +1,7 @@
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { type ReactNode, useId } from "react";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 /** Every prop of Base UI’s radio group, `className` included: a string, or a function of the group’s state. */
@@ -16,12 +16,7 @@ export function Group<Value>({ className, ...props }: GroupProps<Value>) {
   return (
     <RadioGroup<Value>
       {...props}
-      className={(state) =>
-        cn(
-          "grid gap-s",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("grid gap-s", className)}
     />
   );
 }
@@ -34,7 +29,7 @@ const item = cn(
   "not-disabled:hover:bg-highlight",
   "focus-visible:focus-ring",
   "checked:shadow-[inset_0_0_0_2.5px_var(--color-primary)]",
-  "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+  "disabled:dimmed",
 );
 
 export interface ItemOwnProps<Value> {
@@ -77,9 +72,7 @@ export function Item<Value>({
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       {...props}
-      className={(state) =>
-        cn(item, typeof className === "function" ? className(state) : className)
-      }
+      className={stateClassName(item, className)}
     >
       <Icon icon={icon} size="l" className="text-secondary" />
       <span className="flex min-w-0 flex-col">

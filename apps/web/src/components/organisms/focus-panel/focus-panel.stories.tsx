@@ -1,10 +1,10 @@
+import { periods } from "@fpr/contracts";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
-import { PERIODS } from "../../../lib/period";
 import type { Mover } from "../mover-row/mover-row";
 import { FocusPanel, type FocusPanelProps } from "./focus-panel";
 
@@ -106,7 +106,7 @@ const configurable = {
       control: { type: "object" },
     },
     you: { control: { type: "boolean" } },
-    period: { control: { type: "inline-radio" }, options: PERIODS },
+    period: { control: { type: "inline-radio" }, options: periods },
     unit: { control: { type: "inline-radio" }, options: ["percent", "eur"] },
     gain: {
       description:

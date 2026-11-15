@@ -1,9 +1,14 @@
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
+import { type UnitScale, unitScale } from "../../../lib/bar-track";
 import { cn } from "../../../lib/cn";
-import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
+import {
+  type GainInput,
+  type GainUnit,
+  gainAmount,
+  gainDisplay,
+} from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
-import { type MoverScale, moverAmount, moverScale } from "../../../lib/mover";
 import { BarTrack } from "../../atoms/bar-track/bar-track";
 import { GainValue } from "../../atoms/gain-value/gain-value";
 
@@ -28,8 +33,8 @@ export interface MoverRowOwnProps {
   gain: GainInput;
   /** The unit setting. Without euros (an anonymous viewer) the row reads in percent. */
   unit: GainUnit;
-  /** The span of the list's movers, from `moverScale`: the bar is drawn against the biggest. */
-  scale: MoverScale;
+  /** The span of the list's movers in each unit, from `unitScale`: the bar is drawn against the biggest mover of the unit it reads in. */
+  scale: UnitScale;
 }
 
 /** Its own props, and every prop of the `<li>` it renders but its content. */
@@ -54,7 +59,7 @@ export function MoverRow({
   const language = useLanguage();
 
   const tone = gainDisplay(gain, unit, language, { precision: "euros" })?.tone;
-  const shown = moverAmount(gain, unit);
+  const shown = gainAmount(gain, unit);
   // A gain that reads as zero draws no bar.
   const signed = tone === "positive" || tone === "negative";
 
@@ -68,7 +73,7 @@ export function MoverRow({
     >
       <span className="truncate">{name}</span>
       <BarTrack
-        amount={shown === null ? null : signed ? shown.amount : 0}
+        amount={shown === null ? null : signed ? Number(shown.amount) : 0}
         scale={scale[shown?.unit ?? unit]}
         color={tone === "negative" ? "negative" : "positive"}
         size="s"
@@ -110,10 +115,7 @@ export function MoverList({
 }: MoverListProps) {
   const { t } = useTranslation();
 
-  const scale = moverScale(
-    movers.map((mover) => mover.gain),
-    unit,
-  );
+  const scale = unitScale(movers.map((mover) => gainAmount(mover.gain, unit)));
 
   return movers.length === 0 ? (
     <p id={id} className={cn("text-s text-secondary", className)}>

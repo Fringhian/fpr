@@ -1,6 +1,5 @@
 import { useRender } from "@base-ui/react/use-render";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
-import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import {
   type ComponentProps,
   type ReactElement,
@@ -23,8 +22,8 @@ import {
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import { Badge } from "../../atoms/badge/badge";
+import { Card } from "../../atoms/card/card";
 import { GainChip } from "../../atoms/gain-chip/gain-chip";
-import { IconButton } from "../../atoms/icon-button/icon-button";
 import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
 import { TextLink } from "../../atoms/text-link/text-link";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
@@ -46,9 +45,7 @@ export interface HoldingPrice {
   source: PriceSource;
 }
 
-/** The card's ground: a white surface with an outline, its parts stacked. */
-const card =
-  "relative flex min-w-0 flex-col gap-s rounded-l bg-surface p-m font-sans text-primary shadow-outline";
+const card = "relative flex min-w-0 flex-col gap-s p-m font-sans text-primary";
 
 /** The value line, at the card's foot whatever the height of the cards beside it. */
 const foot = "mt-auto flex flex-wrap items-center justify-between gap-s";
@@ -90,7 +87,7 @@ function NameLink({ name, link, icon }: NameLinkProps) {
     defaultTagName: "a",
     props: {
       className: cn(
-        "flex min-w-0 items-center gap-xs text-primary no-underline outline-none after:absolute after:inset-[0] after:rounded-l after:content-['']",
+        "flex min-w-0 items-center gap-xs text-primary no-underline outline-none after:absolute after:inset-0 after:rounded-l after:content-['']",
         "",
         "",
         "",
@@ -194,7 +191,7 @@ export function HoldingCard({
   link,
   linkIcon = CaretRightIcon,
   actions,
-  actionsIcon = DotsThreeIcon,
+  actionsIcon,
   timeZone,
   className,
   ...props
@@ -203,7 +200,6 @@ export function HoldingCard({
   const language = useLanguage();
   const nameId = useId();
 
-  const zone = timeZone === undefined ? {} : { timeZone };
   const pending = latestPrice === null;
   const shownGain: GainInput | null =
     gain === null || !anonymous ? gain : { percent: gain.percent };
@@ -216,13 +212,13 @@ export function HoldingCard({
       ? null
       : latestPrice.source === "intraday"
         ? t("holdingCard.asOfTime", {
-            time: formatTime(latestPrice.at, language, zone),
+            time: formatTime(latestPrice.at, language, { timeZone }),
           })
         : t(
             latestPrice.source === "manual"
               ? "holdingCard.asOfDate"
               : "holdingCard.closeOf",
-            { date: formatDate(latestPrice.at, language, zone) },
+            { date: formatDate(latestPrice.at, language, { timeZone }) },
           );
   const details = [
     anonymous
@@ -236,8 +232,9 @@ export function HoldingCard({
   ].filter((part) => part !== null);
 
   return (
-    <article
+    <Card
       {...props}
+      render={<article />}
       aria-labelledby={nameId}
       className={cn(card, className)}
     >
@@ -252,21 +249,11 @@ export function HoldingCard({
         {kind === "manual" ? <Badge state="manual" /> : null}
         {actions === undefined ? null : (
           <Menu.Root>
-            <Menu.Trigger
-              render={
-                <IconButton
-                  icon={actionsIcon}
-                  label={t("menu.moreFor", { subject: name })}
-                  size="s"
-                  className={cn(
-                    "relative",
-                    "",
-                    "",
-                    "",
-                    "popup-open:bg-highlight popup-open:text-primary",
-                  )}
-                />
-              }
+            <Menu.MoreTrigger
+              subject={name}
+              icon={actionsIcon}
+              size="s"
+              className="relative"
             />
             <Menu.Popup>{actions}</Menu.Popup>
           </Menu.Root>
@@ -304,7 +291,7 @@ export function HoldingCard({
           </div>
         </>
       )}
-    </article>
+    </Card>
   );
 }
 
@@ -344,11 +331,10 @@ export function CashCard({
   const language = useLanguage();
   const titleId = useId();
 
-  const zone = timeZone === undefined ? {} : { timeZone };
-
   return (
-    <article
+    <Card
       {...props}
+      render={<article />}
       aria-labelledby={titleId}
       className={cn(card, className)}
     >
@@ -361,7 +347,7 @@ export function CashCard({
       {setOn === undefined ? null : (
         <p className={caption}>
           {t("holdingCard.setOn", {
-            date: formatDate(setOn, language, zone),
+            date: formatDate(setOn, language, { timeZone }),
           })}
         </p>
       )}
@@ -385,6 +371,6 @@ export function CashCard({
           </TextLink>
         )}
       </div>
-    </article>
+    </Card>
   );
 }

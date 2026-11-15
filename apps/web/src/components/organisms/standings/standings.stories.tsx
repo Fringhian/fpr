@@ -165,7 +165,7 @@ const inTheColumn: Decorator = (Story) => (
 const DESCRIPTION = `
 Every member's lane in one card, highest first, with the Gain / Balance switch, and the members who haven't started listed under the lanes.
 
-- The lanes share one scale, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare. The order and the bars show the ranking: there are no rank numbers. The lanes are an ordered list.
+- The lanes share one scale, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare. A gain with no percentage (a start at zero) reads in euros, its figure and its bar alike, and is drawn against the other lanes in euros; the balance board reads in euros only. The order and the bars show the ranking: there are no rank numbers. The lanes are an ordered list.
 - The first three lanes ring their pictures in gold, silver and bronze on tablet and desktop. The viewer's own lane, named by \`viewerId\`, is tinted.
 - \`board\` and \`onBoardChange\` hold the switch. Each member's \`value\` names the board it was measured on: when the switch changes, the owner loads that board's rows and passes them as \`members\`.
 - An anonymous viewer has the standings by gain only: \`anonymous\` removes the switch.

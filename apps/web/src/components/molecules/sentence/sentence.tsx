@@ -1,3 +1,4 @@
+import type { Period } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
@@ -13,7 +14,7 @@ import type { Language } from "../../../lib/language";
 import type { MemberColor } from "../../../lib/member-color";
 import type { TimeOfDay } from "../../../lib/time-of-day";
 import { Chip } from "../../atoms/chip/chip";
-import { GainValue } from "../../atoms/gain-value/gain-value";
+import { GAIN_TONE_TEXT, GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture } from "../../atoms/picture/picture";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
 
@@ -77,9 +78,6 @@ export function Wide({ className, ...props }: ComponentProps<"span">) {
     />
   );
 }
-
-/** The race's periods, as `@fpr/contracts` names them. */
-export type Period = "1D" | "1W" | "1M" | "3M" | "YTD" | "all";
 
 /** A person the sentence draws with their picture. */
 export interface SentencePerson {
@@ -152,12 +150,6 @@ interface RaceOwnProps {
 export type RaceProps = RaceOwnProps &
   Standing &
   Omit<ComponentProps<"div">, keyof RaceOwnProps | keyof Standing | "children">;
-
-const TONE_TEXT = {
-  positive: "text-positive",
-  negative: "text-negative",
-  flat: "text-secondary",
-} as const satisfies Record<GainTone, string>;
 
 const HEADLINE_KEY = {
   positive: "up",
@@ -302,7 +294,7 @@ export function Race({
               name: leader?.name,
               amount,
             }}
-            components={{ gain: <span className={TONE_TEXT[tone]} /> }}
+            components={{ gain: <span className={GAIN_TONE_TEXT[tone]} /> }}
           />
         </Headline>
       )}

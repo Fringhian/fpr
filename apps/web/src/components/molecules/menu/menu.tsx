@@ -14,9 +14,13 @@ import {
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { stateClassName } from "../../../lib/cn";
+import { COLLISION_PADDING } from "../../../lib/popup";
 import { usePhone } from "../../../lib/use-phone";
-import { IconButton } from "../../atoms/icon-button/icon-button";
+import {
+  IconButton,
+  type IconButtonProps,
+} from "../../atoms/icon-button/icon-button";
 import type { IconProps } from "../../foundations/icon/icon";
 import * as Dialog from "../dialog/dialog";
 
@@ -97,25 +101,25 @@ export function Trigger(props: TriggerProps) {
   );
 }
 
-export interface MoreTriggerOwnProps {
-  /** What the actions act on, named in the label: “More actions for World Index ETF”. Without it, “More actions”. */
-  subject?: string | undefined;
-  /** The button's icon, any Phosphor icon. Three dots by default. */
-  icon?: IconProps["icon"] | undefined;
-}
-
 /**
  * The trigger's own props, then every prop of `Trigger` but `children` and
  * `render`: it draws its own icon button. `className` is a string, or a
  * function of the trigger's state, and wins over the icon button's classes.
  */
-export type MoreTriggerProps = MoreTriggerOwnProps &
-  Omit<TriggerProps, keyof MoreTriggerOwnProps | "children" | "render">;
+export type MoreTriggerProps = {
+  /** What the actions act on, named in the label: “More actions for World Index ETF”. Without it, “More actions”. */
+  subject?: string | undefined;
+  /** The button's icon, any Phosphor icon. Three dots by default. */
+  icon?: IconProps["icon"] | undefined;
+  /** The icon button's size: `m` 40px, the default; `s` 24px, in a card's or a row's corner. */
+  size?: IconButtonProps["size"] | undefined;
+} & Omit<TriggerProps, "subject" | "icon" | "size" | "children" | "render">;
 
 /** The icon button, three dots by default, that opens a card's or a row's menu, named for screen readers by what it acts on. */
 export function MoreTrigger({
   subject,
   icon = DotsThreeIcon,
+  size,
   ...props
 }: MoreTriggerProps) {
   const { t } = useTranslation();
@@ -126,19 +130,7 @@ export function MoreTrigger({
   return (
     <Trigger
       {...props}
-      render={
-        <IconButton
-          icon={icon}
-          label={label}
-          className={cn(
-            "",
-            "",
-            "",
-            "",
-            "popup-open:bg-highlight popup-open:text-primary",
-          )}
-        />
-      }
+      render={<IconButton icon={icon} label={label} size={size} />}
     />
   );
 }
@@ -155,15 +147,8 @@ export type PopupState = Pick<
   "open" | "transitionStatus"
 >;
 
-const popup = cn(
-  "flex max-w-(--available-width) min-w-[13.125rem] origin-(--transform-origin) flex-col rounded-[1rem] bg-surface p-[0.375rem] font-sans text-s text-primary shadow-float outline-none",
-  "",
-  "",
-  "",
-  "transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none",
-  "starting-style:scale-[0.96] starting-style:opacity-0",
-  "ending-style:scale-[0.96] ending-style:opacity-0",
-);
+const popup =
+  "popup-motion flex max-w-(--available-width) min-w-[13.125rem] origin-(--transform-origin) flex-col rounded-[1rem] bg-surface p-[0.375rem] font-sans text-s text-primary shadow-float outline-none";
 
 /**
  * The popup's placement, then every prop of Base UI's `Menu.Popup` but
@@ -223,18 +208,10 @@ export function Popup({
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
-        collisionPadding={16}
+        collisionPadding={COLLISION_PADDING}
         className="z-50 outline-none"
       >
-        <BaseMenu.Popup
-          {...props}
-          className={(state) =>
-            cn(
-              popup,
-              typeof className === "function" ? className(state) : className,
-            )
-          }
-        >
+        <BaseMenu.Popup {...props} className={stateClassName(popup, className)}>
           {children}
         </BaseMenu.Popup>
       </BaseMenu.Positioner>
@@ -251,7 +228,7 @@ const item = cva(
     "highlighted:bg-highlight",
     "focus-visible:bg-highlight",
     "active:bg-highlight",
-    "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+    "disabled:dimmed",
   ],
   {
     variants: {
@@ -305,10 +282,10 @@ function SheetItem({
       ),
       type: "button",
       disabled,
-      className: cn(
+      className: stateClassName(
         item({ intent, layout: "sheet" }),
-        typeof className === "function" ? className(state) : className,
-      ),
+        className,
+      )(state),
       style: typeof style === "function" ? style(state) : style,
     },
   });
@@ -321,17 +298,10 @@ function SheetItem({
 export function Item({ intent = "default", className, ...props }: ItemProps) {
   const sheet = use(SheetContext);
 
-  const classes = item({ intent });
-
   return sheet === null ? (
     <BaseMenu.Item
       {...props}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(item({ intent }), className)}
     />
   ) : (
     <SheetItem {...props} sheet={sheet} intent={intent} className={className} />
@@ -369,10 +339,10 @@ function SheetLinkItem({
         { onClick: closeOnClick ? sheet.close : undefined },
         props,
       ),
-      className: cn(
+      className: stateClassName(
         item({ intent, layout: "sheet" }),
-        typeof className === "function" ? className(state) : className,
-      ),
+        className,
+      )(state),
       style: typeof style === "function" ? style(state) : style,
     },
   });
@@ -389,17 +359,10 @@ export function LinkItem({
 }: LinkItemProps) {
   const sheet = use(SheetContext);
 
-  const classes = item({ intent });
-
   return sheet === null ? (
     <BaseMenu.LinkItem
       {...props}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(item({ intent }), className)}
     />
   ) : (
     <SheetLinkItem
@@ -419,12 +382,10 @@ export function Separator({ className, ...props }: SeparatorProps) {
   return (
     <BaseMenu.Separator
       {...props}
-      className={(state) =>
-        cn(
-          "my-xs h-[0] border-t-[1.5px] border-divider",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(
+        "my-xs h-0 border-t-[1.5px] border-divider",
+        className,
+      )}
     />
   );
 }
