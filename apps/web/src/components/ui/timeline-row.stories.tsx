@@ -1,4 +1,6 @@
 import { CoinsIcon } from "@phosphor-icons/react/Coins";
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
+import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
@@ -26,6 +28,12 @@ const ICONS = {
   tag: TagIcon,
   pencil: PencilSimpleIcon,
   star: StarIcon,
+} as const;
+
+/** The ⋯ button's icons the Controls panel offers, by name. */
+const ACTIONS_ICONS = {
+  "dots-three": DotsThreeIcon,
+  "dots-three-vertical": DotsThreeVerticalIcon,
 } as const;
 
 /** The demo texts, in the toolbar's language. They are the stories' content, not the row's. */
@@ -61,6 +69,7 @@ interface TimelineRowArgs {
   year: boolean;
   icon: keyof typeof ICONS;
   actions: boolean;
+  actionsIcon: keyof typeof ACTIONS_ICONS;
 }
 
 /** The kind's own fields, from the args. */
@@ -91,6 +100,7 @@ function entryOf(args: TimelineRowArgs): TimelineEntry {
 /** The ⋯ menu's items, as the History page passes them: Edit, then Delete. */
 function Actions() {
   const text = TEXTS[useLanguage()];
+
   return (
     <>
       <Menu.Item>{text.edit}</Menu.Item>
@@ -120,6 +130,7 @@ function Row(args: TimelineRowArgs) {
       madeBy={args.madeBy === "" ? undefined : args.madeBy}
       icon={ICONS[args.icon]}
       actions={args.actions ? actions : undefined}
+      actionsIcon={ACTIONS_ICONS[args.actionsIcon]}
     />
   );
 }
@@ -217,12 +228,15 @@ function List({
   entries,
   label,
   withActions,
+  actionsIcon,
 }: {
   entries: HistoryEntry[];
   label: "history" | "values";
   withActions: boolean;
+  actionsIcon: keyof typeof ACTIONS_ICONS;
 }) {
   const text = TEXTS[useLanguage()];
+
   return (
     <Card>
       <TimelineList aria-label={text[label]}>
@@ -231,6 +245,7 @@ function List({
             key={id}
             {...entry}
             actions={withActions ? actions : undefined}
+            actionsIcon={ACTIONS_ICONS[actionsIcon]}
           />
         ))}
       </TimelineList>
@@ -256,7 +271,7 @@ One recorded change or value, in a list: the History page's share changes and ca
 
 - \`madeBy\` adds “by Alex” after the change: on a member's entry the admin made, and on every value of a manual share.
 - \`actions\` takes the menu's \`Menu.Item\`s, such as Edit and Delete. The ⋯ button is named after the row for screen readers: “More actions for Bought 10 World Index ETF, 3 Mar”. Without actions, a read-only viewer's row has no ⋯.
-- \`icon\` swaps the kind's icon: plus, minus, coins, tag, pencil by default.
+- \`icon\` swaps the kind's icon: plus, minus, coins, tag, pencil by default. \`actionsIcon\` swaps the ⋯ button's three dots.
 - Screen readers hear “from 50 to 60 units held” for the arrow.
 
 The **Phone** and **Tablet** stories in the sidebar show the narrower widths, and **Actions** opens the menu.
@@ -281,6 +296,7 @@ const meta = {
     year: false,
     icon: "default",
     actions: true,
+    actionsIcon: "dots-three",
   },
   argTypes: {
     kind: {
@@ -341,6 +357,13 @@ const meta = {
         "The ⋯ menu's `Menu.Item`s. On here, Edit and Delete; off, no ⋯.",
       control: { type: "boolean" },
     },
+    actionsIcon: {
+      description:
+        "The ⋯ button's icon: any Phosphor icon, three dots by default.",
+      options: Object.keys(ACTIONS_ICONS),
+      control: { type: "select" },
+      if: { arg: "actions" },
+    },
   },
   render: (args) => (
     <Card>
@@ -355,7 +378,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const COMMON = ["date", "madeBy", "year", "icon", "actions"];
+const COMMON = ["date", "madeBy", "year", "icon", "actions", "actionsIcon"];
 
 const holdingControls = {
   controls: {
@@ -435,17 +458,27 @@ export const MadeByTheAdmin: Story = {
 
 /** The History page's list: share changes and cash balances, newest first, two prepared by the admin. */
 export const History: Story = {
-  parameters: { controls: { include: ["actions"] } },
+  parameters: { controls: { include: ["actions", "actionsIcon"] } },
   render: (args) => (
-    <List entries={HISTORY} label="history" withActions={args.actions} />
+    <List
+      entries={HISTORY}
+      label="history"
+      withActions={args.actions}
+      actionsIcon={args.actionsIcon}
+    />
   ),
 };
 
 /** A manual share's values, newest first, each with who entered it. */
 export const Values: Story = {
-  parameters: { controls: { include: ["actions"] } },
+  parameters: { controls: { include: ["actions", "actionsIcon"] } },
   render: (args) => (
-    <List entries={VALUES} label="values" withActions={args.actions} />
+    <List
+      entries={VALUES}
+      label="values"
+      withActions={args.actions}
+      actionsIcon={args.actionsIcon}
+    />
   ),
 };
 

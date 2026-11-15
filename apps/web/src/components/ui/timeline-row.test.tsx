@@ -200,6 +200,28 @@ describe("TimelineRow", () => {
     expect(own).not.toEqual(kinds);
   });
 
+  it("draws any icon on its ⋯ button", () => {
+    const actions = <Menu.Item>Edit</Menu.Item>;
+    const dots = render(
+      <TimelineRow
+        kind="valueAdded"
+        date="2026-01-02"
+        price="38.60"
+        actions={actions}
+      />,
+    );
+    const star = render(
+      <TimelineRow
+        kind="valueAdded"
+        date="2026-01-02"
+        price="38.60"
+        actions={actions}
+        actionsIcon={StarIcon}
+      />,
+    );
+    expect(star).not.toEqual(dots);
+  });
+
   it("refuses a kind's fields on another kind, and a kind without its own", () => {
     // Type checks only: never rendered.
     const cashWithShare = () => (

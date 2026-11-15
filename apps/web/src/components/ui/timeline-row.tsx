@@ -94,6 +94,8 @@ interface TimelineRowCommonProps {
   icon?: IconProps["icon"] | undefined;
   /** The `Menu.Item`s the ⋯ menu offers, such as Edit and Delete. Without them, the row has no ⋯. */
   actions?: ReactNode;
+  /** The icon of the button that opens `actions`, any Phosphor icon. Three dots by default. */
+  actionsIcon?: IconProps["icon"] | undefined;
 }
 
 type TimelineRowOwnProps = TimelineEntry & TimelineRowCommonProps;
@@ -190,6 +192,7 @@ export function TimelineRow(props: TimelineRowProps) {
     madeBy,
     icon,
     actions,
+    actionsIcon,
     className,
     ...rest
   } = props;
@@ -234,6 +237,7 @@ export function TimelineRow(props: TimelineRowProps) {
         <Menu.Root>
           <Menu.MoreTrigger
             subject={t("timelineRow.subject", { title, date: day })}
+            icon={actionsIcon}
           />
           <Menu.Popup>{actions}</Menu.Popup>
         </Menu.Root>
