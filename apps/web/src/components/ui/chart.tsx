@@ -14,6 +14,7 @@ import {
   type Time,
 } from "lightweight-charts";
 import {
+  type ComponentProps,
   type KeyboardEvent,
   useEffect,
   useId,
@@ -90,7 +91,7 @@ export type ChartVariant = "line" | "sparkline";
 
 export type ChartUnit = "money" | "percent";
 
-export interface ChartProps {
+export interface ChartOwnProps {
   /** `line`: axes, grid, crosshair and the keyboard. `sparkline`: the line alone, for cards, with no axes and no interaction. */
   variant?: ChartVariant;
   /** The lines, drawn in order. Pass a stable array: a new one redraws every line. */
@@ -103,9 +104,11 @@ export interface ChartProps {
   precision?: MoneyPrecision;
   /** A sign on every value but zero, for gains: `+4.2%`. */
   signed?: boolean;
-  /** Classes added to the chart’s own, which win any conflict, such as its height. */
-  className?: string;
 }
+
+/** The chart's own props, and every prop of the `<div>` it renders but its children: the chart draws its own. */
+export type ChartProps = ChartOwnProps &
+  Omit<ComponentProps<"div">, keyof ChartOwnProps | "children">;
 
 /** The chart's height by variant: 208px for a line chart, 34px for a sparkline. A `className` height wins. */
 const HEIGHTS = {
@@ -241,6 +244,37 @@ function place(chart: IChartApi, time: Time): Pick<Active, "x" | "flip"> {
   return { x, flip: x > (left + chart.timeScale().width()) / 2 };
 }
 
+/** What the readout shows on a day: the date, each line's value that day, and whether every value is final. */
+interface Readout {
+  date: string;
+  final: boolean;
+  values: { line: ChartLine; text: string }[];
+}
+
+function readoutOn(
+  day: IsoDate,
+  lines: readonly ChartLine[],
+  language: Language,
+  format: ValueFormat,
+): Readout {
+  const values = lines.flatMap((line) => {
+    const value = line.points.find((point) => point.day === day)?.value;
+    if (value === undefined) return [];
+    return [
+      {
+        line,
+        text: formatValue(value, language, format),
+        final: line.dashedAfter === undefined || day <= line.dashedAfter,
+      },
+    ];
+  });
+  return {
+    date: formatDate(day, language, { style: "weekday" }),
+    final: values.every((value) => value.final),
+    values,
+  };
+}
+
 /**
  * A chart on TradingView Lightweight Charts, styled from the tokens, that
  * fills its container’s width and follows it as it resizes.
@@ -249,6 +283,9 @@ function place(chart: IChartApi, time: Time): Pick<Active, "x" | "flip"> {
  * crosshair and the readout of every line on that day, and the arrow keys
  * move it along the days with the same readout, read out to screen readers.
  * The `sparkline` variant is the line alone, for cards.
+ *
+ * Every other prop goes to the chart's outer `<div>`, `className` included:
+ * its classes win any conflict, such as the chart's height.
  */
 export function Chart({
   variant = "line",
@@ -258,6 +295,7 @@ export function Chart({
   precision = "cents",
   signed = false,
   className,
+  ...props
 }: ChartProps) {
   const { t } = useTranslation();
   const language = useLanguage();
@@ -266,14 +304,11 @@ export function Chart({
   const drawn = useRef<DrawnLine[]>([]);
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [active, setActive] = useState<Active | null>(null);
-  const interactive = variant === "line";
-
   const days = useMemo(() => chartDays(lines), [lines]);
   const dayIndex = useMemo(
     () => new Map(days.map((day, index) => [day, index])),
     [days],
   );
-
   // The chart itself, created once per variant and removed with the component.
   useEffect(() => {
     const element = container.current;
@@ -298,12 +333,12 @@ export function Chart({
       setActive(null);
     };
   }, [variant]);
-
   // The lines: one solid series each, and a dashed one after its last final day.
   useEffect(() => {
     const element = container.current;
     if (!chart || !element) return;
-    const priceScaleId = variant === "line" ? "left" : "right";
+    const interactive = variant === "line";
+    const priceScaleId = interactive ? "left" : "right";
     const surface = token(element, "surface");
     const series = (
       line: ChartLine,
@@ -350,8 +385,7 @@ export function Chart({
       }
       drawn.current = [];
     };
-  }, [chart, lines, variant, interactive]);
-
+  }, [chart, lines, variant]);
   // Every period fills the width, whatever the container's.
   useEffect(() => {
     if (!chart) return;
@@ -360,7 +394,6 @@ export function Chart({
     timeScale.subscribeSizeChange(fit);
     return () => timeScale.unsubscribeSizeChange(fit);
   }, [chart]);
-
   // The axes in the reader's language and the chart's unit.
   useEffect(() => {
     if (!chart) return;
@@ -380,10 +413,9 @@ export function Chart({
       },
     });
   }, [chart, language, unit, precision, signed]);
-
   // The pointer moves the crosshair; the readout follows it.
   useEffect(() => {
-    if (!chart || !interactive) return;
+    if (!chart || variant !== "line") return;
     const onMove = (event: MouseEventParams<Time>) => {
       if (event.time === undefined || event.point === undefined) {
         setActive((current) =>
@@ -397,30 +429,32 @@ export function Chart({
     };
     chart.subscribeCrosshairMove(onMove);
     return () => chart.unsubscribeCrosshairMove(onMove);
-  }, [chart, interactive, dayIndex]);
+  }, [chart, variant, dayIndex]);
 
+  const interactive = variant === "line";
+  const several = lines.length > 1;
   const day = active ? days[active.index] : undefined;
-  const readout = useMemo(() => {
-    if (day === undefined) return null;
-    const format = { unit, precision, signed };
-    const values = lines.flatMap((line) => {
-      const value = line.points.find((point) => point.day === day)?.value;
-      if (value === undefined) return [];
-      return [
-        {
-          line,
-          text: formatValue(value, language, format),
-          final: line.dashedAfter === undefined || day <= line.dashedAfter,
-        },
-      ];
-    });
-    const date = formatDate(day, language, { style: "weekday" });
-    const final = values.every((value) => value.final);
-    return {
-      date: final ? date : t("chart.notFinal", { date }),
-      values,
-    };
-  }, [day, lines, language, unit, precision, signed, t]);
+  const readout =
+    day === undefined
+      ? null
+      : readoutOn(day, lines, language, { unit, precision, signed });
+  const date =
+    readout === null || readout.final
+      ? readout?.date
+      : t("chart.notFinal", { date: readout.date });
+  const announcement =
+    readout && active?.source === "keyboard"
+      ? t("chart.point", {
+          date,
+          values: readout.values
+            .map(({ line, text }) =>
+              several
+                ? t("chart.lineValue", { label: line.label, value: text })
+                : text,
+            )
+            .join(", "),
+        })
+      : "";
 
   function move(event: KeyboardEvent<HTMLDivElement>) {
     if (!chart) return;
@@ -455,31 +489,19 @@ export function Chart({
   if (!interactive) {
     return (
       <div
-        ref={container}
+        {...props}
         role="img"
         aria-label={label}
         className={cn("w-full min-w-0", HEIGHTS.sparkline, className)}
-      />
+      >
+        <div ref={container} className="size-full" />
+      </div>
     );
   }
 
-  const several = lines.length > 1;
-  const announcement =
-    readout && active?.source === "keyboard"
-      ? t("chart.point", {
-          date: readout.date,
-          values: readout.values
-            .map(({ line, text }) =>
-              several
-                ? t("chart.lineValue", { label: line.label, value: text })
-                : text,
-            )
-            .join(", "),
-        })
-      : "";
-
   return (
     <div
+      {...props}
       className={cn(
         "relative w-full min-w-0 font-sans text-xs text-secondary",
         HEIGHTS.line,
@@ -520,7 +542,7 @@ export function Chart({
             "motion-safe:transition-transform",
           )}
         >
-          <span className="whitespace-nowrap">{readout.date}</span>
+          <span className="whitespace-nowrap">{date}</span>
           {readout.values.map(({ line, text }) => (
             <span
               key={line.id}
