@@ -149,6 +149,24 @@ cn(
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
 - Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
+- A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved before `cn`:
+
+  ```tsx
+  className={(state) =>
+    cn(classes, typeof className === "function" ? className(state) : className)
+  }
+  ```
+- A place for an icon is a prop that takes any Phosphor icon (`icon`, or named for its place: `nextIcon`), with a default when the design fixes one, never an icon written into the component. An optional icon prop also accepts `undefined`, so a caller can pass one conditionally.
+- Inside a component, three groups, each separated by a blank line: the hook calls (`useTranslation()`, `useState()`…), then the values derived from props and hooks, then the `return`.
+
+  ```tsx
+  const { t } = useTranslation();
+
+  const busy = loading === true;
+  const arrow = size === "step" && next;
+
+  return (…);
+  ```
 - Variants are few and named (`intent`, `size`, using the scale names above).
 - The variant helper is `cva`, from `class-variance-authority`. It only joins classes: `cn` wraps its result, so the theme's merge config resolves every conflict, including a `className` passed in. Its base and each variant value are arrays laid out like `cn`'s groups: common, phone, `tablet:`, `desktop:`, then states.
 
