@@ -20,5 +20,8 @@
       "quote": "Quoted name",
       "question": "Sell {{quantity}} units?"
     }
+  },
+  "button": {
+    "saving": "Saving…"
   }
 }
