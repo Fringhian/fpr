@@ -19,6 +19,10 @@ export const TEST_PUBLIC_URL = "https://fpr.example.test";
 /** Every test person's password. */
 export const TEST_PASSWORD = "a long enough password";
 
+/** `ADMIN_BOOTSTRAP_KEY` in tests. */
+export const TEST_BOOTSTRAP_KEY =
+  "a-test-bootstrap-key-of-at-least-32-characters";
+
 /** Better Auth on a test database, as `index.ts` builds it. */
 export function createTestAuth(db: Db): Auth {
   return createAuth({
@@ -51,6 +55,7 @@ export async function serveApp(options: {
   const app = createApp({
     ...options,
     publicUrl: TEST_PUBLIC_URL,
+    bootstrapKey: TEST_BOOTSTRAP_KEY,
     logger: createLogger({ destination }),
   });
   const server: Server = await new Promise((resolve) => {
