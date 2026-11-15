@@ -155,6 +155,8 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - Icons are Phosphor, regular weight; the current navigation item uses the fill weight. No character or emoji stands in for an icon.
 - A "Skip to content" link comes first. Every control shows a visible focus ring, and every icon-only button has an accessible label.
 - Charts follow the hover with a crosshair and the same values on keyboard focus. The race draws only the person and the focused member in colour; the others are grey, named by the picture at the end of their line.
+- Every chart is `Chart` in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts: the `line` variant with its axes, crosshair and keyboard, or the `sparkline` for cards. Its colours are the tokens of `theme.css`, read at runtime.
+- The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts, with a link to tradingview.com, as the library's licence asks.
 - Leaving a form with unsaved input asks first, through the router's navigation guard. Deleting asks to confirm, or offers Undo.
 - Motion respects `prefers-reduced-motion`.
 
