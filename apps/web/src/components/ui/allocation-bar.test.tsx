@@ -57,6 +57,23 @@ describe("AllocationBar", () => {
     expect(markup).toContain("47,7");
   });
 
+  it("passes every other prop and its classes to its outer div", () => {
+    const markup = render(
+      <AllocationBar
+        color="green"
+        holdings={HOLDINGS}
+        cashWeight="28.2"
+        id="split"
+        data-owner="alex"
+        className="mt-l"
+      />,
+    );
+
+    expect(markup).toMatch(/^<div[^>]*id="split"/);
+    expect(markup).toMatch(/^<div[^>]*data-owner="alex"/);
+    expect(markup).toMatch(/^<div[^>]*class="[^"]*mt-l/);
+  });
+
   it("renders nothing with nothing to split", () => {
     expect(
       render(<AllocationBar color="green" holdings={[]} cashWeight={null} />),

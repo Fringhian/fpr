@@ -59,6 +59,8 @@ export type AllocationBarProps = AllocationBarOwnProps &
  * person's colour, darker for bigger weights, the cash in grey, and a key that
  * names each part with its percentage. It reads weights only, so it shows the
  * same to an anonymous viewer. With nothing to split, it renders nothing.
+ *
+ * Every other prop goes to its outer `<div>`, `className` included.
  */
 export function AllocationBar({
   color,
@@ -69,9 +71,8 @@ export function AllocationBar({
 }: AllocationBarProps) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const parts = allocate(holdings, cashWeight);
-  if (parts.length === 0) return null;
 
+  const parts = allocate(holdings, cashWeight);
   const name = (part: AllocationPart) => {
     switch (part.kind) {
       case "share":
@@ -83,7 +84,7 @@ export function AllocationBar({
     }
   };
 
-  return (
+  return parts.length === 0 ? null : (
     <div {...props} className={cn("grid gap-s", TONES[color], className)}>
       <div
         aria-hidden="true"
