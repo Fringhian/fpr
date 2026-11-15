@@ -1,18 +1,15 @@
 import { z } from "zod";
-import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
+import { errorMap, signedInRoute } from "../../contract.js";
 import { writerRoles } from "../../roles.js";
 import { priceEurSchema } from "../../schemas/money.js";
 import {
   isinSchema,
-  isinTakenDetailsSchema,
+  isinTakenError,
   shareNameSchema,
   shareSummarySchema,
 } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
 import { shareIdParamsSchema } from "./schemas.js";
-
-/** `isin_taken`, with the share that has the ISIN in `details`. */
-const isinTakenError = errorWithDetails("isin_taken", isinTakenDetailsSchema);
 
 /** `POST /shares/manual`: a manual share and its first value point. */
 export const shareManualBodySchema = z.object({

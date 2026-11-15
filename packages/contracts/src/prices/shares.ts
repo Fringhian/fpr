@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { errorMap, errorWithDetails } from "../contract.js";
+import { errorMap } from "../contract.js";
 import { idSchema } from "../schemas/ids.js";
 import { priceEurSchema } from "../schemas/money.js";
 import {
   isinSchema,
-  isinTakenDetailsSchema,
+  isinTakenError,
   lookupQuerySchema,
   lookupResultSchema,
   shareNameSchema,
@@ -14,9 +14,6 @@ import {
 import { dateSchema, timestampSchema } from "../schemas/time.js";
 import { internalRoute } from "./base.js";
 import { pricesHistorySchema } from "./schemas.js";
-
-/** `isin_taken`, with the share that has the ISIN in `details`. */
-const isinTakenError = errorWithDetails("isin_taken", isinTakenDetailsSchema);
 
 /** A lookup: an ISIN or a ticker. */
 export const pricesLookupBodySchema = z.object({
