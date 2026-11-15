@@ -58,5 +58,22 @@
       "periwinkle": "Pervenche"
     },
     "takenBy": "{{colour}}, couleur de {{name}}"
+  },
+  "navigation": {
+    "label": "Principale",
+    "brand": "FPR",
+    "admin": "Administration",
+    "items": {
+      "home": "Accueil",
+      "members": "Membres",
+      "portfolio": "Portefeuille",
+      "shares": "Titres",
+      "people": "Personnes",
+      "trackedShares": "Titres suivis"
+    },
+    "account": "{{name}}, votre compte",
+    "settings": "Réglages",
+    "help": "Comment fonctionne FPR",
+    "signOut": "Se déconnecter"
   }
 }

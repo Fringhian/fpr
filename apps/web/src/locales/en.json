@@ -58,5 +58,22 @@
       "periwinkle": "Periwinkle"
     },
     "takenBy": "{{colour}}, taken by {{name}}"
+  },
+  "navigation": {
+    "label": "Main",
+    "brand": "FPR",
+    "admin": "Admin",
+    "items": {
+      "home": "Home",
+      "members": "Members",
+      "portfolio": "Portfolio",
+      "shares": "Shares",
+      "people": "People",
+      "trackedShares": "Tracked shares"
+    },
+    "account": "{{name}}, your account",
+    "settings": "Settings",
+    "help": "How FPR works",
+    "signOut": "Sign out"
   }
 }
