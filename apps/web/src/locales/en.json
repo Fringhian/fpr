@@ -33,6 +33,10 @@
   "button": {
     "saving": "Saving…"
   },
+  "dialog": {
+    "close": "Close",
+    "cancel": "Cancel"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
