@@ -1,21 +1,38 @@
+import { CoinsIcon } from "@phosphor-icons/react/Coins";
+import { EnvelopeIcon } from "@phosphor-icons/react/Envelope";
+import { LockIcon } from "@phosphor-icons/react/Lock";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/MagnifyingGlass";
+import { UserIcon } from "@phosphor-icons/react/User";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import * as Field from "./field";
 
+/** The icons the control's `icon` offers, by name. */
+const ICONS = {
+  none: undefined,
+  user: UserIcon,
+  envelope: EnvelopeIcon,
+  lock: LockIcon,
+  coins: CoinsIcon,
+  "magnifying-glass": MagnifyingGlassIcon,
+} as const;
+
 /** The stories' args: Field.Root's and the control's props, and a switch per optional part. */
 interface FieldArgs {
-  control: "Field.Control" | "Field.Password";
   description: boolean;
   error: boolean;
   invalid: boolean;
   disabled: boolean;
+  icon: keyof typeof ICONS;
   decimal: boolean;
   placeholder: string;
   defaultValue: string;
 }
 
-/** A story's demo content: the words in the field, and how it checks its value. */
+/** A story's demo content: the control it shows, the words in the field, and how it checks its value. */
 interface Content {
+  /** Shows `Field.Password` in place of `Field.Control`. */
+  password?: boolean;
   label: string;
   help: string;
   /** The error's text. Without it, the error shows the message `validate` returns. */
@@ -27,11 +44,11 @@ interface Content {
 type Story = StoryObj<FieldArgs>;
 
 const DEFAULTS: FieldArgs = {
-  control: "Field.Control",
   description: true,
   error: true,
   invalid: false,
   disabled: false,
+  icon: "none",
   decimal: false,
   placeholder: "",
   defaultValue: "",
@@ -40,20 +57,23 @@ const DEFAULTS: FieldArgs = {
 /** The field, built from the parts the controls switch on, around the story's content. */
 function renderWith(content: Content): NonNullable<Story["render"]> {
   return ({
-    control,
     description,
     error,
     invalid,
     disabled,
+    icon,
     decimal,
     placeholder,
     defaultValue,
   }) => {
-    const input = {
+    const control = {
+      icon: ICONS[icon],
+      decimal,
       defaultValue,
       placeholder: placeholder || undefined,
       autoComplete: content.autoComplete,
     };
+
     return (
       <Field.Root
         key={defaultValue}
@@ -65,10 +85,10 @@ function renderWith(content: Content): NonNullable<Story["render"]> {
         className="max-w-[21.25rem]"
       >
         <Field.Label>{content.label}</Field.Label>
-        {control === "Field.Password" ? (
-          <Field.Password {...input} />
+        {content.password ? (
+          <Field.Password {...control} />
         ) : (
-          <Field.Control {...input} decimal={decimal} />
+          <Field.Control {...control} />
         )}
         {description ? (
           <Field.Description>{content.help}</Field.Description>
@@ -84,18 +104,19 @@ A label, an input, and help or an error under it, on Base UI's \`Field\`. Import
 
 | Part | What it is |
 | --- | --- |
-| \`Field.Root\` | The column. \`invalid\` marks it wrong from outside, such as an answer from the API; \`validate\` checks the value itself; \`disabled\` turns off its control. |
+| \`Field.Root\` | The column, with every prop of Base UI's \`Field.Root\`. \`invalid\` marks it wrong from outside, such as an answer from the API; \`validate\` checks the value itself; \`disabled\` turns off its control. |
 | \`Field.Label\` | The label, always visible above the control. Sentence case, no colon. |
 | \`Field.Control\` | The Input atom, with all its props: \`icon\`, \`end\`, \`decimal\`, \`placeholder\`… |
-| \`Field.Password\` | The Input atom as a password, with Show at its end, which reveals it and turns into Hide. |
+| \`Field.Password\` | The Input atom as a password, with Show at its end, which reveals it and turns into Hide. It takes every Input prop but \`type\` and \`end\`. |
 | \`Field.Description\` | The help under the control. |
 | \`Field.Error\` | The error. Without children, it shows the message \`validate\` returns. |
 
 - The control is described by the help, through \`aria-describedby\`. While the field is invalid, the error replaces the help, in the same place and in \`aria-describedby\`, and a polite live region announces it.
 - The error says what went wrong and what to do next.
 - The password field never blocks paste. Give it \`autoComplete\`: \`current-password\` to sign in, \`new-password\` to choose one.
+- Every part takes the props of the Base UI part it renders, \`className\` included: a string, or a function of the part's state.
 
-The controls switch each optional part on and off, and set the props of \`Field.Root\` and of the control.
+The controls switch each optional part on and off, and set the props of \`Field.Root\` and of the control. The **Password with Show** story shows \`Field.Password\`; the others show \`Field.Control\`.
 `;
 
 const meta = {
@@ -103,13 +124,6 @@ const meta = {
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
   argTypes: {
-    control: {
-      options: ["Field.Control", "Field.Password"],
-      control: { type: "inline-radio" },
-      description:
-        "The control under the label: the input, or the password with Show.",
-      table: { category: "Parts" },
-    },
     description: {
       name: "Field.Description",
       control: { type: "boolean" },
@@ -134,11 +148,17 @@ const meta = {
       description: "Turns off the control, and the Show button of a password.",
       table: { category: "Field.Root", type: { summary: "boolean" } },
     },
+    icon: {
+      options: Object.keys(ICONS),
+      control: { type: "select" },
+      description:
+        "An icon at the start, any Phosphor icon: picked by name here.",
+      table: { category: "Field.Control", type: { summary: "Icon" } },
+    },
     decimal: {
       control: { type: "boolean" },
       description:
         "A decimal number: phones open their decimal keyboard, and the figures line up.",
-      if: { arg: "control", eq: "Field.Control" },
       table: { category: "Field.Control", type: { summary: "boolean" } },
     },
     placeholder: {
@@ -244,15 +264,12 @@ export const DecimalAmount: Story = {
   },
 };
 
-/** The password, hidden until Show reveals it; Hide hides it again. */
+/** `Field.Password`: hidden until Show reveals it; Hide hides it again. */
 export const PasswordWithShow: Story = {
   name: "Password with Show",
-  args: {
-    ...DEFAULTS,
-    control: "Field.Password",
-    defaultValue: "correct-horse-battery",
-  },
+  args: { ...DEFAULTS, defaultValue: "correct-horse-battery" },
   render: renderWith({
+    password: true,
     label: "Password",
     help: "At least 12 characters.",
     autoComplete: "new-password",
@@ -275,7 +292,7 @@ export const PasswordWithShow: Story = {
   },
 };
 
-/** Disabled: the input greys out, and so does Show on a password. */
+/** Disabled: the input greys out. */
 export const Disabled: Story = {
   args: { ...DEFAULTS, defaultValue: "Alex", disabled: true },
   render: renderWith({
