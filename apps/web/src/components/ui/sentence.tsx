@@ -19,20 +19,22 @@ import { TrailSign } from "./trail-sign";
 
 /**
  * The header sentence's block: the greeting, the headline, then the story
- * line. It goes in `Sky.Header`, after the page bar.
+ * line. It goes in `Sky.Header`, after the page bar. Every prop goes to the
+ * `<div>`.
  */
 export function Root(props: ComponentProps<"div">) {
   return <div {...props} />;
 }
 
-/** The greeting, in the sky's ink: “Good evening, Alex”. */
+/** The greeting, in the sky's ink: “Good evening, Alex”. Every prop goes to the `<p>`, `className` included. */
 export function Greeting({ className, ...props }: ComponentProps<"p">) {
   return <p {...props} className={cn("text-m text-on-sky", className)} />;
 }
 
 /**
  * The headline, the page's heading: display size on tablet and desktop,
- * headline size on phone.
+ * headline size on phone. Every prop goes to the `<h1>`, `className`
+ * included.
  */
 export function Headline({ className, ...props }: ComponentProps<"h1">) {
   return (
@@ -51,7 +53,8 @@ export function Headline({ className, ...props }: ComponentProps<"h1">) {
 
 /**
  * The story line, with room for trail signs and chips: its lines are 1.8
- * times its text apart, so signs on two lines never touch.
+ * times its text apart, so signs on two lines never touch. Every prop goes to
+ * the `<p>`, `className` included.
  */
 export function Story({ className, ...props }: ComponentProps<"p">) {
   return (
@@ -62,7 +65,10 @@ export function Story({ className, ...props }: ComponentProps<"p">) {
   );
 }
 
-/** A part of the story line shown from tablet up: the phone keeps the leader only. */
+/**
+ * A part of the story line shown from tablet up: the phone keeps the leader
+ * only. Every prop goes to the `<span>`, `className` included.
+ */
 export function Wide({ className, ...props }: ComponentProps<"span">) {
   return (
     <span
@@ -187,14 +193,57 @@ function headlineAmount(
   return money ?? percent;
 }
 
-function SignPicture({ person }: { person: SentencePerson }) {
+/** A trail sign with a person's picture; `Trans` gives it its words. */
+function PersonSign({
+  person,
+  children,
+}: {
+  person: SentencePerson;
+  children?: ReactNode;
+}) {
   return (
-    <Picture
-      name={person.name}
-      color={person.color}
-      photo={person.photo ?? null}
-      size="xs"
-      aria-hidden
+    <TrailSign
+      picture={
+        <Picture
+          name={person.name}
+          color={person.color}
+          photo={person.photo ?? null}
+          size="xs"
+          aria-hidden
+        />
+      }
+    >
+      {children}
+    </TrailSign>
+  );
+}
+
+/** “Sam leads at +6.1%”: the leader's sign, then their gain in the unit setting. */
+function TheyLead({
+  leader,
+  unit,
+}: {
+  leader: SentenceLeader;
+  unit: GainUnit;
+}) {
+  return (
+    <Trans
+      i18nKey="sentence.story.theyLead"
+      values={{ name: leader.name }}
+      components={{
+        sign: <PersonSign person={leader} />,
+        gain: <GainValue gain={leader.gain} unit={unit} />,
+      }}
+    />
+  );
+}
+
+/** “You lead the race”, on your own sign. */
+function YouLead({ you }: { you: SentencePerson }) {
+  return (
+    <Trans
+      i18nKey="sentence.story.youLead"
+      components={{ sign: <PersonSign person={you} /> }}
     />
   );
 }
@@ -203,9 +252,11 @@ function SignPicture({ person }: { person: SentencePerson }) {
  * Home's header sentence, written from the race: a greeting, your result for
  * the period, and a story line with who leads and the star share. It adapts
  * to where you stand: someone else leads, you lead, everyone is down (read
- * from the leader's gain), you're alone in the race, or you watch as a guest
- * or an anonymous viewer. On phone the story line names the leader only:
- * “everyone is down” and the star share show from tablet up.
+ * from the gain that leads, yours or the leader's), you're alone in the
+ * race, or you watch as a guest or an anonymous viewer. On phone the story
+ * line names the leader only: “everyone is down” and the star share show
+ * from tablet up. Every other prop goes to the `<div>`, `className`
+ * included.
  */
 export function Race({
   name,
@@ -222,117 +273,73 @@ export function Race({
 }: RaceProps) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const periodStart = t(`sentence.period.${period}.start`);
-  const periodInline = t(`sentence.period.${period}.inline`);
 
-  // Your gain, or the leader's for a viewer without a portfolio.
   const watching = standing === "watching";
   const headlineGain = watching ? leader.gain : gain;
   const tone = gainDisplay(headlineGain, unit, language)?.tone ?? null;
   const amount = headlineAmount(headlineGain, language, watching);
-
-  // The gain that leads: yours when you lead, the leader's when someone else
-  // does. Nobody leads a race you're alone in.
-  let leadTone: GainTone | null = null;
-  if (standing === "youLead") {
-    leadTone = tone;
-  } else if (standing === "theyLead" || standing === "watching") {
-    leadTone = gainDisplay(leader.gain, unit, language)?.tone ?? null;
-  }
-  const everyoneDown = leadTone === "negative";
-
-  let headline: ReactNode = null;
-  if (amount !== null && tone !== null) {
-    const amountText = <span className={TONE_TEXT[tone]} />;
-    headline =
-      standing === "watching" ? (
-        <Trans
-          i18nKey="sentence.headline.leader"
-          values={{ period: periodStart, name: leader.name, amount }}
-          components={{ gain: amountText }}
-        />
-      ) : (
-        <Trans
-          i18nKey={`sentence.headline.${HEADLINE_KEY[tone]}`}
-          values={{ period: periodStart, amount }}
-          components={{ gain: amountText }}
-        />
-      );
-  }
-
-  // The story line: who leads, the one part the phone keeps, between “everyone
-  // is down” and the star share, which show from tablet up.
+  const leadingGain = standing === "youLead" ? gain : (leader?.gain ?? null);
+  const everyoneDown =
+    leadingGain !== null &&
+    gainDisplay(leadingGain, unit, language)?.tone === "negative";
+  const hasLead = !watching;
+  const hasStory = everyoneDown || hasLead || Boolean(starShare);
   const separator = t("sentence.story.separator");
-  const mood = everyoneDown
-    ? t("sentence.story.everyoneDown", { period: periodInline })
-    : null;
-  let lead: ReactNode = null;
-  if (standing === "theyLead") {
-    lead = (
-      <Trans
-        i18nKey="sentence.story.theyLead"
-        values={{ name: leader.name }}
-        components={{
-          sign: (
-            <TrailSign picture={<SignPicture person={leader} />}>
-              {null}
-            </TrailSign>
-          ),
-          gain: <GainValue gain={leader.gain} unit={unit} />,
-        }}
-      />
-    );
-  } else if (standing === "youLead") {
-    lead = (
-      <Trans
-        i18nKey="sentence.story.youLead"
-        components={{
-          sign: (
-            <TrailSign
-              picture={<SignPicture person={{ name, color, photo }} />}
-            >
-              {null}
-            </TrailSign>
-          ),
-        }}
-      />
-    );
-  } else if (standing === "alone") {
-    lead = t("sentence.story.alone");
-  }
-
-  const star = starShare ? (
-    <Trans
-      i18nKey={
-        mood === null && lead === null
-          ? "sentence.story.starShareFirst"
-          : "sentence.story.starShare"
-      }
-      components={{ chip: <Chip gain={starShare.gain}>{starShare.name}</Chip> }}
-    />
-  ) : null;
 
   return (
     <Root {...props}>
       <Greeting>{t(`sentence.greeting.${timeOfDay}`, { name })}</Greeting>
-      {headline === null ? null : <Headline>{headline}</Headline>}
-      {mood === null && lead === null && star === null ? null : (
-        <Story>
-          {mood === null ? null : (
-            <Wide>
-              {mood}
-              {lead === null && star === null ? null : separator}
-            </Wide>
-          )}
-          {lead}
-          {star === null ? null : (
-            <Wide>
-              {lead === null ? null : separator}
-              {star}
-            </Wide>
-          )}
-        </Story>
+      {amount === null || tone === null ? null : (
+        <Headline>
+          <Trans
+            i18nKey={
+              watching
+                ? "sentence.headline.leader"
+                : `sentence.headline.${HEADLINE_KEY[tone]}`
+            }
+            values={{
+              period: t(`sentence.period.${period}.start`),
+              name: leader?.name,
+              amount,
+            }}
+            components={{ gain: <span className={TONE_TEXT[tone]} /> }}
+          />
+        </Headline>
       )}
+      {hasStory ? (
+        <Story>
+          {everyoneDown ? (
+            <Wide>
+              {t("sentence.story.everyoneDown", {
+                period: t(`sentence.period.${period}.inline`),
+              })}
+              {hasLead || starShare ? separator : null}
+            </Wide>
+          ) : null}
+          {standing === "theyLead" ? (
+            <TheyLead leader={leader} unit={unit} />
+          ) : null}
+          {standing === "youLead" ? (
+            <YouLead you={{ name, color, photo }} />
+          ) : null}
+          {standing === "alone" ? t("sentence.story.alone") : null}
+          {starShare ? (
+            <Wide>
+              {hasLead ? separator : null}
+              <Trans
+                i18nKey={
+                  everyoneDown || hasLead
+                    ? "sentence.story.starShare"
+                    : "sentence.story.starShareFirst"
+                }
+                components={{
+                  chip: <Chip gain={starShare.gain}>{starShare.name}</Chip>,
+                }}
+              />
+            </Wide>
+          ) : null}
+        </Story>
+      ) : null}
     </Root>
   );
 }

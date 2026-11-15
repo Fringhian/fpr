@@ -1,8 +1,13 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../lib/cn";
+import { useLanguage } from "../../lib/i18n";
+import type { Language } from "../../lib/language";
 import { MEMBER_COLORS } from "../../lib/member-color";
+import { Chip } from "./chip";
+import { Picture } from "./picture";
 import * as Sentence from "./sentence";
 import * as Sky from "./sky";
+import { TrailSign } from "./trail-sign";
 
 /** Stands in for the page bar, at its height in the design. */
 function PageBar() {
@@ -46,6 +51,60 @@ const sam = {
 
 const starShare = { name: "Swiss Pharma AG", gain: "12.4" };
 
+/** Which of the sentence's optional parts the Parts story renders. */
+interface SentenceParts {
+  greeting: boolean;
+  headline: boolean;
+  story: boolean;
+  wide: boolean;
+}
+
+/** The Parts story's words, in the toolbar's language. They are its content, not the parts'. */
+const PARTS_TEXT = {
+  en: {
+    greeting: "Sam’s portfolio",
+    headline: "This month, Sam is up €640 (+6.1%)",
+    lead: " leads the race",
+    wide: " · best share ",
+  },
+  fr: {
+    greeting: "Le portefeuille de Sam",
+    headline: "Ce mois-ci, Sam gagne 640 € (+6,1 %)",
+    lead: " est en tête de la course",
+    wide: " · meilleur titre ",
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+/** A member's page sentence, made of the parts the controls switch on. */
+function PartsSentence({ greeting, headline, story, wide }: SentenceParts) {
+  const text = PARTS_TEXT[useLanguage()];
+
+  return (
+    <Sentence.Root>
+      {greeting ? <Sentence.Greeting>{text.greeting}</Sentence.Greeting> : null}
+      {headline ? <Sentence.Headline>{text.headline}</Sentence.Headline> : null}
+      {story ? (
+        <Sentence.Story>
+          <TrailSign
+            picture={
+              <Picture name="Sam" color="vermilion" size="xs" aria-hidden />
+            }
+          >
+            Sam
+          </TrailSign>
+          {text.lead}
+          {wide ? (
+            <Sentence.Wide>
+              {text.wide}
+              <Chip gain="12.4">Swiss Pharma AG</Chip>
+            </Sentence.Wide>
+          ) : null}
+        </Sentence.Story>
+      ) : null}
+    </Sentence.Root>
+  );
+}
+
 const DESCRIPTION = `
 The header sentence: a greeting, the headline, and one story line with trail signs and chips. It sits on the sky, in \`Sky.Header\` after the page bar, and ends above the ridge. Import it as a namespace: \`import * as Sentence from "…/sentence"\`.
 
@@ -72,6 +131,8 @@ The parts lay out any page's header sentence:
 | \`Sentence.Story\` | The story line, spaced for signs and chips |
 | \`Sentence.Wide\` | A part of the story line shown from tablet up |
 
+Every part, and \`Sentence.Race\`, passes every other prop to the element it renders, \`className\` included. The **Parts** story lays out a member's page with them, its controls switching each optional part.
+
 On this page every story renders at the page's own width: the **Phone** and **Tablet** stories in the sidebar show the narrower ones.
 `;
 
@@ -97,6 +158,8 @@ const meta = {
   },
   argTypes: {
     standing: {
+      description:
+        "Where you stand in the race: someone else leads, you lead, you're alone, or you watch without a portfolio.",
       control: { type: "inline-radio" },
       options: ["theyLead", "youLead", "alone", "watching"],
     },
@@ -124,6 +187,11 @@ const meta = {
         "Who leads, with their gain over the period, when someone else leads or you watch.",
     },
     starShare: { control: { type: "object" } },
+    className: {
+      description:
+        "Classes added to the sentence's block, which win any conflict.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof Sentence.Race>;
 
@@ -178,6 +246,49 @@ export const AnonymousViewer: Story = {
     },
   },
 };
+
+/**
+ * Any page's header sentence, laid out with the parts: a member's page here.
+ * The controls switch each optional part on and off; the words stay the same.
+ */
+export const Parts = {
+  args: { greeting: true, headline: true, story: true, wide: true },
+  argTypes: {
+    greeting: {
+      name: "Sentence.Greeting",
+      description: "Renders the greeting above the headline.",
+      control: { type: "boolean" },
+    },
+    headline: {
+      name: "Sentence.Headline",
+      description: "Renders the headline, the page's heading.",
+      control: { type: "boolean" },
+    },
+    story: {
+      name: "Sentence.Story",
+      description: "Renders the story line under the headline.",
+      control: { type: "boolean" },
+    },
+    wide: {
+      name: "Sentence.Wide",
+      description:
+        "Renders the story line's part shown from tablet up. The phone hides it either way.",
+      control: { type: "boolean" },
+      if: { arg: "story" },
+    },
+  },
+  parameters: {
+    controls: {
+      include: [
+        "Sentence.Greeting",
+        "Sentence.Headline",
+        "Sentence.Story",
+        "Sentence.Wide",
+      ],
+    },
+  },
+  render: (parts) => <PartsSentence {...parts} />,
+} satisfies StoryObj<SentenceParts>;
 
 /** The Docs page can't narrow a story, so the narrower widths live in the sidebar only. */
 export const Tablet: Story = {

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { createI18n } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import { NARROW_NBSP } from "../../lib/typography";
-import { Race, type RaceProps } from "./sentence";
+import { Greeting, Race, type RaceProps, Wide } from "./sentence";
 
 /** The visible text of a markup: tags dropped. */
 function text(markup: string): string {
@@ -137,6 +137,17 @@ describe("Race", () => {
     expect(text(markup)).toContain("you’re flat at €0 (0.0%)");
   });
 
+  it("passes every other prop to its block, its classes included", () => {
+    const markup = race({
+      ...viewer,
+      standing: "alone",
+      gain: { eur: "512", percent: "4.2" },
+      id: "sentence",
+      className: "pt-s",
+    });
+    expect(markup).toMatch(/^<div id="sentence" class="pt-s">/);
+  });
+
   it("writes the sentence in French", () => {
     const markup = race(
       {
@@ -151,6 +162,23 @@ describe("Race", () => {
     const n = NARROW_NBSP;
     expect(text(markup)).toBe(
       `Bonsoir, AlexCe mois-ci, vous gagnez 512${n}€ (+4,2${n}%)SSam est en tête avec +6,1${n}% · titre vedette Swiss Pharma AG+12,4${n}%`,
+    );
+  });
+});
+
+describe("Parts", () => {
+  it("pass every prop to their element, a conflicting class winning", () => {
+    const greeting = render(
+      <Greeting id="greeting" className="text-l">
+        Hello
+      </Greeting>,
+    );
+    expect(greeting).toBe(
+      '<p id="greeting" class="text-on-sky text-l">Hello</p>',
+    );
+    const wide = render(<Wide className="desktop:hidden">More</Wide>);
+    expect(wide).toBe(
+      '<span class="hidden tablet:inline desktop:hidden">More</span>',
     );
   });
 });
