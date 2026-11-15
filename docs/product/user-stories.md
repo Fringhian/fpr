@@ -148,6 +148,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A share whose prices haven't arrived yet is left out of its holder's balance, and their row is marked "incomplete" until it arrives.
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
 - The sentence adapts: the person leads, everyone is down, or the person is alone in the race.
+- A guest or an anonymous viewer has no result of their own: Home's sentence names who leads, with their gain.
 - Every share change, cash balance, and manual value edit stays recorded with who made it and when. v1 shows no feed.
 
 ## Comparison — side by side

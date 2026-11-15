@@ -1,4 +1,13 @@
 {
+  "badge": {
+    "manual": "Manual",
+    "pricePending": "Price pending",
+    "active": "Active",
+    "waitingForFirstUse": "Waiting for first use",
+    "revoked": "Revoked",
+    "heldBefore": "Held before",
+    "saved": "Saved"
+  },
   "foundations": {
     "formatting": {
       "title": "Formatting",
@@ -19,6 +28,49 @@
       "closeOf": "close of {{date}}",
       "quote": "Quoted name",
       "question": "Sell {{quantity}} units?"
+    }
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Markets open · prices as of {{time}}",
+      "closed": "Markets closed · close of {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progress",
+      "value": "Step {{step}} of {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Loading…"
+    }
+  },
+  "sentence": {
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}"
+    },
+    "period": {
+      "1D": { "start": "Today", "inline": "today" },
+      "1W": { "start": "This week", "inline": "this week" },
+      "1M": { "start": "This month", "inline": "this month" },
+      "3M": { "start": "Over three months", "inline": "over three months" },
+      "YTD": { "start": "This year", "inline": "this year" },
+      "all": { "start": "Since the start", "inline": "since the start" }
+    },
+    "headline": {
+      "up": "{{period}}, you’re up <gain>{{amount}}</gain>",
+      "down": "{{period}}, you’re down <gain>{{amount}}</gain>",
+      "flat": "{{period}}, you’re flat at <gain>{{amount}}</gain>",
+      "leader": "{{period}}, {{name}} leads at <gain>{{amount}}</gain>"
+    },
+    "story": {
+      "theyLead": "<sign>{{name}} leads</sign> at <gain/>",
+      "youLead": "<sign>You lead the race</sign>",
+      "alone": "You’re the first one in",
+      "everyoneDown": "Everyone is down {{period}}",
+      "starShare": "star share <chip/>",
+      "starShareFirst": "Star share <chip/>",
+      "separator": " · "
     }
   },
   "button": {
