@@ -44,6 +44,8 @@ const LABELS = {
     addMember: "Add a member",
     chooseDate: "Choose the date",
     saveChange: "Save change",
+    show: "Show",
+    all: "All",
   },
   fr: {
     record: "Enregistrer un mouvement",
@@ -52,6 +54,8 @@ const LABELS = {
     addMember: "Ajouter un membre",
     chooseDate: "Choisir la date",
     saveChange: "Enregistrer",
+    show: "Afficher",
+    all: "Tout",
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
@@ -61,8 +65,9 @@ function Text({ label }: { label: Label }) {
   return LABELS[useLanguage()][label];
 }
 
-/** The playground’s label follows its size: a step names what comes next. */
-function playgroundLabel({ size, next }: ButtonProps): Label {
+/** The playground’s label follows its intent and size: a ghost is a short end-slot action, a step names what comes next. */
+function playgroundLabel({ intent, size, next }: ButtonProps): Label {
+  if (intent === "ghost") return "show";
   if (size !== "step") return "record";
   return next ? "chooseDate" : "saveChange";
 }
@@ -80,6 +85,16 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function Row({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap items-center gap-s">{children}</div>;
+}
+
+/** The frame of an input, drawn to show a ghost button in its end slot. */
+function EndSlot({ value, children }: { value: string; children: ReactNode }) {
+  return (
+    <div className="flex min-h-[2.75rem] w-[16rem] items-center gap-s rounded-s bg-surface pr-xs pl-[0.875rem] text-m inset-shadow-outline">
+      <span className="flex-1">{value}</span>
+      {children}
+    </div>
+  );
 }
 
 /** Where a step flow puts its main button: the bottom, full width on phone, bottom right from tablet up. */
@@ -113,6 +128,23 @@ function Overview() {
           <Button intent="danger">
             <Text label="signOut" />
           </Button>
+          <Button intent="ghost">
+            <Text label="show" />
+          </Button>
+        </Row>
+      </Section>
+      <Section title="Intent: ghost, text alone, at the end of an input">
+        <Row>
+          <EndSlot value="••••••••••••">
+            <Button intent="ghost" size="s">
+              <Text label="show" />
+            </Button>
+          </EndSlot>
+          <EndSlot value="30">
+            <Button intent="ghost" size="s">
+              <Text label="all" />
+            </Button>
+          </EndSlot>
         </Row>
       </Section>
       <Section title="Size: s 32px, m 40px">
@@ -150,13 +182,22 @@ function Overview() {
           <Button intent="secondary" className="bg-highlight">
             Hover
           </Button>
+          <Button intent="ghost" className="bg-highlight text-primary">
+            Hover
+          </Button>
           <Button intent="primary" className="focus-ring">
+            Focus
+          </Button>
+          <Button intent="ghost" className="focus-ring">
             Focus
           </Button>
           <Button intent="primary" disabled>
             Disabled
           </Button>
           <Button intent="secondary" disabled>
+            Disabled
+          </Button>
+          <Button intent="ghost" disabled>
             Disabled
           </Button>
           <Button intent="primary" loading>
@@ -174,7 +215,7 @@ function Overview() {
 const DESCRIPTION = `
 A capsule button, on Base UI’s button. One primary per screen region. A button names its action (“Save change”, “Review change”), never a bare “Continue”.
 
-- **intent**: \`primary\` (charcoal), \`secondary\` (white, outlined), \`danger\` (red text).
+- **intent**: \`primary\` (charcoal), \`secondary\` (white, outlined), \`danger\` (red text), \`ghost\` (grey text alone, no fill and no outline): a quiet action inside another control, such as an input’s “Show” or “All”.
 - **size**: \`s\` 32px, \`m\` 40px, \`wide\` 48px at full width, \`step\` 56px.
 - **icon**: any Phosphor icon leading the label, \`icon={PlusIcon}\`.
 - **step**: the main button of a step flow names what comes next (“Choose the date”). It fills the width at the bottom on phone and fits its label, bottom right, on tablet and desktop. \`next\` draws \`nextIcon\`, an arrow by default, at its right end when another step follows; the flow’s last button (“Save change”) has none.
@@ -198,7 +239,7 @@ const meta = {
   argTypes: {
     intent: {
       control: { type: "inline-radio" },
-      options: ["primary", "secondary", "danger"],
+      options: ["primary", "secondary", "danger", "ghost"],
     },
     size: {
       control: { type: "inline-radio" },
