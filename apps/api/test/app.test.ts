@@ -17,6 +17,7 @@ import { createApp } from "../src/app.js";
 import { createAuth } from "../src/auth.js";
 import { createLogger } from "../src/logger.js";
 import type { ApiContext } from "../src/orpc.js";
+import { createTestBucket } from "./test-support.js";
 
 /** A contract and router used only here, to exercise inputs and errors. */
 const testContract = {
@@ -85,6 +86,7 @@ async function serve(
   const app = createApp({
     db: {} as Db,
     auth,
+    avatars: createTestBucket().avatars,
     publicUrl: "https://fpr.example.test",
     logger: createLogger({ destination }),
     docs,

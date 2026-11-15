@@ -8,9 +8,11 @@ import { pinoHttp } from "pino-http";
 import { type Auth, authBasePath } from "./auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
+import { avatarUploadPath, readAvatarBody } from "./me/index.js";
 import { mountRouter } from "./orpc.js";
 import { authAccessCheck } from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
+import type { AvatarStore } from "./storage/avatar-store.js";
 
 export interface AppOptions {
   /** The contract routes served under `/api`. Defaults to every API route. */
@@ -18,6 +20,8 @@ export interface AppOptions {
   db: Db;
   /** Better Auth, served at `/api/auth/*`. */
   auth: Auth;
+  /** The bucket profile pictures are kept in. */
+  avatars: AvatarStore;
   /** `PUBLIC_URL`: the only origin a write is accepted from. */
   publicUrl: string;
   logger: Logger;
@@ -35,6 +39,7 @@ export interface AppOptions {
 export function createApp({
   db,
   auth,
+  avatars,
   publicUrl,
   logger,
   docs = false,
@@ -104,9 +109,12 @@ export function createApp({
     authAccessCheck({ db, auth }),
     toNodeHandler(auth),
   );
+  // A picture is the one raw body: read here, with its size limit.
+  app.put(avatarUploadPath, readAvatarBody);
   mountRouter(app, router, {
     db,
     auth,
+    avatars,
     publicOrigin: new URL(publicUrl).origin,
   });
   routes?.(app);

@@ -4,6 +4,7 @@ import { createApp } from "./app.js";
 import { createAuth } from "./auth.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { createAvatarStore, createS3Client } from "./storage/avatar-store.js";
 
 function main(): void {
   let env: ReturnType<typeof loadEnv>;
@@ -27,9 +28,19 @@ function main(): void {
     baseURL: env.PUBLIC_URL,
     logger,
   });
+  const avatars = createAvatarStore(
+    createS3Client({
+      endpoint: env.S3_ENDPOINT,
+      region: env.S3_REGION,
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    }),
+    env.S3_BUCKET,
+  );
   const app = createApp({
     db,
     auth,
+    avatars,
     publicUrl: env.PUBLIC_URL,
     logger,
     docs: process.env.NODE_ENV === "development",
