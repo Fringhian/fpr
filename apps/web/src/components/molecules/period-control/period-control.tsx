@@ -80,7 +80,7 @@ function Segments({
   );
 }
 
-interface PeriodControlOwnProps {
+export type PeriodControlProps = {
   /** The period and unit shown, held by the owner. Pair it with `onChange`. */
   value: PeriodSetting;
   /** Called with the whole new setting when the person picks a period or a unit. */
@@ -91,16 +91,16 @@ interface PeriodControlOwnProps {
   icon?: IconProps["icon"] | undefined;
   /** What the control sits on: the sky, by default, or snow on a page without a header sentence. */
   backdrop?: Segment.Backdrop;
-}
+} & Omit<
+  ComponentProps<"div">,
+  "value" | "onChange" | "anonymous" | "icon" | "backdrop"
+>;
 
-/** The phone capsule's fill on each backdrop, at rest and hovered or open. */
-const CAPSULE = {
-  sky: ["bg-surface/75", "hover:bg-surface", "popup-open:bg-surface"],
-  snow: ["bg-divider/50", "hover:bg-divider", "popup-open:bg-divider"],
+/** Hovered or open, the phone capsule's fill goes opaque; at rest it is `Segment.backdropFill`. */
+const CAPSULE_ACTIVE = {
+  sky: ["hover:bg-surface", "popup-open:bg-surface"],
+  snow: ["hover:bg-divider", "popup-open:bg-divider"],
 } as const satisfies Record<Segment.Backdrop, readonly string[]>;
-
-export type PeriodControlProps = PeriodControlOwnProps &
-  Omit<ComponentProps<"div">, keyof PeriodControlOwnProps>;
 
 /**
  * The shared period and € / %, on the sky or on snow. From tablet up, the period
@@ -156,7 +156,8 @@ export function PeriodControl({
             "tablet:hidden",
             "desktop:hidden",
             "focus-visible:focus-ring",
-            CAPSULE[backdrop],
+            Segment.backdropFill[backdrop],
+            CAPSULE_ACTIVE[backdrop],
           )}
         >
           {summary}
