@@ -127,19 +127,22 @@ export function newClientAddress(): string {
   return `10.${(clientCount >> 16) & 255}.${(clientCount >> 8) & 255}.${clientCount & 255}`;
 }
 
-/** Signs in through `/api/auth/sign-in/email`, from an address of its own. */
+/**
+ * Signs in through `/api/auth/sign-in/email`, from an address of its own,
+ * or with no client address when `clientAddress` is `null`.
+ */
 export function postSignIn(
   server: TestServer,
   email: string,
   password: string,
-  clientAddress = newClientAddress(),
+  clientAddress: string | null = newClientAddress(),
 ): Promise<Response> {
   return fetch(`${server.url}/api/auth/sign-in/email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Origin: TEST_PUBLIC_URL,
-      "X-Forwarded-For": clientAddress,
+      ...(clientAddress === null ? {} : { "X-Forwarded-For": clientAddress }),
     },
     body: JSON.stringify({ email, password }),
   });

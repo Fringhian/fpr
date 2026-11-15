@@ -1,6 +1,11 @@
+import { isIP } from "node:net";
 import { accessKeys, type Db } from "@fpr/db";
-import { type BetterAuthOptions, betterAuth } from "better-auth";
-import { APIError } from "better-auth/api";
+import {
+  type BetterAuthOptions,
+  type BetterAuthRateLimitRule,
+  betterAuth,
+} from "better-auth";
+import { APIError, getIP } from "better-auth/api";
 import type { Logger } from "pino";
 
 /**
@@ -79,6 +84,27 @@ const sessionUpdateAgeSeconds = 24 * 60 * 60;
 /** Password sign-ins each client address may try per window. */
 export const signInRateLimit = { window: 60, max: 5 } as const;
 
+/** Where Better Auth reads the client's address: the one `web` sets. */
+const clientAddressHeader = "x-forwarded-for";
+
+const ipAddressOptions = {
+  ipAddressHeaders: [clientAddressHeader],
+} as const satisfies NonNullable<
+  NonNullable<BetterAuthOptions["advanced"]>["ipAddress"]
+>;
+
+/**
+ * The client address Better Auth keeps a request's rate limit for, or
+ * `null` when the request has none: `X-Forwarded-For` must hold a single
+ * IP address.
+ */
+function clientAddress(request: Request): string | null {
+  const forwarded = request.headers.get(clientAddressHeader)?.trim() ?? "";
+  return isIP(forwarded) === 0
+    ? null
+    : getIP(request, { advanced: { ipAddress: ipAddressOptions } });
+}
+
 /** Passwords are 12 to 128 characters long. */
 export const passwordLength = { min: 12, max: 128 } as const;
 
@@ -99,7 +125,7 @@ export interface CreateAuthOptions {
  * `SameSite=Lax` cookies that last 30 days and are extended on use. Writes
  * are accepted from `PUBLIC_URL` alone, and password sign-ins are
  * rate-limited per client address, read from the `X-Forwarded-For` that
- * `web` sets.
+ * `web` sets. A request without one is not rate-limited.
  *
  * A session starts only for a person whose access key gives access, so a
  * person whose access ended is refused at sign-in with `access_ended`.
@@ -108,6 +134,30 @@ export interface CreateAuthOptions {
  * camelCase plugin, which would rename the rows it reads back.
  */
 export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
+  let missingAddressLogged = false;
+
+  /**
+   * A rate limit rule kept per client address: `rule`, or the rule Better
+   * Auth would apply. A request without a client address is not limited, so
+   * one shared count never locks every client out. The first such request
+   * is logged as an error.
+   */
+  const perClientAddress =
+    (rule?: BetterAuthRateLimitRule) =>
+    (request: Request, current: BetterAuthRateLimitRule) => {
+      if (clientAddress(request) !== null) {
+        return rule ?? current;
+      }
+      if (!missingAddressLogged) {
+        missingAddressLogged = true;
+        logger?.error(
+          { path: new URL(request.url).pathname },
+          "rate limit skipped: the request has no client address in X-Forwarded-For",
+        );
+      }
+      return false;
+    };
+
   return betterAuth({
     ...authSchema,
     ...(logger === undefined
@@ -137,14 +187,19 @@ export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
       updateAge: sessionUpdateAgeSeconds,
     },
     // Better Auth turns these off in tests and development by default. They
-    // stay on everywhere, so the tests see what production does.
+    // stay on everywhere, so the tests see what production does. The first
+    // rule matching a path applies: sign-in, then every other path.
     rateLimit: {
       enabled: true,
       storage: "memory",
-      customRules: { "/sign-in/*": signInRateLimit },
+      customRules: {
+        "/sign-in/*": perClientAddress(signInRateLimit),
+        "/**": perClientAddress(),
+      },
     },
     advanced: {
       ...authSchema.advanced,
+      ipAddress: ipAddressOptions,
       disableOriginCheck: false,
       useSecureCookies: true,
       defaultCookieAttributes: {
