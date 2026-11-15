@@ -4,6 +4,7 @@ import { Badge, type BadgeState } from "./badge";
 const STATES = [
   "manual",
   "pricePending",
+  "incomplete",
   "active",
   "waitingForFirstUse",
   "revoked",
