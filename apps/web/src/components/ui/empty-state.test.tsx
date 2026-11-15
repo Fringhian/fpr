@@ -1,3 +1,4 @@
+import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { TrayIcon } from "@phosphor-icons/react/Tray";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -17,6 +18,20 @@ describe("EmptyState", () => {
     expect(markup).toMatch(/<h2[^>]*>No shares yet<\/h2>/);
     expect(markup).toMatch(/<p[^>]*>Sam hasn’t recorded any shares yet.<\/p>/);
     expect(markup).toContain('aria-hidden="true"');
+  });
+
+  it("draws the tray by default, or any icon", () => {
+    const glyph = (markup: string) => markup.slice(markup.indexOf("<path"));
+    const tray = glyph(renderToStaticMarkup(<TrayIcon />));
+    const plus = glyph(renderToStaticMarkup(<PlusIcon />));
+
+    expect(renderToStaticMarkup(<EmptyState.Icon />)).toContain(tray);
+    expect(
+      renderToStaticMarkup(<EmptyState.Icon icon={undefined} />),
+    ).toContain(tray);
+    expect(renderToStaticMarkup(<EmptyState.Icon icon={PlusIcon} />)).toContain(
+      plus,
+    );
   });
 
   it("takes another heading level through render", () => {

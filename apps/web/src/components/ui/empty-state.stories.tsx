@@ -1,13 +1,12 @@
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { QuestionIcon } from "@phosphor-icons/react/Question";
 import { TrayIcon } from "@phosphor-icons/react/Tray";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ComponentProps } from "react";
 import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import { Button } from "./button";
 import * as EmptyState from "./empty-state";
-import type { StateIconProps } from "./state-icon";
 
 interface Use {
   title: string;
@@ -57,31 +56,36 @@ const TEXTS = {
 
 type UseName = keyof (typeof TEXTS)["en"];
 
+/** The icons the empty state’s icon offers, by name. */
 const ICONS = {
-  portfolio: PlusIcon,
-  member: TrayIcon,
-  notFound: QuestionIcon,
-} as const satisfies Record<UseName, StateIconProps["icon"]>;
+  tray: TrayIcon,
+  plus: PlusIcon,
+  question: QuestionIcon,
+  "magnifying-glass": MagnifyingGlassIcon,
+} as const satisfies Record<string, EmptyState.IconProps["icon"]>;
 
-/** Which of the empty state’s optional parts the story renders; its content stays the same. */
+/** Which of the empty state’s optional parts the story renders, and its icon; its content stays the same. */
 interface EmptyStateParts {
+  icon: keyof typeof ICONS;
   withTitle: boolean;
   withAction: boolean;
 }
 
 /** The Docs page reads the root’s props; the controls are the parts. */
-type StoryArgs = ComponentProps<typeof EmptyState.Root> & EmptyStateParts;
+type StoryArgs = EmptyState.RootProps & EmptyStateParts;
 
 function Demo({
   use,
+  icon,
   withTitle,
   withAction,
 }: EmptyStateParts & { use: UseName }) {
   const text: Use = TEXTS[useLanguage()][use];
+
   return (
     <div className="py-l font-sans">
       <EmptyState.Root>
-        <EmptyState.Icon icon={ICONS[use]} />
+        <EmptyState.Icon icon={ICONS[icon]} />
         {withTitle ? <EmptyState.Title>{text.title}</EmptyState.Title> : null}
         <EmptyState.Description>{text.description}</EmptyState.Description>
         {withAction && text.action ? (
@@ -100,12 +104,12 @@ What a list or a page shows when it has nothing yet: a small icon in a soft circ
 | Part | What it is |
 | --- | --- |
 | \`EmptyState.Root\` | The column, centred, at most 320px wide. |
-| \`EmptyState.Icon\` | The state icon, 56px: \`icon\`, and \`label\` when the icon says something the text doesn’t. |
+| \`EmptyState.Icon\` | The state icon, 56px: \`icon\`, any Phosphor icon, the tray by default; and \`label\` when the icon says something the text doesn’t. |
 | \`EmptyState.Title\` | What is empty, an \`<h2>\`; \`render={<h1 />}\` when it is the page’s heading. Optional. |
 | \`EmptyState.Description\` | One sentence that says what to do. |
 | \`EmptyState.Action\` | The action that fills it: a \`Button\` or a \`TextLink\`. Optional: a state nobody can fill, such as another member’s, has none. |
 
-The controls switch each optional part on and off.
+The controls pick the icon and switch each optional part on and off.
 `;
 
 const meta = {
@@ -119,8 +123,15 @@ const meta = {
   },
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-  args: { withTitle: true, withAction: true },
+  args: { icon: "tray", withTitle: true, withAction: true },
   argTypes: {
+    icon: {
+      name: "EmptyState.Icon icon",
+      description:
+        "The state’s `icon`: any Phosphor icon, the tray by default.",
+      options: Object.keys(ICONS),
+      control: { type: "select" },
+    },
     withTitle: {
       name: "EmptyState.Title",
       description: "Renders the title over the sentence.",
@@ -140,6 +151,7 @@ type Story = StoryObj<StoryArgs>;
 
 /** Portfolio, before the first change is recorded: the action records it. */
 export const EmptyPortfolio: Story = {
+  args: { icon: "plus" },
   render: (parts) => <Demo use="portfolio" {...parts} />,
 };
 
@@ -152,5 +164,6 @@ export const MemberWithoutShares: Story = {
 
 /** Shares, when a lookup finds nothing: the action creates the share by hand. */
 export const NoShareFound: Story = {
+  args: { icon: "question" },
   render: (parts) => <Demo use="notFound" {...parts} />,
 };

@@ -1,14 +1,11 @@
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
-import type { Icon as PhosphorIconType } from "@phosphor-icons/react/lib";
 import { type ReactNode, useId } from "react";
 import { cn } from "../../lib/cn";
-import { Icon } from "./icon";
+import { Icon, type IconProps } from "./icon";
 
-export type GroupProps<Value> = Omit<RadioGroup.Props<Value>, "className"> & {
-  /** Classes added to the group’s own, which win any conflict. */
-  className?: string;
-};
+/** Every prop of Base UI’s radio group, `className` included: a string, or a function of the group’s state. */
+export type GroupProps<Value> = RadioGroup.Props<Value>;
 
 /**
  * The answers to one question, on Base UI’s radio group: one tab stop, the
@@ -17,23 +14,45 @@ export type GroupProps<Value> = Omit<RadioGroup.Props<Value>, "className"> & {
  */
 export function Group<Value>({ className, ...props }: GroupProps<Value>) {
   return (
-    <RadioGroup<Value> {...props} className={cn("grid gap-s", className)} />
+    <RadioGroup<Value>
+      {...props}
+      className={(state) =>
+        cn(
+          "grid gap-s",
+          typeof className === "function" ? className(state) : className,
+        )
+      }
+    />
   );
 }
 
-interface ItemOwnProps<Value> {
+const item = cn(
+  "flex w-full cursor-pointer items-center gap-[0.75rem] rounded-[1.125rem] bg-surface p-[0.875rem] text-left shadow-[inset_0_0_0_1.5px_var(--color-divider)]",
+  "",
+  "",
+  "",
+  "not-disabled:hover:bg-highlight",
+  "focus-visible:focus-ring",
+  "checked:shadow-[inset_0_0_0_2.5px_var(--color-primary)]",
+  "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+);
+
+export interface ItemOwnProps<Value> {
   /** The answer this option stands for, given to the group’s `onValueChange`. */
   value: Value;
-  /** A Phosphor icon, imported from its own module: `@phosphor-icons/react/Plus`. */
-  icon: PhosphorIconType;
+  /** The answer’s icon, any Phosphor icon: `icon={PlusIcon}`. */
+  icon: IconProps["icon"];
   /** The answer, short: “Bought shares”. It names the option for screen readers. */
   title: ReactNode;
   /** One line under the title that says what the answer covers: “Part or all of a holding”. */
   description: ReactNode;
-  /** Classes added to the option’s own, which win any conflict. */
-  className?: string;
 }
 
+/**
+ * The option’s own props, then every prop of Base UI’s radio but `children`,
+ * `render` and `nativeButton`: it draws its own content. `className` is a
+ * string, or a function of the radio’s state.
+ */
 export type ItemProps<Value> = ItemOwnProps<Value> &
   Omit<
     Radio.Root.Props<Value>,
@@ -49,29 +68,25 @@ export function Item<Value>({
   ...props
 }: ItemProps<Value>) {
   const id = useId();
+
+  const titleId = `${id}-title`;
+  const descriptionId = `${id}-description`;
+
   return (
     <Radio.Root<Value>
-      aria-labelledby={`${id}-title`}
-      aria-describedby={`${id}-description`}
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       {...props}
-      className={cn(
-        "flex w-full cursor-pointer items-center gap-[0.75rem] rounded-[1.125rem] bg-surface p-[0.875rem] text-left shadow-[inset_0_0_0_1.5px_var(--color-divider)]",
-        "",
-        "",
-        "",
-        "not-disabled:hover:bg-highlight",
-        "focus-visible:focus-ring",
-        "checked:shadow-[inset_0_0_0_2.5px_var(--color-primary)]",
-        "disabled:cursor-not-allowed disabled:opacity-[0.45]",
-        className,
-      )}
+      className={(state) =>
+        cn(item, typeof className === "function" ? className(state) : className)
+      }
     >
       <Icon icon={icon} size="l" className="text-secondary" />
       <span className="flex min-w-0 flex-col">
-        <span id={`${id}-title`} className="text-m font-semibold text-primary">
+        <span id={titleId} className="text-m font-semibold text-primary">
           {title}
         </span>
-        <span id={`${id}-description`} className="text-xs text-secondary">
+        <span id={descriptionId} className="text-xs text-secondary">
           {description}
         </span>
       </span>

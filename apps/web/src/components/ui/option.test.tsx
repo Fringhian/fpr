@@ -44,6 +44,35 @@ describe("Option", () => {
     );
   });
 
+  it("takes className as a string or as a function of its state", () => {
+    const markup = renderToStaticMarkup(
+      <Option.Group
+        aria-label="What changed?"
+        defaultValue="sold"
+        className={(state) => (state.disabled ? "is-off" : "is-on")}
+      >
+        <Option.Item
+          value="bought"
+          icon={PlusIcon}
+          title="Bought shares"
+          description="Added to a holding or a new one"
+          className="is-bought"
+        />
+        <Option.Item
+          value="sold"
+          icon={MinusIcon}
+          title="Sold shares"
+          description="Part or all of a holding"
+          className={(state) => (state.checked ? "is-checked" : "")}
+        />
+      </Option.Group>,
+    );
+
+    expect(markup).toMatch(/role="radiogroup"[^>]*class="[^"]*is-on/);
+    expect(markup).toMatch(/<span[^>]*class="[^"]*is-bought/);
+    expect(markup).toMatch(/aria-checked="true"[^>]*class="[^"]*is-checked/);
+  });
+
   it("checks the selected option only", () => {
     const markup = question("sold");
     const checked = markup.match(/<span[^>]*aria-checked="true"[^>]*>/g) ?? [];

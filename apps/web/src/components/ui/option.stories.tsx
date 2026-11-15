@@ -53,6 +53,7 @@ interface QuestionArgs {
 function WhatChanged({ defaultValue, disabled, readOnly }: QuestionArgs) {
   const text = TEXTS[useLanguage()];
   const heading = useId();
+
   return (
     <div className="grid max-w-[30rem] gap-m font-sans text-primary">
       <h2 id={heading} className="text-xl font-semibold">
@@ -83,6 +84,7 @@ function WhatChanged({ defaultValue, disabled, readOnly }: QuestionArgs) {
 /** Each state of one option. Hover and focus are drawn with the classes their states apply. */
 function States() {
   const text = TEXTS[useLanguage()];
+
   const states = [
     { name: "Rest", className: "" },
     { name: "Hover", className: "bg-highlight" },
@@ -95,6 +97,7 @@ function States() {
     defaultValue?: Change;
     disabled?: boolean;
   }>;
+
   return (
     <div className="grid max-w-[30rem] gap-l font-sans text-primary">
       {states.map((state) => (
