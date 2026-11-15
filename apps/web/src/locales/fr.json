@@ -73,5 +73,31 @@
     "cash": "Liquidités",
     "setOn": "Définies le {{date}}",
     "updateCash": "Modifier les liquidités"
+  },
+  "controls": {
+    "period": {
+      "label": "Période",
+      "1D": "1J",
+      "1W": "1S",
+      "1M": "1M",
+      "3M": "3M",
+      "YTD": "Depuis janv.",
+      "all": "Tout"
+    },
+    "unit": {
+      "label": "Unité",
+      "euro": "€",
+      "percent": "%"
+    },
+    "standings": {
+      "label": "Classement par",
+      "gain": "Gain",
+      "balance": "Solde"
+    },
+    "language": {
+      "label": "Langue",
+      "fr": "Français",
+      "en": "English"
+    }
   }
 }
