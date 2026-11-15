@@ -11,10 +11,11 @@ const SIZES = ["xs", "s", "m", "l", "xl"];
 const twMerge = extendTailwindMerge({
   override: {
     theme: {
-      spacing: SIZES,
+      spacing: ["0", ...SIZES],
       text: [...SIZES, "display"],
-      radius: ["s", "m", "l", "xl"],
+      radius: ["s", "m", "card", "l", "xl"],
       shadow: ["outline", "rest", "float"],
+      "inset-shadow": ["outline"],
       breakpoint: ["tablet", "desktop"],
     },
     classGroups: {

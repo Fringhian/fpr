@@ -40,6 +40,13 @@ const button = cva(
           "",
           "not-disabled:hover:bg-highlight",
         ],
+        ghost: [
+          "bg-transparent text-secondary",
+          "",
+          "",
+          "",
+          "not-disabled:hover:bg-highlight not-disabled:hover:text-primary",
+        ],
       },
       size: {
         s: "min-h-[2rem] px-[0.75rem] text-s",
@@ -69,8 +76,8 @@ const button = cva(
 const face = "col-start-1 row-start-1 inline-flex items-center gap-s";
 
 export interface ButtonOwnProps {
-  /** `primary` (charcoal), the one main action of a screen region; `secondary` (white, outlined); `danger` (red text) to delete or sign out. */
-  intent?: "primary" | "secondary" | "danger";
+  /** `primary` (charcoal), the one main action of a screen region; `secondary` (white, outlined); `danger` (red text) to delete or sign out; `ghost` (grey text, no fill, no outline), a quiet action inside another control, such as an input's “Show” or “All”. */
+  intent?: "primary" | "secondary" | "danger" | "ghost";
   /** `s` 32px; `m` 40px; `wide` 48px at full width; `step` 56px, the main button of a step flow: full width on phone, fitted to its label on tablet and desktop. */
   size?: "s" | "m" | "wide" | "step";
   /** An icon leading the label, any Phosphor icon: `icon={PlusIcon}`. */

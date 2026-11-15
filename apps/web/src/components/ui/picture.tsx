@@ -2,6 +2,8 @@ import { Avatar } from "@base-ui/react/avatar";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
+import { useLanguage } from "../../lib/i18n";
+import { initialOf } from "../../lib/initial";
 import type { MemberColor } from "../../lib/member-color";
 
 /** The pastel each member colour's picture sits on. */
@@ -75,14 +77,6 @@ interface PictureOwnProps {
 export type PictureProps = PictureOwnProps &
   Omit<ComponentProps<typeof Avatar.Root>, keyof PictureOwnProps | "children">;
 
-const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-
-/** The name's first letter, as a reader sees it, in capitals. */
-export function initialOf(name: string): string {
-  const [first] = graphemes.segment(name.trim());
-  return first ? first.segment.toLocaleUpperCase() : "";
-}
-
 /**
  * A person's picture: their initial on the pastel of their colour, or their
  * photo, in a circle. It is an image named by the person's name; pass
@@ -99,8 +93,10 @@ export function Picture({
   className,
   ...props
 }: PictureProps) {
+  const language = useLanguage();
+
   const classes = cn(picture({ size, medal }), PASTELS[color]);
-  const initial = initialOf(name);
+  const initial = initialOf(name, language);
 
   return (
     <Avatar.Root
