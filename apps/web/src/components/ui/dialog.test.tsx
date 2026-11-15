@@ -1,3 +1,4 @@
+import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
@@ -24,6 +25,24 @@ describe("Dialog", () => {
   it("names its close button in the reader’s language", () => {
     expect(render(<Dialog.Close />)).toContain('aria-label="Close"');
     expect(render(<Dialog.Close />, "fr")).toContain('aria-label="Fermer"');
+  });
+
+  it("draws any icon on its close button, a cross by default", () => {
+    const cross = render(<Dialog.Close />);
+    const arrow = render(<Dialog.Close icon={ArrowLeftIcon} />);
+
+    expect(arrow).toMatch(/<svg/);
+    expect(arrow).not.toBe(cross);
+    expect(render(<Dialog.Close icon={undefined} />)).toBe(cross);
+  });
+
+  it("takes className on its close and cancel buttons, as a string or a function", () => {
+    expect(render(<Dialog.Close className="ms-auto" />)).toMatch(
+      /<button[^>]*class="[^"]*ms-auto/,
+    );
+    expect(render(<Dialog.Cancel className={() => "is-cancel"} />)).toMatch(
+      /<button[^>]*class="[^"]*is-cancel/,
+    );
   });
 
   it("labels its cancel button, or takes another label", () => {

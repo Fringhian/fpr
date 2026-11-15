@@ -1,3 +1,6 @@
+import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
+import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
+import { XIcon } from "@phosphor-icons/react/X";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useState } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -139,9 +142,17 @@ const TEXTS = {
   Record<string, string | readonly (readonly [string, string])[]>
 >;
 
-/** Which of the dialog’s optional parts the story renders; its content stays the same. */
+/** The icons the close button offers, by name. */
+const CLOSE_ICONS = {
+  x: XIcon,
+  "arrow-left": ArrowLeftIcon,
+  "caret-down": CaretDownIcon,
+} as const;
+
+/** Which of the dialog’s optional parts the story renders, and the close button’s icon; its content stays the same. */
 interface DialogParts {
   close: boolean;
+  closeIcon: keyof typeof CLOSE_ICONS;
   description: boolean;
   footer: boolean;
   cancel: boolean;
@@ -152,7 +163,7 @@ function Page({ children }: { children: ReactNode }) {
   return (
     <div
       className={cn(
-        "min-h-dvh bg-page font-sans text-primary",
+        "font-sans text-primary",
         "p-m",
         "tablet:p-l",
         "desktop:p-l",
@@ -164,9 +175,16 @@ function Page({ children }: { children: ReactNode }) {
 }
 
 /** A confirmation, made of the parts the controls switch on. */
-function Confirm({ close, description, footer, cancel }: DialogParts) {
+function Confirm({
+  close,
+  closeIcon,
+  description,
+  footer,
+  cancel,
+}: DialogParts) {
   const text = TEXTS[useLanguage()];
   const [open, setOpen] = useState(false);
+
   return (
     <Page>
       <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -174,7 +192,7 @@ function Confirm({ close, description, footer, cancel }: DialogParts) {
         <Dialog.Popup>
           <Dialog.Header>
             <Dialog.Title>{text.title}</Dialog.Title>
-            {close ? <Dialog.Close /> : null}
+            {close ? <Dialog.Close icon={CLOSE_ICONS[closeIcon]} /> : null}
           </Dialog.Header>
           {description ? (
             <Dialog.Description>{text.description}</Dialog.Description>
@@ -198,6 +216,7 @@ function RevokeAccess() {
   const text = TEXTS[useLanguage()];
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+
   return (
     <Page>
       <Dialog.Root
@@ -243,6 +262,7 @@ function RevokeAccess() {
 /** More content than the screen holds: the dialog or sheet scrolls inside. */
 function TallContent() {
   const text = TEXTS[useLanguage()];
+
   return (
     <Page>
       <Dialog.Root>
@@ -283,10 +303,10 @@ One overlay at a time: a dialog in the middle of the page on tablet and desktop,
 | \`Dialog.Title\` | Names the dialog, as a question when it confirms. |
 | \`Dialog.Description\` | One or two sentences: what happens next. |
 | \`Dialog.Footer\` | The buttons, the main one last: a row at the bottom right from tablet up, a full-width stack with the main one on top on phone. |
-| \`Dialog.Close\` | The ✕ button, named “Close”. |
+| \`Dialog.Close\` | The close button, named “Close”. \`icon\` takes any Phosphor icon, a cross by default. |
 | \`Dialog.Cancel\` | A secondary “Cancel” button that closes without acting. |
 
-- Focus moves into the overlay and stays there until it closes. Escape, the ✕, Cancel, or a press on the dimmed page closes it, and focus returns to the button that opened it.
+- Focus moves into the overlay and stays there until it closes. Escape, the close button, Cancel, or a press on the dimmed page closes it, and focus returns to the button that opened it.
 - A dialog never opens another: it changes its own content, as **Changes its content** shows.
 - The sheet pads its bottom for the device’s safe area, and scrolls inside when its content is taller than the screen. The dialog does the same from tablet up.
 - It rises (sheet) or grows (dialog) into place; with reduced motion, it only fades.
@@ -305,12 +325,26 @@ const meta = {
       story: { inline: false, height: "32rem" },
     },
   },
-  args: { close: true, description: true, footer: true, cancel: true },
+  args: {
+    close: true,
+    closeIcon: "x",
+    description: true,
+    footer: true,
+    cancel: true,
+  },
   argTypes: {
     close: {
       name: "Dialog.Close",
-      description: "Renders the ✕ button at the end of the header.",
+      description: "Renders the close button at the end of the header.",
       control: { type: "boolean" },
+    },
+    closeIcon: {
+      name: "Dialog.Close icon",
+      description:
+        "The close button’s `icon`: any Phosphor icon, a cross by default.",
+      options: Object.keys(CLOSE_ICONS),
+      control: { type: "select" },
+      if: { arg: "close" },
     },
     description: {
       name: "Dialog.Description",
