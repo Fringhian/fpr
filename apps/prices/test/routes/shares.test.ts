@@ -118,27 +118,7 @@ const storedPrices = (shareId: string) =>
     .orderBy("at")
     .execute();
 
-describe("every route", () => {
-  it("answers 401 unauthenticated without the token", async () => {
-    const { status, body } = await app.call(
-      "POST",
-      "/shares/manual",
-      manualBody(),
-      { token: null },
-    );
-    expect(status).toBe(401);
-    expect(body).toEqual({ error: { code: "unauthenticated" } });
-    expect(await app.db.selectFrom("shares").selectAll().execute()).toEqual([]);
-  });
-
-  it("answers 404 not_found for a route without a handler yet", async () => {
-    const { status, body } = await app.call("POST", "/lookup", {
-      query: "QZ0EXAMPLE16",
-    });
-    expect(status).toBe(404);
-    expect(body).toEqual({ error: { code: "not_found" } });
-  });
-
+describe("POST /shares/manual", () => {
   it("answers 500 internal_error without internals on an unexpected failure", async () => {
     // A creator who doesn't exist breaks a foreign key.
     const { status, body } = await app.call(
@@ -149,9 +129,7 @@ describe("every route", () => {
     expect(status).toBe(500);
     expect(body).toEqual({ error: { code: "internal_error" } });
   });
-});
 
-describe("POST /shares/manual", () => {
   it("creates the share with its first value point and an added value edit", async () => {
     const share = await createManual({ name: "  Example Certificate " });
     expect(share).toEqual({

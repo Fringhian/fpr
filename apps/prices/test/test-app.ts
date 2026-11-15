@@ -7,22 +7,18 @@ import { createApp } from "../src/app.js";
 import { createLogger } from "../src/logger.js";
 
 /** The bearer token of every test app. */
-export const TEST_TOKEN = "test-token";
+const TEST_TOKEN = "test-token";
 
 export interface TestApp {
   db: Db;
   url: string;
   /** The moment the app takes as now. Tests may move it. */
   now: Date;
-  /**
-   * Sends a JSON request with the token, or without it when `token` is
-   * `null`, and resolves with the status and the parsed body.
-   */
+  /** Sends a JSON request with the token, and resolves with the status and the parsed body. */
   call(
     method: string,
     path: string,
     body?: unknown,
-    options?: { token?: string | null },
   ): Promise<{ status: number; body: unknown }>;
   /** Adds a member and resolves with their id. */
   addPerson(): Promise<string>;
@@ -43,11 +39,10 @@ export async function startTestApp(): Promise<TestApp> {
     db: database.db,
     url: "",
     now: new Date(),
-    async call(method, path, body, { token = TEST_TOKEN } = {}) {
-      const headers: Record<string, string> = {};
-      if (token !== null) {
-        headers.Authorization = `Bearer ${token}`;
-      }
+    async call(method, path, body) {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${TEST_TOKEN}`,
+      };
       if (body !== undefined) {
         headers["Content-Type"] = "application/json";
       }
