@@ -1,3 +1,5 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
+import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
@@ -42,11 +44,27 @@ const LOSING_MOVERS: readonly Mover[] = [
   },
 ];
 
-/** The stories' args: “Back to you” is a part, switched on or off. */
-type PanelArgs = Omit<FocusPanelProps, "backLink"> & { backLink: boolean };
+/** The icons the page link can end with, by name. */
+const PAGE_ICONS = {
+  "caret-right": CaretRightIcon,
+  "arrow-right": ArrowRightIcon,
+} as const;
 
-function toProps({ backLink, ...args }: PanelArgs): FocusPanelProps {
-  return { ...args, backLink: backLink ? { href: "#" } : null };
+/**
+ * The stories' args: “Back to you” is a part, switched on or off, and the
+ * page link's icon is picked by name.
+ */
+type PanelArgs = Omit<FocusPanelProps, "backLink" | "pageLink"> & {
+  backLink: boolean;
+  pageLink: keyof typeof PAGE_ICONS;
+};
+
+function toProps({ backLink, pageLink, ...args }: PanelArgs): FocusPanelProps {
+  return {
+    ...args,
+    pageLink: { href: "#", toPageIcon: PAGE_ICONS[pageLink] },
+    backLink: backLink ? { href: "#" } : null,
+  };
 }
 
 const DESCRIPTION = `
@@ -78,7 +96,7 @@ const configurable = {
     unit: "percent",
     gain: { eur: "512.00", percent: "4.2" },
     movers: MOVERS,
-    pageLink: { href: "#" },
+    pageLink: "caret-right",
     backLink: false,
   },
   argTypes: {
@@ -102,8 +120,10 @@ const configurable = {
     },
     pageLink: {
       description:
-        "Their page, or the viewer’s portfolio: an `href`, or `render` for the router’s link.",
-      control: false,
+        "Their page, or the viewer’s portfolio: an `href`, or `render` for the router’s link, and `toPageIcon`, any Phosphor icon, a caret by default. Here, the icon is picked by name.",
+      control: { type: "select" },
+      options: Object.keys(PAGE_ICONS),
+      table: { type: { summary: "FocusPanelPageLink" } },
     },
     backLink: {
       name: "backLink",

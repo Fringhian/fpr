@@ -20,8 +20,14 @@ export interface FocusMember {
   photo?: string | null | undefined;
 }
 
-/** A link of the panel: an `href`, or `render` for the router's link. Its text is the panel's. */
-export type FocusPanelLink = Omit<TextLinkProps, "children" | "caret">;
+/** “Back to you”: an `href`, or `render` for the router's link, with every prop of a Text link but its text. */
+export type FocusPanelLink = Omit<
+  TextLinkProps,
+  "children" | "toPage" | "toPageIcon"
+>;
+
+/** The link to their page: a `FocusPanelLink`, and `toPageIcon`, the icon that ends it (a caret by default). */
+export type FocusPanelPageLink = Omit<TextLinkProps, "children" | "toPage">;
 
 export interface FocusPanelOwnProps {
   /** The member the viewer looks at. */
@@ -36,8 +42,8 @@ export interface FocusPanelOwnProps {
   gain: GainInput;
   /** The holdings that moved their period, biggest effect first. Empty, the panel says nothing has moved yet. */
   movers: readonly Mover[];
-  /** Their page, or the viewer's portfolio when `you`: an `href` or a `render`. */
-  pageLink: FocusPanelLink;
+  /** Their page, or the viewer's portfolio when `you`: an `href` or a `render`, and optionally the `toPageIcon` that ends it. */
+  pageLink: FocusPanelPageLink;
   /** “Back to you”, which focuses the viewer again. Shown when another member is focused and the viewer has a portfolio; leave it out for a guest or an anonymous viewer. */
   backLink?: FocusPanelLink | null | undefined;
 }
@@ -136,7 +142,7 @@ export function FocusPanel({
       </div>
       <TextLink
         {...pageLink}
-        caret
+        toPage
         className={cn("self-start text-s", pageLink.className)}
       >
         {you
