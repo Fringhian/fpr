@@ -129,7 +129,11 @@ const configurable = {
       control: { type: "text" },
       table: { type: { summary: "Decimal | null" } },
     },
-    className: { control: false },
+    className: {
+      description:
+        "Classes added to the bar’s outer `<div>`, which win any conflict. Every other `<div>` prop goes there too.",
+      control: false,
+    },
   },
   render: (args) => (
     <Card>
