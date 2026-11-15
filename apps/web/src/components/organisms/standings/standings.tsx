@@ -1,4 +1,13 @@
-import { type ComponentProps, type ReactNode, useId, useState } from "react";
+import {
+  type ComponentProps,
+  type ReactNode,
+  type RefCallback,
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { laneScale } from "../../../lib/lane";
@@ -21,6 +30,98 @@ const MEDALS = [
   "silver",
   "bronze",
 ] as const satisfies readonly PictureMedal[];
+
+/** How a lane slides to its new rank: short and soft. */
+const SLIDE: KeyframeAnimationOptions = {
+  duration: 300,
+  easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+};
+
+/** Where each lane of the list sits, by member id, measured from the list's top. */
+function laneTops(list: HTMLOListElement): Map<string, number> {
+  const tops = new Map<string, number>();
+  for (const item of list.children) {
+    if (item instanceof HTMLElement && item.dataset.member !== undefined) {
+      tops.set(item.dataset.member, item.offsetTop);
+    }
+  }
+  return tops;
+}
+
+/**
+ * Slides each lane from its old place to its new one when the order of
+ * `members` changes, the columns never moving: only the lanes' vertical
+ * position animates, and not at all under reduced motion. Returns the ref for
+ * the list, whose items carry `data-member`.
+ */
+function useRankSlide(
+  members: readonly StandingsMember[],
+): RefCallback<HTMLOListElement> {
+  const list = useRef<HTMLOListElement | null>(null);
+  const tops = useRef(new Map<string, number>());
+  const shownOrder = useRef("");
+
+  const order = members.map((member) => member.id).join(" ");
+
+  // Every commit: compare with where the lanes were, then remember where they are.
+  useLayoutEffect(() => {
+    const element = list.current;
+    if (element === null) {
+      return;
+    }
+    const before = tops.current;
+    const after = laneTops(element);
+    tops.current = after;
+    const reordered = shownOrder.current !== "" && shownOrder.current !== order;
+    shownOrder.current = order;
+    if (
+      !reordered ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    for (const item of element.children) {
+      if (!(item instanceof HTMLElement)) {
+        continue;
+      }
+      const id = item.dataset.member;
+      const from = id === undefined ? undefined : before.get(id);
+      const to = id === undefined ? undefined : after.get(id);
+      if (from === undefined || to === undefined || from === to) {
+        continue;
+      }
+      for (const running of item.getAnimations()) {
+        running.cancel();
+      }
+      item.animate(
+        [{ transform: `translateY(${from - to}px)` }, { transform: "none" }],
+        SLIDE,
+      );
+    }
+  });
+
+  // A lane opening or shutting, or the page resizing, moves the lanes with no
+  // new order: measure again once the list resizes or a panel's height settles.
+  return useCallback((element: HTMLOListElement | null) => {
+    if (element === null) {
+      return;
+    }
+    list.current = element;
+    const measure = () => {
+      tops.current = laneTops(element);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    element.addEventListener("transitionend", measure);
+    return () => {
+      observer.disconnect();
+      element.removeEventListener("transitionend", measure);
+      list.current = null;
+      tops.current = new Map();
+      shownOrder.current = "";
+    };
+  }, []);
+}
 
 /**
  * One member in the race: who they are, and what their lane shows. `value`
@@ -65,6 +166,8 @@ export type StandingsProps = StandingsOwnProps &
  * switch and who hasn't started under the lanes. The lanes share one scale,
  * so their bars compare; the order and the bars show the ranking, with no
  * rank numbers. Pressing a lane focuses its member and opens it in place.
+ * When the order changes, each lane slides to its new rank and its bar eases
+ * to its new length; with reduced motion, they move at once.
  */
 export function Standings({
   board,
@@ -83,6 +186,7 @@ export function Standings({
   const { t } = useTranslation();
   const titleId = useId();
   const [heldFocus, setHeldFocus] = useState<string | null>(null);
+  const list = useRankSlide(members);
 
   const empty = members.length === 0;
   const switchable = !anonymous && !empty;
@@ -148,9 +252,10 @@ export function Standings({
           <p className="text-s text-secondary">{t("standings.empty.body")}</p>
         </div>
       ) : (
-        <ol className="flex flex-col gap-[0.125rem]">
+        <ol ref={list} className="flex flex-col gap-[0.125rem]">
           {members.map(({ id, ...member }, index) => (
-            <li key={id}>
+            // The card's surface, so lanes crossing as they slide read as rows over each other.
+            <li key={id} data-member={id} className="rounded-m bg-surface">
               <Lane
                 {...member}
                 you={id === viewerId}

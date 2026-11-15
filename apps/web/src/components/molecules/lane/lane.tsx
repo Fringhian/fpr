@@ -196,12 +196,18 @@ export function Lane({
             className="absolute -inset-y-xs w-[0.0625rem] bg-muted"
             style={{ left: `${bar.zero}%` }}
           />
-          {bar.width > 0 ? (
-            <span
-              className={cn("absolute inset-y-[0] rounded-full", BARS[color])}
-              style={{ left: `${bar.start}%`, width: `${bar.width}%` }}
-            />
-          ) : null}
+          {/* Always drawn, so a bar grows from or shrinks to nothing when the values change. */}
+          <span
+            className={cn(
+              "absolute inset-y-[0] rounded-full transition-[left,width] duration-300 ease-out",
+              "",
+              "",
+              "",
+              "motion-reduce:transition-none",
+              BARS[color],
+            )}
+            style={{ left: `${bar.start}%`, width: `${bar.width}%` }}
+          />
         </span>
         <span
           className={cn(
@@ -214,30 +220,42 @@ export function Lane({
           <LaneFigure value={value} language={language} />
         </span>
       </Collapsible.Trigger>
+      {/* The panel's height eases open and shut. Clipped below only, so a focus ring inside still shows at the top. */}
       <Collapsible.Panel
         className={cn(
-          "flex flex-col items-start gap-s",
-          "ps-[2.875rem] pe-s pb-m",
-          "tablet:ps-[3.375rem] tablet:pe-[0.75rem] tablet:pb-m",
-          "desktop:ps-[3.375rem] desktop:pe-[0.75rem] desktop:pb-m",
+          "h-(--collapsible-panel-height) transition-[height] duration-200 ease-out [clip-path:inset(-0.25rem_-0.25rem_0_-0.25rem)]",
+          "",
           // With nothing but the best share, the panel opens on phone only.
-          children ? "" : "tablet:hidden desktop:hidden",
+          children ? "" : "tablet:hidden",
+          children ? "" : "desktop:hidden",
+          "starting-style:h-0",
+          "ending-style:h-0",
+          "motion-reduce:transition-none",
         )}
       >
-        {best ? (
-          <span
-            className={cn(
-              "items-center gap-s text-xs text-secondary",
-              "flex",
-              "tablet:hidden",
-              "desktop:hidden",
-            )}
-          >
-            <span>{t("lane.bestShare")}</span>
-            <Chip gain={best.percent ?? undefined}>{best.share}</Chip>
-          </span>
-        ) : null}
-        {children}
+        <div
+          className={cn(
+            "flex flex-col items-start gap-s",
+            "ps-[2.875rem] pe-s pb-m",
+            "tablet:ps-[3.375rem] tablet:pe-[0.75rem] tablet:pb-m",
+            "desktop:ps-[3.375rem] desktop:pe-[0.75rem] desktop:pb-m",
+          )}
+        >
+          {best ? (
+            <span
+              className={cn(
+                "items-center gap-s text-xs text-secondary",
+                "flex",
+                "tablet:hidden",
+                "desktop:hidden",
+              )}
+            >
+              <span>{t("lane.bestShare")}</span>
+              <Chip gain={best.percent ?? undefined}>{best.share}</Chip>
+            </span>
+          ) : null}
+          {children}
+        </div>
       </Collapsible.Panel>
     </Collapsible.Root>
   );
