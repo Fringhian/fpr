@@ -1,3 +1,6 @@
+import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
+import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../lib/cn";
@@ -33,18 +36,33 @@ const TEXTS = {
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
-/** What the controls change: the popup's placement, and whether the separator is drawn. */
+/** The icons the more-actions button offers, by name. */
+const MORE_ICONS = {
+  "dots-three": DotsThreeIcon,
+  "dots-three-vertical": DotsThreeVerticalIcon,
+  "caret-down": CaretDownIcon,
+} as const;
+
+/** What the controls change: the popup's placement, whether the separator is drawn, and the more-actions button's icon. */
 interface MenuArgs {
   side: NonNullable<Menu.PopupProps["side"]>;
   align: NonNullable<Menu.PopupProps["align"]>;
   separator: boolean;
+  moreIcon: keyof typeof MORE_ICONS;
   /** Opens the menu as the story loads, so the Docs page and the canvas show it open. */
   defaultOpen: boolean;
 }
 
-/** The ⋯ menu of a person's row in the admin area, its danger item last. */
-function MoreActions({ side, align, separator, defaultOpen }: MenuArgs) {
+/** The more-actions menu of a person's row in the admin area, its danger item last. */
+function MoreActions({
+  side,
+  align,
+  separator,
+  moreIcon,
+  defaultOpen,
+}: MenuArgs) {
   const text = TEXTS[useLanguage()];
+
   return (
     <div className="flex max-w-[24rem] items-center justify-between gap-s rounded-m bg-surface py-s ps-m pe-s font-sans shadow-outline">
       <div className="grid">
@@ -52,7 +70,7 @@ function MoreActions({ side, align, separator, defaultOpen }: MenuArgs) {
         <span className="text-xs text-secondary">{text.role}</span>
       </div>
       <Menu.Root defaultOpen={defaultOpen}>
-        <Menu.MoreTrigger subject={text.person} />
+        <Menu.MoreTrigger subject={text.person} icon={MORE_ICONS[moreIcon]} />
         <Menu.Popup side={side} align={align}>
           <Menu.Item>{text.edit}</Menu.Item>
           <Menu.Item>{text.editPortfolio}</Menu.Item>
@@ -68,6 +86,7 @@ function MoreActions({ side, align, separator, defaultOpen }: MenuArgs) {
 /** The account menu, opened from your picture: Settings, How FPR works, Sign out. */
 function Account({ side, align, separator, defaultOpen }: MenuArgs) {
   const text = TEXTS[useLanguage()];
+
   return (
     <div className="flex max-w-[24rem] justify-end font-sans">
       <Menu.Root defaultOpen={defaultOpen}>
@@ -101,7 +120,7 @@ A list of actions that opens from a button, on Base UI’s menu: the ⋯ menu of
 | --- | --- |
 | \`Menu.Root\` | The menu’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. |
 | \`Menu.Trigger\` | The button that opens it, such as your picture. \`render\` swaps in another element. |
-| \`Menu.MoreTrigger\` | The ⋯ icon button. \`subject\` names what it acts on for screen readers: “More actions for Sam”. |
+| \`Menu.MoreTrigger\` | The more-actions icon button, three dots by default; \`icon\` takes any Phosphor icon. \`subject\` names what it acts on for screen readers: “More actions for Sam”. |
 | \`Menu.Popup\` | The floating list, in a portal. \`side\` and \`align\` place it beside the trigger: below it and aligned to its end by default. |
 | \`Menu.Item\` | An action. \`intent="danger"\` writes it in red, for deleting, revoking, or signing out. |
 | \`Menu.LinkItem\` | An item that goes to another page, such as How FPR works. \`render\` composes it with the router’s link. |
@@ -124,8 +143,21 @@ const meta = {
       story: { inline: false, height: "18rem" },
     },
   },
-  args: { side: "bottom", align: "end", separator: true, defaultOpen: true },
+  args: {
+    side: "bottom",
+    align: "end",
+    separator: true,
+    moreIcon: "dots-three",
+    defaultOpen: true,
+  },
   argTypes: {
+    moreIcon: {
+      name: "Menu.MoreTrigger icon",
+      description:
+        "The more-actions button’s `icon`: any Phosphor icon, three dots by default.",
+      options: Object.keys(MORE_ICONS),
+      control: { type: "select" },
+    },
     side: {
       name: "Menu.Popup side",
       description: "The side of the trigger the popup opens on.",
@@ -167,6 +199,7 @@ export const MoreActionsMenu: Story = {
 /** The account menu, opened from your picture. How FPR works is a link item. */
 export const AccountMenu: Story = {
   name: "Account",
+  argTypes: { moreIcon: { table: { disable: true } } },
   render: (args) => <Account {...args} />,
 };
 

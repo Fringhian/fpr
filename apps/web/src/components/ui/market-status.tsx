@@ -5,17 +5,16 @@ import { cn } from "../../lib/cn";
 import { formatDate, formatTime, type Timestamp } from "../../lib/format";
 import { useLanguage } from "../../lib/i18n";
 
-export type MarketState = "open" | "closed";
-
-interface MarketStatusOwnProps {
+export interface MarketStatusOwnProps {
   /** `open` while today's prices refresh, with a green dot; `closed` after the close, with a grey one. */
-  status: MarketState;
+  status: "open" | "closed";
   /** When the prices shown were taken: their time while open, the close's day once closed. */
   pricedAt: Timestamp;
   /** The time zone the time and day are read in. The browser's by default. */
-  timeZone?: string;
+  timeZone?: string | undefined;
 }
 
+/** The part writes its own line: it takes every prop of a `<span>` but `children`. */
 export type MarketStatusProps = MarketStatusOwnProps &
   Omit<ComponentProps<"span">, keyof MarketStatusOwnProps | "children">;
 
@@ -39,6 +38,7 @@ export function MarketStatus({
 }: MarketStatusProps) {
   const { t } = useTranslation();
   const language = useLanguage();
+
   const zone = timeZone === undefined ? {} : { timeZone };
   const text =
     status === "open"
@@ -48,6 +48,7 @@ export function MarketStatus({
       : t("smallParts.marketStatus.closed", {
           date: formatDate(pricedAt, language, { style: "weekday", ...zone }),
         });
+
   return (
     <span
       {...props}
@@ -56,7 +57,7 @@ export function MarketStatus({
         className,
       )}
     >
-      <span aria-hidden className={dot({ status })} />
+      <span aria-hidden="true" className={dot({ status })} />
       {text}
     </span>
   );
