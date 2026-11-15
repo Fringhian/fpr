@@ -1,6 +1,6 @@
-import type { IsoDate } from "../../lib/format";
-import type { MemberColor } from "../../lib/member-color";
-import type { ChartLine, ChartPoint } from "../molecules/chart";
+import type { IsoDate } from "../../../lib/format";
+import type { MemberColor } from "../../../lib/member-color";
+import type { ChartLine, ChartPoint } from "../../molecules/chart/chart";
 
 /** A member in the race: who they are, and their gain at each day of the period. */
 export interface RaceMember {

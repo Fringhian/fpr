@@ -1,15 +1,15 @@
 import { type ComponentProps, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { formatMoney, formatPercent, type IsoDate } from "../../lib/format";
-import type { GainUnit } from "../../lib/gain";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import type { MemberColor } from "../../lib/member-color";
-import { Picture } from "../atoms/picture";
-import { TrailSign } from "../atoms/trail-sign";
-import { Chart, type ChartLayout } from "../molecules/chart";
-import { lastPoint } from "../molecules/chart-model";
+import { cn } from "../../../lib/cn";
+import { formatMoney, formatPercent, type IsoDate } from "../../../lib/format";
+import type { GainUnit } from "../../../lib/gain";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import type { MemberColor } from "../../../lib/member-color";
+import { Picture } from "../../atoms/picture/picture";
+import { TrailSign } from "../../atoms/trail-sign/trail-sign";
+import { Chart, type ChartLayout } from "../../molecules/chart/chart";
+import { lastPoint } from "../../molecules/chart/chart-model";
 import {
   type RaceCast,
   type RaceMember,

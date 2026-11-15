@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { cn } from "../../lib/cn";
-import { formatDate, type IsoDate } from "../../lib/format";
+import { cn } from "../../../lib/cn";
+import { formatDate, type IsoDate } from "../../../lib/format";
 import { Chart, type ChartLine, type ChartPoint } from "./chart";
 import { toDecimal } from "./chart-model";
 
