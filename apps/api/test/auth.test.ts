@@ -214,6 +214,14 @@ describe("/api/auth", () => {
     });
   });
 
+  it("keeps the endpoint that starts access-link sessions off HTTP", async () => {
+    const endpoint = auth.api.startAccessSession;
+    const options = endpoint.options as Record<string, unknown>;
+
+    expect("path" in endpoint ? endpoint.path : undefined).toBeUndefined();
+    expect(options.metadata).toMatchObject({ SERVER_ONLY: true });
+  });
+
   it("refuses a sign-in for a person whose access ended, with access_ended, but never to a wrong password", async () => {
     const person = await addPerson(test.db, auth, "member");
     await accessKeys.revoke(test.db, person.keyId);

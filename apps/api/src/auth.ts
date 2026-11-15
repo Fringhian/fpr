@@ -7,6 +7,7 @@ import {
 } from "better-auth";
 import { APIError, getIP } from "better-auth/api";
 import type { Logger } from "pino";
+import { accessSessions } from "./access/session.js";
 
 /**
  * Better Auth's tables as FPR stores them: every column in snake_case, ids
@@ -94,15 +95,16 @@ const ipAddressOptions = {
 >;
 
 /**
- * The client address Better Auth keeps a request's rate limit for, or
- * `null` when the request has none: `X-Forwarded-For` must hold a single
- * IP address.
+ * The client address a request's rate limits are kept for, as Better Auth
+ * reads it, or `null` when the request has none: `X-Forwarded-For` must
+ * hold a single IP address. Better Auth's limits and those of the API's
+ * public writes both read it here.
  */
-function clientAddress(request: Request): string | null {
-  const forwarded = request.headers.get(clientAddressHeader)?.trim() ?? "";
+export function clientAddress(headers: Headers): string | null {
+  const forwarded = headers.get(clientAddressHeader)?.trim() ?? "";
   return isIP(forwarded) === 0
     ? null
-    : getIP(request, { advanced: { ipAddress: ipAddressOptions } });
+    : getIP(headers, { advanced: { ipAddress: ipAddressOptions } });
 }
 
 /** Passwords are 12 to 128 characters long. */
@@ -145,7 +147,7 @@ export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
   const perClientAddress =
     (rule?: BetterAuthRateLimitRule) =>
     (request: Request, current: BetterAuthRateLimitRule) => {
-      if (clientAddress(request) !== null) {
+      if (clientAddress(request.headers) !== null) {
         return rule ?? current;
       }
       if (!missingAddressLogged) {
@@ -224,6 +226,7 @@ export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
     },
     // A person's profile changes through PATCH /me, which checks it.
     disabledPaths: ["/update-user"],
+    plugins: [accessSessions()],
   });
 }
 
