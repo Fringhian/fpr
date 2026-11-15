@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { type ErrorBody, errorStatus } from "@fpr/contracts";
 import { type Db, ping } from "@fpr/db";
+import type { AnyRouter } from "@orpc/server";
 import express, {
   type Express,
   type NextFunction,
@@ -10,19 +11,38 @@ import express, {
 import type { Logger } from "pino";
 import { pinoHttp } from "pino-http";
 import { requireToken } from "./auth.js";
+import { mountRouter } from "./orpc.js";
+import { pricesRouter } from "./router.js";
+
+/** `RACE_TIMEZONE`'s default. */
+export const DEFAULT_TIME_ZONE = "Europe/Paris";
 
 export interface AppOptions {
   db: Db;
   logger: Logger;
   /** The bearer token every route except `/health` requires. */
   token: string;
+  /** The contract routes served. Defaults to every handler of `pricesRouter`. */
+  router?: AnyRouter;
+  /** `RACE_TIMEZONE`. Defaults to `Europe/Paris`. */
+  timeZone?: string;
+  /** The current moment. Defaults to the clock; tests replace it. */
+  now?: () => Date;
 }
 
 /**
  * Builds the Express app: request logging, the unauthenticated health check,
- * token authentication for every other route, and error handling.
+ * token authentication for every other route, the `pricesContract` routes,
+ * and error handling.
  */
-export function createApp({ db, logger, token }: AppOptions): Express {
+export function createApp({
+  db,
+  logger,
+  token,
+  router = pricesRouter,
+  timeZone = DEFAULT_TIME_ZONE,
+  now = () => new Date(),
+}: AppOptions): Express {
   const app = express();
 
   app.disable("x-powered-by");
@@ -61,6 +81,8 @@ export function createApp({ db, logger, token }: AppOptions): Express {
 
   // Every route mounted after this point requires the bearer token.
   app.use(requireToken(token));
+
+  mountRouter(app, router, { db, timeZone, now });
 
   app.use((_req: Request, res: Response) => {
     const body: ErrorBody = { error: { code: "not_found" } };
