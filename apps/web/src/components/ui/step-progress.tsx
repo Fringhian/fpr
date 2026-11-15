@@ -1,4 +1,5 @@
 import { Progress } from "@base-ui/react/progress";
+import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 
@@ -7,26 +8,30 @@ export interface StepProgressOwnProps {
   step: number;
   /** How many steps the flow has, one segment each. */
   count: number;
-  className?: string;
 }
 
+/**
+ * Every prop of Base UI's `Progress.Root`, `className` included, but the
+ * value, its range and its text, which `step` and `count` set, and `children`,
+ * the segments.
+ */
 export type StepProgressProps = StepProgressOwnProps &
   Omit<
-    Progress.Root.Props,
+    ComponentProps<typeof Progress.Root>,
     | keyof StepProgressOwnProps
     | "value"
     | "min"
     | "max"
-    | "format"
-    | "locale"
     | "getAriaValueText"
     | "children"
   >;
 
+const segment = "h-xs flex-1 rounded-full";
+
 /**
  * A thin bar of one segment per step, filled up to the step on screen, at
- * the top of a step flow. It fills the width it is given. Screen readers hear
- * “Step 2 of 4”.
+ * the top of a step flow, on Base UI's progress bar. It fills the width it is
+ * given. Screen readers hear “Step 2 of 4”.
  */
 export function StepProgress({
   step,
@@ -35,7 +40,13 @@ export function StepProgress({
   ...props
 }: StepProgressProps) {
   const { t } = useTranslation();
+
   const current = Math.min(Math.max(step, 0), count);
+  const valueText = t("smallParts.stepProgress.value", {
+    step: current,
+    total: count,
+  });
+
   return (
     <Progress.Root
       aria-label={t("smallParts.stepProgress.label")}
@@ -43,20 +54,20 @@ export function StepProgress({
       value={current}
       min={0}
       max={count}
-      getAriaValueText={() =>
-        t("smallParts.stepProgress.value", { step: current, total: count })
+      getAriaValueText={() => valueText}
+      className={(state) =>
+        cn(
+          "flex w-full gap-xs",
+          typeof className === "function" ? className(state) : className,
+        )
       }
-      className={cn("flex w-full gap-xs", className)}
     >
       {Array.from({ length: count }, (_, index) => (
         <span
           // The segments never reorder: their place is their identity.
           // biome-ignore lint/suspicious/noArrayIndexKey: see above
           key={index}
-          className={cn(
-            "h-xs flex-1 rounded-full",
-            index < current ? "bg-primary" : "bg-muted",
-          )}
+          className={cn(segment, index < current ? "bg-primary" : "bg-muted")}
         />
       ))}
     </Progress.Root>

@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 
+/** Every prop of a `<div>`: its `children` are the line saying what loads. */
 export type LoadingPlaceholderProps = ComponentProps<"div">;
 
 /**
@@ -17,6 +18,9 @@ export function LoadingPlaceholder({
   ...props
 }: LoadingPlaceholderProps) {
   const { t } = useTranslation();
+
+  const line = children ?? t("smallParts.loadingPlaceholder.default");
+
   return (
     <div
       role="status"
@@ -27,7 +31,7 @@ export function LoadingPlaceholder({
       )}
     >
       <span
-        aria-hidden
+        aria-hidden="true"
         className={cn(
           "absolute inset-[0] -z-10 rounded-[inherit] bg-highlight",
           "",
@@ -36,7 +40,7 @@ export function LoadingPlaceholder({
           "animate-pulse motion-reduce:animate-none",
         )}
       />
-      {children ?? t("smallParts.loadingPlaceholder.default")}
+      {line}
     </div>
   );
 }
