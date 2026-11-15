@@ -52,5 +52,8 @@
     "loadingPlaceholder": {
       "default": "Chargement…"
     }
+  },
+  "button": {
+    "saving": "Enregistrement…"
   }
 }

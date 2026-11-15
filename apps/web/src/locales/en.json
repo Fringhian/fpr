@@ -51,5 +51,8 @@
     "loadingPlaceholder": {
       "default": "Loading…"
     }
+  },
+  "button": {
+    "saving": "Saving…"
   }
 }
