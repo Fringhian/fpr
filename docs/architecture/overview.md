@@ -32,7 +32,7 @@ flowchart LR
 ## Stack-wide conventions
 
 - TypeScript everywhere, on Node 24.
-- One pnpm workspaces monorepo. Biome lints and formats it, Vitest tests it, GitHub Actions runs both on every push.
+- One pnpm workspaces monorepo. Biome lints and formats it, Vitest tests it, GitHub Actions runs both on every push. Each workspace keeps its tests in `test/`, beside `src/`.
 - Git hooks, managed by lefthook and installed by `pnpm install`, run Biome on the staged files before each commit, fixing formatting and blocking on errors, and on the whole repository before each push.
 - Every route is declared in `@fpr/contracts` as an oRPC contract: its method, path, Zod schemas, error codes, and accepted roles. The web app, the API, and the price service share these declarations, and the OpenAPI document is generated from them. The web app imports `@fpr/contracts` alone, which holds neither the price service's routes, in `@fpr/contracts/prices`, nor the generator, in `@fpr/contracts/openapi`.
 - Every process reaches Postgres through `@fpr/db`.
@@ -85,7 +85,7 @@ fpr/
 - Every workspace is named `@fpr/<folder>`.
 - The root `package.json` pins pnpm through `packageManager` and Node 24 through `engines`. `.nvmrc` holds `24`.
 - Every dependency is pinned to an exact version. `pnpm-workspace.yaml` sets `saveExact`, so `pnpm add` writes exact versions.
-- Each workspace's TypeScript configuration extends `tsconfig.base.json`. `apps/web` splits it in Vite's way: `tsconfig.app.json` for `src/` and `tsconfig.node.json` for its config files, both referenced from `tsconfig.json`.
+- Each workspace's TypeScript configuration extends `tsconfig.base.json`. `apps/web` splits it in Vite's way: `tsconfig.app.json` for `src/` and `test/` and `tsconfig.node.json` for its config files, both referenced from `tsconfig.json`. The other workspaces type-check `src/` and `test/` with `tsconfig.json` and build `src/` alone with `tsconfig.build.json`.
 - `vitest.config.ts` makes each workspace a Vitest project, named after its package. Each workspace's `vitest.config.ts` merges `vitest.shared.ts`, which resolves the `@fpr/source` condition. `pnpm test` runs every project, and `pnpm test --project @fpr/<folder>` runs one.
 - Packages build to `dist/`. Their `@fpr/source` export condition points at `src/`, which development tooling resolves, so a package edit reaches its consumers without a rebuild.
 - Each app has its own `apps/<name>/Dockerfile`, built from the repository root with `pnpm deploy`.
