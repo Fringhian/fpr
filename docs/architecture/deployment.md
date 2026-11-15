@@ -20,11 +20,14 @@ Every image is pinned to an exact version, in `compose.yaml` or in the Dockerfil
 
 `web` and `victorialogs` publish their ports on the loopback address only, at `WEB_PORT` (default `8081`) and `LOGS_PORT` (default `9428`). The host's reverse proxy forwards to them. No other service publishes a port.
 
+`web` takes each client's address from the header the host's reverse proxy sets, `CLIENT_IP_HEADER`, and the API's rate limits are kept per that address (`auth.md` › Client address). `X-Forwarded-For`, the default, fits a reverse proxy that faces the internet itself. Behind Cloudflare, Cloudflare Tunnel included, the address is in `CF-Connecting-IP`: a reverse proxy between Cloudflare and `web` can replace `X-Forwarded-For` with the tunnel's own address. After a deploy, a request from a known address shows that address as `remote_addr` in `web`'s log, and a sign-in stores it in `session.ip_address`.
+
 The `rustfs` service is S3-compatible storage for instances without external object storage: `docker compose --profile storage up`. It takes its credentials from `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`, and the one-off `rustfs-bucket` container, in the same profile, creates `S3_BUCKET` when it is missing. With an external bucket (Cloudflare R2, AWS S3, or any S3-compatible service), the `S3_*` variables point at it and the profile stays off.
 
 | Variable | Purpose |
 | --- | --- |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | The `postgres` service's user, password, and database, which `DATABASE_URL` points at |
+| `CLIENT_IP_HEADER` | The header `web` reads the client's address from, on requests from the loopback address and private networks. Only a header the edge proxy always sets, replacing any value the client sent. `CF-Connecting-IP` behind Cloudflare. Default `X-Forwarded-For` |
 
 ## Self-hosting
 
@@ -91,4 +94,4 @@ A push to `main` deploys only once CI has passed on it. The last CI job calls th
 
 ## Coolify
 
-On Coolify, FPR is one Docker Compose resource built from the repository's `compose.yaml`, set as the resource's Docker Compose location. The FPR domain is set on the `web` service, and the logs domain on the `victorialogs` service with the internal port `9428`. The variables are set in the resource's environment. Coolify's proxy holds port `8080` on the host, which is why `WEB_PORT` defaults to `8081`. Coolify's own deploy-on-push is off: CI triggers each deploy through the resource's deploy webhook, with a deploy-only Coolify token.
+On Coolify, FPR is one Docker Compose resource built from the repository's `compose.yaml`, set as the resource's Docker Compose location. The FPR domain is set on the `web` service, and the logs domain on the `victorialogs` service with the internal port `9428`. The variables are set in the resource's environment, with `CLIENT_IP_HEADER=CF-Connecting-IP` when Cloudflare is in front. Coolify's proxy holds port `8080` on the host, which is why `WEB_PORT` defaults to `8081`. Coolify's own deploy-on-push is off: CI triggers each deploy through the resource's deploy webhook, with a deploy-only Coolify token.
