@@ -42,16 +42,20 @@ flowchart LR
     Req["Request"] --> Session["Session<br/>(Better Auth)"]
     Session --> Access["Access check"]
     Access --> Role["Role guard"]
-    Role --> Handler["Handler"]
+    Role --> Valid["Input validation"]
+    Valid --> Handler["Handler"]
     Handler --> Anon["Anonymizer"]
     Anon --> Res["Response"]
 ```
 
-1. **Session**: Better Auth reads the session cookie. Public routes skip the next two steps. A write whose `Origin` header isn't `PUBLIC_URL` is refused.
-2. **Access check**: the person's access key still gives access. Otherwise their sessions are deleted and the answer is `401 access_ended`. See `auth.md`.
-3. **Role guard**: each route declares the roles it accepts. Anonymous viewers are refused every write with `403`. Guests are refused every write except to their own profile.
-4. **Handler**: receives the input oRPC validated with its contract, then reads and writes Postgres through `@fpr/db`.
-5. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+1. **Session**: a write, any method but `GET` and `HEAD`, whose `Origin` header isn't `PUBLIC_URL`'s origin is refused with `403 forbidden`, public routes included, and so is a write without an `Origin`. Public routes then go to the handler, without a session. On any other route, Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie.
+2. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. See `auth.md`.
+3. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`. A write to a path with `{userId}` is refused unless the person is the admin or `userId` is their own id.
+4. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
+5. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`.
+6. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+
+The first three steps are one oRPC middleware, `requestPipeline` in `apps/api/src/pipeline.ts`, that every route of `apiContract` goes through. A handler of a route that isn't public narrows `context.viewer` with the `signedIn` middleware: `api.me.get.use(signedIn).handler(({ context }) => context.viewer.id)`. The request log line carries the person's id once the session is read.
 
 ## Errors
 
@@ -231,7 +235,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `PORT` | The port it listens on. Default `3000` |
 | `DATABASE_URL` | Postgres |
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
-| `BETTER_AUTH_SECRET` | Session signing |
+| `BETTER_AUTH_SECRET` | Session signing. 32 characters or more |
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
 | `PSEUDONYM_SECRET` | Pseudonyms |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
