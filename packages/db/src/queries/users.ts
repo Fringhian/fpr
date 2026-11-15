@@ -1,5 +1,5 @@
-import { sql } from "kysely";
-import type { Db } from "../database.js";
+import { sql, type Transaction } from "kysely";
+import type { Database, Db } from "../database.js";
 import type { NewUser, User, UserUpdate } from "../tables/user.js";
 
 /** The columns a person's row can change after it is created. */
@@ -20,6 +20,22 @@ export async function findById(db: Db, id: string): Promise<User | undefined> {
     .selectFrom("user")
     .selectAll()
     .where("id", "=", id)
+    .executeTakeFirst();
+}
+
+/**
+ * The person with this id, with their row locked until the transaction ends,
+ * so a write that reads it first runs after any other write to it.
+ */
+export async function findByIdForUpdate(
+  trx: Transaction<Database>,
+  id: string,
+): Promise<User | undefined> {
+  return trx
+    .selectFrom("user")
+    .selectAll()
+    .where("id", "=", id)
+    .forUpdate()
     .executeTakeFirst();
 }
 
@@ -96,6 +112,19 @@ export async function countAdmins(db: Db): Promise<number> {
     .where("role", "=", "admin")
     .executeTakeFirstOrThrow();
   return Number(count);
+}
+
+/** The first key of FPR's advisory lock on people's colours. */
+const COLOR_LOCK = 2;
+
+/**
+ * Takes the lock on people's colours until the transaction ends. Every write
+ * that sets a colour takes it before reading `colorsInUse`, so two people
+ * picking the same free colour at once run one after the other, and the
+ * second sees the first's colour taken.
+ */
+export async function lockColors(trx: Transaction<Database>): Promise<void> {
+  await sql`select pg_advisory_xact_lock(${COLOR_LOCK}, 0)`.execute(trx);
 }
 
 /**
