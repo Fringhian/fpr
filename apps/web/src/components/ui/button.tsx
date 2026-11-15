@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
-import { Icon } from "./icon";
+import { Icon, type IconProps } from "./icon";
 
 const button = cva(
   [
@@ -73,8 +73,12 @@ export interface ButtonOwnProps {
   intent?: "primary" | "secondary" | "danger";
   /** `s` 32px; `m` 40px; `wide` 48px at full width; `step` 56px, the main button of a step flow: full width on phone, fitted to its label on tablet and desktop. */
   size?: "s" | "m" | "wide" | "step";
-  /** With `size="step"`, draws an arrow at its right end: another step follows. The flow’s last button has none. */
+  /** An icon leading the label, any Phosphor icon: `icon={PlusIcon}`. */
+  icon?: IconProps["icon"] | undefined;
+  /** With `size="step"`, draws `nextIcon` at its right end: another step follows. The flow’s last button has none. */
   next?: boolean;
+  /** The icon `next` draws. An arrow by default. */
+  nextIcon?: IconProps["icon"];
   /**
    * Shows a spinner and the loading label in place of the label. The button stays focusable and ignores presses.
    * Pass it, `false` included, to any button that can load: the button then keeps one width, the wider of its label and its loading label, in both states.
@@ -82,8 +86,6 @@ export interface ButtonOwnProps {
   loading?: boolean;
   /** The text shown while loading. Defaults to “Saving…”. */
   loadingLabel?: string;
-  /** Classes added to the button’s own, which win any conflict. */
-  className?: string;
 }
 
 export type ButtonProps = ButtonOwnProps &
@@ -92,11 +94,17 @@ export type ButtonProps = ButtonOwnProps &
     keyof ButtonOwnProps | "focusableWhenDisabled"
   >;
 
-/** A capsule button on Base UI’s button. It names its action: “Save change”, never a bare “Continue”. */
+/**
+ * A capsule button on Base UI’s button. It names its action: “Save change”,
+ * never a bare “Continue”. Every other prop goes to Base UI’s button,
+ * `className` included: a string, or a function of the button’s state.
+ */
 export function Button({
   intent = "secondary",
   size = "m",
+  icon,
   next = false,
+  nextIcon = ArrowRightIcon,
   loading,
   loadingLabel,
   disabled = false,
@@ -105,17 +113,28 @@ export function Button({
   ...props
 }: ButtonProps) {
   const { t } = useTranslation();
+
   const busy = loading === true;
   const arrow = size === "step" && next;
+  const classes = button({ intent, size, next: arrow });
+
   return (
     <BaseButton
       {...props}
       disabled={disabled || busy}
       focusableWhenDisabled={busy}
       aria-busy={busy || undefined}
-      className={cn(button({ intent, size, next: arrow }), className)}
+      className={(state) =>
+        cn(
+          classes,
+          typeof className === "function" ? className(state) : className,
+        )
+      }
     >
-      <span className={cn(face, busy ? "invisible" : "")}>{children}</span>
+      <span className={cn(face, busy ? "invisible" : "")}>
+        {icon ? <Icon icon={icon} size="s" /> : null}
+        {children}
+      </span>
       {loading === undefined ? null : (
         <span className={cn(face, busy ? "" : "invisible")}>
           <span
@@ -133,7 +152,7 @@ export function Button({
       )}
       {arrow && !busy ? (
         <Icon
-          icon={ArrowRightIcon}
+          icon={nextIcon}
           size="s"
           className="absolute top-1/2 right-[1.25rem] -translate-y-1/2"
         />
