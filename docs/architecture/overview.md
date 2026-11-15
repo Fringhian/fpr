@@ -38,7 +38,7 @@ flowchart LR
 - Every route is declared in `@fpr/contracts` as an oRPC contract: its method, path, Zod schemas, error codes, and accepted roles. The web app, the API, and the price service share these declarations, and the OpenAPI document is generated from them. The web app imports `@fpr/contracts` alone, which holds neither the price service's routes, in `@fpr/contracts/prices`, nor the generator, in `@fpr/contracts/openapi`.
 - Every process reaches Postgres through `@fpr/db`.
 - Money is in euros. Prices are converted to EUR by the price service when fetched, and every amount stored is in EUR.
-- Quantities, prices, and amounts are Postgres `numeric`, and travel as decimal strings in JSON, never as floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero.
+- Quantities, prices, and amounts are Postgres `numeric`, and travel as decimal strings in JSON, never as floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero. Arithmetic and comparisons on them happen in Postgres, or in TypeScript with `big.js`, never by hand.
 - Days, weeks, and year-to-date start in the instance's time zone, `RACE_TIMEZONE`.
 
 ## Logging
