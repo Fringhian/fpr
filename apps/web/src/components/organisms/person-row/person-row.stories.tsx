@@ -2,10 +2,10 @@ import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import { MEMBER_COLORS } from "../../lib/member-color";
-import * as Menu from "../molecules/menu";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import { MEMBER_COLORS } from "../../../lib/member-color";
+import * as Menu from "../../molecules/menu/menu";
 import {
   type AccessStatus,
   PersonList,

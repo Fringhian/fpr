@@ -1,15 +1,15 @@
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { formatDate, type IsoDate, type Timestamp } from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
-import type { MemberColor } from "../../lib/member-color";
-import { Badge, type BadgeState } from "../atoms/badge";
-import { IconButton } from "../atoms/icon-button";
-import { Picture } from "../atoms/picture";
-import type { IconProps } from "../foundations/icon";
-import * as Menu from "../molecules/menu";
+import { cn } from "../../../lib/cn";
+import { formatDate, type IsoDate, type Timestamp } from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
+import type { MemberColor } from "../../../lib/member-color";
+import { Badge, type BadgeState } from "../../atoms/badge/badge";
+import { IconButton } from "../../atoms/icon-button/icon-button";
+import { Picture } from "../../atoms/picture/picture";
+import type { IconProps } from "../../foundations/icon/icon";
+import * as Menu from "../../molecules/menu/menu";
 
 /**
  * Where a person's access stands, as the admin area lists it: waiting for the
