@@ -3,9 +3,9 @@ import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { QuestionIcon } from "@phosphor-icons/react/Question";
 import { TrayIcon } from "@phosphor-icons/react/Tray";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import { Button } from "../atoms/button";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import { Button } from "../../atoms/button/button";
 import * as EmptyState from "./empty-state";
 
 interface Use {
