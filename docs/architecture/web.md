@@ -82,6 +82,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
+- The test run bundles every dependency before the first story runs: Vite scans the stories and the app's `index.html`, and `optimizeDeps.include` in `vitest.storybook.config.ts` lists the libraries the components build on, so the browser never reloads mid-run.
 
 ## Design
 
