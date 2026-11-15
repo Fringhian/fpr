@@ -14,8 +14,10 @@ import {
   type Time,
 } from "lightweight-charts";
 import {
+  type ComponentProps,
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
   useEffect,
   useEffectEvent,
   useId,
@@ -107,7 +109,7 @@ export interface ChartLayout {
   height: number;
 }
 
-export interface ChartProps {
+export interface ChartOwnProps {
   /** `line`: axes, grid, crosshair and the keyboard. `sparkline`: the line alone, for cards, with no axes and no interaction. */
   variant?: ChartVariant;
   /** The lines, drawn in order. Pass a stable array: a new one redraws every line. */
@@ -120,13 +122,15 @@ export interface ChartProps {
   precision?: MoneyPrecision;
   /** A sign on every value but zero, for gains: `+4.2%`. */
   signed?: boolean;
-  /** Classes added to the chart’s own, which win any conflict, such as its height. */
-  className?: string;
   /** `line` only: drawn over the chart from where each line ends, and redrawn as it resizes, such as the race's pictures and signs. */
   overlay?: ((layout: ChartLayout) => ReactNode) | undefined;
   /** `line` only: called with a line's `id` when a click or a tap lands on it, or close to it. The pointer turns into a hand over a line. */
   onSelectLine?: ((id: string) => void) | undefined;
 }
+
+/** The chart's own props, and every prop of the `<div>` it renders but its children: the chart draws its own. */
+export type ChartProps = ChartOwnProps &
+  Omit<ComponentProps<"div">, keyof ChartOwnProps | "children">;
 
 /** The chart's height by variant: 208px for a line chart, 34px for a sparkline. A `className` height wins. */
 const HEIGHTS = {
@@ -309,6 +313,107 @@ function lineAt(
 }
 
 /**
+ * Where the lines end, for an overlay: measured once the chart has drawn,
+ * and again as it resizes. The ends stay where they were until measured
+ * again, so the overlay never blinks. Call it after the lines are drawn.
+ */
+function useLineEnds(
+  chart: IChartApi | null,
+  container: RefObject<HTMLDivElement | null>,
+  drawn: RefObject<DrawnLine[]>,
+  lines: readonly ChartLine[],
+  enabled: boolean,
+): ChartLayout {
+  const [layout, setLayout] = useState<ChartLayout>(NO_LAYOUT);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: new lines are redrawn, so their ends are measured again.
+  useEffect(() => {
+    const element = container.current;
+    if (!chart || !element || !enabled) return;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() =>
+        setLayout(measure(chart, drawn.current)),
+      );
+    };
+    update();
+    const timeScale = chart.timeScale();
+    timeScale.subscribeSizeChange(update);
+    const resized = new ResizeObserver(update);
+    resized.observe(element);
+    void document.fonts?.ready.then(update);
+    return () => {
+      cancelAnimationFrame(frame);
+      timeScale.unsubscribeSizeChange(update);
+      resized.disconnect();
+    };
+  }, [chart, container, drawn, lines, enabled]);
+
+  return layout;
+}
+
+/** A click or a tap on a line, or close to it, selects it; the pointer shows which lines it can. */
+function useLineSelect(
+  chart: IChartApi | null,
+  container: RefObject<HTMLDivElement | null>,
+  drawn: RefObject<DrawnLine[]>,
+  enabled: boolean,
+  onSelect: ((id: string) => void) | undefined,
+): void {
+  const select = useEffectEvent((id: string) => onSelect?.(id));
+  useEffect(() => {
+    const element = container.current;
+    if (!chart || !element || !enabled) return;
+    const onClick = (event: MouseEventParams<Time>) => {
+      const id = lineAt(drawn.current, event);
+      if (id !== undefined) select(id);
+    };
+    const onMove = (event: MouseEventParams<Time>) => {
+      element.style.cursor =
+        lineAt(drawn.current, event) === undefined ? "" : "pointer";
+    };
+    chart.subscribeClick(onClick);
+    chart.subscribeCrosshairMove(onMove);
+    return () => {
+      chart.unsubscribeClick(onClick);
+      chart.unsubscribeCrosshairMove(onMove);
+      element.style.cursor = "";
+    };
+  }, [chart, container, drawn, enabled]);
+}
+
+/** What the readout shows on a day: the date, each line's value that day, and whether every value is final. */
+interface Readout {
+  date: string;
+  final: boolean;
+  values: { line: ChartLine; text: string }[];
+}
+
+function readoutOn(
+  day: IsoDate,
+  lines: readonly ChartLine[],
+  language: Language,
+  format: ValueFormat,
+): Readout {
+  const values = lines.flatMap((line) => {
+    const value = line.points.find((point) => point.day === day)?.value;
+    if (value === undefined) return [];
+    return [
+      {
+        line,
+        text: formatValue(value, language, format),
+        final: line.dashedAfter === undefined || day <= line.dashedAfter,
+      },
+    ];
+  });
+  return {
+    date: formatDate(day, language, { style: "weekday" }),
+    final: values.every((value) => value.final),
+    values,
+  };
+}
+
+/**
  * A chart on TradingView Lightweight Charts, styled from the tokens, that
  * fills its container’s width and follows it as it resizes.
  *
@@ -316,6 +421,9 @@ function lineAt(
  * crosshair and the readout of every line on that day, and the arrow keys
  * move it along the days with the same readout, read out to screen readers.
  * The `sparkline` variant is the line alone, for cards.
+ *
+ * Every other prop goes to the chart's outer `<div>`, `className` included:
+ * its classes win any conflict, such as the chart's height.
  */
 export function Chart({
   variant = "line",
@@ -327,6 +435,7 @@ export function Chart({
   className,
   overlay,
   onSelectLine,
+  ...props
 }: ChartProps) {
   const { t } = useTranslation();
   const language = useLanguage();
@@ -335,18 +444,11 @@ export function Chart({
   const drawn = useRef<DrawnLine[]>([]);
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [active, setActive] = useState<Active | null>(null);
-  const [layout, setLayout] = useState<ChartLayout>(NO_LAYOUT);
-  const interactive = variant === "line";
-  const overlaid = interactive && overlay !== undefined;
-  const selectable = interactive && onSelectLine !== undefined;
-  const selectLine = useEffectEvent((id: string) => onSelectLine?.(id));
-
   const days = useMemo(() => chartDays(lines), [lines]);
   const dayIndex = useMemo(
     () => new Map(days.map((day, index) => [day, index])),
     [days],
   );
-
   // The chart itself, created once per variant and removed with the component.
   useEffect(() => {
     const element = container.current;
@@ -371,12 +473,12 @@ export function Chart({
       setActive(null);
     };
   }, [variant]);
-
   // The lines: one solid series each, and a dashed one after its last final day.
   useEffect(() => {
     const element = container.current;
     if (!chart || !element) return;
-    const priceScaleId = variant === "line" ? "left" : "right";
+    const interactive = variant === "line";
+    const priceScaleId = interactive ? "left" : "right";
     const surface = token(element, "surface");
     const series = (
       line: ChartLine,
@@ -423,8 +525,7 @@ export function Chart({
       }
       drawn.current = [];
     };
-  }, [chart, lines, variant, interactive]);
-
+  }, [chart, lines, variant]);
   // Every period fills the width, whatever the container's.
   useEffect(() => {
     if (!chart) return;
@@ -433,54 +534,22 @@ export function Chart({
     timeScale.subscribeSizeChange(fit);
     return () => timeScale.unsubscribeSizeChange(fit);
   }, [chart]);
-
-  // Where the lines end, for the overlay: measured once the chart has drawn, and again as it resizes.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: new lines are redrawn, so their ends are measured again.
-  useEffect(() => {
-    const element = container.current;
-    if (!chart || !element || !overlaid) return;
-    let frame = 0;
-    const update = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() =>
-        setLayout(measure(chart, drawn.current)),
-      );
-    };
-    update();
-    const timeScale = chart.timeScale();
-    timeScale.subscribeSizeChange(update);
-    const resized = new ResizeObserver(update);
-    resized.observe(element);
-    void document.fonts?.ready.then(update);
-    return () => {
-      cancelAnimationFrame(frame);
-      timeScale.unsubscribeSizeChange(update);
-      // The ends stay where they were until measured again, so the overlay never blinks.
-      resized.disconnect();
-    };
-  }, [chart, lines, overlaid]);
-
-  // A click or a tap on a line, or close to it, selects it; the pointer shows which lines it can.
-  useEffect(() => {
-    const element = container.current;
-    if (!chart || !element || !selectable) return;
-    const onClick = (event: MouseEventParams<Time>) => {
-      const id = lineAt(drawn.current, event);
-      if (id !== undefined) selectLine(id);
-    };
-    const onMove = (event: MouseEventParams<Time>) => {
-      element.style.cursor =
-        lineAt(drawn.current, event) === undefined ? "" : "pointer";
-    };
-    chart.subscribeClick(onClick);
-    chart.subscribeCrosshairMove(onMove);
-    return () => {
-      chart.unsubscribeClick(onClick);
-      chart.unsubscribeCrosshairMove(onMove);
-      element.style.cursor = "";
-    };
-  }, [chart, selectable]);
-
+  // Where the lines end, for the overlay, once they are drawn.
+  const layout = useLineEnds(
+    chart,
+    container,
+    drawn,
+    lines,
+    variant === "line" && overlay !== undefined,
+  );
+  // A click or a tap on a line selects it.
+  useLineSelect(
+    chart,
+    container,
+    drawn,
+    variant === "line" && onSelectLine !== undefined,
+    onSelectLine,
+  );
   // The axes in the reader's language and the chart's unit.
   useEffect(() => {
     if (!chart) return;
@@ -500,10 +569,9 @@ export function Chart({
       },
     });
   }, [chart, language, unit, precision, signed]);
-
   // The pointer moves the crosshair; the readout follows it.
   useEffect(() => {
-    if (!chart || !interactive) return;
+    if (!chart || variant !== "line") return;
     const onMove = (event: MouseEventParams<Time>) => {
       if (event.time === undefined || event.point === undefined) {
         setActive((current) =>
@@ -517,30 +585,32 @@ export function Chart({
     };
     chart.subscribeCrosshairMove(onMove);
     return () => chart.unsubscribeCrosshairMove(onMove);
-  }, [chart, interactive, dayIndex]);
+  }, [chart, variant, dayIndex]);
 
+  const interactive = variant === "line";
+  const several = lines.length > 1;
   const day = active ? days[active.index] : undefined;
-  const readout = useMemo(() => {
-    if (day === undefined) return null;
-    const format = { unit, precision, signed };
-    const values = lines.flatMap((line) => {
-      const value = line.points.find((point) => point.day === day)?.value;
-      if (value === undefined) return [];
-      return [
-        {
-          line,
-          text: formatValue(value, language, format),
-          final: line.dashedAfter === undefined || day <= line.dashedAfter,
-        },
-      ];
-    });
-    const date = formatDate(day, language, { style: "weekday" });
-    const final = values.every((value) => value.final);
-    return {
-      date: final ? date : t("chart.notFinal", { date }),
-      values,
-    };
-  }, [day, lines, language, unit, precision, signed, t]);
+  const readout =
+    day === undefined
+      ? null
+      : readoutOn(day, lines, language, { unit, precision, signed });
+  const date =
+    readout === null || readout.final
+      ? readout?.date
+      : t("chart.notFinal", { date: readout.date });
+  const announcement =
+    readout && active?.source === "keyboard"
+      ? t("chart.point", {
+          date,
+          values: readout.values
+            .map(({ line, text }) =>
+              several
+                ? t("chart.lineValue", { label: line.label, value: text })
+                : text,
+            )
+            .join(", "),
+        })
+      : "";
 
   function move(event: KeyboardEvent<HTMLDivElement>) {
     if (!chart) return;
@@ -575,31 +645,19 @@ export function Chart({
   if (!interactive) {
     return (
       <div
-        ref={container}
+        {...props}
         role="img"
         aria-label={label}
         className={cn("w-full min-w-0", HEIGHTS.sparkline, className)}
-      />
+      >
+        <div ref={container} className="size-full" />
+      </div>
     );
   }
 
-  const several = lines.length > 1;
-  const announcement =
-    readout && active?.source === "keyboard"
-      ? t("chart.point", {
-          date: readout.date,
-          values: readout.values
-            .map(({ line, text }) =>
-              several
-                ? t("chart.lineValue", { label: line.label, value: text })
-                : text,
-            )
-            .join(", "),
-        })
-      : "";
-
   return (
     <div
+      {...props}
       className={cn(
         "relative w-full min-w-0 font-sans text-xs text-secondary",
         HEIGHTS.line,
@@ -624,7 +682,7 @@ export function Chart({
           "focus-visible:focus-ring",
         )}
       />
-      {overlaid ? overlay(layout) : null}
+      {overlay ? overlay(layout) : null}
       {readout && active ? (
         <div
           aria-hidden="true"
@@ -641,7 +699,7 @@ export function Chart({
             "motion-safe:transition-transform",
           )}
         >
-          <span className="whitespace-nowrap">{readout.date}</span>
+          <span className="whitespace-nowrap">{date}</span>
           {readout.values.map(({ line, text }) => (
             <span
               key={line.id}

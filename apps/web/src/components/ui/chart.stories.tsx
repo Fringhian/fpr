@@ -96,6 +96,8 @@ The one chart every chart in FPR is built on, on TradingView Lightweight Charts.
 
 Nothing moves on its own: no panning, zooming or kinetic scroll, and with \`prefers-reduced-motion\` the readout jumps from day to day instead of sliding. Pass a stable \`lines\` array: a new one redraws every line.
 
+Every other prop goes to the chart’s outer \`<div>\`, \`className\` included.
+
 The charts carry no TradingView logo: How FPR works credits TradingView Lightweight Charts with its link, as the library’s licence asks.
 `;
 
@@ -129,7 +131,11 @@ const meta = {
     signed: { control: { type: "boolean" } },
     label: { control: { type: "text" } },
     lines: { control: false },
-    className: { control: false },
+    className: {
+      description:
+        "Classes added to the chart’s own, which win any conflict, such as its height.",
+      control: false,
+    },
   },
   render: (args) => (
     <div className={cn(card, "max-w-[45rem]")}>

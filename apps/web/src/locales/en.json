@@ -33,6 +33,32 @@
   "button": {
     "saving": "Saving…"
   },
+  "controls": {
+    "period": {
+      "label": "Period",
+      "1D": "1D",
+      "1W": "1W",
+      "1M": "1M",
+      "3M": "3M",
+      "YTD": "YTD",
+      "all": "All"
+    },
+    "unit": {
+      "label": "Unit",
+      "euro": "€",
+      "percent": "%"
+    },
+    "standings": {
+      "label": "Standings by",
+      "gain": "Gain",
+      "balance": "Balance"
+    },
+    "language": {
+      "label": "Language",
+      "fr": "Français",
+      "en": "English"
+    }
+  },
   "chart": {
     "keys": "The left and right arrow keys move from day to day, Home and End go to the first and last days, and Escape leaves.",
     "point": "{{date}}: {{values}}",
