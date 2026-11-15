@@ -9,7 +9,15 @@ const meta = {
   argTypes: {
     step: { control: { type: "range", min: 1, max: 6, step: 1 } },
     count: { control: { type: "range", min: 2, max: 6, step: 1 } },
-    className: { control: false },
+    className: {
+      description:
+        "Classes added to the bar’s, which win any conflict: a string, or a function of Base UI’s progress state.",
+      control: false,
+    },
+    render: {
+      description: "Base UI’s `render`: renders the bar as another element.",
+      control: false,
+    },
   },
   // It fills the width it is given: here, a step flow's column.
   render: (args) => (
