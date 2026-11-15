@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 import { close, createDb } from "@fpr/db";
 import { createApp } from "./app.js";
+import { createAuth } from "./auth.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
 
@@ -20,8 +21,16 @@ function main(): void {
     onIdleError: (error) =>
       logger.error({ err: error }, "idle database connection failed"),
   });
+  const auth = createAuth({
+    db,
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.PUBLIC_URL,
+    logger,
+  });
   const app = createApp({
     db,
+    auth,
+    publicUrl: env.PUBLIC_URL,
     logger,
     docs: process.env.NODE_ENV === "development",
   });

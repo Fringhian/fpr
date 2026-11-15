@@ -18,6 +18,8 @@ A test fails when the root entry point loads the price service's routes or the g
 
 A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
 
+- who may call it, set by its base as `{ roles }` in its oRPC meta, `RouteMeta`;
+
 - its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
 - its input, with `.input()`: the path params, the query, and the body in one Zod object;
 - its response, with `.output()`;
@@ -31,6 +33,8 @@ Each definition has one source:
 
 Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones. Tests over every route of `apiContract` and `pricesContract` fail when a route misses one of those codes, when a parameter of its path isn't a required field of its input, or when two routes share a method and path. The committed OpenAPI document is the record of each route's method, path, roles, and codes, reviewed in each change's diff.
 
+A route is refused unless it declares who may call it. `apiContract` satisfies `RouteTree`, so a route built from `oc` alone, without `publicRoute` or `signedInRoute(roles)`, fails to type-check, and the request pipeline answers a route without a declaration with `403 forbidden`. A test over `apiContract` lists its public routes, the setup, access link, and password reset routes, and fails when another route is public.
+
 The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
 
 The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. Each error response has one body per code, with the typed `details` of a code declared with `errorWithDetails`, and the details of `invalid_request` under `components` as `InvalidRequestDetails`. A response without a body, such as a `204`, has no content. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
@@ -39,19 +43,27 @@ The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from t
 
 ```mermaid
 flowchart LR
-    Req["Request"] --> Session["Session<br/>(Better Auth)"]
+    Req["Request"] --> Origin["Origin check"]
+    Origin --> Session["Session<br/>(Better Auth)"]
     Session --> Access["Access check"]
     Access --> Role["Role guard"]
-    Role --> Handler["Handler"]
+    Role --> Valid["Input validation"]
+    Valid --> Handler["Handler"]
     Handler --> Anon["Anonymizer"]
     Anon --> Res["Response"]
 ```
 
-1. **Session**: Better Auth reads the session cookie. Public routes skip the next two steps. A write whose `Origin` header isn't `PUBLIC_URL` is refused.
-2. **Access check**: the person's access key still gives access. Otherwise their sessions are deleted and the answer is `401 access_ended`. See `auth.md`.
-3. **Role guard**: each route declares the roles it accepts. Anonymous viewers are refused every write with `403`. Guests are refused every write except to their own profile.
-4. **Handler**: receives the input oRPC validated with its contract, then reads and writes Postgres through `@fpr/db`.
-5. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+1. **Origin check**: a write, any method but `GET` and `HEAD`, whose `Origin` header isn't `PUBLIC_URL`'s origin is refused with `403 forbidden`, public routes included, and so is a write without an `Origin`.
+2. **Session**: Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie. A route that declares no access is refused with `403 forbidden`.
+3. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. Better Auth's endpoints at `/api/auth/*` run the same check, `keepsAccess`, through `authAccessCheck`, except sign-in and sign-out. See `auth.md`.
+4. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`.
+5. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
+6. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`. The handler of a write to a path with `{userId}` checks ownership with `assertMayWriteUser(viewer, userId)` from `apps/api/src/ownership.ts`: the admin writes anyone's data, everyone else only their own, compared without case, and any other write is refused with `403 forbidden`. Input validation comes first, so an invalid body to another person's `{userId}` is `400 invalid_request`.
+7. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+
+Public routes go from the origin check straight to input validation, without a session, an access check, or a role guard, and their handlers get `context.viewer` as `null`.
+
+The first four steps are chained oRPC middlewares, one per file in `apps/api/src/pipeline/`: `origin.ts`, `session.ts`, `access.ts`, and `roles.ts`. `index.ts` composes them in that order as `requestPipeline`, which every route of `apiContract` goes through. A handler of a route that isn't public narrows `context.viewer` with the `signedIn` middleware: `api.me.get.use(signedIn).handler(({ context }) => context.viewer.id)`. A handler answers its own errors with `apiError(code, details)` from `apps/api/src/errors.ts`. The request log line carries the person's id once the session is read.
 
 ## Errors
 
@@ -92,7 +104,7 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 
 Every role can read every member's data. A `:userId` write acts on one member's data: a member may write only their own, the admin anyone's.
 
-The API sits behind `web`, and trusts the client address `web` forwards in `X-Forwarded-For`, so rate limits apply per real client.
+The API sits behind `web`, and trusts the client address `web` forwards as the only value of `X-Forwarded-For`, so rate limits apply per real client. `web` resolves it from the host's reverse proxy: see `auth.md`, Client address. A request to `/api/auth/*` without one is not rate-limited, and the first one is logged as an error.
 
 ### Public
 
@@ -231,7 +243,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `PORT` | The port it listens on. Default `3000` |
 | `DATABASE_URL` | Postgres |
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
-| `BETTER_AUTH_SECRET` | Session signing |
+| `BETTER_AUTH_SECRET` | Session signing. 32 characters or more |
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
 | `PSEUDONYM_SECRET` | Pseudonyms. At least 32 characters |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |

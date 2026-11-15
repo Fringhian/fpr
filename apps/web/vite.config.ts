@@ -11,8 +11,10 @@ export default defineConfig({
   ],
   resolve: { conditions: ["@fpr/source", ...defaultClientConditions] },
   server: {
+    // Like `web` in production, the proxy sends the client's address in
+    // X-Forwarded-For, which the API's rate limits are kept for.
     proxy: {
-      "/api": "http://localhost:3000",
+      "/api": { target: "http://localhost:3000", xfwd: true },
     },
   },
 });
