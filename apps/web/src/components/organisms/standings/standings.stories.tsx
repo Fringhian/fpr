@@ -2,7 +2,7 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { useArgs } from "storybook/preview-api";
 import { expect, userEvent, within } from "storybook/test";
-import { TextLink } from "../atoms/text-link";
+import { TextLink } from "../../atoms/text-link/text-link";
 import {
   Standings,
   type StandingsBoard,

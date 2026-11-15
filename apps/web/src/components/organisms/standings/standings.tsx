@@ -1,10 +1,14 @@
 import { type ComponentProps, type ReactNode, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { laneScale } from "../../lib/lane";
-import type { PictureMedal } from "../atoms/picture";
-import * as Segment from "../atoms/segment";
-import { Lane, LaneNotStarted, type LaneProps } from "../molecules/lane";
+import { cn } from "../../../lib/cn";
+import { laneScale } from "../../../lib/lane";
+import type { PictureMedal } from "../../atoms/picture/picture";
+import * as Segment from "../../atoms/segment/segment";
+import {
+  Lane,
+  LaneNotStarted,
+  type LaneProps,
+} from "../../molecules/lane/lane";
 
 /** The standings shown: by gain over the period, or by balance. */
 export type StandingsBoard = "gain" | "balance";
