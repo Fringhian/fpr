@@ -1,3 +1,9 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
+import { CameraIcon } from "@phosphor-icons/react/Camera";
+import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
+import { CheckIcon } from "@phosphor-icons/react/Check";
+import { CoinsIcon } from "@phosphor-icons/react/Coins";
+import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
@@ -6,7 +12,28 @@ import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import { Button, type ButtonProps } from "./button";
-import { Icon } from "./icon";
+
+/** The icons the playground offers, by name. */
+const ICONS = {
+  none: undefined,
+  plus: PlusIcon,
+  minus: MinusIcon,
+  coins: CoinsIcon,
+  camera: CameraIcon,
+  check: CheckIcon,
+} as const;
+
+const NEXT_ICONS = {
+  "arrow-right": ArrowRightIcon,
+  "caret-right": CaretRightIcon,
+  check: CheckIcon,
+} as const;
+
+/** The playground’s args: its icons are picked by name in the Controls panel. */
+type PlaygroundArgs = Omit<ButtonProps, "icon" | "nextIcon"> & {
+  icon: keyof typeof ICONS;
+  nextIcon: keyof typeof NEXT_ICONS;
+};
 
 /** The demo labels, in the toolbar’s language. They are the stories’ content, not the button’s. */
 const LABELS = {
@@ -99,8 +126,7 @@ function Overview() {
         </Row>
       </Section>
       <Section title="Size: wide, 48px at full width">
-        <Button size="wide">
-          <Icon icon={PlusIcon} size="s" />
+        <Button size="wide" icon={PlusIcon}>
           <Text label="record" />
         </Button>
       </Section>
@@ -150,10 +176,11 @@ A capsule button, on Base UI’s button. One primary per screen region. A button
 
 - **intent**: \`primary\` (charcoal), \`secondary\` (white, outlined), \`danger\` (red text).
 - **size**: \`s\` 32px, \`m\` 40px, \`wide\` 48px at full width, \`step\` 56px.
-- **step**: the main button of a step flow names what comes next (“Choose the date”). It fills the width at the bottom on phone and fits its label, bottom right, on tablet and desktop. \`next\` draws an arrow at its right end when another step follows; the flow’s last button (“Save change”) has none.
+- **icon**: any Phosphor icon leading the label, \`icon={PlusIcon}\`.
+- **step**: the main button of a step flow names what comes next (“Choose the date”). It fills the width at the bottom on phone and fits its label, bottom right, on tablet and desktop. \`next\` draws \`nextIcon\`, an arrow by default, at its right end when another step follows; the flow’s last button (“Save change”) has none.
 - **States**: hover, the focus ring, disabled, and \`loading\`: a spinner and “Saving…”, at the same width. A loading button stays focusable and ignores presses.
 
-Every other prop goes to the \`<button>\`. The **Phone** and **Tablet** stories in the sidebar show the step at the narrower widths.
+Every other prop goes to Base UI’s button and the \`<button>\`, \`className\` included: a string, or a function of the button’s state. The **Phone** and **Tablet** stories in the sidebar show the step at the narrower widths.
 `;
 
 const meta = {
@@ -177,7 +204,13 @@ const meta = {
       control: { type: "inline-radio" },
       options: ["s", "m", "wide", "step"],
     },
+    icon: { options: Object.keys(ICONS), control: { type: "select" } },
     next: { control: { type: "boolean" }, if: { arg: "size", eq: "step" } },
+    nextIcon: {
+      options: Object.keys(NEXT_ICONS),
+      control: { type: "select" },
+      if: { arg: "next" },
+    },
     loading: { control: { type: "boolean" } },
     loadingLabel: { control: { type: "text" }, if: { arg: "loading" } },
     disabled: {
@@ -186,7 +219,7 @@ const meta = {
     },
     children: {
       description:
-        'The label, naming the action. An icon may lead it: `<Icon size="s" />`.',
+        "The label, naming the action. An icon leads it through `icon`.",
       control: false,
     },
     render: {
@@ -199,15 +232,12 @@ const meta = {
         "Base UI’s `nativeButton`: set it to `false` when `render` gives an element other than a `<button>`.",
       control: false,
     },
-    className: { control: false },
+    className: {
+      description:
+        "Classes added to the button’s, which win any conflict: a string, or a function of the button’s state.",
+      control: false,
+    },
   },
-  render: (args) => (
-    <div className="font-sans">
-      <Button {...args}>
-        <Text label={playgroundLabel(args)} />
-      </Button>
-    </div>
-  ),
 } satisfies Meta<typeof Button>;
 
 export default meta;
@@ -215,7 +245,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** One button, configured in the Controls panel. */
-export const Playground: Story = {};
+export const Playground = {
+  args: { icon: "none", nextIcon: "arrow-right" },
+  render: ({ icon, nextIcon, ...args }) => (
+    <div className="font-sans">
+      <Button {...args} icon={ICONS[icon]} nextIcon={NEXT_ICONS[nextIcon]}>
+        <Text label={playgroundLabel(args)} />
+      </Button>
+    </div>
+  ),
+} satisfies StoryObj<PlaygroundArgs>;
 
 /** Every variant and state, here at the page’s width. */
 export const AllVariants: Story = {
