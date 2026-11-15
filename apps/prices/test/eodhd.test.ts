@@ -1,5 +1,6 @@
 import { Writable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createCallBudget } from "../src/budget.js";
 import { createLogger } from "../src/logger.js";
 import {
   createEodhdProvider,
@@ -24,6 +25,7 @@ function provider() {
   return createEodhdProvider({
     apiKey: API_KEY,
     logger: createLogger({ destination }),
+    budget: createCallBudget({ limit: 1000, timeZone: "Europe/Paris" }),
     fetch: fetchMock,
     baseUrl: BASE,
   });
