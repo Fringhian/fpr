@@ -15,7 +15,12 @@ const PALETTE = [
   "fog",
   "pine",
   "brick",
+  "mint",
+  "rose",
   "indigo",
+  "gold",
+  "silver",
+  "bronze",
 ] as const;
 
 const ROLES = [
@@ -88,6 +93,48 @@ const ROLES = [
     use: "Invalid input, and anything that failed",
   },
   { token: "link", swatch: "bg-link", use: "Text links" },
+  {
+    token: "gold",
+    swatch: "bg-gold",
+    use: "The first picture’s ring in the standings",
+  },
+  {
+    token: "silver",
+    swatch: "bg-silver",
+    use: "The second picture’s ring in the standings",
+  },
+  {
+    token: "bronze",
+    swatch: "bg-bronze",
+    use: "The third picture’s ring in the standings",
+  },
+] as const;
+
+const SOFT_FILLS = [
+  {
+    token: "positive-soft",
+    fill: "bg-positive-soft text-positive",
+    sample: "+4.2%",
+    use: "Gain chips",
+  },
+  {
+    token: "negative-soft",
+    fill: "bg-negative-soft text-negative",
+    sample: "−1.8%",
+    use: "Loss chips",
+  },
+  {
+    token: "success-soft",
+    fill: "bg-success-soft text-success",
+    sample: "Active",
+    use: "Badges that are done or active",
+  },
+  {
+    token: "warning-soft",
+    fill: "bg-warning-soft text-warning",
+    sample: "Revoked",
+    use: "Badges that need attention",
+  },
 ] as const;
 
 const MEMBERS = [
@@ -125,8 +172,8 @@ function Palette() {
         className={cn(
           "grid gap-s",
           "grid-cols-2",
-          "tablet:grid-cols-4",
-          "desktop:grid-cols-7",
+          "tablet:grid-cols-5",
+          "desktop:grid-cols-5",
         )}
       >
         {PALETTE.map((name) => (
@@ -174,6 +221,47 @@ function Roles() {
                 swatch,
               )}
             />
+            <span className="grid">
+              <span className="text-s font-semibold">{token}</span>
+              <span className="text-xs text-secondary">
+                palette {paletteOf(token)}
+              </span>
+              <span className="text-xs text-secondary">{use}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Specimen>
+  );
+}
+
+function SoftFills() {
+  return (
+    <Specimen
+      title="Soft fills"
+      lead="The pale ground of each state role, always under text of that role, which keeps a contrast of 4.5:1 or more on it."
+    >
+      <ul
+        className={cn(
+          "grid gap-s",
+          "grid-cols-1",
+          "tablet:grid-cols-2",
+          "desktop:grid-cols-4",
+        )}
+      >
+        {SOFT_FILLS.map(({ token, fill, sample, use }) => (
+          <li
+            key={token}
+            className="grid gap-s rounded-m bg-surface p-s shadow-outline"
+          >
+            <span
+              className={cn(
+                "justify-self-start rounded-full px-s text-s font-semibold tabular-nums",
+                fill,
+              )}
+            >
+              {sample}
+            </span>
             <span className="grid">
               <span className="text-s font-semibold">{token}</span>
               <span className="text-xs text-secondary">
@@ -250,6 +338,11 @@ export const PaletteColours: Story = {
 export const ColourRoles: Story = {
   name: "Roles",
   render: () => <Roles />,
+};
+
+export const SoftFillColours: Story = {
+  name: "Soft fills",
+  render: () => <SoftFills />,
 };
 
 export const MemberColours: Story = {
