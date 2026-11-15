@@ -1,3 +1,5 @@
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
+import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { useLanguage } from "../../lib/i18n";
@@ -26,6 +28,13 @@ const END_DATES = {
   "2026-11-01": "2026-11-01",
 } as const;
 type EndDateName = keyof typeof END_DATES;
+
+/** The icons the ⋯ button's control offers. */
+const MORE_ICONS = {
+  "dots-three": DotsThreeIcon,
+  "dots-three-vertical": DotsThreeVerticalIcon,
+} as const;
+type MoreIconName = keyof typeof MORE_ICONS;
 
 const STATUSES = [
   "waiting",
@@ -71,20 +80,22 @@ function Actions({ status }: { status: AccessStatus }) {
   );
 }
 
-/** The stories’ args: the photo and end date are picked by name, and `actions` switches the ⋯ menu on. */
+/** The stories’ args: the photo, end date and ⋯ icon are picked by name, and `actions` switches the ⋯ menu on. */
 type PersonRowArgs = Omit<
   PersonRowProps,
-  "photo" | "accessUntil" | "actions"
+  "photo" | "accessUntil" | "actions" | "moreIcon"
 > & {
   photo: PhotoName;
   accessUntil: EndDateName;
   actions: boolean;
+  moreIcon: MoreIconName;
 };
 
 function toProps({
   photo,
   accessUntil,
   actions,
+  moreIcon,
   ...args
 }: PersonRowArgs): PersonRowProps {
   return {
@@ -92,6 +103,7 @@ function toProps({
     photo: PHOTOS[photo],
     accessUntil: END_DATES[accessUntil],
     actions: actions ? <Actions status={args.status} /> : undefined,
+    moreIcon: MORE_ICONS[moreIcon],
   };
 }
 
@@ -176,7 +188,7 @@ A person in the admin area: their picture, name, email, access status, end date,
 
 - The status is one of five, each with its badge: waiting for first use, active, link expired (never used before its deadline), ended (past its end date), or revoked. Grey is a plain fact, green works, red keeps the person out.
 - The end date is written with its year, “Until 30 Jun 2027”. With no end date, a dash, read “No end date” by screen readers.
-- The ⋯ menu holds the items the screen passes in \`actions\`; it is named for the person, “More actions for Sam”. Without actions there is no ⋯: an anonymous viewer reads the admin area without changing it.
+- The ⋯ menu holds the items the screen passes in \`actions\`; it is named for the person, “More actions for Sam”, and \`moreIcon\` takes any Phosphor icon, three dots by default. Without actions there is no ⋯: an anonymous viewer reads the admin area without changing it.
 - An anonymous viewer receives pseudonyms for names, no photos and no emails: the row shows the pseudonym’s initial and leaves the email out.
 - On tablet the email moves under the name. The admin area works on tablet and desktop; on a phone, the status and end date go under the email too.
 
@@ -188,6 +200,12 @@ const meta = {
   component: PersonRow,
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
+} satisfies Meta<typeof PersonRow>;
+
+export default meta;
+
+/** Every one-person story's args, controls and render: one row, configured in the Controls panel. */
+const configurable = {
   args: {
     name: "Sam",
     color: "cobalt",
@@ -196,6 +214,7 @@ const meta = {
     status: "active",
     accessUntil: "none",
     actions: true,
+    moreIcon: "dots-three",
   },
   argTypes: {
     name: { control: { type: "text" } },
@@ -219,25 +238,32 @@ const meta = {
         "The ⋯ menu's items. Without them the row has no ⋯. Switched on and off here.",
       control: { type: "boolean" },
     },
+    moreIcon: {
+      description:
+        "The ⋯ button's icon: any Phosphor icon, three dots by default. Picked by name here.",
+      control: { type: "select" },
+      options: Object.keys(MORE_ICONS),
+      if: { arg: "actions" },
+    },
   },
   render: (args) => (
     <PersonList>
       <PersonRow {...toProps(args)} />
     </PersonList>
   ),
-} satisfies Meta<PersonRowArgs>;
+} satisfies StoryObj<PersonRowArgs>;
 
-export default meta;
-
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<PersonRowArgs>;
 
 /** One person, every prop in the Controls panel. Switch the language in the toolbar to read it in French. */
-export const Playground: Story = {};
+export const Playground: Story = { ...configurable };
 
 /** Added, their link not opened yet. */
 export const WaitingForFirstUse: Story = {
+  ...configurable,
   name: "Waiting for first use",
   args: {
+    ...configurable.args,
     name: "Lea",
     color: "green",
     email: "lea.martin@example.org",
@@ -247,8 +273,10 @@ export const WaitingForFirstUse: Story = {
 
 /** Signed in, with an end date: their access stops on that day. */
 export const ActiveWithEndDate: Story = {
+  ...configurable,
   name: "Active, with an end date",
   args: {
+    ...configurable.args,
     name: "Jo",
     color: "amber",
     email: "jo@example.com",
@@ -259,7 +287,9 @@ export const ActiveWithEndDate: Story = {
 
 /** Past its end date. Moving the date brings them back. */
 export const Ended: Story = {
+  ...configurable,
   args: {
+    ...configurable.args,
     name: "Kim",
     color: "lime",
     email: "kim@example.com",
@@ -270,7 +300,9 @@ export const Ended: Story = {
 
 /** Revoked by the admin, who can restore it. */
 export const Revoked: Story = {
+  ...configurable,
   args: {
+    ...configurable.args,
     name: "Max",
     color: "violet",
     email: "max@example.com",
@@ -280,8 +312,10 @@ export const Revoked: Story = {
 
 /** Never opened before its deadline: the admin replaces the link. */
 export const LinkExpired: Story = {
+  ...configurable,
   name: "Link expired",
   args: {
+    ...configurable.args,
     name: "Rui",
     color: "pink",
     email: "rui@example.com",
@@ -326,6 +360,7 @@ export const AnonymousViewer: Story = {
 
 /** ⋯ opens the menu of the screen’s actions, named for the person. */
 export const OpenMenu: Story = {
+  ...configurable,
   name: "Opening the menu",
   tags: ["!autodocs"],
   play: async ({ canvasElement }) => {

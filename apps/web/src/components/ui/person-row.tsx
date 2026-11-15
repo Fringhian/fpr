@@ -1,3 +1,4 @@
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
@@ -5,6 +6,8 @@ import { formatDate, type IsoDate, type Timestamp } from "../../lib/format";
 import { useLanguage } from "../../lib/i18n";
 import type { MemberColor } from "../../lib/member-color";
 import { Badge, type BadgeState } from "./badge";
+import type { IconProps } from "./icon";
+import { IconButton } from "./icon-button";
 import * as Menu from "./menu";
 import { Picture } from "./picture";
 
@@ -65,6 +68,8 @@ interface PersonRowOwnProps {
   accessUntil: IsoDate | Timestamp | null;
   /** The ⋯ menu's items, as `Menu.Item`s and a `Menu.Separator`. Without them the row has no ⋯, as for an anonymous viewer, who reads the admin area without changing it. */
   actions?: ReactNode;
+  /** The ⋯ button's icon, any Phosphor icon. Three dots by default. */
+  moreIcon?: IconProps["icon"] | undefined;
 }
 
 export type PersonRowProps = PersonRowOwnProps &
@@ -84,6 +89,7 @@ export function PersonRow({
   status,
   accessUntil,
   actions,
+  moreIcon = DotsThreeIcon,
   className,
   ...props
 }: PersonRowProps) {
@@ -179,15 +185,27 @@ export function PersonRow({
       </span>
       {actions === undefined ? null : (
         <Menu.Root>
-          <Menu.MoreTrigger
-            subject={name}
-            size="s"
+          <Menu.Trigger
             className={cn(
               "",
               "col-3 row-[1/span_3]",
               "tablet:col-5 tablet:row-[1/span_2]",
               "desktop:col-6 desktop:row-1",
             )}
+            render={
+              <IconButton
+                icon={moreIcon}
+                label={t("menu.moreFor", { subject: name })}
+                size="s"
+                className={cn(
+                  "",
+                  "",
+                  "",
+                  "",
+                  "popup-open:bg-highlight popup-open:text-primary",
+                )}
+              />
+            }
           />
           <Menu.Popup>{actions}</Menu.Popup>
         </Menu.Root>
