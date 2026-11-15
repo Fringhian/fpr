@@ -70,15 +70,12 @@ export async function update(
   id: string,
   changes: PortfolioChangeChanges,
 ): Promise<PortfolioChange | undefined> {
-  const set = Object.fromEntries(
-    Object.entries(changes).filter(([, value]) => value !== undefined),
-  ) as PortfolioChangeChanges;
-  if (Object.keys(set).length === 0) {
+  if (Object.values(changes).every((value) => value === undefined)) {
     return findById(db, id);
   }
   return db
     .updateTable("portfolioChanges")
-    .set(set)
+    .set(changes)
     .where("id", "=", id)
     .returningAll()
     .executeTakeFirst();
