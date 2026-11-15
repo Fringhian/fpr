@@ -53,7 +53,7 @@ export function Title({
 
 interface BackOwnProps {
   /** The icon leading the link, any Phosphor icon. A caret pointing left by default. */
-  icon?: IconProps["icon"];
+  icon?: IconProps["icon"] | undefined;
 }
 
 export type BackProps = BackOwnProps &
