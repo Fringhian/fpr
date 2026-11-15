@@ -2,11 +2,21 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
+  },
+  "lane": {
+    "you": "· vous",
+    "best": "Meilleure : {{share}}",
+    "bestShare": "Meilleure action",
+    "since": "depuis le {{date}}",
+    "notStarted_one": "{{names}} n’a pas encore commencé.",
+    "notStarted_many": "{{names}} n’ont pas encore commencé.",
+    "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
   "foundations": {
     "formatting": {

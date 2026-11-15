@@ -2,11 +2,20 @@
   "badge": {
     "manual": "Manual",
     "pricePending": "Price pending",
+    "incomplete": "Incomplete",
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
     "revoked": "Revoked",
     "heldBefore": "Held before",
     "saved": "Saved"
+  },
+  "lane": {
+    "you": "· you",
+    "best": "Best: {{share}}",
+    "bestShare": "Best share",
+    "since": "since {{date}}",
+    "notStarted_one": "{{names}} hasn’t started yet.",
+    "notStarted_other": "{{names}} haven’t started yet."
   },
   "foundations": {
     "formatting": {
