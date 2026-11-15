@@ -32,7 +32,7 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 
 `src/theme.css` is the only place a design value is defined. It holds two layers:
 
-- The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes.
+- The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes. Beside it, the ridge's two shapes, `--ridge-far` and `--ridge-near`, also plain variables.
 - The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
 
 | Namespace | Tokens | Example |
@@ -75,6 +75,8 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
+- The canvas is the page ground (`--palette-snow`), so a story ends on snow below its content.
+- A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
 
@@ -88,6 +90,24 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Light theme only.
 
 The design files fix each screen and component until it is built in `apps/web`. From then on, the code and its Storybook story are the reference.
+
+## Sky and ridge
+
+The page background is the `Sky` component in `src/components/ui/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
+
+| Part | What it is |
+| --- | --- |
+| `Sky.Root` | The page ground: warm snow (`bg-page`), and the stacking context the band sits behind |
+| `Sky.Band` | The peach sky (`bg-sky`) behind the top of the page, closed by the ridge |
+| `Sky.Header` | The header sentence's place, over the sky; the page's content starts right under it |
+| `Sky.Ridge` | The ridge alone, for any sky panel that ends in it, such as the desktop step flow's |
+
+- The ridge is one 600 × 64 tile, repeated across and never stretched: 52 px high on phone, 64 px from tablet up. Its width follows its height, so the tile keeps its proportions at every width.
+- The ridge's top sits 206 px from the top of `Sky.Root` on phone, and 200 px from tablet up, on every page that has it.
+- `Sky.Header` is 240 px high on phone and 236 px from tablet up. Its content flows from its top: the page bar, then the header sentence, which ends above the ridge. The first card after it starts just below the near ridge, so the whole ridge shows above it. Its height is fixed: a header sentence that doesn't fit means the page has no sky.
+- The tile is two layers of soft lobes: the far ridge in `ridge` and the near ridge in `page`. Each layer is a box filled with its colour role and masked by its shape. The two shapes are `--ridge-far` and `--ridge-near` in `theme.css`.
+- A page with a header sentence (Home, Portfolio, a member, a share) renders `Sky.Band` and `Sky.Header` inside `Sky.Root`. A page without one renders `Sky.Root` alone and starts on snow.
+- Nothing in the sky moves.
 
 ## Screens
 
