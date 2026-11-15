@@ -42,5 +42,38 @@
     "loadingPlaceholder": {
       "default": "Chargement…"
     }
+  },
+  "sentence": {
+    "greeting": {
+      "morning": "Bonjour, {{name}}",
+      "afternoon": "Bonjour, {{name}}",
+      "evening": "Bonsoir, {{name}}"
+    },
+    "period": {
+      "1D": { "start": "Aujourd’hui", "inline": "aujourd’hui" },
+      "1W": { "start": "Cette semaine", "inline": "cette semaine" },
+      "1M": { "start": "Ce mois-ci", "inline": "ce mois-ci" },
+      "3M": { "start": "Sur trois mois", "inline": "sur trois mois" },
+      "YTD": {
+        "start": "Depuis le 1er janvier",
+        "inline": "depuis le 1er janvier"
+      },
+      "all": { "start": "Depuis le début", "inline": "depuis le début" }
+    },
+    "headline": {
+      "up": "{{period}}, vous gagnez <gain>{{amount}}</gain>",
+      "down": "{{period}}, vous perdez <gain>{{amount}}</gain>",
+      "flat": "{{period}}, vous êtes stable à <gain>{{amount}}</gain>",
+      "leader": "{{period}}, {{name}} est en tête avec <gain>{{amount}}</gain>"
+    },
+    "story": {
+      "theyLead": "<sign>{{name}} est en tête</sign> avec <gain/>",
+      "youLead": "<sign>Vous menez la course</sign>",
+      "alone": "Vous ouvrez la course",
+      "everyoneDown": "Tout le monde est en baisse {{period}}",
+      "starShare": "titre vedette <chip/>",
+      "starShareFirst": "Titre vedette <chip/>",
+      "separator": " · "
+    }
   }
 }
