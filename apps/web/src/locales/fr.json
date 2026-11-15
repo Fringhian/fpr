@@ -66,5 +66,12 @@
     "loadingPlaceholder": {
       "default": "Chargement…"
     }
+  },
+  "raceCard": {
+    "title": "La course",
+    "label": "La course : le gain de chaque membre depuis le début de la période",
+    "you": "Vous",
+    "focusOn": "Mettre {{name}} en avant",
+    "notFinal": "Aujourd’hui, provisoire"
   }
 }

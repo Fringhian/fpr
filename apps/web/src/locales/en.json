@@ -66,5 +66,12 @@
     "loadingPlaceholder": {
       "default": "Loading…"
     }
+  },
+  "raceCard": {
+    "title": "The race",
+    "label": "The race: each member’s gain since the start of the period",
+    "you": "You",
+    "focusOn": "Focus on {{name}}",
+    "notFinal": "Today, not final"
   }
 }
