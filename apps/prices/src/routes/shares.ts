@@ -1,6 +1,6 @@
 import { manualPriceEvents, prices, shares, violatedConstraint } from "@fpr/db";
 import { service } from "../orpc.js";
-import { lastTradingDay } from "../trading-day.js";
+import { attentionWindowStart } from "../trading-day.js";
 import { isinTakenBy, toShareSummary } from "./rows.js";
 
 /**
@@ -133,7 +133,7 @@ export const makeManual = service.makeManual.handler(
       const attention = await shares.needsAttention(
         trx,
         input.id,
-        lastTradingDay(now, context.timeZone),
+        attentionWindowStart(now, context.timeZone),
         context.timeZone,
       );
       if (!attention) {

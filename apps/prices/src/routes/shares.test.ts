@@ -369,11 +369,13 @@ describe("DELETE /shares/:id", () => {
 });
 
 describe("POST /shares/:id/make-manual", () => {
-  it("turns a share whose latest close is stale manual, keeping its prices", async () => {
+  it("turns a share whose latest close is 6 trading days old manual, keeping its prices", async () => {
     const share = await insertMarketShare();
     await hold(share);
-    await addPrice(share, "2026-02-26T22:59:59Z", "38", "close");
-    await addPrice(share, "2026-02-27T22:59:59Z", "39", "close");
+    // The last trading day is Tuesday 3 March. Tuesday 24 February is the
+    // sixth trading day back.
+    await addPrice(share, "2026-02-23T22:59:59Z", "38", "close");
+    await addPrice(share, "2026-02-24T22:59:59Z", "39", "close");
     await addPrice(share, "2026-03-02T15:00:00Z", "39.50", "intraday");
 
     const { status, body } = await app.call(
@@ -398,13 +400,13 @@ describe("POST /shares/:id/make-manual", () => {
     const latest = new Date("2026-03-02T15:00:00Z");
     expect(await storedPrices(share)).toEqual([
       {
-        at: new Date("2026-02-26T22:59:59Z"),
+        at: new Date("2026-02-23T22:59:59Z"),
         priceEur: "38",
         source: "close",
         enteredBy: null,
       },
       {
-        at: new Date("2026-02-27T22:59:59Z"),
+        at: new Date("2026-02-24T22:59:59Z"),
         priceEur: "39",
         source: "close",
         enteredBy: null,
@@ -489,6 +491,47 @@ describe("POST /shares/:id/make-manual", () => {
       expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
     }
     expect(await events(fresh)).toEqual([]);
+  });
+
+  it("refuses a fund whose latest close is 2 trading days old", async () => {
+    const fund = await insertMarketShare();
+    await hold(fund);
+    // The last trading day is Tuesday 3 March; the fund's latest close is
+    // Monday's.
+    await addPrice(fund, "2026-03-02T22:59:59Z", "40", "close");
+    const { status, body } = await app.call(
+      "POST",
+      `/shares/${fund}/make-manual`,
+      { enteredBy: member },
+    );
+    expect(status).toBe(409);
+    expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
+  });
+
+  it("refuses a share with no close on a Monday holiday", async () => {
+    // Tuesday 10 March at 08:00: the last trading day is Monday 9 March, a
+    // holiday with no close. The latest close is Friday's.
+    app.now = new Date("2026-03-10T08:00:00+01:00");
+    const share = await insertMarketShare();
+    await hold(share);
+    await addPrice(share, "2026-03-06T22:59:59Z", "40", "close");
+    const { status, body } = await app.call(
+      "POST",
+      `/shares/${share}/make-manual`,
+      { enteredBy: member },
+    );
+    expect(status).toBe(409);
+    expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
+  });
+
+  it("takes a held share with intraday prices but no close in 5 trading days", async () => {
+    const share = await insertMarketShare();
+    await hold(share);
+    await addPrice(share, "2026-03-03T15:00:00Z", "40", "intraday");
+    const { status } = await app.call("POST", `/shares/${share}/make-manual`, {
+      enteredBy: member,
+    });
+    expect(status).toBe(200);
   });
 
   it("answers not_found for a missing share", async () => {

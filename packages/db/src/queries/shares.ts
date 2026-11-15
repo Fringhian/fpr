@@ -41,14 +41,15 @@ export async function lockById(
 
 /**
  * Whether a market share needs attention: someone holds it, and it has no
- * close from `lastTradingDay` onward in `timeZone`, either because it has no
- * price yet or because its latest close is older. `false` for a manual share,
+ * close from the day `closesSince` onward in `timeZone`, either because it
+ * has no price yet or because its latest close is older. The price service
+ * passes the first of the last five trading days. `false` for a manual share,
  * a share nobody holds, and an unknown id.
  */
 export async function needsAttention(
   db: Db,
   id: string,
-  lastTradingDay: string,
+  closesSince: string,
   timeZone: string,
 ): Promise<boolean> {
   const row = await db
@@ -72,7 +73,7 @@ export async function needsAttention(
                 .where(
                   "prices.at",
                   ">=",
-                  sql<Date>`(${lastTradingDay}::date)::timestamp at time zone ${timeZone}`,
+                  sql<Date>`(${closesSince}::date)::timestamp at time zone ${timeZone}`,
                 ),
             ),
           ),

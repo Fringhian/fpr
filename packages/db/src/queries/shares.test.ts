@@ -182,7 +182,9 @@ describe("lockById", () => {
 
 describe("needsAttention", () => {
   const timeZone = "Europe/Paris";
-  const lastTradingDay = "2026-03-03";
+  const closesSince = "2026-03-03";
+  const check = (id: string, zone = timeZone) =>
+    needsAttention(db, id, closesSince, zone);
 
   let people = 0;
   /** Records a new person's change on a share, and returns their id. */
@@ -235,49 +237,39 @@ describe("needsAttention", () => {
   it("is true for a held market share with no price yet", async () => {
     const row = await insert(db, marketShare());
     await hold(row.id);
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      true,
-    );
+    expect(await check(row.id)).toBe(true);
   });
 
-  it("is true for a held share whose latest close is older than the last trading day", async () => {
+  it("is true for a held share whose latest close is older than the day given", async () => {
     const row = await insert(db, marketShare());
     await hold(row.id);
     // 2 March, 23:59:59 in Paris.
     await addPrice(row.id, "2026-03-02T22:59:59Z", "close");
     // An intraday price doesn't count as a close.
     await addPrice(row.id, "2026-03-04T10:00:00Z", "intraday");
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      true,
-    );
+    expect(await check(row.id)).toBe(true);
   });
 
-  it("is false once the close of the last trading day is stored", async () => {
+  it("is false once a close from the day given is stored", async () => {
     const row = await insert(db, marketShare());
     await hold(row.id);
     // 3 March, 23:59:59 in Paris.
     await addPrice(row.id, "2026-03-03T22:59:59Z", "close");
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      false,
-    );
+    expect(await check(row.id)).toBe(false);
   });
 
-  it("starts the last trading day at midnight in the time zone", async () => {
+  it("starts the day given at midnight in the time zone", async () => {
     const row = await insert(db, marketShare());
     await hold(row.id);
     // 3 March, 00:30 in Paris, still 2 March in UTC.
     await addPrice(row.id, "2026-03-02T23:30:00Z", "close");
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      false,
-    );
-    expect(await needsAttention(db, row.id, lastTradingDay, "UTC")).toBe(true);
+    expect(await check(row.id)).toBe(false);
+    expect(await check(row.id, "UTC")).toBe(true);
   });
 
   it("is false for a share nobody holds now", async () => {
     const row = await insert(db, marketShare());
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      false,
-    );
+    expect(await check(row.id)).toBe(false);
     const person = await hold(row.id, "2");
     await db
       .insertInto("portfolioChanges")
@@ -289,9 +281,7 @@ describe("needsAttention", () => {
         createdBy: person,
       })
       .execute();
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      false,
-    );
+    expect(await check(row.id)).toBe(false);
   });
 
   it("is false for a manual share and an unknown id", async () => {
@@ -305,11 +295,7 @@ describe("needsAttention", () => {
       }),
     );
     await hold(row.id);
-    expect(await needsAttention(db, row.id, lastTradingDay, timeZone)).toBe(
-      false,
-    );
-    expect(await needsAttention(db, UNKNOWN_ID, lastTradingDay, timeZone)).toBe(
-      false,
-    );
+    expect(await check(row.id)).toBe(false);
+    expect(await check(UNKNOWN_ID)).toBe(false);
   });
 });
