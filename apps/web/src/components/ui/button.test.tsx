@@ -23,6 +23,35 @@ describe("Button", () => {
     expect(markup).not.toContain("Saving…");
   });
 
+  it("draws a ghost as text alone, with a hover ground and the focus ring", () => {
+    const markup = render(
+      <Button intent="ghost" size="s">
+        Show
+      </Button>,
+    );
+    const classes = /<button[^>]*class="([^"]*)"/.exec(markup)?.[1] ?? "";
+
+    expect(classes.split(" ")).toEqual(
+      expect.arrayContaining([
+        "bg-transparent",
+        "text-secondary",
+        "not-disabled:hover:bg-highlight",
+        "focus-visible:focus-ring",
+      ]),
+    );
+    expect(classes).not.toMatch(/(^| )(shadow-|bg-surface|bg-primary)/);
+  });
+
+  it("disables a ghost like any other intent", () => {
+    const markup = render(
+      <Button intent="ghost" disabled>
+        All
+      </Button>,
+    );
+    expect(markup).toMatch(/<button[^>]* disabled=""/);
+    expect(markup).toContain("disabled:not-aria-busy:opacity-[0.45]");
+  });
+
   it("is disabled natively", () => {
     const markup = render(<Button disabled>Sell</Button>);
     expect(markup).toMatch(/<button[^>]* disabled=""/);
