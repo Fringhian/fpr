@@ -5,9 +5,9 @@ import {
   dateSchema,
   type IsoDate,
 } from "@fpr/contracts";
+import Big from "big.js";
 import type { Logger } from "pino";
 import { z } from "zod";
-import { divideDecimal, shiftDecimal } from "./decimal.js";
 import { type Fetch, parseJsonExact } from "./providers/http.js";
 
 /** Frankfurter's API, the European Central Bank's reference rates. */
@@ -20,12 +20,20 @@ export const ratesTimeoutMs = 15_000;
 export const eurPriceScale = 6;
 
 /**
+ * A `Big` whose division rounds once, half away from zero, to
+ * `eurPriceScale` decimal places. Multiplication stays exact.
+ */
+const EurBig = Big();
+EurBig.DP = eurPriceScale;
+EurBig.RM = Big.roundHalfUp;
+
+/**
  * Currencies quoted in a fraction of another: a `GBX` price is in pence, a
  * hundredth of a pound, so it is divided by 100 and converted from `GBP`.
  */
 const subunits: Readonly<
-  Record<string, { currency: Currency; places: number }>
-> = { GBX: { currency: "GBP", places: 2 } };
+  Record<string, { currency: Currency; perUnit: number }>
+> = { GBX: { currency: "GBP", perUnit: 100 } };
 
 /** A rate above zero, as a decimal string: how much of a currency one euro buys. */
 const rateSchema = z
@@ -108,12 +116,12 @@ export interface RatesClient {
   ): Promise<EurRates>;
 }
 
-/** The currency a rate is published for, and the places its price shifts by. */
+/** The currency a rate is published for, and how many of the quoted unit make one of it. */
 function rateCurrency(currency: Currency): {
   currency: Currency;
-  places: number;
+  perUnit: number;
 } {
-  return subunits[currency] ?? { currency, places: 0 };
+  return subunits[currency] ?? { currency, perUnit: 1 };
 }
 
 /** Builds the converter over rates keyed by day, then by currency. */
@@ -152,17 +160,15 @@ export function eurRates(
       }
       const quoted = rateCurrency(currency);
       const rate = converter.rateOn(quoted.currency, day);
-      const eur = divideDecimal(
-        shiftDecimal(price, quoted.places),
-        rate,
-        eurPriceScale,
-      );
-      if (!/[1-9]/.test(eur)) {
+      // The subunit goes into the divisor, so the price is rounded only once:
+      // 1234.5 GBX at 0.82805 is 1234.5 / 82.805.
+      const eur = new EurBig(price).div(new EurBig(rate).times(quoted.perUnit));
+      if (eur.eq(0)) {
         throw new RangeError(
           `${price} ${currency} rounds to 0 EUR at ${eurPriceScale} places`,
         );
       }
-      return eur;
+      return eur.toFixed();
     },
   };
   return converter;
