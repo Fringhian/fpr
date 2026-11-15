@@ -33,7 +33,7 @@ flowchart LR
 
 - TypeScript everywhere, on Node 24.
 - One pnpm workspaces monorepo. Biome lints and formats it, Vitest tests it, GitHub Actions runs both on every push. Each workspace keeps its tests in `test/`, beside `src/`.
-- The tests cover the API and the price service over HTTP, sign-in and access, the database's rules against a real Postgres, the guards over every route of the contracts, and the locales. Components are checked by their stories, run in Chromium.
+- The tests cover the API and the price service over HTTP, sign-in and access, the database's rules against a real Postgres, the guards over every route of the contracts, and the locales. Each API route has its test file in `test/routes/`, named after the route. Components are checked by their stories, run in Chromium.
 - Git hooks, managed by lefthook and installed by `pnpm install`, run Biome on the staged files before each commit, fixing formatting and blocking on errors, and on the whole repository before each push.
 - Every route is declared in `@fpr/contracts` as an oRPC contract: its method, path, Zod schemas, error codes, and accepted roles. The web app, the API, and the price service share these declarations, and the OpenAPI document is generated from them. The web app imports `@fpr/contracts` alone, which holds neither the price service's routes, in `@fpr/contracts/prices`, nor the generator, in `@fpr/contracts/openapi`.
 - Every process reaches Postgres through `@fpr/db`.
