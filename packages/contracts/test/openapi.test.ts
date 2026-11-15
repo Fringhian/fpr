@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { apiContract } from "./api/index.js";
-import { contractProcedures } from "./contract.js";
-import { createOpenApiDocument } from "./openapi.js";
+import { apiContract } from "../src/api/index.js";
+import { contractProcedures } from "../src/contract.js";
+import { createOpenApiDocument } from "../src/openapi.js";
 
 const document = await createOpenApiDocument();
 

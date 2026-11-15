@@ -4,14 +4,14 @@ import { describe, expect, it } from "vitest";
 import {
   accessKeyStates,
   accessSignInMethods,
-} from "./api/access/access-keys.js";
-import { adminAccessStatuses } from "./api/admin/people.js";
-import { languages } from "./api/me/profile.js";
-import { leaderboardBoards } from "./api/race/leaderboards.js";
-import { shareValueActions } from "./api/shares/values.js";
-import { periods, units } from "./period.js";
-import { roles } from "./roles.js";
-import { priceSources, shareKinds } from "./schemas/share.js";
+} from "../src/api/access/access-keys.js";
+import { adminAccessStatuses } from "../src/api/admin/people.js";
+import { languages } from "../src/api/me/profile.js";
+import { leaderboardBoards } from "../src/api/race/leaderboards.js";
+import { shareValueActions } from "../src/api/shares/values.js";
+import { periods, units } from "../src/period.js";
+import { roles } from "../src/roles.js";
+import { priceSources, shareKinds } from "../src/schemas/share.js";
 
 /** Each shared list, and the file that defines it, relative to `src/`. */
 const lists: [values: readonly string[], definedIn: string][] = [
@@ -51,11 +51,11 @@ function literalsOutsideTheirList(file: string, source: string): string[] {
   );
 }
 
-const src = new URL("./", import.meta.url);
+const src = new URL("../src/", import.meta.url);
 
-/** Every source file under `src/` but the tests, relative to `src/`. */
+/** Every source file under `src/`, relative to `src/`. */
 const sourceFiles = readdirSync(src, { recursive: true, encoding: "utf8" })
-  .filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"))
+  .filter((file) => file.endsWith(".ts"))
   .map((file) => file.replaceAll("\\", "/"));
 
 describe("a shared list's values", () => {

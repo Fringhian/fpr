@@ -1,8 +1,11 @@
 import { Writable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createLogger } from "../logger.js";
-import { createEodhdProvider, eodhdLatestBatchSize } from "./eodhd.js";
-import type { Fetch } from "./http.js";
+import { createLogger } from "../src/logger.js";
+import {
+  createEodhdProvider,
+  eodhdLatestBatchSize,
+} from "../src/providers/eodhd.js";
+import type { Fetch } from "../src/providers/http.js";
 
 const API_KEY = "test-eodhd-key";
 const BASE = "https://eodhd.test/api";

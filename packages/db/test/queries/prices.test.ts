@@ -7,10 +7,14 @@ import {
   expect,
   it,
 } from "vitest";
-import type { Db } from "../database.js";
-import type { NewPrice } from "../tables/price.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
-import { deleteIntradayBefore, latestAt, upsert } from "./prices.js";
+import type { Db } from "../../src/database.js";
+import {
+  deleteIntradayBefore,
+  latestAt,
+  upsert,
+} from "../../src/queries/prices.js";
+import type { NewPrice } from "../../src/tables/price.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

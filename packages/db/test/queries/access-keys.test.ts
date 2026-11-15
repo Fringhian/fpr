@@ -7,9 +7,7 @@ import {
   expect,
   it,
 } from "vitest";
-import type { Db } from "../database.js";
-import type { NewAccessKey } from "../tables/access-key.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
+import type { Db } from "../../src/database.js";
 import {
   claim,
   findCurrent,
@@ -18,8 +16,10 @@ import {
   listCurrent,
   restore,
   revoke,
-} from "./access-keys.js";
-import { insert as insertUser } from "./users.js";
+} from "../../src/queries/access-keys.js";
+import { insert as insertUser } from "../../src/queries/users.js";
+import type { NewAccessKey } from "../../src/tables/access-key.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

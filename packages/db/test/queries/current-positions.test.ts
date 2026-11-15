@@ -1,7 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Db } from "../database.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
-import { listAll, listByShare, listByUser } from "./current-positions.js";
+import type { Db } from "../../src/database.js";
+import {
+  listAll,
+  listByShare,
+  listByUser,
+} from "../../src/queries/current-positions.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

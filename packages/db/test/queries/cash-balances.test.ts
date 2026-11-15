@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Db } from "../database.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
-import { insert, latestAt } from "./cash-balances.js";
+import type { Db } from "../../src/database.js";
+import { insert, latestAt } from "../../src/queries/cash-balances.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

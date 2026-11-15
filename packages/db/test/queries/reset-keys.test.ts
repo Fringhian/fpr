@@ -7,16 +7,16 @@ import {
   expect,
   it,
 } from "vitest";
-import type { Db } from "../database.js";
-import type { NewResetKey } from "../tables/reset-key.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
+import type { Db } from "../../src/database.js";
 import {
   findByCodeHash,
   insert,
   markUsed,
   revokeUnused,
-} from "./reset-keys.js";
-import { insert as insertUser } from "./users.js";
+} from "../../src/queries/reset-keys.js";
+import { insert as insertUser } from "../../src/queries/users.js";
+import type { NewResetKey } from "../../src/tables/reset-key.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

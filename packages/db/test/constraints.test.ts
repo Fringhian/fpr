@@ -1,10 +1,10 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Db } from "./database.js";
-import type { NewManualPriceEvent } from "./tables/manual-price-event.js";
-import type { NewPrice } from "./tables/price.js";
-import type { NewShare } from "./tables/share.js";
-import type { NewUser } from "./tables/user.js";
-import { createTestDatabase, type TestDatabase } from "./testing.js";
+import type { Db } from "../src/database.js";
+import type { NewManualPriceEvent } from "../src/tables/manual-price-event.js";
+import type { NewPrice } from "../src/tables/price.js";
+import type { NewShare } from "../src/tables/share.js";
+import type { NewUser } from "../src/tables/user.js";
+import { createTestDatabase, type TestDatabase } from "../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

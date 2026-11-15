@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import en from "./en.json";
-import fr from "./fr.json";
+import en from "../src/locales/en.json";
+import fr from "../src/locales/fr.json";
 
 type Texts = { readonly [key: string]: string | Texts };
 

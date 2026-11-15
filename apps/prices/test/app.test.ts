@@ -3,8 +3,8 @@ import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
 import { type Db, ping } from "@fpr/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createApp } from "./app.js";
-import { createLogger } from "./logger.js";
+import { createApp } from "../src/app.js";
+import { createLogger } from "../src/logger.js";
 
 vi.mock("@fpr/db", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@fpr/db")>();

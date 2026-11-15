@@ -6,11 +6,11 @@ import {
   euro,
   personal,
   quantity,
-} from "./anonymize.js";
-import { apiContract } from "./api/index.js";
-import { contractProcedures } from "./contract.js";
-import { decimalSchema } from "./decimal.js";
-import { priceChangeSchema } from "./schemas/performance.js";
+} from "../src/anonymize.js";
+import { apiContract } from "../src/api/index.js";
+import { contractProcedures } from "../src/contract.js";
+import { decimalSchema } from "../src/decimal.js";
+import { priceChangeSchema } from "../src/schemas/performance.js";
 
 type Def = z.core.$ZodTypeDef & Record<string, unknown>;
 

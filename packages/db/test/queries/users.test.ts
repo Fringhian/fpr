@@ -1,8 +1,13 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Db } from "../database.js";
-import type { NewUser } from "../tables/user.js";
-import { createTestDatabase, type TestDatabase } from "../testing.js";
-import { colorsInUse, findByEmail, insert, update } from "./users.js";
+import type { Db } from "../../src/database.js";
+import {
+  colorsInUse,
+  findByEmail,
+  insert,
+  update,
+} from "../../src/queries/users.js";
+import type { NewUser } from "../../src/tables/user.js";
+import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
 let test: TestDatabase;
 let db: Db;

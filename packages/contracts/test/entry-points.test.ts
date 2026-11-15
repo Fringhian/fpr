@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const src = new URL("./", import.meta.url);
+const src = new URL("../src/", import.meta.url);
 
 /**
  * The modules a source file loads when it runs, relative to `src/`, such as

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ADJECTIVES, ANIMALS } from "./pseudonym-words.js";
-import { basePseudonym, pseudonyms } from "./pseudonyms.js";
+import { ADJECTIVES, ANIMALS } from "../src/pseudonyms/pseudonym-words.js";
+import { basePseudonym, pseudonyms } from "../src/pseudonyms/pseudonyms.js";
 
 const secret = "test-pseudonym-secret-0123456789abcdef";
 

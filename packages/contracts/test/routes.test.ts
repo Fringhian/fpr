@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { apiContract } from "./api/index.js";
+import { apiContract } from "../src/api/index.js";
 import {
   type ContractTree,
   contractProcedures,
   missingErrorCodes,
   missingPathParams,
-} from "./contract.js";
-import { pricesContract } from "./prices/index.js";
+} from "../src/contract.js";
+import { pricesContract } from "../src/prices/index.js";
 
 /** Every route of a contract, named by its place in the tree. */
 function routesOf(contract: ContractTree) {

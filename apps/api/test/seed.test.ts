@@ -1,7 +1,7 @@
 import { users } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { refuseProduction, seedDatabase } from "./seed-database.js";
+import { refuseProduction, seedDatabase } from "../src/seed/seed-database.js";
 
 let test: TestDatabase;
 
