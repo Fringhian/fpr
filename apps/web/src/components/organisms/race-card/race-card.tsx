@@ -1,15 +1,18 @@
 import { type ComponentProps, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatMoney, formatPercent, type IsoDate } from "../../../lib/format";
+import type { IsoDate } from "../../../lib/format";
 import type { GainUnit } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import type { MemberColor } from "../../../lib/member-color";
 import { Picture } from "../../atoms/picture/picture";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
 import { Chart, type ChartLayout } from "../../molecules/chart/chart";
-import { lastPoint } from "../../molecules/chart/chart-model";
+import {
+  type ChartValueFormat,
+  formatChartValue,
+  lastPoint,
+} from "../../molecules/chart/chart-model";
 import {
   type RaceCast,
   type RaceMember,
@@ -46,17 +49,13 @@ const MARK_GAP = 2;
 /** Shown on tablet and desktop only. */
 const wide = cn("", "hidden", "tablet:block", "desktop:block");
 
-/** The value a member's line ends on, as their sign writes it. */
-function endValue(
-  member: RaceMember,
-  unit: GainUnit,
-  language: Language,
-): string | null {
-  const last = lastPoint(member);
-  if (last === undefined) return null;
-  return unit === "eur"
-    ? formatMoney(last.value, language, { precision: "euros", signed: true })
-    : formatPercent(last.value, language, { signed: true });
+/** The race's values, on the chart's axis and on the signs alike: signed gains, in whole euros or in percent. */
+function raceFormat(unit: GainUnit): ChartValueFormat {
+  return {
+    unit: unit === "eur" ? "money" : "percent",
+    precision: "euros",
+    signed: true,
+  };
 }
 
 /**
@@ -106,7 +105,7 @@ export function Header({
 interface SignProps {
   member: RaceMember;
   role: RaceRole;
-  unit: GainUnit;
+  format: ChartValueFormat;
   current: boolean;
   onFocusMember: ((id: string) => void) | undefined;
   className?: string;
@@ -116,7 +115,7 @@ interface SignProps {
 function Sign({
   member,
   role,
-  unit,
+  format,
   current,
   onFocusMember,
   className,
@@ -125,19 +124,13 @@ function Sign({
   const language = useLanguage();
 
   const name = role === "you" ? t("raceCard.you") : member.name;
-  const value = endValue(member, unit, language);
+  const last = lastPoint(member);
+  const value =
+    last === undefined ? null : formatChartValue(last.value, language, format);
   const sign = (
     <TrailSign
+      person={member}
       className={cn("", "", "", "", "group-hover:bg-highlight")}
-      picture={
-        <Picture
-          aria-hidden
-          name={member.name}
-          color={member.color}
-          photo={member.photo ?? null}
-          size="xs"
-        />
-      }
     >
       <span className="max-w-[5rem] truncate">{name}</span>
       {value === null ? null : <span className="tabular-nums">{value}</span>}
@@ -217,7 +210,7 @@ function EndPicture({
 interface LineEndsProps extends RaceCast {
   layout: ChartLayout;
   members: ReadonlyMap<string, RaceMember>;
-  unit: GainUnit;
+  format: ChartValueFormat;
   onFocusMember: ((id: string) => void) | undefined;
 }
 
@@ -229,7 +222,7 @@ interface LineEndsProps extends RaceCast {
 function LineEnds({
   layout,
   members,
-  unit,
+  format,
   onFocusMember,
   youId,
   focusId,
@@ -303,7 +296,7 @@ function LineEnds({
               <Sign
                 member={mark.member}
                 role={mark.role}
-                unit={unit}
+                format={format}
                 current={mark.id === current}
                 onFocusMember={onFocusMember}
               />
@@ -342,7 +335,7 @@ function NotFinalKey() {
   );
 }
 
-export interface RaceOwnProps {
+export type RaceProps = {
   /** Every member in the race, each with their gain at each day of the period. Pass a stable array: a new one redraws every line. */
   members: readonly RaceMember[];
   /** The viewer's id, when they are in the race: their line is in colour, and their sign reads “You”. A guest or an anonymous viewer has none. */
@@ -355,10 +348,7 @@ export interface RaceOwnProps {
   unit: GainUnit;
   /** Called with a member's id when their curve, picture or sign is selected. Without it, nothing is selectable. */
   onFocusMember?: ((id: string) => void) | undefined;
-}
-
-export type RaceProps = RaceOwnProps &
-  Omit<ComponentProps<"div">, keyof RaceOwnProps>;
+} & ComponentProps<"div">;
 
 /**
  * Every member's gain over the period on one chart. Only you and the focused
@@ -393,6 +383,7 @@ export function Race({
     [members],
   );
 
+  const format = raceFormat(unit);
   const current = focusId ?? youId;
   const signs = [...new Set([youId, focusId])].flatMap((id) => {
     const member = id == null ? undefined : byId.get(id);
@@ -418,9 +409,7 @@ export function Race({
         <Chart
           lines={lines}
           label={t("raceCard.label")}
-          unit={unit === "eur" ? "money" : "percent"}
-          precision="euros"
-          signed
+          {...format}
           className={cn(
             "",
             "h-[13rem]",
@@ -432,7 +421,7 @@ export function Race({
             <LineEnds
               layout={layout}
               members={byId}
-              unit={unit}
+              format={format}
               onFocusMember={onFocusMember}
               youId={youId}
               focusId={focusId}
@@ -454,7 +443,7 @@ export function Race({
               key={member.id}
               member={member}
               role={roleOf(member.id, { youId, focusId })}
-              unit={unit}
+              format={format}
               current={member.id === current}
               onFocusMember={onFocusMember}
               className={cn(

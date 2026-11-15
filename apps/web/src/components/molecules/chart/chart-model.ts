@@ -1,5 +1,38 @@
 import type { UTCTimestamp } from "lightweight-charts";
-import type { Decimal, IsoDate } from "../../../lib/format";
+import {
+  type Decimal,
+  formatMoney,
+  formatPercent,
+  type IsoDate,
+  type MoneyPrecision,
+} from "../../../lib/format";
+import type { Language } from "../../../lib/language";
+
+export type ChartUnit = "money" | "percent";
+
+/** How a chart writes its values, on its axis and in its readout. */
+export interface ChartValueFormat {
+  unit: ChartUnit;
+  /** With `unit: "money"`: `cents` for prices, `euros` for balances. */
+  precision: MoneyPrecision;
+  /** A sign on every value but zero, for gains: `+4.2%`. */
+  signed: boolean;
+}
+
+/**
+ * A value as the chart writes it. Anything that names a line's value beside
+ * the chart, such as the race's signs, writes it with the same format so it
+ * reads like the axis.
+ */
+export function formatChartValue(
+  value: Decimal,
+  language: Language,
+  { unit, precision, signed }: ChartValueFormat,
+): string {
+  return unit === "money"
+    ? formatMoney(value, language, { precision, signed })
+    : formatPercent(value, language, { signed });
+}
 
 /** One point of a line: a calendar day and its value, the decimal string the API sends. */
 export interface ChartPoint {

@@ -30,8 +30,6 @@ import { cn } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
-  formatMoney,
-  formatPercent,
   type IsoDate,
   type MoneyPrecision,
 } from "../../../lib/format";
@@ -39,8 +37,11 @@ import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
 import {
   type ChartPoint,
+  type ChartUnit,
+  type ChartValueFormat,
   chartDays,
   dayToTime,
+  formatChartValue,
   lastPoint,
   nearestLine,
   splitLine,
@@ -49,7 +50,7 @@ import {
   toDecimal,
 } from "./chart-model";
 
-export type { ChartPoint } from "./chart-model";
+export type { ChartPoint, ChartUnit } from "./chart-model";
 
 /**
  * The colours a line can take, each a colour token of `theme.css`, with the
@@ -93,8 +94,6 @@ export interface ChartLine {
 }
 
 export type ChartVariant = "line" | "sparkline";
-
-export type ChartUnit = "money" | "percent";
 
 /** Where a line ends: its latest point, in pixels from the chart's top left corner. */
 export interface ChartLineEnd {
@@ -144,22 +143,6 @@ const LINE_WIDTH = { focus: 2, context: 1 } as const;
 const SELECT_REACH = 12;
 
 const NO_LAYOUT: ChartLayout = { ends: [], height: 0 };
-
-interface ValueFormat {
-  unit: ChartUnit;
-  precision: MoneyPrecision;
-  signed: boolean;
-}
-
-function formatValue(
-  value: Decimal,
-  language: Language,
-  { unit, precision, signed }: ValueFormat,
-): string {
-  return unit === "money"
-    ? formatMoney(value, language, { precision, signed })
-    : formatPercent(value, language, { signed });
-}
 
 /** A time the chart hands back, as its day. */
 function dayOf(time: Time): IsoDate {
@@ -393,7 +376,7 @@ function readoutOn(
   day: IsoDate,
   lines: readonly ChartLine[],
   language: Language,
-  format: ValueFormat,
+  format: ChartValueFormat,
 ): Readout {
   const values = lines.flatMap((line) => {
     const value = line.points.find((point) => point.day === day)?.value;
@@ -401,7 +384,7 @@ function readoutOn(
     return [
       {
         line,
-        text: formatValue(value, language, format),
+        text: formatChartValue(value, language, format),
         final: line.dashedAfter === undefined || day <= line.dashedAfter,
       },
     ];
@@ -557,7 +540,7 @@ export function Chart({
     chart.applyOptions({
       localization: {
         priceFormatter: (price: number) =>
-          formatValue(toDecimal(price), language, format),
+          formatChartValue(toDecimal(price), language, format),
         timeFormatter: (time: Time) =>
           formatDate(dayOf(time), language, { style: "weekday" }),
       },
