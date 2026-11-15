@@ -53,5 +53,17 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "periodControl": {
+    "title": "Period",
+    "summary": "{{period}} · {{unit}}",
+    "period": {
+      "1D": "Today",
+      "1W": "This week",
+      "1M": "This month",
+      "3M": "3 months",
+      "YTD": "This year",
+      "all": "All time"
+    }
   }
 }
