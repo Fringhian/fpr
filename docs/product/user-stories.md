@@ -231,7 +231,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - No real name, email, photo, euro amount, or quantity held reaches an anonymous viewer's browser: the API replaces them before sending. Holdings show as weights in percent of the portfolio.
 - A pseudonym is the same for the same person on every screen and every visit.
 - Two people who would get the same pseudonym are told apart by a suffix.
-- An anonymous viewer sees the € / % switch on % only, and the standings by gain only.
+- A control an anonymous viewer can't use is hidden, not disabled: there is no € / % switch, since every amount is in %, and the standings rank by gain only, with no gain / balance switch.
 - Access ends at its end date or on revocation, even in the middle of a session.
 
 ## Later

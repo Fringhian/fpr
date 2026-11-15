@@ -1,6 +1,8 @@
 import { CameraIcon } from "@phosphor-icons/react/Camera";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { InfoIcon } from "@phosphor-icons/react/Info";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/MagnifyingGlass";
+import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { XIcon } from "@phosphor-icons/react/X";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Fragment } from "react";
@@ -9,11 +11,14 @@ import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import { IconButton, type IconButtonProps } from "./icon-button";
 
+/** The icons the playground offers, by name: the design system’s uses, then any other. */
 const ICONS = {
   "dots-three": DotsThreeIcon,
   x: XIcon,
   info: InfoIcon,
   camera: CameraIcon,
+  "magnifying-glass": MagnifyingGlassIcon,
+  plus: PlusIcon,
 } as const;
 
 type IconName = keyof typeof ICONS;
@@ -73,7 +78,7 @@ A round button holding one icon, on Base UI’s button. \`label\` is required: i
 - **ring**: a white disc with an outline, for a button over a picture or the sky, such as the camera on a picture.
 - **size**: \`m\` 40px with a 20px icon; \`s\` 24px with a 16px icon, for the info icon next to an idea that needs a sentence.
 
-Every other prop goes to the \`<button>\`.
+\`icon\` takes any Phosphor icon. Every other prop goes to Base UI’s button and the \`<button>\`, \`className\` included: a string, or a function of the button’s state.
 `;
 
 /** The playground’s args: the icon is picked by its name in the Controls panel. */
@@ -107,7 +112,11 @@ const meta = {
         "Base UI’s `nativeButton`: set it to `false` when `render` gives an element other than a `<button>`.",
       control: false,
     },
-    className: { control: false },
+    className: {
+      description:
+        "Classes added to the button’s, which win any conflict: a string, or a function of the button’s state.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof IconButton>;
 
@@ -115,7 +124,7 @@ export default meta;
 
 /** One icon button, configured in the Controls panel. */
 export const Playground = {
-  args: { icon: "x", label: "Close", ring: false, size: "m", disabled: false },
+  args: { icon: "x" },
   render: ({ icon, ...args }) => <IconButton {...args} icon={ICONS[icon]} />,
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button");

@@ -56,7 +56,7 @@ The shared period and € / %: one setting for every page, shown at the right of
 - **Tablet and desktop**: the period capsules (1D, 1W, 1M, 3M, YTD, All), then the € / % capsules.
 - **Phone**: one capsule naming both, “This month · %”, which opens a sheet holding the two rows. CSS picks the layout, so both live in the markup and one is hidden.
 - **Backdrop**: \`sky\` by default; \`snow\` on a page without a header sentence, where the capsules take a darker fill.
-- **Anonymous viewer**: amounts are in % only. € stays disabled, and the control shows % whatever the setting holds.
+- **Anonymous viewer**: amounts are in % only, so the € / % capsules are hidden, the phone capsule names the period alone (“This month”), and \`onChange\` always sends \`unit: "percent"\`. An option a viewer can’t use is hidden, never disabled.
 - **Controlled**: \`value\` (\`{ period, unit }\`, with the API’s names: \`"1M"\`, \`"eur"\` or \`"percent"\`) and \`onChange\`, called with the whole new setting. The app shell keeps it, in \`localStorage\` and the URL.
 - **Keyboard**: each row is a capsule segment: Tab reaches it, the arrow keys move between its options, Space or Enter picks one. The sheet keeps focus inside until Escape, the ✕ or a press on the dimmed page closes it.
 
@@ -88,7 +88,7 @@ const meta = {
     },
     anonymous: {
       description:
-        "An anonymous viewer sees amounts in % only: € stays disabled.",
+        "An anonymous viewer sees amounts in % only: the € / % capsules are hidden, and `onChange` always sends `percent`.",
       control: { type: "boolean" },
     },
     icon: {
@@ -174,20 +174,22 @@ export const PhoneSheet: Story = {
   },
 };
 
-/** An anonymous viewer: % only, € disabled, even when the setting asks for euros. */
+/** An anonymous viewer: the period alone, the € / % capsules hidden. Picking a period still sends `percent`, even when the setting asked for euros. */
 export const Anonymous: Story = {
   args: { anonymous: true, value: { period: "YTD", unit: "eur" } },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", { name: "€" })).toBeDisabled();
-    await expect(canvas.getByRole("button", { name: "%" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
+    await expect(canvas.queryByRole("group", { name: "Unit" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "€" })).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "1W" }));
+    await expect(args.onChange).toHaveBeenLastCalledWith(
+      changed({ period: "1W" }),
     );
+    await userEvent.click(canvas.getByRole("button", { name: "YTD" }));
   },
 };
 
-/** The anonymous viewer’s sheet on phone: the capsule says %, and € stays disabled. */
+/** The anonymous viewer on phone: the capsule names the period alone, and its sheet holds the period row only. */
 export const AnonymousPhone: Story = {
   ...Anonymous,
   name: "Anonymous, phone",
@@ -195,14 +197,17 @@ export const AnonymousPhone: Story = {
   globals: { viewport: { value: "phone" } },
   play: async ({ canvasElement }) => {
     const capsule = within(canvasElement).getByRole("button", {
-      name: /This year · %/,
+      name: "This year",
     });
     await userEvent.click(capsule);
     const sheet = await within(canvasElement.ownerDocument.body).findByRole(
       "dialog",
     );
     await expect(
-      within(sheet).getByRole("button", { name: "€" }),
-    ).toBeDisabled();
+      within(sheet).getByRole("group", { name: "Period" }),
+    ).toBeVisible();
+    await expect(
+      within(sheet).queryByRole("group", { name: "Unit" }),
+    ).toBeNull();
   },
 };
