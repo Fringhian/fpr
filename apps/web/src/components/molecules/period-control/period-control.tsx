@@ -80,7 +80,7 @@ function Segments({
   );
 }
 
-interface PeriodControlOwnProps {
+export type PeriodControlProps = {
   /** The period and unit shown, held by the owner. Pair it with `onChange`. */
   value: PeriodSetting;
   /** Called with the whole new setting when the person picks a period or a unit. */
@@ -89,13 +89,21 @@ interface PeriodControlOwnProps {
   anonymous?: boolean;
   /** The icon at the end of the phone capsule, which opens the sheet. A caret by default. */
   icon?: IconProps["icon"] | undefined;
-}
+  /** What the control sits on: the sky, by default, or snow on a page without a header sentence. */
+  backdrop?: Segment.Backdrop;
+} & Omit<
+  ComponentProps<"div">,
+  "value" | "onChange" | "anonymous" | "icon" | "backdrop"
+>;
 
-export type PeriodControlProps = PeriodControlOwnProps &
-  Omit<ComponentProps<"div">, keyof PeriodControlOwnProps>;
+/** Hovered or open, the phone capsule's fill goes opaque; at rest it is `Segment.backdropFill`. */
+const CAPSULE_ACTIVE = {
+  sky: ["hover:bg-surface", "popup-open:bg-surface"],
+  snow: ["hover:bg-divider", "popup-open:bg-divider"],
+} as const satisfies Record<Segment.Backdrop, readonly string[]>;
 
 /**
- * The shared period and € / %, on the sky. From tablet up, the period
+ * The shared period and € / %, on the sky or on snow. From tablet up, the period
  * capsules and the € / % capsules in a row; on phone, one capsule naming
  * both (“This month · %”) that opens a sheet holding the two rows. CSS picks
  * the layout. Controlled: the owner keeps the setting. An anonymous viewer
@@ -106,6 +114,7 @@ export function PeriodControl({
   onChange,
   anonymous = false,
   icon = CaretDownIcon,
+  backdrop = "sky",
   className,
   ...props
 }: PeriodControlProps) {
@@ -135,20 +144,20 @@ export function PeriodControl({
         <Segments
           setting={setting}
           anonymous={anonymous}
-          backdrop="sky"
+          backdrop={backdrop}
           onChange={onChange}
         />
       </div>
       <Dialog.Root>
         <Dialog.Trigger
           className={cn(
-            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full bg-surface/75 py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
+            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
             "inline-flex",
             "tablet:hidden",
             "desktop:hidden",
-            "hover:bg-surface",
-            "popup-open:bg-surface",
             "focus-visible:focus-ring",
+            Segment.backdropFill[backdrop],
+            CAPSULE_ACTIVE[backdrop],
           )}
         >
           {summary}

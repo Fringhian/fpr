@@ -224,5 +224,8 @@
     "label": "How it’s split",
     "other": "Other",
     "cash": "Cash"
+  },
+  "pageBar": {
+    "back": "Back to"
   }
 }

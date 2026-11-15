@@ -229,5 +229,8 @@
     "label": "Répartition",
     "other": "Autres",
     "cash": "Liquidités"
+  },
+  "pageBar": {
+    "back": "Retour vers"
   }
 }
