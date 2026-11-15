@@ -1,3 +1,4 @@
+import { cva } from "class-variance-authority";
 import { describe, expect, it } from "vitest";
 import { cn } from "./cn";
 
@@ -51,6 +52,66 @@ describe("cn", () => {
   it("drops empty and false groups", () => {
     expect(cn("", "inline", false, undefined, "tablet:hidden")).toBe(
       "inline tablet:hidden",
+    );
+  });
+
+  it("keeps the focus ring beside the other focus classes", () => {
+    expect(
+      cn(
+        "bg-surface",
+        "focus-visible:bg-highlight",
+        "focus-visible:focus-ring",
+      ),
+    ).toBe("bg-surface focus-visible:bg-highlight focus-visible:focus-ring");
+  });
+});
+
+describe("cn with cva", () => {
+  const capsule = cva(
+    [
+      "rounded-full font-semibold",
+      "",
+      "",
+      "",
+      "focus-visible:focus-ring",
+      "disabled:opacity-[0.45]",
+    ],
+    {
+      variants: {
+        intent: {
+          primary: [
+            "bg-primary text-on-primary",
+            "",
+            "",
+            "",
+            "hover:bg-secondary",
+          ],
+          secondary: [
+            "bg-surface text-primary",
+            "",
+            "",
+            "",
+            "hover:bg-highlight",
+          ],
+        },
+        size: {
+          s: ["text-s", "px-s", "tablet:px-s", "desktop:px-s"],
+          m: ["text-m", "px-m", "tablet:px-l", "desktop:px-l"],
+        },
+      },
+      defaultVariants: { intent: "primary", size: "m" },
+    },
+  );
+
+  it("joins the breakpoint and state groups of the chosen variants", () => {
+    expect(cn(capsule({ intent: "secondary", size: "s" }))).toBe(
+      "rounded-full font-semibold focus-visible:focus-ring disabled:opacity-[0.45] bg-surface text-primary hover:bg-highlight text-s px-s tablet:px-s desktop:px-s",
+    );
+  });
+
+  it("lets a className override a variant through the theme's scales", () => {
+    expect(cn(capsule(), "text-s text-secondary tablet:px-m")).toBe(
+      "rounded-full font-semibold focus-visible:focus-ring disabled:opacity-[0.45] bg-primary hover:bg-secondary px-m desktop:px-l text-s text-secondary tablet:px-m",
     );
   });
 });

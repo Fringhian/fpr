@@ -113,11 +113,65 @@ cn(
 
 ### Variants and utilities
 
-- State styles use named custom variants defined once in `theme.css` (`@custom-variant open (&[data-open]);` → `open:bg-surface-raised`), not raw `data-[…]:` selectors.
-- A pattern repeated across components becomes a named `@utility` (e.g. `focus-ring`), not a copied class chain.
+- State styles use the named variants defined once at the end of `theme.css`, never raw `data-[…]:` or `aria-[…]:` selectors. Each matches Base UI's data attribute and, where they exist, the native state and its ARIA attribute, so one class styles a native element and a Base UI part alike:
+
+  | Variant | Matches | Parts |
+  | --- | --- | --- |
+  | `open:` | `[open]`, `:popover-open`, `:open`, `[data-open]` | Dialog, sheet, popover, menu, disclosure |
+  | `popup-open:` | `[data-popup-open]` | The trigger of an open popup |
+  | `starting-style:` | `[data-starting-style]` | A popup's first frame, before it transitions in |
+  | `ending-style:` | `[data-ending-style]` | A popup's last frame, as it transitions out |
+  | `disabled:` | `:disabled`, `[data-disabled]`, `[aria-disabled="true"]` | Any control |
+  | `checked:` | `:checked`, `[data-checked]`, `[aria-checked="true"]` | Checkbox, radio, switch, swatch |
+  | `pressed:` | `[data-pressed]`, `[aria-pressed="true"]` | Toggle, segment |
+  | `selected:` | `[data-selected]`, `[aria-selected="true"]` | Option of a select or combobox |
+  | `highlighted:` | `[data-highlighted]` | Option or menu item under the pointer or the arrow keys |
+  | `current:` | `[data-active]`, `[aria-current]` other than `false` | Current navigation link, active tab |
+  | `invalid:` | `[data-invalid]`, `[aria-invalid="true"]` | Field, input |
+
+  `open:`, `disabled:` and `checked:` extend Tailwind's built-in variants of the same name. `invalid:` replaces Tailwind's: native `:invalid` matches an empty required field before anyone types, and `user-invalid:` covers a native field after input. They combine like any variant: `group-open:`, `peer-disabled:`, `not-disabled:`, `tablet:disabled:`. A state no variant names gets a new `@custom-variant` beside the others.
+- A pattern repeated across components becomes a named `@utility` in that same block of `theme.css`, not a copied class chain.
+- `focus-ring` is the keyboard focus ring: a 2 px charcoal outline, 2 px off the edge, which reads on the page, on surfaces and under the sky. Every focusable control applies it in its `focus-visible:` group; with no outline at rest, it has no resting value to write.
+
+  ```tsx
+  cn("rounded-full bg-primary text-on-primary", "", "", "", "focus-visible:focus-ring")
+  ```
+
+  A control whose focus lands on an inner element uses `has-focus-visible:focus-ring`. A text input marks its focus with its inset outline instead.
 
 ## Components
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
 - Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
-- Variants are few and named (`intent`, `size`, using the scale names above). The variant helper is not yet chosen.
+- Variants are few and named (`intent`, `size`, using the scale names above).
+- The variant helper is `cva`, from `class-variance-authority`. It only joins classes: `cn` wraps its result, so the theme's merge config resolves every conflict, including a `className` passed in. Its base and each variant value are arrays laid out like `cn`'s groups: common, phone, `tablet:`, `desktop:`, then states.
+
+  ```tsx
+  import { cva, type VariantProps } from "class-variance-authority";
+  import { cn } from "../../lib/cn";
+
+  const button = cva(
+    ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:opacity-[0.45]"],
+    {
+      variants: {
+        intent: {
+          primary: ["bg-primary text-on-primary", "", "", "", "hover:bg-secondary"],
+          secondary: ["bg-surface text-primary shadow-outline", "", "", "", "hover:bg-highlight"],
+        },
+        size: {
+          s: ["text-s", "px-s", "tablet:px-s", "desktop:px-s"],
+          m: ["text-m", "px-m", "tablet:px-l", "desktop:px-l"],
+        },
+      },
+      defaultVariants: { intent: "primary", size: "m" },
+    },
+  );
+
+  type ButtonProps = ComponentProps<"button"> & VariantProps<typeof button>;
+
+  function Button({ intent, size, className, ...props }: ButtonProps) {
+    return <button className={cn(button({ intent, size }), className)} {...props} />;
+  }
+  ```
+
+  A compound component gives each part its own `cva`, or a plain `cn` call when the part has no variant.
