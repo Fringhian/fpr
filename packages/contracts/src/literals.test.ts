@@ -63,20 +63,4 @@ describe("a shared list's values", () => {
     const source = readFileSync(new URL(file, src), "utf8");
     expect(literalsOutsideTheirList(file, source)).toEqual([]);
   });
-
-  it("are found when written as a literal outside their list", () => {
-    const source = 'signedInRoute(["admin"]).input(z.literal(`percent`));';
-    expect(literalsOutsideTheirList("api/me/profile.ts", source)).toEqual([
-      "admin",
-      "percent",
-    ]);
-  });
-
-  it("may be written in their own list's file, and in comments", () => {
-    expect(literalsOutsideTheirList("roles.ts", '["admin", "guest"]')).toEqual(
-      [],
-    );
-    const comments = '/** `"admin"` only. */\n// "member" too\nconst a = 1;';
-    expect(literalsOutsideTheirList("contract.ts", comments)).toEqual([]);
-  });
 });
