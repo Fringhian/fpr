@@ -315,7 +315,7 @@ The controls switch each optional part on and off. Every story opens its overlay
 `;
 
 const meta = {
-  title: "Organisms/Dialog and sheet",
+  title: "Molecules/Dialog and sheet",
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",

@@ -15,7 +15,7 @@ import { usePhone } from "../../../lib/use-phone";
 import { IconButton } from "../../atoms/icon-button/icon-button";
 import { TextLink, type TextLinkProps } from "../../atoms/text-link/text-link";
 import type { IconProps } from "../../foundations/icon/icon";
-import * as Dialog from "../../organisms/dialog/dialog";
+import * as Dialog from "../dialog/dialog";
 
 /** The address of How FPR works. Each section is a fragment of it: `/help#cash`. */
 export const HELP_PATH = "/help";

@@ -8,6 +8,8 @@ const STATES = [
   "active",
   "waitingForFirstUse",
   "revoked",
+  "ended",
+  "expired",
   "heldBefore",
   "saved",
 ] as const satisfies readonly BadgeState[];
