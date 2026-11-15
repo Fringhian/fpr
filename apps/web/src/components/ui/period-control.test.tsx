@@ -46,7 +46,7 @@ describe("PeriodControl", () => {
     expect(button(markup, "€")).toContain('aria-pressed="true"');
   });
 
-  it("shows an anonymous viewer % only, with € disabled", () => {
+  it("hides the € / % capsules from an anonymous viewer, and names the period alone", () => {
     const markup = render(
       <PeriodControl
         value={{ period: "1W", unit: "eur" }}
@@ -54,8 +54,11 @@ describe("PeriodControl", () => {
         anonymous
       />,
     );
-    expect(markup).toContain("This week · %");
-    expect(button(markup, "€")).toContain("disabled");
-    expect(button(markup, "%")).toContain('aria-pressed="true"');
+    expect(markup).toContain(">This week<");
+    expect(markup).not.toContain("·");
+    expect(markup).not.toContain('aria-label="Unit"');
+    expect(markup).not.toContain(">€<");
+    expect(markup).not.toContain(">%<");
+    expect(button(markup, "1W")).toContain('aria-pressed="true"');
   });
 });

@@ -36,7 +36,7 @@ interface SegmentsProps {
   className?: string;
 }
 
-/** The period capsules, then the € / % capsules. */
+/** The period capsules, then the € / % capsules unless the viewer is anonymous. */
 function Segments({
   setting,
   anonymous,
@@ -61,23 +61,21 @@ function Segments({
           </Segment.Item>
         ))}
       </Segment.Root>
-      <Segment.Root<Unit>
-        backdrop={backdrop}
-        value={setting.unit}
-        onValueChange={(unit) => onChange({ ...setting, unit })}
-        aria-label={t("controls.unit.label")}
-        className={className}
-      >
-        {units.map((unit) => (
-          <Segment.Item
-            key={unit}
-            value={unit}
-            disabled={anonymous && unit === "eur"}
-          >
-            {t(`controls.unit.${UNIT_KEYS[unit]}`)}
-          </Segment.Item>
-        ))}
-      </Segment.Root>
+      {anonymous ? null : (
+        <Segment.Root<Unit>
+          backdrop={backdrop}
+          value={setting.unit}
+          onValueChange={(unit) => onChange({ ...setting, unit })}
+          aria-label={t("controls.unit.label")}
+          className={className}
+        >
+          {units.map((unit) => (
+            <Segment.Item key={unit} value={unit}>
+              {t(`controls.unit.${UNIT_KEYS[unit]}`)}
+            </Segment.Item>
+          ))}
+        </Segment.Root>
+      )}
     </>
   );
 }
@@ -87,7 +85,7 @@ interface PeriodControlOwnProps {
   value: PeriodSetting;
   /** Called with the whole new setting when the person picks a period or a unit. */
   onChange: (value: PeriodSetting) => void;
-  /** An anonymous viewer sees amounts in % only: € stays disabled, and the control shows % whatever `value.unit` holds. */
+  /** An anonymous viewer sees amounts in % only: the € / % capsules are hidden, the phone capsule names the period alone, and `onChange` always sends `unit: "percent"`. */
   anonymous?: boolean;
   /** The icon at the end of the phone capsule, which opens the sheet. A caret by default. */
   icon?: IconProps["icon"] | undefined;
@@ -100,7 +98,8 @@ export type PeriodControlProps = PeriodControlOwnProps &
  * The shared period and € / %, on the sky. From tablet up, the period
  * capsules and the € / % capsules in a row; on phone, one capsule naming
  * both (“This month · %”) that opens a sheet holding the two rows. CSS picks
- * the layout. Controlled: the owner keeps the setting.
+ * the layout. Controlled: the owner keeps the setting. An anonymous viewer
+ * gets the period alone, in %.
  */
 export function PeriodControl({
   value,
@@ -115,10 +114,13 @@ export function PeriodControl({
   const setting: PeriodSetting = anonymous
     ? { ...value, unit: "percent" }
     : value;
-  const summary = t("periodControl.summary", {
-    period: t(`periodControl.period.${setting.period}`),
-    unit: t(`controls.unit.${UNIT_KEYS[setting.unit]}`),
-  });
+  const period = t(`periodControl.period.${setting.period}`);
+  const summary = anonymous
+    ? period
+    : t("periodControl.summary", {
+        period,
+        unit: t(`controls.unit.${UNIT_KEYS[setting.unit]}`),
+      });
 
   return (
     <div {...props} className={cn("flex items-center", className)}>
