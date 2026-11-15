@@ -171,7 +171,7 @@ Every value point added, edited, or deleted also writes a row to `manual_price_e
 
 Every write to a share or its value points locks the share's row until its transaction ends, so two writes to the same share run one after the other: of two edits made on the same price, the second answers `value_changed`, and of two deletions that would each leave one value point, the second answers `last_value_point`. Two shares created with the same ISIN at once leave one share, and the other request answers `isin_taken`.
 
-A market share needs attention when someone holds it and it has no close from the last trading day onward: it has no price yet, or its latest close is older. The last trading day is the last weekday whose close the daily run has fetched: the weekday before today from 07:00 in `RACE_TIMEZONE`, and the weekday before yesterday until then.
+A market share needs attention when someone holds it and it has no price, or no close in the last 5 trading days up to and including the last trading day. Trading days are weekdays. The last trading day is the last weekday whose close the daily run has fetched: the weekday before today from 07:00 in `RACE_TIMEZONE`, and the weekday before yesterday until then. A fund whose closes arrive one or two trading days late, and a share whose exchange closed for a holiday, don't need attention.
 
 ## Logs
 

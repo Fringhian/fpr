@@ -187,7 +187,7 @@ Every gain carries euros and percent, `{ eur, percent }`, and a member's point c
 | `POST /admin/people/:id/replace-link` | Replace the access link. Returns the new link once |
 | `POST /admin/people/:id/reset-key` | Generate a reset key. Returns it once |
 | `DELETE /admin/people/:id` | Delete a person and their data |
-| `GET /admin/shares` | Every stored share in one group: needs attention (held, with no price or a latest close older than the last trading day), tracked, manual, or not held, with its latest price, its time, and its source, its holders, and whether any share change refers to it |
+| `GET /admin/shares` | Every stored share in one group: needs attention (held, with no price or no close in the last 5 trading days, as `prices.md` › Endpoints defines them), tracked, manual, or not held, with its latest price, its time, and its source, its holders, and whether any share change refers to it |
 | `POST /admin/shares/:id/make-manual` | Turn a market share that needs attention into a manual share, through the price service: `{ priceEur, at }` when it has no price yet. Refused with `409` for any other share |
 | `POST /admin/prices/refresh` | Run the price refresh now, through the price service. Refused with `409` while a run is going, and `429` once the day's call cap is reached |
 
