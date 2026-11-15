@@ -31,7 +31,7 @@ function percentOf(fraction: number): string {
   return `${fraction * 100}%`;
 }
 
-interface MoverRowOwnProps {
+export interface MoverRowOwnProps {
   /** The share's name. */
   name: string;
   /** The holding's gain over the period: `{ eur, percent }`, decimal strings. */
@@ -42,6 +42,7 @@ interface MoverRowOwnProps {
   scale: MoverScale;
 }
 
+/** Its own props, and every prop of the `<li>` it renders but its content. */
 export type MoverRowProps = MoverRowOwnProps &
   Omit<ComponentProps<"li">, keyof MoverRowOwnProps | "children">;
 
@@ -49,7 +50,8 @@ export type MoverRowProps = MoverRowOwnProps &
  * One holding's effect on the period: its name, a bar from the zero line, to
  * the right for a gain and to the left for a loss, and the signed gain. The
  * bar is decorative; the sign and the colour say the direction, never the
- * colour alone. It sits in a `MoverList`, which lines its columns up.
+ * colour alone. Gains in euros read in whole euros. It sits in a `MoverList`,
+ * which lines its columns up.
  */
 export function MoverRow({
   name,
@@ -60,8 +62,11 @@ export function MoverRow({
   ...props
 }: MoverRowProps) {
   const language = useLanguage();
+
   const tone = gainDisplay(gain, unit, language, { precision: "euros" })?.tone;
   const bar = moverBar(gain, unit, scale);
+  const drawn = bar !== null && (tone === "positive" || tone === "negative");
+
   return (
     <li
       {...props}
@@ -71,34 +76,29 @@ export function MoverRow({
       )}
     >
       <span className="truncate">{name}</span>
-      <span aria-hidden className="relative h-s">
+      <span aria-hidden="true" className="relative h-s">
         {bar === null ? null : (
-          <>
-            <span
-              className="absolute -inset-y-xs w-[0.0625rem] bg-divider"
-              style={{ left: percentOf(bar.zero) }}
-            />
-            {tone === "positive" || tone === "negative" ? (
-              <span
-                className={cn(
-                  "absolute inset-y-0 min-w-s rounded-full",
-                  BAR_TONES[tone],
-                )}
-                style={
-                  bar.direction === "gain"
-                    ? {
-                        left: percentOf(bar.zero),
-                        width: percentOf(bar.length),
-                      }
-                    : {
-                        right: percentOf(1 - bar.zero),
-                        width: percentOf(bar.length),
-                      }
-                }
-              />
-            ) : null}
-          </>
+          <span
+            className="absolute -inset-y-xs w-[0.0625rem] bg-muted"
+            style={{ left: percentOf(bar.zero) }}
+          />
         )}
+        {drawn ? (
+          <span
+            className={cn(
+              "absolute inset-y-[0] min-w-s rounded-full",
+              BAR_TONES[tone],
+            )}
+            style={
+              bar.direction === "gain"
+                ? { left: percentOf(bar.zero), width: percentOf(bar.length) }
+                : {
+                    right: percentOf(1 - bar.zero),
+                    width: percentOf(bar.length),
+                  }
+            }
+          />
+        ) : null}
       </span>
       <GainValue
         gain={gain}
@@ -110,13 +110,14 @@ export function MoverRow({
   );
 }
 
-interface MoverListOwnProps {
+export interface MoverListOwnProps {
   /** The holdings that moved the period, biggest effect first. */
   movers: readonly Mover[];
   /** The unit setting, `eur` or `percent`. */
   unit: GainUnit;
 }
 
+/** Its own props, and every prop of the `<ul>` it renders but its content. */
 export type MoverListProps = MoverListOwnProps &
   Omit<ComponentProps<"ul">, keyof MoverListOwnProps | "children">;
 
@@ -124,31 +125,33 @@ export type MoverListProps = MoverListOwnProps &
  * The holdings that moved a member's period, one `MoverRow` each, in the
  * order given. Every bar is drawn against the biggest mover in the list, on
  * one zero line, and the names, bars and gains line up in columns. Without
- * movers it says nothing has moved yet.
+ * movers it says nothing has moved yet, in a paragraph that keeps the
+ * list's `id` and `className`.
  */
 export function MoverList({
   movers,
   unit,
+  id,
   className,
   ...props
 }: MoverListProps) {
   const { t } = useTranslation();
-  if (movers.length === 0) {
-    return (
-      <p className={cn("text-s text-secondary", className)}>
-        {t("moverRow.empty")}
-      </p>
-    );
-  }
+
   const scale = moverScale(
     movers.map((mover) => mover.gain),
     unit,
   );
-  return (
+
+  return movers.length === 0 ? (
+    <p id={id} className={cn("text-s text-secondary", className)}>
+      {t("moverRow.empty")}
+    </p>
+  ) : (
     <ul
       {...props}
+      id={id}
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)_minmax(3rem,35%)_auto] gap-s",
+        "grid grid-cols-[minmax(0,1fr)_minmax(2.5rem,25%)_auto] gap-s",
         className,
       )}
     >
