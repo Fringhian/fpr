@@ -13,6 +13,7 @@ It holds:
 - **Test databases**: `createTestDatabase()`, from `@fpr/db/testing`, creates a database named `fpr_test_…` on the Postgres server at `DATABASE_URL`, migrates it, and returns it with a `drop()` that removes it. Each test file that touches the database gets its own.
 - **Row types**: one TypeScript type per table, used by every process that reads or writes it, in `src/tables/`. Each table's file exports the table, its selected row, its insert, and its update, such as `UserTable`, `User`, `NewUser`, and `UserUpdate`.
 - **One query module per table**, built with Kysely, in `src/queries/`, exported as a namespace named after the table in the plural, such as `users.findById(db, id)`. A module holds the queries for its table and no workflow logic.
+- **Constraint errors**: `violatedConstraint(error)` names the constraint a failed write violated, such as `shares_isin_key`, so a process answers it with its error code.
 
 All identifiers are lowercase snake_case, including Better Auth's columns, which are mapped from its defaults. Every table carries `created_at`.
 

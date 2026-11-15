@@ -122,6 +122,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A share's chart starts at its earliest holding in the race, or where the provider's history starts when that is later. A share nobody has held has no chart yet.
 - The gain since I bought values each purchase at the share's price on that day.
 - Two members editing the same value point: the second save shows the new value and asks to confirm.
+- Adding a value point at a moment that already has one is refused, and shows the value already there.
+- Two members deleting a manual share's last two value points at once: one deletion is refused, so the share keeps one.
 - The provider being down never blocks a screen: every screen shows the latest stored prices with their time.
 - The number of people looking at the app never changes the number of provider calls.
 
@@ -202,9 +204,9 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - The last admin's access can't be revoked, and the last admin can't be deleted or change role.
 - A person with portfolio entries can't become a guest. Nobody becomes or stops being anonymous.
 - Deleting a person asks for their name to confirm. It deletes their share changes and cash balances. The manual shares and value points they created stay, since others may hold them.
-- A share needs attention when it is held and has no price yet, or its latest close is older than the last trading day.
+- A share needs attention when it is held and has no price yet, or its latest close is older than the last trading day: the last weekday whose close the morning run has fetched.
 - A share any share change refers to can't be deleted.
-- Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin.
+- Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin. A share that gets a price while the admin types that first value is made manual with the price it got, and the typed value is not stored.
 - A refresh runs the scheduled job at once: missing histories, then the latest prices in one batch. It is refused while a run is going and once the day's call cap is reached.
 - A member whose access is revoked or has ended stays in the race with their data. Deleting them removes them from it.
 - After adding a member, the link dialog offers to prepare their portfolio: it opens their member page in edit mode.
