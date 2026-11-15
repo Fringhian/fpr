@@ -33,6 +33,10 @@
   "button": {
     "saving": "Saving…"
   },
+  "dialog": {
+    "close": "Close",
+    "cancel": "Cancel"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
@@ -60,6 +64,13 @@
     "loadingPlaceholder": {
       "default": "Loading…"
     }
+  },
+  "menu": {
+    "more": "More actions",
+    "moreFor": "More actions for {{subject}}"
+  },
+  "popover": {
+    "helpLink": "More in How FPR works"
   },
   "moverRow": {
     "empty": "Nothing has moved over the period yet."

@@ -26,10 +26,37 @@ describe("cn", () => {
     expect(cn("gap-xs", "gap-xl")).toBe("gap-xl");
   });
 
+  it("reads 0 as a spacing step", () => {
+    expect(cn("p-m", "p-0")).toBe("p-0");
+    expect(cn("inset-0", "inset-s")).toBe("inset-s");
+    expect(cn("min-h-xl", "min-h-0")).toBe("min-h-0");
+  });
+
   it("reads rounded-s and rounded-l as radius tokens", () => {
     expect(cn("rounded-s", "rounded-l")).toBe("rounded-l");
     expect(cn("rounded-l", "rounded-full")).toBe("rounded-full");
     expect(cn("rounded-m", "rounded-s")).toBe("rounded-s");
+  });
+
+  it("reads rounded-card as a radius token", () => {
+    expect(cn("rounded-l", "rounded-card")).toBe("rounded-card");
+    expect(cn("rounded-card", "rounded-s")).toBe("rounded-s");
+  });
+
+  it("keeps the inset outline ring beside a drop shadow, and lets its colour change", () => {
+    expect(cn("inset-shadow-outline", "shadow-rest")).toBe(
+      "inset-shadow-outline shadow-rest",
+    );
+    expect(cn("inset-shadow-outline", "inset-shadow-error")).toBe(
+      "inset-shadow-outline inset-shadow-error",
+    );
+  });
+
+  it("keeps a soft fill and its role's text together", () => {
+    expect(cn("bg-positive-soft", "text-positive")).toBe(
+      "bg-positive-soft text-positive",
+    );
+    expect(cn("bg-surface", "bg-warning-soft")).toBe("bg-warning-soft");
   });
 
   it("reads the shadows as shadows, not shadow colours", () => {
