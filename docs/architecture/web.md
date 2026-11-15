@@ -240,6 +240,8 @@ FPR is a Progressive Web App. It installs to a phone's home screen or a computer
 
 The web image builds the app and serves it with nginx. nginx serves `index.html` for every unknown path, so routes load directly, and forwards `/api/*` to the API. The browser sees one origin, and session cookies need no cross-site settings.
 
+nginx accepts request bodies up to 2 MB on `PUT /api/me/avatar`, the API's limit for a picture, and up to 1 MB on every other path. A larger picture is answered by nginx with `413` and `{ "error": { "code": "avatar_too_large" } }`.
+
 nginx takes the client's address from the header the host's reverse proxy sets, `CLIENT_IP_HEADER`, logs it, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address). `apps/web/client-ip.conf.template` holds the `real_ip_header` line, written with `CLIENT_IP_HEADER` when the container starts.
 
 nginx serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.

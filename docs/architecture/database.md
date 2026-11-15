@@ -41,7 +41,7 @@ Each table has one writer. Every process can read any table.
 
 | Table | Written by |
 | --- | --- |
-| `user`, `account`, `session`, `verification` | API, through Better Auth |
+| `user`, `account`, `session`, `verification` | API, through Better Auth. A person's profile and picture columns on `user` are written by the API's `/me` routes |
 | `access_keys`, `reset_keys` | API |
 | `portfolio_changes`, `cash_balances` | API |
 | `shares`, `prices`, `manual_price_events` | Price service. A manual share or value entered by a member reaches it through the API. |
@@ -153,8 +153,8 @@ One row per person the admin added. Better Auth's table, extended with FPR's col
 - `email_verified`: Better Auth's. Always `false`: FPR doesn't verify emails.
 - `role`: `admin`, `member`, `guest`, or `anonymous`.
 - `display_name`: the name shown on leaderboards. 1 to 40 characters.
-- `avatar_key`: the uploaded picture's object key in S3-compatible storage. Empty means the person's initial on their colour.
-- `color`: the person's colour, from 1 to 10. Set when the person is added, to the first colour nobody has. The API refuses a colour another person has, unless all ten are taken.
+- `avatar_key`: the uploaded picture's object key in S3-compatible storage, `avatars/<userId>/<version>.webp`. Empty means the person's initial on their colour.
+- `color`: the person's colour, from 1 to 10. Set when the person is added, to the first colour nobody has. The API refuses a colour another person has, unless all ten are taken. Every write that sets a colour first takes the colour lock, `users.lockColors`, a transaction-level advisory lock, then reads the colours in use, so two writes can't give the same free colour to two people.
 - `locale`: `fr` or `en`, once the person picks one in Settings. Empty until then, and the web app is in French.
 - `onboarded_at`: when the person finished onboarding. Empty until then. Anonymous viewers get it when added.
 

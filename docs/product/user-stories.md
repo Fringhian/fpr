@@ -40,7 +40,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Five sign-in attempts from one address within a minute pause sign-in from that address for a minute, and from no other address.
 - A wrong email or reset key gives one generic error that does not say which of the two is wrong.
 - A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
-- A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
+- A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). The photo is kept upright, at most 512 pixels a side, and without the location, camera, or other details the file carried. Removing the photo goes back to the initial.
+- Changing the password ends every other session of the person, on every other device.
 - Each person has one of ten colours, set when they are added to the first colour nobody has. A colour someone else has can't be chosen, unless all ten are taken.
 - Each setting is saved as soon as it changes, the name when the field is left. Settings has no Save button.
 - FPR is in French until a person picks a language, whatever their browser's language. Pages before sign-in are in French.

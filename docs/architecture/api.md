@@ -84,8 +84,8 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 | `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
 | `409` | `value_changed` | A value point is no longer `expectedPriceEur`, or one already exists at the moment a new one is added. `details` has the stored price, `{ priceEur }` |
 | `409` | `refresh_running` | A price refresh while a run is going |
-| `413` | `avatar_too_large` | A picture over 2 MB |
-| `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
+| `413` | `avatar_too_large` | A picture over 2 MB or 40 megapixels |
+| `415` | `avatar_type_unsupported` | A picture whose media type or content isn't JPEG, PNG, or WebP, or that doesn't decode |
 | `422` | `invalid_access_key` | Claiming a key that isn't waiting, or signing in with one that doesn't give access, or with a key of the other kind of person. `details` has its state, `{ state }` |
 | `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair, without saying which |
 | `422` | `invalid_bootstrap_key` | `POST /setup` with a key other than `ADMIN_BOOTSTRAP_KEY` |
@@ -130,9 +130,16 @@ Every write here is rate-limited per client address.
 | `/api/auth/change-password` | Change the password, with the current one. Ends the person's other sessions |
 | `PUT /me/avatar` | Upload a picture, JPEG, PNG, or WebP up to 2 MB, as the raw request body with its media type. Stored in S3-compatible storage |
 | `DELETE /me/avatar` | Go back to the initial on the person's colour |
-| `GET /users/:userId/avatar` | The uploaded picture. A person without one is drawn by the web app as their initial on their colour |
+| `GET /users/:userId/avatar?v=` | The uploaded picture. A person without one is drawn by the web app as their initial on their colour |
 
-A colour another person has is refused with `409`, unless all ten are taken. `PATCH /me`, `PUT /me/avatar`, and `DELETE /me/avatar` answer the person as `GET /me` does. Anonymous viewers see no photos: `GET /users/:userId/avatar` refuses them with `403`.
+`PATCH /me`, `PUT /me/avatar`, and `DELETE /me/avatar` answer the person as `GET /me` does. Guests change their own profile and picture. Anonymous viewers change nothing, and see no photos: `GET /users/:userId/avatar` refuses them with `403`, and their own `avatarUrl` is `null`.
+
+- **Colour**: a colour another person has is refused with `409 color_taken`, unless all ten are taken. Keeping one's own colour is always accepted. Every write that sets a colour takes the colour lock, `users.lockColors`, before reading the colours in use, so of two people picking the same free colour at once, the second is refused.
+- **Onboarding**: `onboarded: true` sets `onboarded_at` once, and later requests keep it.
+- **Change password**: Better Auth's endpoint, `POST /api/auth/change-password` with `{ currentPassword, newPassword }`. The API always ends the person's other sessions, whatever `revokeOtherSessions` the request sends, and the response sets the cookie of the session that continues. Anonymous viewers are refused with `403` and `{ "code": "forbidden" }`.
+- **Upload**: the API reads at most 2 MB of the body, whatever its `Content-Length`, and refuses a compressed body. It checks the picture by its first bytes and by decoding its header: the content is JPEG, PNG, or WebP, the media type is one of the three, the format matches, and the picture is at most 40 megapixels. It stores the picture re-encoded as WebP, turned upright, at most 512 pixels a side, and without metadata, such as a location or a camera. The object key is `avatars/<userId>/<version>.webp`, with a new random version for each upload.
+- **Replace and remove**: an upload stores the new object, then points `avatar_key` at it and removes the old object in one transaction that locks the person's row. When the old object can't be removed, the person keeps the old picture and the new object is removed. `DELETE /me/avatar` removes the object and empties `avatar_key` in one transaction: once it answers, the object is gone.
+- **Serving**: `avatarUrl` is `/api/users/<userId>/avatar?v=<version>`, and changes with the picture. The picture is sent as `image/webp`. A request with the current `v` is answered with `Cache-Control: private, max-age=31536000, immutable`, and any other with `Cache-Control: private, no-cache`. A person without a picture, or an unknown person, is `404`.
 
 ### Portfolio
 
@@ -247,5 +254,5 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
 | `PSEUDONYM_SECRET` | Pseudonyms. At least 32 characters |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
-| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |
+| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage, any S3-compatible service: `http://rustfs:9000` with the `storage` profile, or Cloudflare R2's endpoint with the region `auto`, or AWS S3's. The API addresses the bucket by path and sends checksums only where an operation requires them |
 | `RACE_TIMEZONE` | Where a day starts. Default `Europe/Paris` |
