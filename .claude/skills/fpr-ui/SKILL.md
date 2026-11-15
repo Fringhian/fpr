@@ -148,18 +148,19 @@ cn(
   ```
 
   A control whose focus lands on an inner element uses `has-focus-visible:focus-ring`. A text input marks its focus with its inset outline instead.
+- `dimmed` is the look of a control that can't be used: the not-allowed cursor at 45 % opacity, applied with `disabled:dimmed`.
+- `popup-motion` is a menu's or a popover's popup fading and scaling in from its trigger and out to it, still under reduced motion.
 
 ## Components
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
+- Reuse before building. Before writing a component or a helper, search `src/components` and `src/lib` for one that already draws or computes it, and render or call it. The second copy of any markup, class map, helper or type becomes one shared block, used by both, instead of a copy.
 - Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
 - A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, is one component with data props, the rule inside it. Layout pieces, with no rule to enforce, are compound.
-- A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved before `cn`:
+- A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved after the part's own classes by `stateClassName` from `src/lib/cn.ts`:
 
   ```tsx
-  className={(state) =>
-    cn(classes, typeof className === "function" ? className(state) : className)
-  }
+  className={stateClassName(classes, className)}
   ```
 - A place for an icon is a prop that takes any Phosphor icon (`icon`, or named for its place: `nextIcon`), with a default when the design fixes one, never an icon written into the component. An optional icon prop also accepts `undefined`, so a caller can pass one conditionally.
 - Inside a component, three groups, each separated by a blank line: the hook calls (`useTranslation()`, `useState()`…), then the values derived from props and hooks, then the `return`.
@@ -180,7 +181,7 @@ cn(
   import { cn } from "../../../lib/cn";
 
   const button = cva(
-    ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:opacity-[0.45]"],
+    ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:dimmed"],
     {
       variants: {
         intent: {

@@ -1,6 +1,11 @@
-import { type BarScale, barScale } from "./bar-track";
+import { type UnitScale, unitScale } from "./bar-track";
 import type { Decimal } from "./format";
-import type { GainInput, GainUnit } from "./gain";
+import {
+  type GainAmount,
+  type GainInput,
+  type GainUnit,
+  gainAmount,
+} from "./gain";
 
 /**
  * What a lane shows, by standings: a gain over the period in the unit
@@ -12,21 +17,24 @@ export type LaneValue =
   | { board: "balance"; balance: Decimal | null };
 
 /**
- * The number a lane's bar draws: the gain in the unit asked for, in percent
- * when there are no euros (an anonymous viewer), or the balance in euros.
- * `null` when there is nothing to draw.
+ * The value a lane's bar draws, in the unit it reads in: the gain as
+ * `gainAmount` reads it, in euros without a percentage (a start at zero), or
+ * the balance in euros. `null` when there is nothing to draw.
  */
-export function laneAmount(value: LaneValue): number | null {
+export function laneAmount(value: LaneValue): GainAmount | null {
   if (value.board === "balance") {
-    return value.balance === null ? null : Number(value.balance);
+    return value.balance === null
+      ? null
+      : { amount: value.balance, unit: "eur" };
   }
-  const eur = value.gain.eur ?? null;
-  const amount =
-    value.unit === "eur" && eur !== null ? eur : value.gain.percent;
-  return amount === null ? null : Number(amount);
+  return gainAmount(value.gain, value.unit);
 }
 
-/** The scale every lane of one standings shares: from the lowest value to the highest, zero included. */
-export function laneScale(values: Iterable<LaneValue>): BarScale {
-  return barScale(Array.from(values, laneAmount));
+/**
+ * The scale every lane of one standings shares, in each unit: a lane is drawn
+ * against the biggest lane that reads in its unit. The balance board reads in
+ * euros only.
+ */
+export function laneScale(values: Iterable<LaneValue>): UnitScale {
+  return unitScale(Array.from(values, laneAmount));
 }

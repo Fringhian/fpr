@@ -161,6 +161,18 @@
   outline-offset: 2px;
 }
 
+/* A control that can't be used, applied with `disabled:dimmed`. */
+@utility dimmed {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* A menu's or a popover's popup fading and scaling in from its trigger, and
+   out to it; still under reduced motion. */
+@utility popup-motion {
+  @apply transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none starting-style:scale-[0.96] starting-style:opacity-0 ending-style:scale-[0.96] ending-style:opacity-0;
+}
+
 /* Dialogs, sheets, popovers, menus and disclosures that are open */
 @custom-variant open (&:is([open], :popover-open, :open, [data-open]));
 /* A trigger whose popup is open */

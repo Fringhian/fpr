@@ -11,7 +11,7 @@
 | Server state | TanStack Query |
 | Request and response types | `@fpr/contracts` |
 | Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
-| Class helpers | `cn` (`clsx` and `tailwind-merge`) in `src/lib/cn.ts`; component variants with `class-variance-authority` |
+| Class helpers | `cn` (`clsx` and `tailwind-merge`) and `stateClassName`, a Base UI part's classes then its caller's, in `src/lib/cn.ts`; component variants with `class-variance-authority` |
 | Components | Base UI, wrapped as the app's own components in `src/components/` |
 | Component workshop | Storybook, one story per component |
 | Charts | TradingView Lightweight Charts |
@@ -50,6 +50,8 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 After the tokens, `theme.css` defines the shared utilities and the state variants:
 
 - `focus-ring`, the keyboard focus ring: a 2 px charcoal outline, 2 px off the edge, applied with `focus-visible:focus-ring`.
+- `dimmed`, a control that can't be used: the not-allowed cursor at 45 % opacity, applied with `disabled:dimmed`.
+- `popup-motion`, a menu's or a popover's popup fading and scaling in from its trigger and out to it, still under reduced motion.
 - One variant per component state: `open`, `popup-open`, `starting-style`, `ending-style`, `disabled`, `checked`, `pressed`, `selected`, `highlighted`, `current`, `invalid`. Each matches Base UI's data attribute and, where they exist, the native state and its ARIA attribute.
 
 The Foundations stories in `src/foundations/` show every token with the value it has in the page, and the focus ring on the page, surface and sky backgrounds.
@@ -192,6 +194,7 @@ Numbers, amounts, and dates are formatted with `Intl` by the pure functions of `
 | `formatQuantity` | a decimal string, with the decimals it was entered with | `74.328`, `10`, `1.50` | `74,328`, `10`, `1,50` |
 | `formatDate` | a day (`YYYY-MM-DD`) or a timestamp | `5 Mar`, `5 March 2026`, `Thu 5 Mar` | `5 mars`, `5 mars 2026`, `jeu. 5 mars` |
 | `formatTime` | a timestamp | `14:30` | `14:30` |
+| `formatList` | names | `Kim and Nora` | `Kim et Nora` |
 
 - Every amount, quantity, and percentage arrives as the decimal string the API sends, and `Intl` formats that string exactly, with no floating-point rounding. A value that isn't a decimal string throws a `RangeError`.
 - A quantity keeps the fractional digits its string has, so it reads as entered.

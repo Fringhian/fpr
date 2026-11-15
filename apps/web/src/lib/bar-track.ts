@@ -1,3 +1,5 @@
+import type { GainAmount, GainUnit } from "./gain";
+
 /**
  * The lowest and highest amounts a set of bars draws, zero included: `min`
  * is at most zero and `max` at least zero, so the zero line sits at the same
@@ -29,6 +31,25 @@ export function barScale(amounts: Iterable<number | null>): BarScale {
     }
   }
   return { min, max };
+}
+
+/**
+ * A scale per unit a gain reads in. A gain with no percentage (a start at
+ * zero) reads in euros whatever the unit setting, so each bar is drawn against
+ * the biggest bar of its own unit.
+ */
+export type UnitScale = Readonly<Record<GainUnit, BarScale>>;
+
+/** The scale of a set of bars in each unit, from the values they read as (`gainAmount`). `null` values are left out. */
+export function unitScale(amounts: Iterable<GainAmount | null>): UnitScale {
+  const shown = Array.from(amounts);
+  const inUnit = (unit: GainUnit) =>
+    barScale(
+      shown.map((value) =>
+        value?.unit === unit ? Number(value.amount) : null,
+      ),
+    );
+  return { eur: inUnit("eur"), percent: inUnit("percent") };
 }
 
 const clamp = (percent: number): number => Math.min(100, Math.max(0, percent));

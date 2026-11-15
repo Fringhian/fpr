@@ -1,3 +1,4 @@
+import type { Unit } from "@fpr/contracts";
 import {
   type Decimal,
   formatMoney,
@@ -8,7 +9,7 @@ import type { Language } from "./language";
 import { MINUS } from "./typography";
 
 /** How a gain is expressed: the shared unit setting, `€` or `%`. */
-export type GainUnit = "eur" | "percent";
+export type GainUnit = Unit;
 
 /**
  * A gain as the API sends it. `percent` is `null` from a start at zero. The
