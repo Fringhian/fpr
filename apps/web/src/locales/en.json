@@ -6,6 +6,8 @@
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
     "revoked": "Revoked",
+    "ended": "Ended",
+    "expired": "Link expired",
     "heldBefore": "Held before",
     "saved": "Saved"
   },
@@ -116,6 +118,10 @@
   },
   "popover": {
     "helpLink": "More in How FPR works"
+  },
+  "personRow": {
+    "until": "Until {{date}}",
+    "noEnd": "No end date"
   },
   "timelineRow": {
     "bought": "Bought {{quantity}} {{share}}",
