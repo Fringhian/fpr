@@ -17,6 +17,14 @@
     "notStarted_one": "{{names}} hasn’t started yet.",
     "notStarted_other": "{{names}} haven’t started yet."
   },
+  "standings": {
+    "title": "Standings",
+    "titleOver": "Standings · {{period}}",
+    "empty": {
+      "title": "Nobody’s in the race yet",
+      "body": "The standings fill in as soon as someone records their first share."
+    }
+  },
   "foundations": {
     "formatting": {
       "title": "Formatting",
