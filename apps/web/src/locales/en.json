@@ -23,5 +23,9 @@
   },
   "button": {
     "saving": "Saving…"
+  },
+  "dialog": {
+    "close": "Close",
+    "cancel": "Cancel"
   }
 }

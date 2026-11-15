@@ -23,5 +23,9 @@
   },
   "button": {
     "saving": "Enregistrement…"
+  },
+  "dialog": {
+    "close": "Fermer",
+    "cancel": "Annuler"
   }
 }
