@@ -1,5 +1,6 @@
 import {
   type AnyContractProcedure,
+  type ContractRouter,
   isContractProcedure,
   oc,
 } from "@orpc/contract";
@@ -9,15 +10,24 @@ import {
   errorStatus,
   invalidRequestDetailsSchema,
 } from "./errors.js";
-import { roles as everyRole, type Role } from "./roles.js";
+import { roles as everyRole, type Role, roleSchema } from "./roles.js";
 
 /** Who may call a route: anyone, or the signed-in roles it accepts. */
-export type Access = "public" | readonly [Role, ...Role[]];
+export const accessSchema = z.union([
+  z.literal("public"),
+  z.tuple([roleSchema], roleSchema).readonly(),
+]);
 
-/** What each route declares beyond oRPC's own fields. */
-export interface RouteMeta {
-  roles: Access;
-}
+export type Access = z.infer<typeof accessSchema>;
+
+/**
+ * What each route declares beyond oRPC's own fields: who may call it, set by
+ * `publicRoute` or `signedInRoute(roles)`. The API refuses a route without
+ * it.
+ */
+export const routeMetaSchema = z.object({ roles: accessSchema });
+
+export type RouteMeta = z.infer<typeof routeMetaSchema>;
 
 const detailsSchema = z.record(z.string(), z.unknown()).optional();
 
@@ -89,6 +99,13 @@ export function contractProcedures(
   );
 }
 
+/**
+ * The routes of a contract tree, each declaring who may call it. A route
+ * built from `oc` alone, without `publicRoute` or `signedInRoute(roles)`,
+ * fails to type-check: `apiContract` satisfies it.
+ */
+export type RouteTree = ContractRouter<RouteMeta>;
+
 /** The base of a route anyone may call. */
 export const publicRoute = oc
   .$meta<RouteMeta>({ roles: "public" })
@@ -96,9 +113,9 @@ export const publicRoute = oc
 
 /** The base of a route for signed-in people with one of these roles. */
 export function signedInRoute(roles: readonly [Role, ...Role[]]) {
-  return publicRoute
-    .meta({ roles })
-    .errors(errorMap("unauthenticated", "access_ended"));
+  return oc
+    .$meta<RouteMeta>({ roles })
+    .errors(errorMap("internal_error", "unauthenticated", "access_ended"));
 }
 
 /**

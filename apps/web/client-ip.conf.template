@@ -1,0 +1,3 @@
+# The header the host's reverse proxy carries the client's address in. nginx's image writes
+# /etc/nginx/conf.d/client-ip.conf from this template, with CLIENT_IP_HEADER, when the container starts.
+real_ip_header ${CLIENT_IP_HEADER};

@@ -36,7 +36,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A link already used for setup leads to the sign-in page.
 - A link the admin replaced says so, and to use the latest link.
 - Leaving before the password is set keeps the link valid until its deadline.
-- Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request.
+- Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
+- Five sign-in attempts from one address within a minute pause sign-in from that address for a minute, and from no other address.
 - A wrong email or reset key gives one generic error that does not say which of the two is wrong.
 - A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
@@ -148,6 +149,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A share whose prices haven't arrived yet is left out of its holder's balance, and their row is marked "incomplete" until it arrives.
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
 - The sentence adapts: the person leads, everyone is down, or the person is alone in the race.
+- A guest or an anonymous viewer has no result of their own: Home's sentence names who leads, with their gain.
 - Every share change, cash balance, and manual value edit stays recorded with who made it and when. v1 shows no feed.
 
 ## Comparison — side by side
@@ -231,7 +233,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A pseudonym is the same for the same person on every screen and every visit.
 - A pseudonym is an English adjective and animal, such as Calm Otter, in both languages, like a name.
 - Two people who would get the same pseudonym are told apart by a number suffix: the person added first keeps it, and the next is Calm Otter 2.
-- An anonymous viewer sees the € / % switch on % only, and the standings by gain only.
+- A control an anonymous viewer can't use is hidden, not disabled: there is no € / % switch, since every amount is in %, and the standings rank by gain only, with no gain / balance switch.
 - Access ends at its end date or on revocation, even in the middle of a session.
 
 ## Later
