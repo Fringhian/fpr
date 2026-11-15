@@ -1,8 +1,5 @@
 import { type JSONSchema, type OpenAPI, OpenAPIGenerator } from "@orpc/openapi";
-import {
-  ZodToJsonSchemaConverter,
-  type ZodToJsonSchemaConverterOptions,
-} from "@orpc/zod/zod4";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { z } from "zod";
 import { anonymizeKind } from "./anonymize.js";
 import { apiContract } from "./api/index.js";
@@ -17,22 +14,20 @@ import {
   invalidRequestDetailsSchema,
 } from "./errors.js";
 
-type ConvertInterceptor = NonNullable<
-  ZodToJsonSchemaConverterOptions["interceptors"]
->[number];
-
-/** Adds `x-anonymize` to each field the anonymizer replaces. */
-const markAnonymized: ConvertInterceptor = ({ next, schema }) => {
-  const [required, json] = next();
-  const kind = anonymizeKind(schema);
-  return kind === undefined
-    ? [required, json]
-    : [required, { ...json, "x-anonymize": kind }];
-};
-
 const generator = new OpenAPIGenerator({
   schemaConverters: [
-    new ZodToJsonSchemaConverter({ interceptors: [markAnonymized] }),
+    new ZodToJsonSchemaConverter({
+      interceptors: [
+        // Adds `x-anonymize` to each field the anonymizer replaces.
+        ({ next, schema }) => {
+          const [required, json] = next();
+          const kind = anonymizeKind(schema);
+          return kind === undefined
+            ? [required, json]
+            : [required, { ...json, "x-anonymize": kind }];
+        },
+      ],
+    }),
   ],
 });
 
