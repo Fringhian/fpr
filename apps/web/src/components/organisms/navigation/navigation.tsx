@@ -16,11 +16,11 @@ import {
   useId,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import type { MemberColor } from "../../lib/member-color";
-import { Picture } from "../atoms/picture";
-import { Icon, type IconProps } from "../foundations/icon";
-import * as Menu from "../molecules/menu";
+import { cn } from "../../../lib/cn";
+import type { MemberColor } from "../../../lib/member-color";
+import { Picture } from "../../atoms/picture/picture";
+import { Icon, type IconProps } from "../../foundations/icon/icon";
+import * as Menu from "../../molecules/menu/menu";
 
 /** Who is signed in: it decides which items the navigation shows. */
 export type Role = "admin" | "member" | "guest" | "anonymous";

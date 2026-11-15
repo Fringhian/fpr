@@ -10,9 +10,9 @@ import { WalletIcon } from "@phosphor-icons/react/Wallet";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useTranslation } from "react-i18next";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { cn } from "../../lib/cn";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
+import { cn } from "../../../lib/cn";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
 import * as Navigation from "./navigation";
 
 /** The icons the Controls panel offers for each item, by name. */
