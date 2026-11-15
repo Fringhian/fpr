@@ -1,3 +1,4 @@
+import Big from "big.js";
 import type { Decimal } from "./format";
 
 /** A holding as the allocation reads it: the API's share and its weight in percent of the balance. */
@@ -39,15 +40,19 @@ export const LIGHTEST_TONE = 34;
 /** Tenths of a percent in the whole: the key's weights add up to 100.0 %. */
 const WHOLE = 1000;
 
+const ZERO = new Big(0);
+
 /** A part before rounding, with its weight as given. */
 type Slice =
-  | { kind: "share"; raw: number; holding: AllocationHolding }
-  | { kind: "other"; raw: number; count: number }
-  | { kind: "cash"; raw: number };
+  | { kind: "share"; raw: Big; holding: AllocationHolding }
+  | { kind: "other"; raw: Big; count: number }
+  | { kind: "cash"; raw: Big };
 
-function positive(weight: Decimal | null): number {
-  const value = weight === null ? 0 : Number(weight);
-  return Number.isFinite(value) && value > 0 ? value : 0;
+/** A weight that counts: above zero, or zero when pending or not above it. */
+function positive(weight: Decimal | null): Big {
+  if (weight === null) return ZERO;
+  const value = new Big(weight);
+  return value.gt(ZERO) ? value : ZERO;
 }
 
 /**
@@ -55,18 +60,21 @@ function positive(weight: Decimal | null): number {
  * exactly 100.0 %: each gets its floor, then the biggest remainders get the
  * tenths left over (the largest remainder method).
  */
-function tenths(raws: readonly number[]): number[] {
-  const total = raws.reduce((sum, raw) => sum + raw, 0);
-  const exact = raws.map((raw) => (raw / total) * WHOLE);
-  const floors = exact.map(Math.floor);
-  let left = WHOLE - floors.reduce((sum, floor) => sum + floor, 0);
+function tenths(raws: readonly Big[]): Big[] {
+  const total = raws.reduce((sum, raw) => sum.plus(raw), ZERO);
+  const exact = raws.map((raw) => raw.div(total).times(WHOLE));
+  const floors = exact.map((value) => value.round(0, Big.roundDown));
+  let left = floors.reduce((rest, floor) => rest.minus(floor), new Big(WHOLE));
   const order = exact
-    .map((value, index) => ({ index, remainder: value - Math.floor(value) }))
-    .toSorted((a, b) => b.remainder - a.remainder || a.index - b.index);
+    .map((value, index) => ({
+      index,
+      remainder: value.minus(floors[index] ?? ZERO),
+    }))
+    .toSorted((a, b) => b.remainder.cmp(a.remainder) || a.index - b.index);
   for (const { index } of order) {
-    if (left === 0) break;
-    floors[index] = (floors[index] ?? 0) + 1;
-    left -= 1;
+    if (left.lte(ZERO)) break;
+    floors[index] = (floors[index] ?? ZERO).plus(1);
+    left = left.minus(1);
   }
   return floors;
 }
@@ -92,8 +100,8 @@ export function allocate(
 ): AllocationPart[] {
   const shares = holdings
     .map((holding) => ({ holding, raw: positive(holding.weight) }))
-    .filter(({ raw }) => raw > 0)
-    .toSorted((a, b) => b.raw - a.raw);
+    .filter(({ raw }) => raw.gt(ZERO))
+    .toSorted((a, b) => b.raw.cmp(a.raw));
   const named = shares.slice(0, NAMED_SHARES);
   const folded = shares.slice(NAMED_SHARES);
   const cash = positive(cashWeight);
@@ -106,11 +114,11 @@ export function allocate(
   if (folded.length > 0) {
     slices.push({
       kind: "other",
-      raw: folded.reduce((sum, { raw }) => sum + raw, 0),
+      raw: folded.reduce((sum, { raw }) => sum.plus(raw), ZERO),
       count: folded.length,
     });
   }
-  if (cash > 0) {
+  if (cash.gt(ZERO)) {
     slices.push({ kind: "cash", raw: cash });
   }
   if (slices.length === 0) return [];
@@ -118,7 +126,7 @@ export function allocate(
   const rounded = tenths(slices.map(({ raw }) => raw));
   const coloured = slices.filter(({ kind }) => kind !== "cash").length;
   return slices.map((slice, index): AllocationPart => {
-    const weight = ((rounded[index] ?? 0) / 10).toFixed(1);
+    const weight = (rounded[index] ?? ZERO).div(10).toFixed(1);
     if (slice.kind === "cash") return { kind: "cash", weight };
     const tone = toneAt(index, coloured);
     if (slice.kind === "other") {

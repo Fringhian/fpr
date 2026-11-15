@@ -1,3 +1,4 @@
+import Big from "big.js";
 import type { ComponentProps, CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -92,11 +93,11 @@ export function AllocationBar({
       >
         {parts.map((part) => {
           const { className: tone, style } = fill(part);
-          return Number(part.weight) > 0 ? (
+          return new Big(part.weight).gt(0) ? (
             <span
               key={partKey(part)}
               className={cn("basis-0", tone)}
-              style={{ ...style, flexGrow: Number(part.weight) }}
+              style={{ ...style, flexGrow: part.weight }}
             />
           ) : null;
         })}
