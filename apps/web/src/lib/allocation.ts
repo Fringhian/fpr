@@ -48,28 +48,35 @@ type Slice =
   | { kind: "other"; raw: Big; count: number }
   | { kind: "cash"; raw: Big };
 
-/** A weight that counts: above zero, or zero when pending or not above it. */
+/** A weight that counts: above zero, or zero when pending, not above it, or not a decimal. */
 function positive(weight: Decimal | null): Big {
   if (weight === null) return ZERO;
-  const value = new Big(weight);
+  let value: Big;
+  try {
+    value = new Big(weight);
+  } catch {
+    return ZERO;
+  }
   return value.gt(ZERO) ? value : ZERO;
 }
 
 /**
  * Rounds each slice to tenths of a percent of their total so they add up to
  * exactly 100.0 %: each gets its floor, then the biggest remainders get the
- * tenths left over (the largest remainder method).
+ * tenths left over (the largest remainder method). Every step is exact: the
+ * floor and the remainder come from the integer division of `raw × WHOLE` by
+ * the total.
  */
 function tenths(raws: readonly Big[]): Big[] {
   const total = raws.reduce((sum, raw) => sum.plus(raw), ZERO);
-  const exact = raws.map((raw) => raw.div(total).times(WHOLE));
-  const floors = exact.map((value) => value.round(0, Big.roundDown));
+  const scaled = raws.map((raw) => raw.times(WHOLE));
+  const remainders = scaled.map((value) => value.mod(total));
+  const floors = scaled.map((value, index) =>
+    value.minus(remainders[index] ?? ZERO).div(total),
+  );
   let left = floors.reduce((rest, floor) => rest.minus(floor), new Big(WHOLE));
-  const order = exact
-    .map((value, index) => ({
-      index,
-      remainder: value.minus(floors[index] ?? ZERO),
-    }))
+  const order = remainders
+    .map((remainder, index) => ({ index, remainder }))
     .toSorted((a, b) => b.remainder.cmp(a.remainder) || a.index - b.index);
   for (const { index } of order) {
     if (left.lte(ZERO)) break;
