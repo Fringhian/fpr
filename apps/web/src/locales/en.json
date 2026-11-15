@@ -2,11 +2,30 @@
   "badge": {
     "manual": "Manual",
     "pricePending": "Price pending",
+    "incomplete": "Incomplete",
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
     "revoked": "Revoked",
+    "ended": "Ended",
+    "expired": "Link expired",
     "heldBefore": "Held before",
     "saved": "Saved"
+  },
+  "lane": {
+    "you": "· you",
+    "best": "Best: {{share}}",
+    "bestShare": "Best share",
+    "since": "since {{date}}",
+    "notStarted_one": "{{names}} hasn’t started yet.",
+    "notStarted_other": "{{names}} haven’t started yet."
+  },
+  "standings": {
+    "title": "Standings",
+    "titleOver": "Standings · {{period}}",
+    "empty": {
+      "title": "Nobody’s in the race yet",
+      "body": "The standings fill in as soon as someone records their first share."
+    }
   },
   "foundations": {
     "formatting": {
@@ -32,6 +51,12 @@
   },
   "button": {
     "saving": "Saving…"
+  },
+  "field": {
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "dialog": {
     "close": "Close",
@@ -102,6 +127,44 @@
   "popover": {
     "helpLink": "More in How FPR works"
   },
+  "personRow": {
+    "until": "Until {{date}}",
+    "noEnd": "No end date"
+  },
+  "timelineRow": {
+    "bought": "Bought {{quantity}} {{share}}",
+    "sold": "Sold {{quantity}} {{share}}",
+    "cashSet": "Cash set to {{amount}}",
+    "valueAdded": "Value of {{price}} added",
+    "valueEdited": "Value changed to {{price}}",
+    "held": "{{before}} → {{after}}",
+    "heldSpoken": "from {{before}} to {{after}} units held",
+    "newHolding": "New holding",
+    "firstCash": "First cash entry",
+    "was": "was {{before}}",
+    "madeBy": "by {{name}}",
+    "subject": "{{title}}, {{date}}"
+  },
+  "chart": {
+    "keys": "The left and right arrow keys move from day to day, Home and End go to the first and last days, and Escape leaves.",
+    "point": "{{date}}: {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, not final"
+  },
+  "holdingCard": {
+    "units_one": "{{quantity}} unit",
+    "units_other": "{{quantity}} units",
+    "asOfTime": "as of {{time}}",
+    "asOfDate": "as of {{date}}",
+    "closeOf": "close of {{date}}",
+    "curve": "{{name}}, price over the period",
+    "loadingPrices": "Loading its prices…",
+    "notCounted": "not counted yet",
+    "ofPortfolio": "of the portfolio",
+    "cash": "Cash",
+    "setOn": "Set on {{date}}",
+    "updateCash": "Update cash"
+  },
   "controls": {
     "period": {
       "label": "Period",
@@ -139,6 +202,11 @@
       "YTD": "This year",
       "all": "All time"
     }
+  },
+  "allocationBar": {
+    "label": "How it’s split",
+    "other": "Other",
+    "cash": "Cash"
   },
   "pageBar": {
     "back": "Back to"

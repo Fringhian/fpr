@@ -6,6 +6,7 @@ import {
 } from "@fpr/contracts";
 import type { Logger } from "pino";
 import { z } from "zod";
+import type { CallBudget } from "../budget.js";
 import {
   callProvider,
   type Fetch,
@@ -66,6 +67,8 @@ const eodRowSchema = z.object({
 export interface EodhdProviderOptions {
   apiKey: string;
   logger: Logger;
+  /** The day's call budget every request is counted against. */
+  budget: CallBudget;
   /** Defaults to the global `fetch`. */
   fetch?: Fetch;
   /** Defaults to `eodhdBaseUrl`. */
@@ -91,6 +94,7 @@ export function createEodhdProvider(
     provider: "eodhd",
     logger,
     fetch: options.fetch ?? fetch,
+    budget: options.budget,
   };
 
   function endpointUrl(

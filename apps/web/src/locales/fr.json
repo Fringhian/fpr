@@ -2,11 +2,31 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
     "revoked": "Révoqué",
+    "ended": "Terminé",
+    "expired": "Lien expiré",
     "heldBefore": "Détenue auparavant",
     "saved": "Enregistré"
+  },
+  "lane": {
+    "you": "· vous",
+    "best": "Meilleure : {{share}}",
+    "bestShare": "Meilleure action",
+    "since": "depuis le {{date}}",
+    "notStarted_one": "{{names}} n’a pas encore commencé.",
+    "notStarted_many": "{{names}} n’ont pas encore commencé.",
+    "notStarted_other": "{{names}} n’ont pas encore commencé."
+  },
+  "standings": {
+    "title": "Classement",
+    "titleOver": "Classement · {{period}}",
+    "empty": {
+      "title": "Personne n’est encore dans la course",
+      "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
+    }
   },
   "foundations": {
     "formatting": {
@@ -32,6 +52,12 @@
   },
   "button": {
     "saving": "Enregistrement…"
+  },
+  "field": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "dialog": {
     "close": "Fermer",
@@ -105,6 +131,45 @@
   "popover": {
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
+  "personRow": {
+    "until": "Jusqu’au {{date}}",
+    "noEnd": "Sans date de fin"
+  },
+  "timelineRow": {
+    "bought": "Achat de {{quantity}} {{share}}",
+    "sold": "Vente de {{quantity}} {{share}}",
+    "cashSet": "Liquidités fixées à {{amount}}",
+    "valueAdded": "Valeur de {{price}} ajoutée",
+    "valueEdited": "Valeur corrigée à {{price}}",
+    "held": "{{before}} → {{after}}",
+    "heldSpoken": "de {{before}} à {{after}} parts détenues",
+    "newHolding": "Nouvelle ligne",
+    "firstCash": "Premières liquidités saisies",
+    "was": "au lieu de {{before}}",
+    "madeBy": "par {{name}}",
+    "subject": "{{title}}, {{date}}"
+  },
+  "chart": {
+    "keys": "Les flèches gauche et droite passent d’un jour à l’autre, Début et Fin vont au premier et au dernier jour, et Échap quitte.",
+    "point": "{{date}} : {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, provisoire"
+  },
+  "holdingCard": {
+    "units_one": "{{quantity}} part",
+    "units_many": "{{quantity}} de parts",
+    "units_other": "{{quantity}} parts",
+    "asOfTime": "à {{time}}",
+    "asOfDate": "au {{date}}",
+    "closeOf": "clôture du {{date}}",
+    "curve": "{{name}}, cours sur la période",
+    "loadingPrices": "Chargement de ses cours…",
+    "notCounted": "pas encore compté",
+    "ofPortfolio": "du portefeuille",
+    "cash": "Liquidités",
+    "setOn": "Définies le {{date}}",
+    "updateCash": "Modifier les liquidités"
+  },
   "controls": {
     "period": {
       "label": "Période",
@@ -142,6 +207,11 @@
       "YTD": "Cette année",
       "all": "Depuis le début"
     }
+  },
+  "allocationBar": {
+    "label": "Répartition",
+    "other": "Autres",
+    "cash": "Liquidités"
   },
   "pageBar": {
     "back": "Retour vers"
