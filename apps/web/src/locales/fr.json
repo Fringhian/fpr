@@ -147,6 +147,18 @@
       "en": "English"
     }
   },
+  "periodControl": {
+    "title": "Période",
+    "summary": "{{period}} · {{unit}}",
+    "period": {
+      "1D": "Aujourd’hui",
+      "1W": "Cette semaine",
+      "1M": "Ce mois-ci",
+      "3M": "3 mois",
+      "YTD": "Cette année",
+      "all": "Depuis le début"
+    }
+  },
   "allocationBar": {
     "label": "Répartition",
     "other": "Autres",

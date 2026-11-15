@@ -233,7 +233,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A pseudonym is the same for the same person on every screen and every visit.
 - A pseudonym is an English adjective and animal, such as Calm Otter, in both languages, like a name.
 - Two people who would get the same pseudonym are told apart by a number suffix: the person added first keeps it, and the next is Calm Otter 2.
-- An anonymous viewer sees the € / % switch on % only, and the standings by gain only.
+- A control an anonymous viewer can't use is hidden, not disabled: there is no € / % switch, since every amount is in %, and the standings rank by gain only, with no gain / balance switch.
 - Access ends at its end date or on revocation, even in the middle of a session.
 
 ## Later
