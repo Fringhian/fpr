@@ -97,5 +97,16 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "allocationBar": {
+    "label": "How it’s split",
+    "other": "Other",
+    "cash": "Cash"
+  },
+  "chart": {
+    "keys": "The left and right arrow keys move from day to day, Home and End go to the first and last days, and Escape leaves.",
+    "point": "{{date}}: {{values}}",
+    "lineValue": "{{label}} {{value}}",
+    "notFinal": "{{date}}, not final"
   }
 }

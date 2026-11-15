@@ -32,12 +32,15 @@ export type * from "./api/shares/index.js";
 export { shareValueActions } from "./api/shares/values.js";
 export {
   type Access,
+  accessSchema,
   type ContractTree,
   contractProcedures,
   errorMap,
   errorWithDetails,
   publicRoute,
   type RouteMeta,
+  type RouteTree,
+  routeMetaSchema,
   signedInRoute,
 } from "./contract.js";
 export { type Decimal, decimalPattern, decimalSchema } from "./decimal.js";
