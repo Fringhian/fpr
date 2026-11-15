@@ -59,7 +59,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Figtree is the one typeface. `@fontsource-variable/figtree`, imported in `src/index.css`, ships it with the build as woff2 files with `font-display: swap`, on a variable weight axis from 300 to 900.
 - Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
 - Figures that line up, such as amounts, percentages, ranks, and times, use Tailwind's `tabular-nums`.
-- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon.tsx`:
+- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon/icon.tsx`:
 
 | Prop | Values |
 | --- | --- |
@@ -76,7 +76,8 @@ The Foundations stories in `src/foundations/` show every token with the value it
 
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
-- Components live in `src/components/foundations/`, `atoms/`, `molecules/` and `organisms/`, each in the folder of its story's sidebar group, with its stories and any `-model.ts` beside it.
+- Each component lives in its own folder, `src/components/<group>/<component>/`, where the group is its story's sidebar group: `foundations`, `atoms`, `molecules` or `organisms`. The folder holds the component, its stories and any `-model.ts`: `atoms/button/button.tsx` beside `atoms/button/button.stories.tsx`. Components shown in one story file share one folder.
+- Imports name the file itself (`../../atoms/button/button`). There are no barrel files.
 - Components have no unit tests: their stories are their check, run in Chromium with the accessibility checks by `test-storybook`.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
 - The language menu in the toolbar shows every story in English or French, through the `locale` global; a story can fix its own with `globals: { locale: "fr" }`. "Foundations/Formatting" shows every formatter in the chosen language.
@@ -99,7 +100,7 @@ The design files fix each screen and component until it is built in `apps/web`. 
 
 ## Sky and ridge
 
-The page background is the `Sky` component in `src/components/foundations/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
+The page background is the `Sky` component in `src/components/foundations/sky/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky/sky"`), with its story under Foundations, Sky and ridge.
 
 | Part | What it is |
 | --- | --- |
