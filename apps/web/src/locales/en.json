@@ -72,5 +72,8 @@
       "starShareFirst": "Star share <chip/>",
       "separator": " · "
     }
+  },
+  "button": {
+    "saving": "Saving…"
   }
 }

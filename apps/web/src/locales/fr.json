@@ -75,5 +75,8 @@
       "starShareFirst": "Titre vedette <chip/>",
       "separator": " · "
     }
+  },
+  "button": {
+    "saving": "Enregistrement…"
   }
 }
