@@ -53,7 +53,7 @@ The shared period and € / %: one setting for every page, shown at the right of
 - **Controlled**: \`value\` (\`{ period, unit }\`, with the API’s names: \`"1M"\`, \`"eur"\` or \`"percent"\`) and \`onChange\`, called with the whole new setting. The app shell keeps it, in \`localStorage\` and the URL.
 - **Keyboard**: each row is a capsule segment: Tab reaches it, the arrow keys move between its options, Space or Enter picks one. The sheet keeps focus inside until Escape, the ✕ or a press on the dimmed page closes it.
 
-\`import { PeriodControl } from "…/period-control"\`, with \`PeriodSetting\` beside it. The periods and units are \`periods\` and \`units\` from \`@fpr/contracts\`.
+\`import { PeriodControl } from "…/period-control"\`, with \`PeriodSetting\` beside it. The periods and units are \`periods\` and \`units\` from \`@fpr/contracts/values\`.
 
 The controls change the setting, the anonymous version, and the phone capsule’s icon. The **Phone** stories in the sidebar show the capsule and its sheet.
 `;

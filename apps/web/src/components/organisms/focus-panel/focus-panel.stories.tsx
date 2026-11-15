@@ -1,4 +1,4 @@
-import { periods } from "@fpr/contracts";
+import { periods } from "@fpr/contracts/values";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";

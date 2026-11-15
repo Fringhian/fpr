@@ -1,4 +1,5 @@
-import { type Period, periods, units } from "@fpr/contracts";
+import type { Period } from "@fpr/contracts";
+import { periods, units } from "@fpr/contracts/values";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
