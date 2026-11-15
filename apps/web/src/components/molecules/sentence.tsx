@@ -12,10 +12,10 @@ import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import type { MemberColor } from "../../lib/member-color";
 import type { TimeOfDay } from "../../lib/time-of-day";
-import { Chip } from "./chip";
-import { GainValue } from "./gain-value";
-import { Picture } from "./picture";
-import { TrailSign } from "./trail-sign";
+import { Chip } from "../atoms/chip";
+import { GainValue } from "../atoms/gain-value";
+import { Picture } from "../atoms/picture";
+import { TrailSign } from "../atoms/trail-sign";
 
 /**
  * The header sentence's block: the greeting, the headline, then the story

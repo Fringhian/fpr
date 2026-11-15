@@ -3,11 +3,11 @@ import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
 import { MEMBER_COLORS } from "../../lib/member-color";
-import { Chip } from "./chip";
-import { Picture } from "./picture";
+import { Chip } from "../atoms/chip";
+import { Picture } from "../atoms/picture";
+import { TrailSign } from "../atoms/trail-sign";
+import * as Sky from "../foundations/sky";
 import * as Sentence from "./sentence";
-import * as Sky from "./sky";
-import { TrailSign } from "./trail-sign";
 
 /** Stands in for the page bar, at its height in the design. */
 function PageBar() {
