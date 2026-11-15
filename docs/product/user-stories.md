@@ -36,8 +36,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A link already used for setup leads to the sign-in page.
 - A link the admin replaced says so, and to use the latest link.
 - Leaving before the password is set keeps the link valid until its deadline.
-- Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request. A wrong password says only that the email or password is wrong, whatever the person's access.
-- Five sign-in attempts from one address within a minute pause sign-in from that address for a minute.
+- Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
+- Five sign-in attempts from one address within a minute pause sign-in from that address for a minute, and from no other address.
 - A wrong email or reset key gives one generic error that does not say which of the two is wrong.
 - A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.

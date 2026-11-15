@@ -49,7 +49,7 @@ flowchart LR
 ```
 
 1. **Session**: a write, any method but `GET` and `HEAD`, whose `Origin` header isn't `PUBLIC_URL`'s origin is refused with `403 forbidden`, public routes included, and so is a write without an `Origin`. Public routes then go to the handler, without a session. On any other route, Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie.
-2. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. See `auth.md`.
+2. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. Better Auth's endpoints at `/api/auth/*` run the same check, `keepsAccess`, through `authAccessCheck`, except sign-in and sign-out. See `auth.md`.
 3. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`. A write to a path with `{userId}` is refused unless the person is the admin or `userId` is their own id.
 4. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
 5. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`.
@@ -96,7 +96,7 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 
 Every role can read every member's data. A `:userId` write acts on one member's data: a member may write only their own, the admin anyone's.
 
-The API sits behind `web`, and trusts the client address `web` forwards in `X-Forwarded-For`, so rate limits apply per real client.
+The API sits behind `web`, and trusts the client address `web` forwards as the only value of `X-Forwarded-For`, so rate limits apply per real client. `web` resolves it from the host's reverse proxy: see `auth.md`, Client address. A request to `/api/auth/*` without one is not rate-limited, and the first one is logged as an error.
 
 ### Public
 
