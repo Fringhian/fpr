@@ -114,23 +114,24 @@ function Account({ side, align, separator, defaultOpen }: MenuArgs) {
 }
 
 const DESCRIPTION = `
-A list of actions that opens from a button, on Base UI’s menu: the ⋯ menu of a card or a row, and the account menu opened from your picture. Import it as a namespace: \`import * as Menu from "…/menu"\`.
+A list of actions that opens from a button: the ⋯ menu of a card or a row, and the account menu opened from your picture. From tablet up, a popup beside its trigger, on Base UI’s menu; on phone, a sheet rising from the bottom, on the dialog. The menu checks the width itself: the same parts give both. Import it as a namespace: \`import * as Menu from "…/menu"\`.
 
 | Part | What it is |
 | --- | --- |
-| \`Menu.Root\` | The menu’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. |
+| \`Menu.Root\` | The menu’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. It picks the popup or the sheet. |
 | \`Menu.Trigger\` | The button that opens it, such as your picture. \`render\` swaps in another element. |
 | \`Menu.MoreTrigger\` | The more-actions icon button, three dots by default; \`icon\` takes any Phosphor icon. \`subject\` names what it acts on for screen readers: “More actions for Sam”. |
-| \`Menu.Popup\` | The floating list, in a portal. \`side\` and \`align\` place it beside the trigger: below it and aligned to its end by default. |
+| \`Menu.Popup\` | The list. From tablet up, floating in a portal: \`side\` and \`align\` place it beside the trigger, below it and aligned to its end by default. On phone, the sheet, named by its trigger, with Cancel under the items. |
 | \`Menu.Item\` | An action. \`intent="danger"\` writes it in red, for deleting, revoking, or signing out. |
 | \`Menu.LinkItem\` | An item that goes to another page, such as How FPR works. \`render\` composes it with the router’s link. |
 | \`Menu.Separator\` | A line between groups, such as before the danger item. |
 
-- Base UI’s keyboard and screen-reader behaviour: Enter, Space or the down arrow opens the menu on its first item, the arrows and Home and End move through the items, typing a letter jumps to an item, Enter chooses one, and Escape closes the menu and puts focus back on its trigger.
-- The item under the pointer or the arrow keys has the highlight tint. The danger item goes last, after a separator.
-- It fades and scales in from its trigger, without motion when the reader asks for less.
+- The popup has Base UI’s keyboard and screen-reader behaviour: Enter, Space or the down arrow opens the menu on its first item, the arrows and Home and End move through the items, typing a letter jumps to an item, Enter chooses one, and Escape closes the menu and puts focus back on its trigger.
+- The sheet is a dialog of buttons, each at least 48px tall: choosing one, Cancel, Escape or a tap on the dimmed page closes it.
+- The item under the pointer, the arrow keys or a finger has the highlight tint. The danger item goes last, after a separator.
+- The popup fades and scales in from its trigger, the sheet rises; with reduced motion, neither moves.
 
-The menus start open, so the look shows at once. The **Keyboard** story in the sidebar tests the keyboard, and the **Phone** and **Tablet** stories show the narrower widths.
+The menus start open, so the look shows at once. The **Keyboard** story in the sidebar tests the keyboard, the **Phone** story tests the sheet, and the **Tablet** story shows the popup at that width.
 `;
 
 const meta = {
@@ -253,10 +254,46 @@ export const Keyboard: Story = {
   },
 };
 
-/** The Docs page can't narrow a story, so the narrower widths live in the sidebar only. */
+/** On phone, a sheet named by its trigger: the items as buttons, then Cancel. Choosing an item closes it. The Docs page can't narrow a story, so it lives in the sidebar only. */
 export const Phone: Story = {
   tags: ["!autodocs"],
   globals: { viewport: { value: "phone" } },
+  play: async ({ canvasElement, step }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    // The open sheet is modal: the page behind, its trigger included, is hidden from screen readers.
+    const trigger = within(canvasElement).getByRole("button", {
+      name: "More actions for Sam",
+      hidden: true,
+    });
+
+    await step("The sheet lists the items, then Cancel", async () => {
+      const sheet = await page.findByRole("dialog", {
+        name: "More actions for Sam",
+      });
+      await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+      await expect(page.queryByRole("menu")).toBeNull();
+      const buttons = within(sheet).getAllByRole("button");
+      await expect(buttons.map((button) => button.textContent)).toEqual([
+        "Edit",
+        "Edit portfolio",
+        "Replace link",
+        "Delete",
+        "Cancel",
+      ]);
+    });
+
+    await step("Choosing an item closes it", async () => {
+      await userEvent.click(page.getByRole("button", { name: "Edit" }));
+      await waitFor(() => expect(page.queryByRole("dialog")).toBeNull());
+    });
+
+    await step("The ⋯ opens it again", async () => {
+      await userEvent.click(trigger);
+      await expect(
+        await page.findByRole("dialog", { name: "More actions for Sam" }),
+      ).toBeVisible();
+    });
+  },
 };
 
 export const Tablet: Story = {
