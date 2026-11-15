@@ -5,7 +5,7 @@ import type { MoneyPrecision } from "../../lib/format";
 import { type GainInput, type GainUnit, gainDisplay } from "../../lib/gain";
 import { useLanguage } from "../../lib/i18n";
 
-export interface GainProps {
+export interface GainOwnProps {
   /**
    * The gain as the API sends it: `{ eur, percent }`, decimal strings.
    * `percent` is `null` from a start at zero; an anonymous viewer has no `eur`.
@@ -17,11 +17,12 @@ export interface GainProps {
    */
   unit: GainUnit;
   /** `cents` (the default) for a holding's gain, `euros` for a balance's. */
-  precision?: MoneyPrecision;
+  precision?: MoneyPrecision | undefined;
 }
 
-export type GainValueProps = GainProps &
-  Omit<ComponentProps<"span">, keyof GainProps | "children">;
+/** The part writes its own text: it takes every prop of a `<span>` but `children`. */
+export type GainValueProps = GainOwnProps &
+  Omit<ComponentProps<"span">, keyof GainOwnProps | "children">;
 
 const gainValue = cva("font-semibold tabular-nums", {
   variants: {
@@ -46,11 +47,10 @@ export function GainValue({
   ...props
 }: GainValueProps) {
   const language = useLanguage();
+
   const shown = gainDisplay(gain, unit, language, { precision });
-  if (shown === null) {
-    return null;
-  }
-  return (
+
+  return shown === null ? null : (
     <span {...props} className={cn(gainValue({ tone: shown.tone }), className)}>
       {shown.text}
     </span>

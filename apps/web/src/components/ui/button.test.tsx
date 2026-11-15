@@ -1,3 +1,5 @@
+import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
+import { PlusIcon } from "@phosphor-icons/react/Plus";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
@@ -69,5 +71,50 @@ describe("Button", () => {
         </Button>,
       ),
     ).not.toMatch(arrow);
+  });
+
+  it("draws any icon for the next step", () => {
+    const arrow = render(
+      <Button size="step" next>
+        Choose the date
+      </Button>,
+    );
+    const caret = render(
+      <Button size="step" next nextIcon={CaretRightIcon}>
+        Choose the date
+      </Button>,
+    );
+
+    expect(caret).toMatch(/<svg/);
+    expect(caret).not.toBe(arrow);
+  });
+
+  it("leads its label with an icon, hidden from screen readers", () => {
+    const markup = render(<Button icon={PlusIcon}>Record a change</Button>);
+
+    expect(markup).toMatch(
+      /<svg[^>]*aria-hidden="true"[^>]*>.*<\/svg>Record a change/,
+    );
+    expect(render(<Button>Record a change</Button>)).not.toMatch(/<svg/);
+  });
+
+  it("takes className as a string or as a function of its state", () => {
+    expect(render(<Button className="w-full">Sell</Button>)).toMatch(
+      /<button[^>]*class="[^"]*w-full/,
+    );
+
+    const byState = (state: { disabled: boolean }) =>
+      state.disabled ? "is-off" : "is-on";
+
+    expect(render(<Button className={byState}>Sell</Button>)).toMatch(
+      /<button[^>]*class="[^"]*is-on/,
+    );
+    expect(
+      render(
+        <Button disabled className={byState}>
+          Sell
+        </Button>,
+      ),
+    ).toMatch(/<button[^>]*class="[^"]*is-off/);
   });
 });
