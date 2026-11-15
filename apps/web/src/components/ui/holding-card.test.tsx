@@ -1,4 +1,6 @@
-import type { ReactElement } from "react";
+import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
+import { ListIcon } from "@phosphor-icons/react/List";
+import type { ComponentProps, ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
@@ -11,6 +13,11 @@ function render(element: ReactElement, language: Language = "en"): string {
   return renderToStaticMarkup(
     <I18nextProvider i18n={createI18n(language)}>{element}</I18nextProvider>,
   );
+}
+
+/** The share page's link, as the router's `<Link>` would be: the card gives it its content. */
+function ShareLink(props: ComponentProps<"a">) {
+  return <a {...props} href="#share" />;
 }
 
 /** An invented holding, priced by today's refresh. No curve: the chart draws in a browser only. */
@@ -93,6 +100,32 @@ describe("HoldingCard", () => {
     ).toContain('aria-label="More actions for World Index ETF"');
   });
 
+  it("draws any icon for its ⋯ button and its link", () => {
+    const actions = <span>Sell</span>;
+    const link = <ShareLink />;
+    const dots = render(<HoldingCard {...HOLDING} actions={actions} />);
+    const list = render(
+      <HoldingCard {...HOLDING} actions={actions} actionsIcon={ListIcon} />,
+    );
+    const caret = render(<HoldingCard {...HOLDING} link={link} />);
+    const arrow = render(
+      <HoldingCard {...HOLDING} link={link} linkIcon={ArrowRightIcon} />,
+    );
+
+    expect(list).toMatch(/<svg/);
+    expect(list).not.toBe(dots);
+    expect(arrow).not.toBe(caret);
+  });
+
+  it("passes every other prop to the article", () => {
+    const html = render(
+      <HoldingCard {...HOLDING} id="holding" className="col-span-2" />,
+    );
+
+    expect(html).toMatch(/^<article id="holding"/);
+    expect(html).toContain("col-span-2");
+  });
+
   it("colours a loss with its minus sign", () => {
     const html = render(
       <HoldingCard
@@ -119,6 +152,20 @@ describe("CashCard", () => {
     expect(html).toContain("Set on 1 Mar");
     expect(html).toContain("€2,000");
     expect(html).toContain("Update cash");
+  });
+
+  it("draws any icon after Update cash", () => {
+    const caret = render(<CashCard weight="16.7" onUpdateCash={() => {}} />);
+    const arrow = render(
+      <CashCard
+        weight="16.7"
+        onUpdateCash={() => {}}
+        updateCashIcon={ArrowRightIcon}
+      />,
+    );
+
+    expect(arrow).toMatch(/Update cash<svg/);
+    expect(arrow).not.toBe(caret);
   });
 
   it("shows an anonymous viewer the weight, with no action", () => {

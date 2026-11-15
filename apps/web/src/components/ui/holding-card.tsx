@@ -1,5 +1,6 @@
 import { useRender } from "@base-ui/react/use-render";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import {
   type ComponentProps,
   type ReactElement,
@@ -30,6 +31,7 @@ import {
 } from "./chart";
 import { GainChip } from "./gain-chip";
 import { Icon, type IconProps } from "./icon";
+import { IconButton } from "./icon-button";
 import { LoadingPlaceholder } from "./loading-placeholder";
 import * as Menu from "./menu";
 import { TextLink } from "./text-link";
@@ -158,10 +160,12 @@ interface HoldingCardOwnProps {
   anonymous?: boolean;
   /** Makes the card open the share's page: an `<a href>`, or the router's link, `<Link to="/shares/$shareId" … />`. The name then ends with `linkIcon`. */
   link?: ReactElement | undefined;
-  /** The icon that ends a linked name. A caret by default. */
-  linkIcon?: IconProps["icon"];
+  /** The icon that ends a linked name, any Phosphor icon. A caret by default. */
+  linkIcon?: IconProps["icon"] | undefined;
   /** The items of the card's ⋯ menu, such as Buy more and Sell (`Menu.Item`, `Menu.LinkItem`). Without them, the card has no ⋯ button. */
   actions?: ReactNode;
+  /** The icon of the button that opens `actions`, any Phosphor icon. Three dots by default. */
+  actionsIcon?: IconProps["icon"] | undefined;
   /** The time zone a price's time and day are read in. The browser's by default. */
   timeZone?: string | undefined;
 }
@@ -190,6 +194,7 @@ export function HoldingCard({
   link,
   linkIcon = CaretRightIcon,
   actions,
+  actionsIcon = DotsThreeIcon,
   timeZone,
   className,
   ...props
@@ -247,7 +252,22 @@ export function HoldingCard({
         {kind === "manual" ? <Badge state="manual" /> : null}
         {actions === undefined ? null : (
           <Menu.Root>
-            <Menu.MoreTrigger subject={name} size="s" className="relative" />
+            <Menu.Trigger
+              render={
+                <IconButton
+                  icon={actionsIcon}
+                  label={t("menu.moreFor", { subject: name })}
+                  size="s"
+                  className={cn(
+                    "relative",
+                    "",
+                    "",
+                    "",
+                    "popup-open:bg-highlight popup-open:text-primary",
+                  )}
+                />
+              }
+            />
             <Menu.Popup>{actions}</Menu.Popup>
           </Menu.Root>
         )}
@@ -299,6 +319,8 @@ interface CashCardOwnProps {
   anonymous?: boolean;
   /** Opens the cash step of Record a change. Without it, the card has no Update cash action. */
   onUpdateCash?: (() => void) | undefined;
+  /** The icon that ends Update cash, any Phosphor icon. A caret by default. */
+  updateCashIcon?: IconProps["icon"] | undefined;
   /** The time zone a moment's day is read in. The browser's by default. */
   timeZone?: string | undefined;
 }
@@ -313,6 +335,7 @@ export function CashCard({
   setOn,
   anonymous = false,
   onUpdateCash,
+  updateCashIcon,
   timeZone,
   className,
   ...props
@@ -352,7 +375,8 @@ export function CashCard({
         )}
         {onUpdateCash === undefined ? null : (
           <TextLink
-            caret
+            toPage
+            toPageIcon={updateCashIcon}
             render={<button type="button" />}
             onClick={onUpdateCash}
             className="cursor-pointer bg-transparent text-s"

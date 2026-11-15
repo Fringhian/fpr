@@ -1,5 +1,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
+import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
+import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ComponentProps } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
@@ -53,6 +55,7 @@ const TEXTS = {
 /** Buy more and Sell, as Portfolio passes them to your own holding’s ⋯ menu. */
 function Actions() {
   const text = TEXTS[useLanguage()];
+
   return (
     <>
       <Menu.Item>{text.buyMore}</Menu.Item>
@@ -67,15 +70,25 @@ const LINK_ICONS = {
   "arrow-right": ArrowRightIcon,
 } as const;
 
+/** The ⋯ button's icons the Controls panel offers, by name. */
+const ACTIONS_ICONS = {
+  "dots-three": DotsThreeIcon,
+  "dots-three-vertical": DotsThreeVerticalIcon,
+} as const;
+
 /**
  * The stories’ args: the card’s props, with its slots picked in the Controls
- * panel. `link` and `actions` turn on the share link and the ⋯ menu, and the
- * link icon is picked by name.
+ * panel. `link` and `actions` turn on the share link and the ⋯ menu, and
+ * their icons are picked by name.
  */
-type StoryArgs = Omit<HoldingCardProps, "link" | "linkIcon" | "actions"> & {
+type StoryArgs = Omit<
+  HoldingCardProps,
+  "link" | "linkIcon" | "actions" | "actionsIcon"
+> & {
   link: boolean;
   linkIcon: keyof typeof LINK_ICONS;
   actions: boolean;
+  actionsIcon: keyof typeof ACTIONS_ICONS;
 };
 
 /** The share page's link, as the router's `<Link>` would be: the card gives it its content. */
@@ -83,7 +96,7 @@ function ShareLink(props: ComponentProps<"a">) {
   return <a {...props} href="#share" />;
 }
 
-function Card({ link, linkIcon, actions, ...props }: StoryArgs) {
+function Card({ link, linkIcon, actions, actionsIcon, ...props }: StoryArgs) {
   return (
     <div className="max-w-[17rem]">
       <HoldingCard
@@ -91,6 +104,7 @@ function Card({ link, linkIcon, actions, ...props }: StoryArgs) {
         link={link ? <ShareLink /> : undefined}
         linkIcon={LINK_ICONS[linkIcon]}
         actions={actions ? <Actions /> : undefined}
+        actionsIcon={ACTIONS_ICONS[actionsIcon]}
       />
     </div>
   );
@@ -165,17 +179,18 @@ const SLOTS = {
   link: true,
   linkIcon: "caret-right",
   actions: true,
+  actionsIcon: "dots-three",
 } as const satisfies Partial<StoryArgs>;
 
 const DESCRIPTION = `
 One share someone holds: its name, the quantity as entered with the latest price and its time, a curve of the price over the period, the value, and the gain over the period.
 
-- **Your holding**: \`actions\` takes the ⋯ menu’s items, such as Buy more and Sell. The card knows no route: the page passes them.
+- **Your holding**: \`actions\` takes the ⋯ menu’s items, such as Buy more and Sell. The card knows no route: the page passes them. \`actionsIcon\` is the button’s icon, three dots by default.
 - **link**: the router’s link to the share’s page; the whole card opens it, and the name ends with \`linkIcon\`, a caret by default.
 - **Manual** share (\`kind="manual"\`): a badge, and the price “as of” the day of its last value point.
 - **Price pending** (\`latestPrice={null}\`): its prices are loading, and it is not counted yet.
 - **anonymous**: the weight in percent replaces the quantity and the value, and the gain reads in percent.
-- **CashCard**, the last card: the cash, the day it was set, and Update cash.
+- **CashCard**, the last card: the cash, the day it was set, and Update cash, ended by \`updateCashIcon\`, a caret by default.
 
 Every other prop goes to the \`<article>\`. The **Phone** and **Tablet** stories in the sidebar show the cards in a grid at the narrower widths.
 `;
@@ -205,6 +220,11 @@ const meta = {
       if: { arg: "link" },
     },
     actions: { control: { type: "boolean" }, name: "actions (⋯ menu)" },
+    actionsIcon: {
+      control: { type: "select" },
+      options: Object.keys(ACTIONS_ICONS),
+      if: { arg: "actions" },
+    },
     timeZone: { control: { type: "text" } },
     className: {
       description: "Classes added to the card’s, which win any conflict.",
@@ -285,6 +305,7 @@ const CASH_PROPS = [
   "setOn",
   "anonymous",
   "onUpdateCash",
+  "updateCashIcon",
   "timeZone",
 ] as const satisfies readonly (keyof CashCardProps)[];
 
@@ -297,18 +318,35 @@ const CASH_ARGS = {
   timeZone: "UTC",
 } as const satisfies CashCardProps;
 
+/** The Cash story’s args: the cash card’s props, its Update cash icon picked by name. */
+type CashArgs = Omit<CashCardProps, "updateCashIcon"> & {
+  updateCashIcon: keyof typeof LINK_ICONS;
+};
+
 /** The cash card, last after the holdings: the amount, the day it was set, and Update cash, which opens the cash step of Record a change. */
-export const Cash: StoryObj<CashCardProps> = {
-  args: CASH_ARGS,
+export const Cash: StoryObj<CashArgs> = {
+  args: { ...CASH_ARGS, updateCashIcon: "caret-right" },
   argTypes: {
     amountEur: { control: { type: "text" } },
     weight: { control: { type: "text" } },
     setOn: { control: { type: "text" } },
     anonymous: { control: { type: "boolean" } },
+    updateCashIcon: {
+      control: { type: "select" },
+      options: Object.keys(LINK_ICONS),
+    },
     timeZone: { control: { type: "text" } },
   },
   parameters: { controls: { include: [...CASH_PROPS] } },
-  render: ({ amountEur, weight, setOn, anonymous, onUpdateCash, timeZone }) => (
+  render: ({
+    amountEur,
+    weight,
+    setOn,
+    anonymous,
+    onUpdateCash,
+    updateCashIcon,
+    timeZone,
+  }) => (
     <div className="max-w-[17rem]">
       <CashCard
         amountEur={amountEur}
@@ -316,6 +354,7 @@ export const Cash: StoryObj<CashCardProps> = {
         setOn={setOn}
         anonymous={anonymous ?? false}
         onUpdateCash={onUpdateCash}
+        updateCashIcon={LINK_ICONS[updateCashIcon]}
         timeZone={timeZone}
       />
     </div>
@@ -336,6 +375,7 @@ function Portfolio() {
     "tablet:grid-cols-2",
     "desktop:grid-cols-3",
   );
+
   return (
     <div className="grid max-w-[60rem] gap-l font-sans">
       <div className={grid}>
