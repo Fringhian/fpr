@@ -121,6 +121,20 @@
   "popover": {
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
+  "timelineRow": {
+    "bought": "Achat de {{quantity}} {{share}}",
+    "sold": "Vente de {{quantity}} {{share}}",
+    "cashSet": "Liquidités fixées à {{amount}}",
+    "valueAdded": "Valeur de {{price}} ajoutée",
+    "valueEdited": "Valeur corrigée à {{price}}",
+    "held": "{{before}} → {{after}}",
+    "heldSpoken": "de {{before}} à {{after}} parts détenues",
+    "newHolding": "Nouvelle ligne",
+    "firstCash": "Premières liquidités saisies",
+    "was": "au lieu de {{before}}",
+    "madeBy": "par {{name}}",
+    "subject": "{{title}}, {{date}}"
+  },
   "chart": {
     "keys": "Les flèches gauche et droite passent d’un jour à l’autre, Début et Fin vont au premier et au dernier jour, et Échap quitte.",
     "point": "{{date}} : {{values}}",

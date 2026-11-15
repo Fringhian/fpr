@@ -117,6 +117,20 @@
   "popover": {
     "helpLink": "More in How FPR works"
   },
+  "timelineRow": {
+    "bought": "Bought {{quantity}} {{share}}",
+    "sold": "Sold {{quantity}} {{share}}",
+    "cashSet": "Cash set to {{amount}}",
+    "valueAdded": "Value of {{price}} added",
+    "valueEdited": "Value changed to {{price}}",
+    "held": "{{before}} → {{after}}",
+    "heldSpoken": "from {{before}} to {{after}} units held",
+    "newHolding": "New holding",
+    "firstCash": "First cash entry",
+    "was": "was {{before}}",
+    "madeBy": "by {{name}}",
+    "subject": "{{title}}, {{date}}"
+  },
   "chart": {
     "keys": "The left and right arrow keys move from day to day, Home and End go to the first and last days, and Escape leaves.",
     "point": "{{date}}: {{values}}",
