@@ -1,22 +1,16 @@
-import { renderToStaticMarkup } from "react-dom/server";
+import type { ReactNode } from "react";
+import { renderToStaticMarkup as renderBare } from "react-dom/server";
+import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
-import { initialOf, Picture, type PictureSize } from "./picture";
+import { createI18n } from "../../lib/i18n";
+import { Picture, type PictureSize } from "./picture";
 
-describe("initialOf", () => {
-  it("is the name's first letter in capitals", () => {
-    expect(initialOf("sam")).toBe("S");
-    expect(initialOf("  Lea ")).toBe("L");
-    expect(initialOf("élodie")).toBe("É");
-  });
+const i18n = createI18n("en");
 
-  it("keeps a letter with a combining accent whole", () => {
-    expect(initialOf("émile")).toBe("É");
-  });
-
-  it("is empty for an empty name", () => {
-    expect(initialOf("")).toBe("");
-  });
-});
+/** Renders inside the app's i18n provider, which gives the initial its language. */
+function renderToStaticMarkup(node: ReactNode): string {
+  return renderBare(<I18nextProvider i18n={i18n}>{node}</I18nextProvider>);
+}
 
 describe("Picture", () => {
   it("is an image named by the person's name, with their initial", () => {
@@ -26,6 +20,13 @@ describe("Picture", () => {
     expect(markup).toContain('role="img"');
     expect(markup).toContain('aria-label="Sam"');
     expect(markup).toContain(">S</span>");
+  });
+
+  it("keeps an accented initial whole", () => {
+    const markup = renderToStaticMarkup(
+      <Picture name="élodie" color="green" size="s" />,
+    );
+    expect(markup).toContain(">É</span>");
   });
 
   it("sits on the pastel of the person's colour", () => {
