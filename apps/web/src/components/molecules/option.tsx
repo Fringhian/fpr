@@ -2,7 +2,7 @@ import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { type ReactNode, useId } from "react";
 import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "./icon";
+import { Icon, type IconProps } from "../foundations/icon";
 
 /** Every prop of Base UI’s radio group, `className` included: a string, or a function of the group’s state. */
 export type GroupProps<Value> = RadioGroup.Props<Value>;

@@ -5,7 +5,7 @@ import { TrayIcon } from "@phosphor-icons/react/Tray";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useLanguage } from "../../lib/i18n";
 import type { Language } from "../../lib/language";
-import { Button } from "./button";
+import { Button } from "../atoms/button";
 import * as EmptyState from "./empty-state";
 
 interface Use {

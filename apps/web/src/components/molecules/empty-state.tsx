@@ -2,7 +2,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { TrayIcon } from "@phosphor-icons/react/Tray";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
-import { StateIcon, type StateIconProps } from "./state-icon";
+import { StateIcon, type StateIconProps } from "../atoms/state-icon";
 
 /** Every prop of a `<div>`. */
 export type RootProps = ComponentProps<"div">;
