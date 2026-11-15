@@ -78,7 +78,7 @@ Postgres holds all of FPR's data, the bucket holds the profile pictures, and the
   - five widely traded listings with invented daily closes, and two invented manual shares with value points;
   - share changes and cash balances for the admin and the members.
 
-  Every password user signs in with `development password`. The script prints the anonymous viewer's link and the waiting member's link. It refuses a database that already has people, and refuses to run when `NODE_ENV` is `production`. Its entry point is `apps/api/src/seed.ts`.
+  Every password user signs in with `development password`. The script prints the anonymous viewer's link and the waiting member's link. It refuses a database that already has people, and refuses to run when `NODE_ENV` is `production`. Its entry point is `apps/api/src/seed/seed.ts`.
 - Development uses the real provider, with its own `PRICE_PROVIDER_API_KEY`, so it never spends the live instance's daily calls.
 
 ## CI
