@@ -1,4 +1,5 @@
 import type { Logger } from "pino";
+import type { CallBudget } from "../budget.js";
 import { createEodhdProvider } from "./eodhd.js";
 import type { Fetch } from "./http.js";
 import type { PriceProvider, ProviderName } from "./provider.js";
@@ -20,6 +21,8 @@ export interface CreateProviderOptions {
   /** `PRICE_PROVIDER_API_KEY`. */
   apiKey: string;
   logger: Logger;
+  /** The day's call budget every request is counted against. */
+  budget: CallBudget;
   /** Defaults to the global `fetch`. */
   fetch?: Fetch;
 }

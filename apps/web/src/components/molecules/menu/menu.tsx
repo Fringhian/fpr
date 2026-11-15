@@ -18,7 +18,7 @@ import { cn } from "../../../lib/cn";
 import { usePhone } from "../../../lib/use-phone";
 import { IconButton } from "../../atoms/icon-button/icon-button";
 import type { IconProps } from "../../foundations/icon/icon";
-import * as Dialog from "../../organisms/dialog/dialog";
+import * as Dialog from "../dialog/dialog";
 
 /** What the parts of a menu opened as a sheet share: the trigger's id, which names the sheet, and how to close it. */
 interface Sheet {
