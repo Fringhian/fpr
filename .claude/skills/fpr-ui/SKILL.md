@@ -10,7 +10,8 @@ These conventions win over any other skill's advice on styling or components —
 ## Stack
 
 - `apps/web` — React, Vite, TanStack Router (file-based routes), TanStack Query, Tailwind v4.
-- Components live in `apps/web/src/components/ui/`. They move to a package only if a second consumer appears.
+- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. A component lives in the folder of its story's group, with its stories and any `-model.ts` beside it. They move to a package only if a second consumer appears.
+- Components have no unit tests. Their stories are their check, run in Chromium by `test-storybook`.
 
 ## Design workflow
 
@@ -26,13 +27,13 @@ The design reference lives in `design/`, outside git like a design tool's files:
 impeccable's `PRODUCT.md`, `DESIGN.md` (the tokens and rules of the look), and `.impeccable/` stay outside git too. The repository's `.gitignore` lists them all.
 
 1. The tokens in `DESIGN.md` and the design system move into `apps/web/src/theme.css`. From then on `theme.css` holds every design value.
-2. Each component is built in `apps/web/src/components/ui/` from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
+2. Each component is built in the `apps/web/src/components/` folder of its story's group from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
 3. Each screen is built from its wireframe, its final look in `design/screens.html`, and the components. Once a screen is built, its code is the reference and the design files are not updated for it.
 
 ## Storybook
 
 - Storybook runs in `apps/web` with the Vite builder and loads the real `theme.css` and fonts.
-- Every component in `src/components/ui/` has a story file beside it. Stories are grouped Foundations, Atoms, Molecules, Organisms, Templates, like the design system.
+- Every component in `src/components/` has a story file beside it. Stories are grouped Foundations, Atoms, Molecules, Organisms, Templates, like the design system.
 - A story shows every variant and state of its component, and the widths where it changes.
 - A component's props are its stories' `args`, with `argTypes` giving each one its control (`inline-radio` for a variant, `boolean`, `text`), so every variant can be changed live in the Controls panel. A prop that takes a component, such as an icon, is picked by name: a `select` of names, and the story's `render` turns the name into the component (a `mapping` can't show its starting value in the panel). A prop that only makes sense with another one uses `if: { arg: … }`.
 - The controls test the component itself and nothing else: its real props, and for a compound component, a `boolean` per optional part that renders it or not (named after the part, `name: "Sky.Band"`). The demo content the story puts inside it (a title, a sentence, a card) is fixed in the story, never a control: a control implies the component accepts that prop. A part being absent is a control, not a story of its own.
@@ -117,7 +118,7 @@ cn(
   ```
 - `cn` also joins a class chosen at runtime, as its own argument: `cn("h-s rounded-full", line)`. Never a template literal.
 - A class list with no breakpoint or state class and nothing chosen at runtime stays a plain string.
-- `cn` lives in `src/lib/cn.ts`: `clsx`, then `tailwind-merge` taught the scales of `theme.css`. A new scale or token name in `theme.css` is added to its config too, with a test in `cn.test.ts`.
+- `cn` lives in `src/lib/cn.ts`: `clsx`, then `tailwind-merge` taught the scales of `theme.css`. A new scale or token name in `theme.css` is added to its config too.
 
 ### Variants and utilities
 
