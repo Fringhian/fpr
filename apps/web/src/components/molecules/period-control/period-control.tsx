@@ -1,10 +1,10 @@
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import * as Segment from "../atoms/segment";
-import { Icon, type IconProps } from "../foundations/icon";
-import * as Dialog from "../organisms/dialog";
+import { cn } from "../../../lib/cn";
+import * as Segment from "../../atoms/segment/segment";
+import { Icon, type IconProps } from "../../foundations/icon/icon";
+import * as Dialog from "../../organisms/dialog/dialog";
 
 /** The spans a gain is measured over, as the API names them. */
 export const periods = ["1D", "1W", "1M", "3M", "YTD", "all"] as const;
