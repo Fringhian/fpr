@@ -2536,6 +2536,17 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "v",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The picture's version, from `avatarUrl`."
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
           }
         ],
         "responses": {
@@ -2547,7 +2558,7 @@
                   "type": "string",
                   "contentMediaType": "*/*",
                   "x-anonymize": "personal",
-                  "description": "The uploaded JPEG, PNG, or WebP picture."
+                  "description": "The picture, as WebP, at most 512 pixels a side and without metadata."
                 }
               }
             }

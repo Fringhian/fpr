@@ -30,8 +30,27 @@ export const avatarUploadSchema = z.file().meta({
 
 /** A person's uploaded picture, sent as the response body with its media type. */
 export const avatarSchema = personal(
-  z.file().meta({ description: "The uploaded JPEG, PNG, or WebP picture." }),
+  z.file().meta({
+    description:
+      "The picture, as WebP, at most 512 pixels a side and without metadata.",
+  }),
 );
+
+/**
+ * Which person's picture, and which version of it: the `v` of the person's
+ * `avatarUrl`. The current version is cached for good, and any other request
+ * is revalidated each time.
+ */
+export const userAvatarQuerySchema = z.object({
+  userId: idSchema,
+  v: z
+    .string()
+    .max(64)
+    .optional()
+    .meta({ description: "The picture's version, from `avatarUrl`." }),
+});
+
+export type UserAvatarQuery = z.infer<typeof userAvatarQuerySchema>;
 
 export const setMeAvatar = signedInRoute(profileRoles)
   .route({ method: "PUT", path: "/me/avatar", summary: "Upload a picture" })
@@ -62,6 +81,6 @@ export const getUserAvatar = signedInRoute(profileRoles)
     path: "/users/{userId}/avatar",
     summary: "A person's uploaded picture",
   })
-  .input(z.object({ userId: idSchema }))
+  .input(userAvatarQuerySchema)
   .output(avatarSchema)
   .errors(errorMap("invalid_request", "forbidden", "not_found"));

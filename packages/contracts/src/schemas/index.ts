@@ -21,6 +21,7 @@ export {
   priceChangeSchema,
 } from "./performance.js";
 export {
+  colorCount,
   colorSchema,
   displayNameSchema,
   emailSchema,
