@@ -21,6 +21,9 @@
       "question": "Vendre {{quantity}} parts ?"
     }
   },
+  "button": {
+    "saving": "Enregistrement…"
+  },
   "smallParts": {
     "marketStatus": {
       "open": "Marchés ouverts · cours à {{time}}",
