@@ -3,10 +3,11 @@ import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
 import { gainDisplay } from "../../lib/gain";
 import { useLanguage } from "../../lib/i18n";
-import type { GainProps } from "./gain-value";
+import type { GainOwnProps } from "./gain-value";
 
-export type GainChipProps = GainProps &
-  Omit<ComponentProps<"span">, keyof GainProps | "children">;
+/** The part writes its own text: it takes every prop of a `<span>` but `children`. */
+export type GainChipProps = GainOwnProps &
+  Omit<ComponentProps<"span">, keyof GainOwnProps | "children">;
 
 // The soft grounds mix the tone into the surface, so the chip stays opaque
 // and its text keeps its contrast on a card or on the sky alike.
@@ -38,11 +39,10 @@ export function GainChip({
   ...props
 }: GainChipProps) {
   const language = useLanguage();
+
   const shown = gainDisplay(gain, unit, language, { precision });
-  if (shown === null) {
-    return null;
-  }
-  return (
+
+  return shown === null ? null : (
     <span {...props} className={cn(gainChip({ tone: shown.tone }), className)}>
       {shown.text}
     </span>

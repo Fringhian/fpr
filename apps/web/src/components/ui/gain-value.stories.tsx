@@ -14,6 +14,10 @@ const GAIN_ARG_TYPES = {
     options: ["cents", "euros"],
     if: { arg: "unit", eq: "eur" },
   },
+  className: {
+    description: "Classes added to the value’s, which win any conflict.",
+    control: false,
+  },
 } satisfies Partial<ArgTypes<GainValueProps>>;
 
 const meta = {

@@ -1,12 +1,18 @@
 import { useRender } from "@base-ui/react/use-render";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { cn } from "../../lib/cn";
-import { Icon } from "./icon";
+import { Icon, type IconProps } from "./icon";
 
-export interface TextLinkProps extends useRender.ComponentProps<"a"> {
-  /** Ends the link with a caret: it goes to another page. */
-  caret?: boolean;
+export interface TextLinkOwnProps {
+  /** Ends the link with `toPageIcon`: it goes to another page. */
+  toPage?: boolean;
+  /** The icon `toPage` draws, any Phosphor icon. A caret by default. */
+  toPageIcon?: IconProps["icon"] | undefined;
 }
+
+/** Every prop of an `<a>`, and Base UI's `render` to compose it with another element. */
+export type TextLinkProps = TextLinkOwnProps &
+  Omit<useRender.ComponentProps<"a">, keyof TextLinkOwnProps>;
 
 /**
  * A link in the link colour, underlined so it never rests on colour alone. It
@@ -14,14 +20,15 @@ export interface TextLinkProps extends useRender.ComponentProps<"a"> {
  * `render` composes it with the router's link: `render={<Link to="/help" />}`.
  */
 export function TextLink({
+  toPage = false,
+  toPageIcon = CaretRightIcon,
   render,
   ref,
-  caret = false,
   className,
   children,
   ...props
 }: TextLinkProps) {
-  return useRender({
+  const element = useRender({
     render,
     ref,
     defaultTagName: "a",
@@ -39,9 +46,9 @@ export function TextLink({
       children: (
         <>
           {children}
-          {caret ? (
+          {toPage ? (
             <Icon
-              icon={CaretRightIcon}
+              icon={toPageIcon}
               size="s"
               className="ms-xs inline align-[-0.1875em]"
             />
@@ -50,4 +57,6 @@ export function TextLink({
       ),
     },
   });
+
+  return element;
 }

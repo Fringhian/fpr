@@ -1,3 +1,9 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
+import { ArrowUpRightIcon } from "@phosphor-icons/react/ArrowUpRight";
+import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
+import { InfoIcon } from "@phosphor-icons/react/Info";
+import { LightbulbIcon } from "@phosphor-icons/react/Lightbulb";
+import { QuestionIcon } from "@phosphor-icons/react/Question";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { useLanguage } from "../../lib/i18n";
@@ -18,36 +24,60 @@ const TEXTS = {
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
-/** What the controls change: the popup's placement, its optional parts, and the help section it links to. */
+/** The icons the info button offers, by name. */
+const INFO_ICONS = {
+  info: InfoIcon,
+  question: QuestionIcon,
+  lightbulb: LightbulbIcon,
+} as const;
+
+/** The icons the help link can end with, by name. */
+const TO_PAGE_ICONS = {
+  "caret-right": CaretRightIcon,
+  "arrow-right": ArrowRightIcon,
+  "arrow-up-right": ArrowUpRightIcon,
+} as const;
+
+/** What the controls change: the popup's placement, its optional parts, the help section it links to, and the icons. */
 interface PopoverArgs {
   side: NonNullable<Popover.PopupProps["side"]>;
   align: NonNullable<Popover.PopupProps["align"]>;
+  infoIcon: keyof typeof INFO_ICONS;
   title: boolean;
   helpLink: boolean;
   section: string;
+  toPageIcon: keyof typeof TO_PAGE_ICONS;
   /** Opens the popover as the story loads, so the Docs page and the canvas show it open. */
   defaultOpen: boolean;
 }
 
-/** The ⓘ beside the race chart's heading, and its explanation. */
+/** The info button beside the race chart's heading, and its explanation. */
 function InfoPopover({
   side,
   align,
+  infoIcon,
   title,
   helpLink,
   section,
+  toPageIcon,
   defaultOpen,
 }: PopoverArgs) {
   const text = TEXTS[useLanguage()];
+
   return (
     <div className="flex items-center gap-xs font-sans text-m font-semibold text-primary">
       {text.idea}
       <Popover.Root defaultOpen={defaultOpen}>
-        <Popover.InfoTrigger label={text.title} />
+        <Popover.InfoTrigger label={text.title} icon={INFO_ICONS[infoIcon]} />
         <Popover.Popup side={side} align={align}>
           {title ? <Popover.Title>{text.title}</Popover.Title> : null}
           <Popover.Description>{text.body}</Popover.Description>
-          {helpLink ? <Popover.HelpLink section={section} /> : null}
+          {helpLink ? (
+            <Popover.HelpLink
+              section={section}
+              toPageIcon={TO_PAGE_ICONS[toPageIcon]}
+            />
+          ) : null}
         </Popover.Popup>
       </Popover.Root>
     </div>
@@ -60,12 +90,12 @@ A short explanation that opens from the ⓘ beside an idea that needs a sentence
 | Part | What it is |
 | --- | --- |
 | \`Popover.Root\` | The popover’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. |
-| \`Popover.InfoTrigger\` | The small ⓘ icon button. \`label\` names the idea it explains for screen readers, usually the title. |
+| \`Popover.InfoTrigger\` | The small ⓘ icon button; \`icon\` takes any Phosphor icon. \`label\` names the idea it explains for screen readers, usually the title. |
 | \`Popover.Trigger\` | Any other trigger. \`render\` swaps in another element. |
 | \`Popover.Popup\` | The floating card, in a portal, 280px wide. \`side\` and \`align\` place it beside the trigger: below it and centred on it by default. |
 | \`Popover.Title\` | Its heading, which names it for screen readers. |
 | \`Popover.Description\` | The sentences, read with the title. |
-| \`Popover.HelpLink\` | “More in How FPR works”, to the section \`section\` names: \`race\` goes to \`/help#race\`. \`render\` composes it with the router’s link. |
+| \`Popover.HelpLink\` | “More in How FPR works”, to the section \`section\` names: \`race\` goes to \`/help#race\`. It ends with \`toPageIcon\`, a caret by default. \`render\` composes it with the router’s link. |
 
 - Base UI’s keyboard and screen-reader behaviour: the ⓘ opens it with a click, Enter, or Space, focus moves to the card, so a screen reader reads its title and sentences first, Tab reaches the link, and Escape or a click outside closes it and puts focus back on the ⓘ. It is a dialog named by its title and described by its sentences.
 - Nothing opens by itself: the popover waits for the ⓘ.
@@ -87,9 +117,11 @@ const meta = {
   args: {
     side: "bottom",
     align: "center",
+    infoIcon: "info",
     title: true,
     helpLink: true,
     section: "race",
+    toPageIcon: "caret-right",
     defaultOpen: true,
   },
   argTypes: {
@@ -107,6 +139,13 @@ const meta = {
       options: ["start", "center", "end"],
       table: { defaultValue: { summary: "center" } },
     },
+    infoIcon: {
+      name: "Popover.InfoTrigger icon",
+      description:
+        "The info button’s `icon`: any Phosphor icon, an info sign by default.",
+      options: Object.keys(INFO_ICONS),
+      control: { type: "select" },
+    },
     title: {
       name: "Popover.Title",
       description: "Renders the heading.",
@@ -121,6 +160,14 @@ const meta = {
       name: "Popover.HelpLink section",
       description: "The id of the How FPR works section the link goes to.",
       control: { type: "text" },
+      if: { arg: "helpLink" },
+    },
+    toPageIcon: {
+      name: "Popover.HelpLink toPageIcon",
+      description:
+        "The icon ending the link: any Phosphor icon, a caret by default.",
+      options: Object.keys(TO_PAGE_ICONS),
+      control: { type: "select" },
       if: { arg: "helpLink" },
     },
     defaultOpen: {
