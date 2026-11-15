@@ -15,6 +15,10 @@ const meta = {
     status: { control: { type: "inline-radio" }, options: ["open", "closed"] },
     pricedAt: { control: { type: "text" } },
     timeZone: { control: { type: "text" } },
+    className: {
+      description: "Classes added to the line’s, which win any conflict.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof MarketStatus>;
 
