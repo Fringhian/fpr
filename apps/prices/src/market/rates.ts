@@ -13,7 +13,6 @@ import { type Fetch, parseJsonExact } from "../providers/http.js";
 /** Frankfurter's API, the European Central Bank's reference rates. */
 export const frankfurterBaseUrl = "https://api.frankfurter.dev";
 
-/** A rates request takes at most this long before it counts as failed. */
 export const ratesTimeoutMs = 15_000;
 
 /** The decimal places of a price converted to EUR, rounded half away from zero. */
@@ -94,14 +93,6 @@ export interface EurRates {
   toEur(price: Decimal, currency: Currency, day: IsoDate): Decimal;
 }
 
-export interface RatesClientOptions {
-  logger: Logger;
-  /** `RATES_URL`. Defaults to `frankfurterBaseUrl`. */
-  baseUrl?: string;
-  /** Defaults to the global `fetch`. Tests pass a mock. */
-  fetch?: Fetch;
-}
-
 export interface RatesClient {
   /**
    * The rates from `from` to `to`, both included, with the last rates
@@ -178,7 +169,13 @@ export function eurRates(
  * The exchange-rate client, backed by Frankfurter. See
  * `docs/architecture/prices.md` › Currency. Each request writes one log line.
  */
-export function createRatesClient(options: RatesClientOptions): RatesClient {
+export function createRatesClient(options: {
+  logger: Logger;
+  /** `RATES_URL`. Defaults to `frankfurterBaseUrl`. */
+  baseUrl?: string;
+  /** Defaults to the global `fetch`. */
+  fetch?: Fetch;
+}): RatesClient {
   const { logger } = options;
   const baseUrl = (options.baseUrl ?? frankfurterBaseUrl).replace(/\/+$/, "");
   const send = options.fetch ?? fetch;

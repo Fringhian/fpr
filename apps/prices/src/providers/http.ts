@@ -5,7 +5,6 @@ import { ProviderError, type ProviderName } from "./provider.js";
 /** The `fetch` a provider sends its requests with. Tests pass a mock. */
 export type Fetch = typeof fetch;
 
-/** A provider request takes at most this long before it counts as failed. */
 export const providerTimeoutMs = 15_000;
 
 /**
@@ -25,16 +24,6 @@ export interface ProviderCallFields {
   query?: string;
   from?: string;
   to?: string;
-}
-
-export interface ProviderCall {
-  /** The provider's endpoint, such as `eod`, logged with the call. */
-  endpoint: string;
-  /** The full request URL, with the key. It is never logged. */
-  url: URL;
-  /** The calls the provider bills for this request. */
-  calls: number;
-  fields: ProviderCallFields;
 }
 
 /**
@@ -63,7 +52,15 @@ export function parseJsonExact(text: string): unknown {
  */
 export async function callProvider(
   http: ProviderHttp,
-  call: ProviderCall,
+  call: {
+    /** The provider's endpoint, such as `eod`, logged with the call. */
+    endpoint: string;
+    /** The full request URL, with the key. It is never logged. */
+    url: URL;
+    /** The calls the provider bills for this request. */
+    calls: number;
+    fields: ProviderCallFields;
+  },
 ): Promise<unknown> {
   const fields = {
     provider: http.provider,

@@ -21,7 +21,6 @@ import {
   type ProviderQuote,
 } from "./provider.js";
 
-/** EODHD's API. */
 export const eodhdBaseUrl = "https://eodhd.com/api";
 
 /**
@@ -75,7 +74,6 @@ export interface EodhdProviderOptions {
   baseUrl?: string;
 }
 
-/** Splits a list into runs of at most `size`. */
 function chunk<T>(items: readonly T[], size: number): T[][] {
   const runs: T[][] = [];
   for (let start = 0; start < items.length; start += size) {

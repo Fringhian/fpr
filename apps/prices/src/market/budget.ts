@@ -7,25 +7,6 @@ import { dayIn } from "./time.js";
  */
 export type ScheduledCalls = (now: Date) => number;
 
-/** The fields every run's log line carries. */
-export interface CallBudgetLogFields {
-  /** The calls spent today. */
-  callsToday: number;
-  /** The calls left today. */
-  callsLeft: number;
-  /** `PROVIDER_DAILY_CALL_LIMIT`. */
-  callLimit: number;
-}
-
-export interface CallBudgetOptions {
-  /** `PROVIDER_DAILY_CALL_LIMIT`: the most calls spent in a day. */
-  limit: number;
-  /** `RACE_TIMEZONE`: the count restarts at midnight in it. */
-  timeZone: string;
-  /** The clock. Defaults to the system's. Tests pass their own. */
-  now?: () => Date;
-}
-
 /**
  * The day's provider calls, counted in memory. The count restarts at zero at
  * midnight in `RACE_TIMEZONE` and when the service restarts. See
@@ -57,8 +38,11 @@ export interface CallBudget {
    * calls left are no more than the scheduled calls left.
    */
   allowsLookup(calls?: number): boolean;
-  /** The day's count, for a run's log line. */
-  logFields(): CallBudgetLogFields;
+  /**
+   * The day's count, for a run's log line. `callLimit` is
+   * `PROVIDER_DAILY_CALL_LIMIT`.
+   */
+  logFields(): { callsToday: number; callsLeft: number; callLimit: number };
 }
 
 function assertCalls(calls: number): void {
@@ -67,7 +51,14 @@ function assertCalls(calls: number): void {
   }
 }
 
-export function createCallBudget(options: CallBudgetOptions): CallBudget {
+export function createCallBudget(options: {
+  /** `PROVIDER_DAILY_CALL_LIMIT`: the most calls spent in a day. */
+  limit: number;
+  /** `RACE_TIMEZONE`: the count restarts at midnight in it. */
+  timeZone: string;
+  /** Defaults to the system clock. */
+  now?: () => Date;
+}): CallBudget {
   const { limit, timeZone } = options;
   const now = options.now ?? (() => new Date());
   if (!Number.isInteger(limit) || limit < 1) {
