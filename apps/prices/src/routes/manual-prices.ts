@@ -1,6 +1,7 @@
 import { manualPriceEvents, type Price, prices, shares } from "@fpr/db";
+import Big from "big.js";
 import { service } from "../orpc.js";
-import { sameDecimal, toValuePoint } from "./rows.js";
+import { toValuePoint } from "./rows.js";
 
 type Trx = Parameters<typeof shares.lockById>[0];
 
@@ -74,7 +75,7 @@ export const updateManualPrice = service.updateManualPrice.handler(
       if (stored === undefined) {
         throw errors.not_found();
       }
-      if (!sameDecimal(stored.priceEur, input.expectedPriceEur)) {
+      if (!new Big(stored.priceEur).eq(input.expectedPriceEur)) {
         throw errors.value_changed({ data: { priceEur: stored.priceEur } });
       }
       const price = await prices.upsert(trx, {
@@ -110,7 +111,7 @@ export const deleteManualPrice = service.deleteManualPrice.handler(
       if (stored === undefined) {
         throw errors.not_found();
       }
-      if (!sameDecimal(stored.priceEur, input.expectedPriceEur)) {
+      if (!new Big(stored.priceEur).eq(input.expectedPriceEur)) {
         throw errors.value_changed({ data: { priceEur: stored.priceEur } });
       }
       if ((await prices.count(trx, input.id, "manual")) <= 1) {

@@ -28,16 +28,6 @@ export function toValuePoint(price: Price): PricesValuePoint {
   };
 }
 
-/** A decimal string without trailing fractional zeros: `40.10` is `40.1`. */
-function canonicalDecimal(value: string): string {
-  return value.includes(".") ? value.replace(/\.?0+$/, "") : value;
-}
-
-/** Whether two decimal strings are the same number, such as `40.1` and `40.10`. */
-export function sameDecimal(a: string, b: string): boolean {
-  return canonicalDecimal(a) === canonicalDecimal(b);
-}
-
 /**
  * The id of the share that holds `isin`, when `error` is the unique ISIN
  * refusing a write: two writers raced for the same ISIN. `undefined` for any
