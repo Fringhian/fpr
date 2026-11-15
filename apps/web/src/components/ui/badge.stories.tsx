@@ -20,6 +20,10 @@ const meta = {
   args: { state: "manual" },
   argTypes: {
     state: { control: { type: "select" }, options: STATES },
+    className: {
+      description: "Classes added to the badge's, which win any conflict.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof Badge>;
 
