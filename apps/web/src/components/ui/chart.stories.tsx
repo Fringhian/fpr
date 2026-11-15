@@ -93,6 +93,7 @@ The one chart every chart in FPR is built on, on TradingView Lightweight Charts.
 - **sparkline**: the line alone, for cards. No axes, no grid, no interaction; its \`label\` names it to screen readers.
 - **lines**: each line has its colour token, a label, its points (a day and the decimal string the API sends), and optionally the last final day: the points after it are dashed and read “not final”. \`emphasis: "context"\` draws a thin line behind the ones in focus, as the race draws the other members in grey. Lines draw in order, the last on top.
 - **unit**, **precision** and **signed** format every value of the axis and the readout with \`lib/format\`, in the reader’s language.
+- **overlay** and **onSelectLine**, on a line chart: the overlay is drawn over the chart from where each line ends, and redrawn as it resizes; a click or a tap on a line, or close to it, calls \`onSelectLine\` with its \`id\`. The race card draws its pictures and signs with them.
 
 Nothing moves on its own: no panning, zooming or kinetic scroll, and with \`prefers-reduced-motion\` the readout jumps from day to day instead of sliding. Pass a stable \`lines\` array: a new one redraws every line.
 
@@ -131,6 +132,8 @@ const meta = {
     signed: { control: { type: "boolean" } },
     label: { control: { type: "text" } },
     lines: { control: false },
+    overlay: { control: false },
+    onSelectLine: { control: false },
     className: {
       description:
         "Classes added to the chart’s own, which win any conflict, such as its height.",
