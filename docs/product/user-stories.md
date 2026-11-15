@@ -229,7 +229,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - The access link works as a password: it disappears from the address bar once opened.
 - No real name, email, photo, euro amount, or quantity held reaches an anonymous viewer's browser: the API replaces them before sending. Holdings show as weights in percent of the portfolio.
 - A pseudonym is the same for the same person on every screen and every visit.
-- Two people who would get the same pseudonym are told apart by a suffix.
+- A pseudonym is an English adjective and animal, such as Calm Otter, in both languages, like a name.
+- Two people who would get the same pseudonym are told apart by a number suffix: the person added first keeps it, and the next is Calm Otter 2.
 - An anonymous viewer sees the € / % switch on % only, and the standings by gain only.
 - Access ends at its end date or on revocation, even in the middle of a session.
 

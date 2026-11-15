@@ -16,6 +16,8 @@ export const envSchema = z.object({
     .string()
     .refine(isTimeZone, "Expected an IANA time zone, such as Europe/Paris")
     .default("Europe/Paris"),
+  /** The key pseudonyms are derived with. Changing it changes every pseudonym. */
+  PSEUDONYM_SECRET: z.string().min(32),
 });
 
 function isTimeZone(name: string): boolean {
