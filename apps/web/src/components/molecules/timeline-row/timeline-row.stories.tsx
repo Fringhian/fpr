@@ -9,9 +9,9 @@ import { TagIcon } from "@phosphor-icons/react/Tag";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import * as Menu from "./menu";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import * as Menu from "../menu/menu";
 import {
   type TimelineEntry,
   TimelineList,

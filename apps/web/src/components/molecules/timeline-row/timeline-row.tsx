@@ -6,7 +6,7 @@ import { TagIcon } from "@phosphor-icons/react/Tag";
 import type { TFunction } from "i18next";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
@@ -14,11 +14,11 @@ import {
   formatQuantity,
   type IsoDate,
   type Timestamp,
-} from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import { Icon, type IconProps } from "../foundations/icon";
-import * as Menu from "./menu";
+} from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import { Icon, type IconProps } from "../../foundations/icon/icon";
+import * as Menu from "../menu/menu";
 
 /** Shares added to a holding, or removed from it. */
 interface HoldingChange {
