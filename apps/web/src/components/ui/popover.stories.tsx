@@ -85,23 +85,24 @@ function InfoPopover({
 }
 
 const DESCRIPTION = `
-A short explanation that opens from the ⓘ beside an idea that needs a sentence, on Base UI’s popover: a title, one or two sentences, and a link to the section of How FPR works that explains it in full. Import it as a namespace: \`import * as Popover from "…/popover"\`.
+A short explanation that opens from the ⓘ beside an idea that needs a sentence: a title, one or two sentences, and a link to the section of How FPR works that explains it in full. From tablet up, a card beside the ⓘ, on Base UI’s popover; on phone, a dialog rising from the bottom as a sheet, its title beside a close button. The popover checks the width itself: the same parts give both. Import it as a namespace: \`import * as Popover from "…/popover"\`.
 
 | Part | What it is |
 | --- | --- |
-| \`Popover.Root\` | The popover’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. |
+| \`Popover.Root\` | The popover’s state. \`defaultOpen\`, \`open\` and \`onOpenChange\` control it. It picks the card or the dialog. |
 | \`Popover.InfoTrigger\` | The small ⓘ icon button; \`icon\` takes any Phosphor icon. \`label\` names the idea it explains for screen readers, usually the title. |
 | \`Popover.Trigger\` | Any other trigger. \`render\` swaps in another element. |
-| \`Popover.Popup\` | The floating card, in a portal, 280px wide. \`side\` and \`align\` place it beside the trigger: below it and centred on it by default. |
-| \`Popover.Title\` | Its heading, which names it for screen readers. |
+| \`Popover.Popup\` | From tablet up, the floating card, in a portal, 280px wide: \`side\` and \`align\` place it beside the trigger, below it and centred on it by default. On phone, the dialog. |
+| \`Popover.Title\` | Its heading, which names it for screen readers. On phone, the dialog’s title, with the close button at the end of its row. |
 | \`Popover.Description\` | The sentences, read with the title. |
 | \`Popover.HelpLink\` | “More in How FPR works”, to the section \`section\` names: \`race\` goes to \`/help#race\`. It ends with \`toPageIcon\`, a caret by default. \`render\` composes it with the router’s link. |
 
 - Base UI’s keyboard and screen-reader behaviour: the ⓘ opens it with a click, Enter, or Space, focus moves to the card, so a screen reader reads its title and sentences first, Tab reaches the link, and Escape or a click outside closes it and puts focus back on the ⓘ. It is a dialog named by its title and described by its sentences.
+- On phone, the dialog is modal, focuses itself the same way, and closes with its close button, Escape, or a tap on the dimmed page.
 - Nothing opens by itself: the popover waits for the ⓘ.
-- It fades and scales in from the ⓘ, without motion when the reader asks for less.
+- The card fades and scales in from the ⓘ, the dialog rises; with reduced motion, neither moves.
 
-The popovers start open, so the look shows at once. The **Keyboard** story in the sidebar tests the keyboard, and the **Phone** and **Tablet** stories show the narrower widths.
+The popovers start open, so the look shows at once. The **Keyboard** story in the sidebar tests the keyboard, the **Phone** story tests the dialog, and the **Tablet** story shows the card at that width.
 `;
 
 const meta = {
@@ -236,10 +237,41 @@ export const Keyboard: Story = {
   },
 };
 
-/** The Docs page can't narrow a story, so the narrower widths live in the sidebar only. */
+/** On phone, a dialog rising from the bottom as a sheet: the title beside a close button, the sentences, the link. The Docs page can't narrow a story, so it lives in the sidebar only. */
 export const Phone: Story = {
   tags: ["!autodocs"],
   globals: { viewport: { value: "phone" } },
+  play: async ({ canvasElement, step }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    // The open dialog is modal: the page behind, its ⓘ included, is hidden from screen readers.
+    const trigger = within(canvasElement).getByRole("button", {
+      name: "What the race shows",
+      hidden: true,
+    });
+
+    await step("It opens as a dialog, with a close button", async () => {
+      const dialog = await page.findByRole("dialog", {
+        name: "What the race shows",
+      });
+      await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+      await expect(dialog).toHaveAccessibleDescription(/Each line/);
+      await expect(
+        within(dialog).getByRole("link", { name: "More in How FPR works" }),
+      ).toBeInTheDocument();
+    });
+
+    await step("The close button closes it", async () => {
+      await userEvent.click(page.getByRole("button", { name: "Close" }));
+      await waitFor(() => expect(page.queryByRole("dialog")).toBeNull());
+    });
+
+    await step("The ⓘ opens it again", async () => {
+      await userEvent.click(trigger);
+      await expect(
+        await page.findByRole("dialog", { name: "What the race shows" }),
+      ).toBeVisible();
+    });
+  },
 };
 
 export const Tablet: Story = {
