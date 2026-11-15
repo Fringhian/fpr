@@ -81,5 +81,8 @@
       "them": "Open {{name}}’s page"
     },
     "backToYou": "Back to you"
+  },
+  "button": {
+    "saving": "Saving…"
   }
 }

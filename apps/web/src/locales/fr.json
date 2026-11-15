@@ -81,5 +81,8 @@
       "them": "Ouvrir la page de {{name}}"
     },
     "backToYou": "Revenir à vous"
+  },
+  "button": {
+    "saving": "Enregistrement…"
   }
 }
