@@ -1,3 +1,4 @@
+import { LockIcon } from "@phosphor-icons/react/Lock";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
@@ -61,5 +62,41 @@ describe("Field", () => {
       </Field.Root>,
     );
     expect(markup).toMatch(/<button[^>]* disabled=""/);
+  });
+
+  it("leads the password with any icon", () => {
+    const markup = render(
+      <Field.Root>
+        <Field.Label>Password</Field.Label>
+        <Field.Password icon={LockIcon} />
+      </Field.Root>,
+    );
+    expect(markup).toMatch(/<svg[^>]*aria-hidden="true"[^>]*>.*<\/svg><input/);
+  });
+
+  it("takes each part's className as a string or as a function of its state", () => {
+    const byState = (state: { disabled: boolean }) =>
+      state.disabled ? "is-off" : "is-on";
+    const parts = (disabled: boolean) =>
+      render(
+        <Field.Root disabled={disabled} className={byState}>
+          <Field.Label className={byState}>Display name</Field.Label>
+          <Field.Control />
+          <Field.Description className={byState}>
+            Shown on the race.
+          </Field.Description>
+        </Field.Root>,
+      );
+
+    expect(parts(false).match(/is-on/g)).toHaveLength(3);
+    expect(parts(true).match(/is-off/g)).toHaveLength(3);
+    expect(
+      render(
+        <Field.Root invalid className="max-w-l">
+          <Field.Control />
+          <Field.Error className="is-error">Enter a name.</Field.Error>
+        </Field.Root>,
+      ),
+    ).toMatch(/class="[^"]*max-w-l[^"]*".*class="[^"]*is-error/);
   });
 });
