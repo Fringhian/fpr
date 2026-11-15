@@ -28,7 +28,7 @@ One holding’s effect on a member’s period, in the focus panel: the share’s
 - The gain reads in the unit setting, euros in whole euros. An anonymous viewer has no euros, so it reads in percent; a holding bought during the period has no percentage, so it reads in euros. Bars are scaled within the unit they read in.
 - The names, bars and gains line up in columns across the rows. A name too long for its column ends in “…”.
 - With no movers, the list says nothing has moved yet.
-- \`moverScale\` and \`moverBar\` in \`src/lib/mover.ts\` place the bars.
+- Each bar is a \`BarTrack\`, the lane's bar too, on the list's \`moverScale\` from \`src/lib/mover.ts\`.
 `;
 
 const meta = {

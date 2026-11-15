@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
-import { type MoverScale, moverBar, moverScale } from "../../../lib/mover";
+import { type MoverScale, moverAmount, moverScale } from "../../../lib/mover";
+import { BarTrack } from "../../atoms/bar-track/bar-track";
 import { GainValue } from "../../atoms/gain-value/gain-value";
 
 /** One holding's effect on a member's period. */
@@ -18,17 +19,6 @@ export interface Mover {
    * no `percent`.
    */
   gain: GainInput;
-}
-
-/** A gain's bar, in the colour of its sign. */
-const BAR_TONES = {
-  positive: "bg-positive",
-  negative: "bg-negative",
-} as const;
-
-/** A fraction of the track, as a CSS length. */
-function percentOf(fraction: number): string {
-  return `${fraction * 100}%`;
 }
 
 export interface MoverRowOwnProps {
@@ -64,8 +54,9 @@ export function MoverRow({
   const language = useLanguage();
 
   const tone = gainDisplay(gain, unit, language, { precision: "euros" })?.tone;
-  const bar = moverBar(gain, unit, scale);
-  const drawn = bar !== null && (tone === "positive" || tone === "negative");
+  const shown = moverAmount(gain, unit);
+  // A gain that reads as zero draws no bar.
+  const signed = tone === "positive" || tone === "negative";
 
   return (
     <li
@@ -76,30 +67,12 @@ export function MoverRow({
       )}
     >
       <span className="truncate">{name}</span>
-      <span aria-hidden="true" className="relative h-s">
-        {bar === null ? null : (
-          <span
-            className="absolute -inset-y-xs w-[0.0625rem] bg-muted"
-            style={{ left: percentOf(bar.zero) }}
-          />
-        )}
-        {drawn ? (
-          <span
-            className={cn(
-              "absolute inset-y-[0] min-w-s rounded-full",
-              BAR_TONES[tone],
-            )}
-            style={
-              bar.direction === "gain"
-                ? { left: percentOf(bar.zero), width: percentOf(bar.length) }
-                : {
-                    right: percentOf(1 - bar.zero),
-                    width: percentOf(bar.length),
-                  }
-            }
-          />
-        ) : null}
-      </span>
+      <BarTrack
+        amount={shown === null ? null : signed ? shown.amount : 0}
+        scale={scale[shown?.unit ?? unit]}
+        color={tone === "negative" ? "negative" : "positive"}
+        size="s"
+      />
       <GainValue
         gain={gain}
         unit={unit}

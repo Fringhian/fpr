@@ -1,6 +1,7 @@
 import { Collapsible } from "@base-ui/react/collapsible";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import type { BarScale } from "../../../lib/bar-track";
 import { cn } from "../../../lib/cn";
 import {
   type Decimal,
@@ -9,32 +10,14 @@ import {
   type IsoDate,
 } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
-import {
-  type LaneScale,
-  type LaneValue,
-  laneAmount,
-  laneBar,
-} from "../../../lib/lane";
+import { type LaneValue, laneAmount } from "../../../lib/lane";
 import type { Language } from "../../../lib/language";
 import type { MemberColor } from "../../../lib/member-color";
 import { Badge } from "../../atoms/badge/badge";
+import { BarTrack } from "../../atoms/bar-track/bar-track";
 import { Chip } from "../../atoms/chip/chip";
 import { GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture, type PictureMedal } from "../../atoms/picture/picture";
-
-/** The bar in each member colour. */
-const BARS = {
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
-} as const satisfies Record<MemberColor, string>;
 
 /** A member's best holding over the period, the share that did best for them. */
 export interface LaneBest {
@@ -69,7 +52,7 @@ export interface LaneOwnProps {
    * `laneScale`, so the zero line sits at the same place in each lane and the
    * bars compare. Without it, the lane is measured against itself.
    */
-  scale?: LaneScale | undefined;
+  scale?: BarScale | undefined;
   /** The day the member's history starts when it is after the period's start: their gain is measured from it, and the lane says “since 12 Feb”. */
   measuredFrom?: IsoDate | null | undefined;
   /** A held share has no price yet: it is left out of the balance, and the lane says “Incomplete”. */
@@ -114,10 +97,10 @@ export function Lane({
   const language = useLanguage();
 
   const amount = laneAmount(value);
-  const bar = laneBar(
-    amount,
-    scale ?? { min: Math.min(0, amount ?? 0), max: Math.max(0, amount ?? 0) },
-  );
+  const ownScale = scale ?? {
+    min: Math.min(0, amount ?? 0),
+    max: Math.max(0, amount ?? 0),
+  };
   const hasMarkers = incomplete || measuredFrom !== null;
   const tint = you ? "bg-highlight" : "";
 
@@ -191,24 +174,7 @@ export function Lane({
             </span>
           ) : null}
         </span>
-        <span aria-hidden className="relative h-[0.875rem]">
-          <span
-            className="absolute -inset-y-xs w-[0.0625rem] bg-muted"
-            style={{ left: `${bar.zero}%` }}
-          />
-          {/* Always drawn, so a bar grows from or shrinks to nothing when the values change. */}
-          <span
-            className={cn(
-              "absolute inset-y-[0] rounded-full transition-[left,width] duration-300 ease-out",
-              "",
-              "",
-              "",
-              "motion-reduce:transition-none",
-              BARS[color],
-            )}
-            style={{ left: `${bar.start}%`, width: `${bar.width}%` }}
-          />
-        </span>
+        <BarTrack amount={amount} scale={ownScale} color={color} size="m" />
         <span
           className={cn(
             "text-end",
