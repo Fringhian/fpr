@@ -21,6 +21,9 @@
       "question": "Vendre {{quantity}} parts ?"
     }
   },
+  "button": {
+    "saving": "Enregistrement…"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermillon",
