@@ -42,6 +42,8 @@ Rate limits are kept per client address, the address of the person's device as t
 
 The API enforces every cell of this table. The web app hides what a role can't use, and the API refuses it anyway. What anonymization replaces is in `api.md`.
 
+Each route's contract declares who may call it: anyone, with `publicRoute`, or the roles it accepts, with `signedInRoute(roles)`. A route that declares neither fails to type-check and is refused with `403 forbidden`. The request pipeline's role guard checks the role, and refuses every write by an anonymous viewer. A write to one person's data, under `/users/:userId`, is checked by its handler, with `assertMayWriteUser`: the admin writes anyone's data, a member only their own. See `api.md`, Request pipeline.
+
 ## Access keys
 
 An access key is a person's access, for as long as they have it. Every person, admins included, has exactly one key that gives access at a time.
@@ -70,7 +72,7 @@ Replacing a link revokes the current key and creates a new one, waiting for firs
 
 On every request to a route that isn't public, the API loads the session, then the person's key. With no key giving access, the API deletes every session of the person and answers `401` with the code `access_ended`. The web app shows "Your access has ended". The person's next request has no session and answers `unauthenticated`. See `api.md`, Request pipeline.
 
-Better Auth's own endpoints run the same check, `authAccessCheck` in `apps/api/src/pipeline.ts`, before Better Auth: a request to `/api/auth/*` with a session cookie whose person has no key giving access deletes their sessions and answers `401` with `{ "error": { "code": "access_ended" } }`, on `get-session`, `change-password`, `list-sessions`, `revoke-session`, and every other endpoint. Sign-in and sign-out skip it: sign-in checks access when the session starts, and answers Better Auth's `{ "code": "access_ended" }`, and a cookie left by a person whose access ended never blocks another person's sign-in on the same browser.
+Better Auth's own endpoints run the same check, `authAccessCheck` in `apps/api/src/pipeline/access.ts`, before Better Auth: a request to `/api/auth/*` with a session cookie whose person has no key giving access deletes their sessions and answers `401` with `{ "error": { "code": "access_ended" } }`, on `get-session`, `change-password`, `list-sessions`, `revoke-session`, and every other endpoint. Sign-in and sign-out skip it: sign-in checks access when the session starts, and answers Better Auth's `{ "code": "access_ended" }`, and a cookie left by a person whose access ended never blocks another person's sign-in on the same browser.
 
 ## Flows
 
