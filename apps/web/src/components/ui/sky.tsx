@@ -35,6 +35,29 @@ export function Band({ className, ...props }: ComponentProps<"div">) {
 }
 
 /**
+ * The header sentence's place, over the sky. The page's content starts right
+ * under it, just below the near ridge, so the whole ridge shows above the
+ * first card: 240px from the top of `Root` on phone, 236px from tablet up.
+ * Its content flows from its top: the page bar, then the header sentence.
+ * Its height is fixed: a header that doesn't fit means the page has no sky,
+ * never a moved ridge.
+ */
+export function Header({ className, ...props }: ComponentProps<"header">) {
+  return (
+    <header
+      {...props}
+      className={cn(
+        "flex flex-col",
+        "h-[15rem] pb-[0.75rem]",
+        "tablet:h-[14.75rem] tablet:pb-[1.125rem]",
+        "desktop:h-[14.75rem] desktop:pb-[1.125rem]",
+        className,
+      )}
+    />
+  );
+}
+
+/**
  * The ridge: one 600 × 64 tile repeated across, never stretched, 52px high on
  * phone and 64px from tablet up. The far ridge is lilac, the near one snow;
  * above them it is transparent, so it shows whatever it is laid on.
