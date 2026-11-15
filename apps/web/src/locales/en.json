@@ -36,5 +36,12 @@
     "loadingPlaceholder": {
       "default": "Loading…"
     }
+  },
+  "menu": {
+    "more": "More actions",
+    "moreFor": "More actions for {{subject}}"
+  },
+  "popover": {
+    "helpLink": "More in How FPR works"
   }
 }
