@@ -1,9 +1,8 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import type { Icon as PhosphorIconType } from "@phosphor-icons/react/lib";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/cn";
-import { Icon } from "./icon";
+import { Icon, type IconProps } from "./icon";
 
 const iconButton = cva(
   [
@@ -28,16 +27,14 @@ const iconButton = cva(
 const ICON_SIZES = { s: "s", m: "m" } as const;
 
 export interface IconButtonOwnProps {
-  /** A Phosphor icon, imported from its own module: `@phosphor-icons/react/X`. */
-  icon: PhosphorIconType;
+  /** Any Phosphor icon, imported from its own module: `icon={XIcon}`. */
+  icon: IconProps["icon"];
   /** Names the action for screen readers, such as “Close” or “More actions”. Required: the icon alone says nothing to them. */
   label: string;
   /** Draws a white disc with an outline behind the icon, for a button over a picture or the sky. */
   ring?: boolean;
   /** `m` 40px, the default; `s` 24px, beside a line of text, such as the info icon next to an idea that needs a sentence. */
   size?: "s" | "m";
-  /** Classes added to the button’s own, which win any conflict. */
-  className?: string;
 }
 
 export type IconButtonProps = IconButtonOwnProps &
@@ -46,7 +43,11 @@ export type IconButtonProps = IconButtonOwnProps &
     keyof IconButtonOwnProps | "children" | "aria-label" | "aria-labelledby"
   >;
 
-/** A round button holding one icon, on Base UI’s button, named by its label. */
+/**
+ * A round button holding one icon, on Base UI’s button, named by its label.
+ * Every other prop goes to Base UI’s button, `className` included: a string,
+ * or a function of the button’s state.
+ */
 export function IconButton({
   icon,
   label,
@@ -55,11 +56,18 @@ export function IconButton({
   className,
   ...props
 }: IconButtonProps) {
+  const classes = iconButton({ size, ring });
+
   return (
     <BaseButton
       {...props}
       aria-label={label}
-      className={cn(iconButton({ size, ring }), className)}
+      className={(state) =>
+        cn(
+          classes,
+          typeof className === "function" ? className(state) : className,
+        )
+      }
     >
       <Icon icon={icon} size={ICON_SIZES[size]} />
     </BaseButton>
