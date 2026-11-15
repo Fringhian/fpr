@@ -51,3 +51,5 @@ How to create and fully wire up a ticket: `.claude/github-project-workflow.md`.
 - Load `supabase-postgres-best-practices` before any schema, migration, index, or query work.
 - `.claude/hooks/require-skills.sh` blocks an edit until the session has loaded the skills its file needs: `react-best-practices`, `fpr-ui` and `typescript-advanced-types` for `apps/web` code, `fpr-ui` for its CSS, `typescript-advanced-types` for any other TypeScript, and `supabase-postgres-best-practices` for `packages/db`, SQL and migrations.
 - Change source files with the Edit and Write tools, never through shell commands, so the skill hook sees every edit.
+- Tests: essential ones only, high-value integration or E2E (API over HTTP, auth and access, database rules, contract-wide guards). No unit tests for trivial helpers, formatting, getters, or schema accept/refuse lists, and no test file per source file: add a case to an existing suite first. Components have no unit tests; their stories are their check. Tests live in the workspace's `test/` folder.
+- Split a folder into subfolders before it grows flat and crowded. Web components live in `src/components/<story group>/`.
