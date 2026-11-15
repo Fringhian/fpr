@@ -17,6 +17,7 @@ export type IconSize = keyof typeof SIZES;
 interface IconOwnProps {
   /** A Phosphor icon, imported from its own module: `@phosphor-icons/react/House`. */
   icon: PhosphorIconType;
+  /** `s` 16 px in text, `m` 20 px in navigation, `l` 24 px for page actions and state icons. */
   size: IconSize;
   /** `fill` marks the current navigation item. */
   weight?: Extract<IconWeight, "regular" | "fill">;

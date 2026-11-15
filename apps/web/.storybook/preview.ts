@@ -1,6 +1,14 @@
+import {
+  Controls,
+  Description,
+  Primary,
+  Stories,
+  Subtitle,
+  Title,
+} from "@storybook/addon-docs/blocks";
 import type { Preview } from "@storybook/react-vite";
 import type { i18n as I18n } from "i18next";
-import { createElement } from "react";
+import { createElement, Fragment } from "react";
 import { I18nextProvider } from "react-i18next";
 import { createI18n } from "../src/lib/i18n";
 import { type Language, pickLanguage } from "../src/lib/language";
@@ -11,6 +19,23 @@ const i18nByLanguage = {
   en: createI18n("en"),
   fr: createI18n("fr"),
 } satisfies Record<Language, I18n>;
+
+/**
+ * Every Docs page: the description, the main story with its controls, then
+ * the other stories, without repeating the main one.
+ */
+function DocsPage() {
+  return createElement(
+    Fragment,
+    null,
+    createElement(Title),
+    createElement(Subtitle),
+    createElement(Description),
+    createElement(Primary),
+    createElement(Controls),
+    createElement(Stories, { includePrimary: false }),
+  );
+}
 
 const preview: Preview = {
   globalTypes: {
@@ -27,7 +52,7 @@ const preview: Preview = {
       },
     },
   },
-  initialGlobals: { locale: "en" },
+  initialGlobals: { locale: "en", backgrounds: { value: "page" } },
   decorators: [
     (Story, { globals }) => {
       const language = pickLanguage([String(globals.locale)]);
@@ -40,11 +65,20 @@ const preview: Preview = {
     },
   ],
   parameters: {
+    docs: { page: DocsPage },
     options: {
       storySort: {
         order: [
           "Foundations",
-          ["Colour", "Typography", "Spacing", "Shape", "Breakpoints", "Icons"],
+          [
+            "Colour",
+            "Typography",
+            "Spacing",
+            "Shape",
+            "Breakpoints",
+            "Icons",
+            "Sky and ridge",
+          ],
           "Atoms",
           "Molecules",
           "Organisms",
@@ -70,6 +104,11 @@ const preview: Preview = {
           type: "desktop",
         },
       },
+    },
+    // The canvas is the page ground, so a story shorter than the frame ends on
+    // snow, in the canvas and on the Docs page alike.
+    backgrounds: {
+      options: { page: { name: "Page", value: "var(--palette-snow)" } },
     },
     a11y: {
       // A violation fails the story's test, in the test panel and in CI.

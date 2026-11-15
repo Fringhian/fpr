@@ -31,7 +31,7 @@ export function Specimen({
   children: ReactNode;
 }) {
   return (
-    <main className="min-h-dvh bg-page p-l font-sans text-primary">
+    <main className="bg-page p-l font-sans text-primary">
       <h1 className="text-xl font-semibold">{title}</h1>
       <p className="mt-xs mb-l max-w-[70ch] text-m text-secondary">{lead}</p>
       {children}
