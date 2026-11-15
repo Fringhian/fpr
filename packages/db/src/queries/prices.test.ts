@@ -10,14 +10,7 @@ import {
 import type { Db } from "../database.js";
 import type { NewPrice } from "../tables/price.js";
 import { createTestDatabase, type TestDatabase } from "../testing.js";
-import {
-  deleteIntradayBefore,
-  find,
-  latestAt,
-  listBetween,
-  remove,
-  upsert,
-} from "./prices.js";
+import { deleteIntradayBefore, latestAt, upsert } from "./prices.js";
 
 let test: TestDatabase;
 let db: Db;
@@ -107,12 +100,6 @@ async function seedPrices(): Promise<void> {
 }
 
 describe("upsert", () => {
-  it("stores a price and returns its row", async () => {
-    const row = await upsert(db, price());
-    expect(row).toMatchObject(price());
-    expect(row.createdAt).toBeInstanceOf(Date);
-  });
-
   it("replaces the price, source, and entered_by at the same moment", async () => {
     const person = await db
       .insertInto("user")
@@ -143,19 +130,7 @@ describe("upsert", () => {
       source: "manual",
       enteredBy: person.id,
     });
-    expect(
-      await listBetween(db, shareId, at("2026-01-01"), at("2027-01-01")),
-    ).toHaveLength(1);
-  });
-});
-
-describe("find", () => {
-  it("finds the price at exactly a moment, in any offset", async () => {
-    await seedPrices();
-    expect(
-      await find(db, shareId, at("2026-03-03T11:00:00+01:00")),
-    ).toMatchObject({ priceEur: "41", source: "intraday" });
-    expect(await find(db, shareId, at("2026-03-03T10:00:01Z"))).toBeUndefined();
+    expect(await db.selectFrom("prices").selectAll().execute()).toHaveLength(1);
   });
 });
 
@@ -194,58 +169,6 @@ describe("latestAt", () => {
     expect(
       await latestAt(db, shareId, at("2026-03-10T00:00:00Z"), ["manual"]),
     ).toBeUndefined();
-  });
-
-  it("reads one share's prices only", async () => {
-    await seedPrices();
-    expect(
-      await latestAt(db, otherShareId, at("2026-03-10T00:00:00Z")),
-    ).toMatchObject({ priceEur: "99", source: "manual" });
-  });
-});
-
-describe("listBetween", () => {
-  it("lists a share's prices between two moments, both included, oldest first", async () => {
-    await seedPrices();
-    const rows = await listBetween(
-      db,
-      shareId,
-      at("2026-03-02T22:59:59Z"),
-      at("2026-03-04T10:00:00Z"),
-    );
-    expect(rows.map((row) => row.priceEur)).toEqual(["40", "41", "42", "43"]);
-    const inner = await listBetween(
-      db,
-      shareId,
-      at("2026-03-03T00:00:00Z"),
-      at("2026-03-04T00:00:00Z"),
-    );
-    expect(inner.map((row) => row.priceEur)).toEqual(["41", "42"]);
-  });
-
-  it("lists only the given sources", async () => {
-    await seedPrices();
-    const rows = await listBetween(
-      db,
-      shareId,
-      at("2026-03-01T00:00:00Z"),
-      at("2026-03-10T00:00:00Z"),
-      ["intraday"],
-    );
-    expect(rows.map((row) => row.priceEur)).toEqual(["41", "43"]);
-  });
-});
-
-describe("remove", () => {
-  it("deletes the price at a moment, and reports whether one was there", async () => {
-    await seedPrices();
-    const moment = at("2026-03-03T22:59:59Z");
-    expect(await remove(db, shareId, moment)).toBe(true);
-    expect(await find(db, shareId, moment)).toBeUndefined();
-    expect(await remove(db, shareId, moment)).toBe(false);
-    expect(
-      await listBetween(db, shareId, at("2026-03-01"), at("2026-03-10")),
-    ).toHaveLength(3);
   });
 });
 

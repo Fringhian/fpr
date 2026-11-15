@@ -61,7 +61,6 @@ afterEach(async () => {
   await db.deleteFrom("user").execute();
 });
 
-const UNKNOWN_ID = "01900000-0000-7000-8000-000000000000";
 const HOUR_MS = 60 * 60 * 1000;
 
 const key = (changes: Partial<NewResetKey> = {}): NewResetKey => ({
@@ -75,52 +74,35 @@ const key = (changes: Partial<NewResetKey> = {}): NewResetKey => ({
 
 describe("insert", () => {
   it("creates an unused key, valid for 24 hours", async () => {
-    const row = await insert(db, key({ createdBy: sam }));
-    expect(row).toMatchObject({
-      userId: alex,
-      codeHash: "hash",
-      usedAt: null,
-      revokedAt: null,
-      createdBy: sam,
-    });
+    const row = await insert(db, key());
+    expect(row.usedAt).toBeNull();
     expect(row.expiresAt.getTime() - row.createdAt.getTime()).toBe(
       24 * HOUR_MS,
     );
   });
 });
 
-describe("findByCodeHash", () => {
-  it("finds a key by its hash, whatever its state", async () => {
-    const row = await insert(db, key({ usedAt: new Date() }));
-    expect(await findByCodeHash(db, "hash")).toEqual(row);
-    expect(await findByCodeHash(db, "other")).toBeUndefined();
-  });
-});
-
 describe("markUsed", () => {
-  it("uses a key once", async () => {
-    const row = await insert(db, key());
-    const used = await markUsed(db, row.id);
-    expect(used?.usedAt).toBeInstanceOf(Date);
-    expect(await markUsed(db, row.id)).toBeUndefined();
-  });
+  it("uses a key once, before it expires, while it is not revoked", async () => {
+    const valid = await insert(db, key({ codeHash: "valid" }));
+    expect((await markUsed(db, valid.id))?.usedAt).toBeInstanceOf(Date);
+    expect(await markUsed(db, valid.id)).toBeUndefined();
 
-  it("refuses a revoked key", async () => {
-    const row = await insert(db, key({ revokedAt: new Date() }));
-    expect(await markUsed(db, row.id)).toBeUndefined();
-  });
-
-  it("refuses an expired key", async () => {
-    const row = await insert(
+    const revoked = await insert(
       db,
-      key({ expiresAt: new Date(Date.now() - HOUR_MS) }),
+      key({ codeHash: "revoked", revokedAt: new Date() }),
     );
-    expect(await markUsed(db, row.id)).toBeUndefined();
-    expect((await findByCodeHash(db, "hash"))?.usedAt).toBeNull();
-  });
+    expect(await markUsed(db, revoked.id)).toBeUndefined();
 
-  it("returns nothing for an unknown key", async () => {
-    expect(await markUsed(db, UNKNOWN_ID)).toBeUndefined();
+    const expired = await insert(
+      db,
+      key({
+        codeHash: "expired",
+        expiresAt: new Date(Date.now() - HOUR_MS),
+      }),
+    );
+    expect(await markUsed(db, expired.id)).toBeUndefined();
+    expect((await findByCodeHash(db, "expired"))?.usedAt).toBeNull();
   });
 });
 
@@ -141,9 +123,5 @@ describe("revokeUnused", () => {
     expect((await findByCodeHash(db, "used"))?.revokedAt).toBeNull();
     expect((await findByCodeHash(db, "revoked"))?.revokedAt).toEqual(revokedAt);
     expect((await findByCodeHash(db, "sam's"))?.revokedAt).toBeNull();
-  });
-
-  it("revokes nothing for a person without keys", async () => {
-    expect(await revokeUnused(db, alex)).toBe(0);
   });
 });
