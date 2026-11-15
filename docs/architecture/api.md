@@ -44,7 +44,8 @@ The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from t
 ```mermaid
 flowchart LR
     Req["Request"] --> Origin["Origin check"]
-    Origin --> Session["Session<br/>(Better Auth)"]
+    Origin --> Limit["Rate limit<br/>(public writes)"]
+    Limit --> Session["Session<br/>(Better Auth)"]
     Session --> Access["Access check"]
     Access --> Role["Role guard"]
     Role --> Valid["Input validation"]
@@ -54,16 +55,17 @@ flowchart LR
 ```
 
 1. **Origin check**: a write, any method but `GET` and `HEAD`, whose `Origin` header isn't `PUBLIC_URL`'s origin is refused with `403 forbidden`, public routes included, and so is a write without an `Origin`.
-2. **Session**: Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie. A route that declares no access is refused with `403 forbidden`.
-3. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. Better Auth's endpoints at `/api/auth/*` run the same check, `keepsAccess`, through `authAccessCheck`, except sign-in and sign-out. See `auth.md`.
-4. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`.
-5. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
-6. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`. The handler of a write to a path with `{userId}` checks ownership with `assertMayWriteUser(viewer, userId)` from `apps/api/src/ownership.ts`: the admin writes anyone's data, everyone else only their own, compared without case, and any other write is refused with `403 forbidden`. Input validation comes first, so an invalid body to another person's `{userId}` is `400 invalid_request`.
-7. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+2. **Rate limit**: a public write, such as a claim or a password reset, is limited per client address and per route: five requests within a minute, then `429 rate_limited` with `Retry-After` until the minute ends. The client address is read as for Better Auth's limits, and the counts are kept in memory. A request without a client address is not limited, so clients never share one count, and the first one since the API started is logged as an error. See `auth.md`, Client address.
+3. **Session**: Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie. A route that declares no access is refused with `403 forbidden`.
+4. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. Better Auth's endpoints at `/api/auth/*` run the same check, `keepsAccess`, through `authAccessCheck`, except sign-in and sign-out. See `auth.md`.
+5. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`.
+6. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
+7. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`. The handler of a write to a path with `{userId}` checks ownership with `assertMayWriteUser(viewer, userId)` from `apps/api/src/ownership.ts`: the admin writes anyone's data, everyone else only their own, compared without case, and any other write is refused with `403 forbidden`. Input validation comes first, so an invalid body to another person's `{userId}` is `400 invalid_request`.
+8. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
 
-Public routes go from the origin check straight to input validation, without a session, an access check, or a role guard, and their handlers get `context.viewer` as `null`.
+Public routes go from the origin check and the rate limit straight to input validation, without a session, an access check, or a role guard, and their handlers get `context.viewer` as `null`. Signed-in routes skip the rate limit.
 
-The first four steps are chained oRPC middlewares, one per file in `apps/api/src/pipeline/`: `origin.ts`, `session.ts`, `access.ts`, and `roles.ts`. `index.ts` composes them in that order as `requestPipeline`, which every route of `apiContract` goes through. A handler of a route that isn't public narrows `context.viewer` with the `signedIn` middleware: `api.me.get.use(signedIn).handler(({ context }) => context.viewer.id)`. A handler answers its own errors with `apiError(code, details)` from `apps/api/src/errors.ts`. The request log line carries the person's id once the session is read.
+The first five steps are chained oRPC middlewares, one per file in `apps/api/src/pipeline/`: `origin.ts`, `rate-limit.ts`, `session.ts`, `access.ts`, and `roles.ts`. `index.ts` composes them in that order as `requestPipeline`, which every route of `apiContract` goes through. `apps/api/src/implement.ts` exports `api`, the contract implemented behind `requestPipeline`. Each area's handlers are in their folder, such as `apps/api/src/access/`, and `apps/api/src/router.ts` gathers them under the contract's keys. A handler of a route that isn't public narrows `context.viewer` with the `signedIn` middleware: `api.me.get.use(signedIn).handler(({ context }) => context.viewer.id)`. A handler answers its own errors with `apiError(code, details)` from `apps/api/src/errors.ts`. The request log line carries the person's id once the session is read.
 
 ## Errors
 
@@ -104,7 +106,7 @@ Errors are `{ "error": { "code", "details" } }`, and the web app turns the code 
 
 Every role can read every member's data. A `:userId` write acts on one member's data: a member may write only their own, the admin anyone's.
 
-The API sits behind `web`, and trusts the client address `web` forwards as the only value of `X-Forwarded-For`, so rate limits apply per real client. `web` resolves it from the host's reverse proxy: see `auth.md`, Client address. A request to `/api/auth/*` without one is not rate-limited, and the first one is logged as an error.
+The API sits behind `web`, and trusts the client address `web` forwards as the only value of `X-Forwarded-For`, so rate limits apply per real client. `web` resolves it from the host's reverse proxy: see `auth.md`, Client address. A request to `/api/auth/*` or a public write without one is not rate-limited, and the first one is logged as an error.
 
 ### Public
 
@@ -119,7 +121,14 @@ The API sits behind `web`, and trusts the client address `web` forwards as the o
 | `GET /setup` | Whether an admin exists, which closes `/setup` |
 | `POST /setup` | Create the first admin with the bootstrap key: `{ bootstrapKey, email, displayName, password }`. Refused with `409` once an admin exists |
 
-Every write here is rate-limited per client address.
+Every write here is rate-limited per client address and per route: see Request pipeline. The handlers are in `apps/api/src/access/`.
+
+- **Access key states**: a revoked key is `replaced` when its person has a newer key, and `revoked` otherwise. A key past `access_until` is `ended`, claimed or not. A claimed key is `claimed`, an unclaimed key past `claim_before` is `expired`, and any other is `waiting`.
+- **Claim**: a key that isn't waiting, or an anonymous viewer's key, is refused with `invalid_access_key` and its state. Without `password` for a person who has none, or with one for a person who has one, the answer is `400 invalid_request` on `password`. The key is locked while it is claimed, so two claims at once claim it once.
+- **Anonymous sign-in**: a waiting or claimed key of an anonymous viewer starts a session, and the first visit sets `claimed_at`. Any other key, or a password user's key, is refused with `invalid_access_key` and its state.
+- **Password reset**: an unknown key, a key of another person, an email of nobody, an anonymous viewer, or a used, replaced, or expired key all answer `invalid_reset_key`. The reset sets the password, `used_at`, and deletes every session of the person in one transaction.
+- **Setup**: `admin_exists` comes before the key check. The bootstrap key is compared in constant time. The admin, their password, and their claimed access key are created in one transaction holding an advisory lock, so two setups at once create one admin.
+- Setup, claims, and anonymous sign-ins start the session through a server-only Better Auth endpoint, `startAccessSession` in `apps/api/src/access/session.ts`, never reachable over HTTP. It creates the session and its cookie as password sign-in does, so the access check on new sessions applies.
 
 ### Me
 
@@ -244,7 +253,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `DATABASE_URL` | Postgres |
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
 | `BETTER_AUTH_SECRET` | Session signing. 32 characters or more |
-| `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
+| `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key. 32 characters or more |
 | `PSEUDONYM_SECRET` | Pseudonyms. At least 32 characters |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
 | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |

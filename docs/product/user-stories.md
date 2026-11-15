@@ -35,7 +35,10 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A link opened after its first-use deadline (7 days after creation) shows that it has expired and to ask the admin for a new one.
 - A link already used for setup leads to the sign-in page.
 - A link the admin replaced says so, and to use the latest link.
+- A link the admin revoked, or opened after the access end date, says that access has ended, even before its first use.
+- The latest link of a person who already has a password, after a replacement, asks for no password: opening it leads to the sign-in page.
 - Leaving before the password is set keeps the link valid until its deadline.
+- Five link checks, claims, anonymous sign-ins, or password resets from one address within a minute pause that action from that address for a minute, and from no other address.
 - Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
 - Five sign-in attempts from one address within a minute pause sign-in from that address for a minute, and from no other address.
 - A wrong email or reset key gives one generic error that does not say which of the two is wrong.
@@ -210,7 +213,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A member whose access is revoked or has ended stays in the race with their data. Deleting them removes them from it.
 - After adding a member, the link dialog offers to prepare their portfolio: it opens their member page in edit mode.
 - The admin area works on tablet and desktop. On a phone it says so.
-- On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists.
+- On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists. Once an admin exists, the setup says so whatever key is typed, and two setups sent at once create one admin.
 
 ## Viewing without a portfolio
 
