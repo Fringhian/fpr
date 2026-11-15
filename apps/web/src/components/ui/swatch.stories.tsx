@@ -1,17 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { MEMBER_COLORS, type MemberColor } from "../../lib/member-color";
+import type { ItemProps } from "./swatch";
 import * as Swatch from "./swatch";
-import { type ItemProps, MEMBER_COLOURS, type MemberColour } from "./swatch";
 
 /** One swatch's args: its own props, and whether its group has it selected. */
 type SwatchArgs = Pick<
   ItemProps,
-  "colour" | "takenBy" | "disabled" | "className"
+  "color" | "takenBy" | "disabled" | "className"
 > & {
   selected: boolean;
 };
 
 /** The design's picker: Cobalt picked, four colours taken by others. */
-const OWNERS: Partial<Record<MemberColour, string>> = {
+const OWNERS: Partial<Record<MemberColor, string>> = {
   vermilion: "Sam",
   green: "Lea",
   violet: "Max",
@@ -21,12 +22,12 @@ const OWNERS: Partial<Record<MemberColour, string>> = {
 function TenColours() {
   return (
     <Swatch.Group aria-label="Colour" defaultValue="cobalt">
-      {MEMBER_COLOURS.map((colour) => (
+      {MEMBER_COLORS.map((color) => (
         <Swatch.Item
-          key={colour}
-          colour={colour}
-          takenBy={OWNERS[colour]}
-          disabled={colour in OWNERS}
+          key={color}
+          color={color}
+          takenBy={OWNERS[color]}
+          disabled={color in OWNERS}
         />
       ))}
     </Swatch.Group>
@@ -43,7 +44,7 @@ One of the ten member colours in the picker, a radio in a group. Import it as a 
 
 - A taken colour can't be picked unless all ten are taken: pass \`disabled\` with \`takenBy\`, and leave it out once every colour is taken. A selected swatch never fades, even when shared.
 - Screen readers hear the colour's name, and its owner when taken: “Vermilion, taken by Sam”.
-- \`MEMBER_COLOURS\` lists the ten colours in the picker's order.
+- \`color\` is a \`MemberColor\` from \`lib/member-color\`, whose \`MEMBER_COLORS\` lists the ten in the picker's order.
 
 The controls set one swatch; **Group value** selects it. The **Picker** stories show the ten together.
 `;
@@ -53,12 +54,12 @@ const meta = {
   component: Swatch.Item,
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-  args: { colour: "cobalt", takenBy: "", disabled: false, selected: false },
+  args: { color: "cobalt", takenBy: "", disabled: false, selected: false },
   argTypes: {
-    colour: {
+    color: {
       control: { type: "select" },
-      options: MEMBER_COLOURS,
-      table: { type: { summary: "MemberColour" } },
+      options: MEMBER_COLORS,
+      table: { type: { summary: "MemberColor" } },
     },
     takenBy: {
       control: { type: "text" },
@@ -78,9 +79,9 @@ const meta = {
   },
   render: ({ selected, ...item }) => (
     <Swatch.Group
-      key={`${item.colour}-${String(selected)}`}
+      key={`${item.color}-${String(selected)}`}
       aria-label="Colour"
-      defaultValue={selected ? item.colour : undefined}
+      defaultValue={selected ? item.color : undefined}
     >
       <Swatch.Item {...item} />
     </Swatch.Group>
@@ -99,13 +100,13 @@ export const Selected: Story = { args: { selected: true } };
 
 /** Taken: faded, with its owner's initial, and can't be picked. */
 export const Taken: Story = {
-  args: { colour: "vermilion", takenBy: "Sam", disabled: true },
+  args: { color: "vermilion", takenBy: "Sam", disabled: true },
 };
 
 /** Once all ten are taken, colours can be shared: a taken swatch can be picked, and the selected one doesn't fade. */
 export const SelectedShared: Story = {
   name: "Selected and shared",
-  args: { colour: "green", takenBy: "Lea", selected: true },
+  args: { color: "green", takenBy: "Lea", selected: true },
 };
 
 /** The ten colours in the picker, as onboarding and Settings show them. */

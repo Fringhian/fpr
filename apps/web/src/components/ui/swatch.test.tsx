@@ -16,22 +16,22 @@ function render(node: ReactNode, language: Language = "en"): string {
 
 describe("Swatch.Item", () => {
   it("is named by its colour", () => {
-    expect(render(<Swatch.Item colour="cobalt" />)).toContain(
+    expect(render(<Swatch.Item color="cobalt" />)).toContain(
       'aria-label="Cobalt"',
     );
-    expect(render(<Swatch.Item colour="lime" />, "fr")).toContain(
+    expect(render(<Swatch.Item color="lime" />, "fr")).toContain(
       'aria-label="Citron vert"',
     );
   });
 
   it("names its owner when taken, and shows their initial", () => {
-    const markup = render(<Swatch.Item colour="vermilion" takenBy="sam" />);
+    const markup = render(<Swatch.Item color="vermilion" takenBy="sam" />);
     expect(markup).toContain('aria-label="Vermilion, taken by sam"');
     expect(markup).toContain(">S</span>");
   });
 
   it("ignores a blank owner", () => {
-    const markup = render(<Swatch.Item colour="green" takenBy="  " />);
+    const markup = render(<Swatch.Item color="green" takenBy="  " />);
     expect(markup).toContain('aria-label="Green"');
     expect(markup).not.toContain("opacity-[0.35]");
   });

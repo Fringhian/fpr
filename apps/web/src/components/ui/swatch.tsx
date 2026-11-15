@@ -5,23 +5,8 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/cn";
 import { useLanguage } from "../../lib/i18n";
 import { initialOf } from "../../lib/initial";
+import type { MemberColor } from "../../lib/member-color";
 import { Icon } from "./icon";
-
-/** The ten member colours, in the order the picker shows them. */
-export const MEMBER_COLOURS = [
-  "vermilion",
-  "cobalt",
-  "green",
-  "violet",
-  "amber",
-  "pink",
-  "cyan",
-  "lime",
-  "sienna",
-  "periwinkle",
-] as const;
-
-export type MemberColour = (typeof MEMBER_COLOURS)[number];
 
 const FILLS = {
   vermilion: "bg-vermilion",
@@ -34,10 +19,10 @@ const FILLS = {
   lime: "bg-lime",
   sienna: "bg-sienna",
   periwinkle: "bg-periwinkle",
-} as const satisfies Record<MemberColour, string>;
+} as const satisfies Record<MemberColor, string>;
 
 export interface GroupProps
-  extends Omit<RadioGroup.Props<MemberColour>, "className" | "render"> {
+  extends Omit<RadioGroup.Props<MemberColor>, "className" | "render"> {
   /** Classes for the group. */
   className?: string | undefined;
 }
@@ -49,7 +34,7 @@ export interface GroupProps
  */
 export function Group({ className, ...props }: GroupProps) {
   return (
-    <RadioGroup<MemberColour>
+    <RadioGroup<MemberColor>
       {...props}
       className={cn(
         "",
@@ -64,11 +49,11 @@ export function Group({ className, ...props }: GroupProps) {
 
 export interface ItemProps
   extends Omit<
-    Radio.Root.Props<MemberColour>,
+    Radio.Root.Props<MemberColor>,
     "value" | "className" | "children" | "render"
   > {
   /** One of the ten member colours, and the value the group takes when it is picked. */
-  colour: MemberColour;
+  color: MemberColor;
   /** The name of the member who has this colour: the swatch fades and shows their initial. A taken colour can't be picked unless all ten are taken, so `disabled` usually comes with it. */
   takenBy?: string | undefined;
   /** Classes for the swatch. */
@@ -80,18 +65,18 @@ export interface ItemProps
  * check and a charcoal ring), or taken (faded, with its owner's initial).
  * Screen readers hear the colour's name, and its owner when taken.
  */
-export function Item({ colour, takenBy, className, ...props }: ItemProps) {
+export function Item({ color, takenBy, className, ...props }: ItemProps) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const name = t(`swatch.colours.${colour}`);
+  const name = t(`swatch.colours.${color}`);
   const owner = takenBy?.trim() ? takenBy.trim() : undefined;
   return (
-    <Radio.Root<MemberColour>
+    <Radio.Root<MemberColor>
       aria-label={
         owner ? t("swatch.takenBy", { colour: name, name: owner }) : name
       }
       {...props}
-      value={colour}
+      value={color}
       className={cn(
         "group inline-flex size-[2rem] shrink-0 cursor-pointer items-center justify-center rounded-full text-xs font-semibold text-on-primary opacity-100 outline-primary outline-offset-2",
         "",
@@ -101,7 +86,7 @@ export function Item({ colour, takenBy, className, ...props }: ItemProps) {
         "focus-visible:focus-ring",
         "checked:focus-visible:outline-3 checked:focus-visible:outline-offset-4",
         "disabled:cursor-not-allowed",
-        FILLS[colour],
+        FILLS[color],
         owner ? "opacity-[0.35]" : null,
         className,
       )}
