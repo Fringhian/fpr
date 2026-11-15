@@ -42,7 +42,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
 - Each person has one of ten colours, set when they are added to the first colour nobody has. A colour someone else has can't be chosen, unless all ten are taken.
 - Each setting is saved as soon as it changes, the name when the field is left. Settings has no Save button.
-- Until a person picks a language, FPR follows their browser's language.
+- FPR is in French until a person picks a language, whatever their browser's language. Pages before sign-in are in French.
 - Installed FPR opens without a connection and says it is offline, with Retry. It never shows data it doesn't have.
 - A new version of FPR shows "A new version is ready" with Reload, and never reloads by itself.
 - An app installed on iOS asks to sign in once, since it doesn't share Safari's session. An anonymous viewer signs in there by pasting their access link on the sign-in page.
