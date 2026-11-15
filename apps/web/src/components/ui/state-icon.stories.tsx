@@ -31,6 +31,10 @@ const meta = {
     },
     size: { control: { type: "inline-radio" }, options: ["m", "l"] },
     label: { control: { type: "text" } },
+    className: {
+      description: "Classes added to the circle’s, which win any conflict.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof StateIcon>;
 

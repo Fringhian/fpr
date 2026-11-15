@@ -30,6 +30,9 @@
       "question": "Sell {{quantity}} units?"
     }
   },
+  "button": {
+    "saving": "Saving…"
+  },
   "smallParts": {
     "marketStatus": {
       "open": "Markets open · prices as of {{time}}",
@@ -72,9 +75,6 @@
       "starShareFirst": "Star share <chip/>",
       "separator": " · "
     }
-  },
-  "button": {
-    "saving": "Saving…"
   },
   "dialog": {
     "close": "Close",

@@ -30,6 +30,9 @@
       "question": "Vendre {{quantity}} parts ?"
     }
   },
+  "button": {
+    "saving": "Enregistrement…"
+  },
   "smallParts": {
     "marketStatus": {
       "open": "Marchés ouverts · cours à {{time}}",
@@ -75,9 +78,6 @@
       "starShareFirst": "Titre vedette <chip/>",
       "separator": " · "
     }
-  },
-  "button": {
-    "saving": "Enregistrement…"
   },
   "dialog": {
     "close": "Fermer",

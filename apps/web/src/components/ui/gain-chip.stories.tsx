@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { formatMoney } from "../../lib/format";
+import { useLanguage } from "../../lib/i18n";
 import { GainChip } from "./gain-chip";
 
 const meta = {
@@ -21,6 +23,10 @@ const meta = {
       control: { type: "inline-radio" },
       options: ["cents", "euros"],
       if: { arg: "unit", eq: "eur" },
+    },
+    className: {
+      description: "Classes added to the chip’s, which win any conflict.",
+      control: false,
     },
   },
 } satisfies Meta<typeof GainChip>;
@@ -55,11 +61,18 @@ export const AnonymousViewer: Story = {
   args: { gain: { percent: "7.7" }, unit: "eur" },
 };
 
+/** The demo card's value, in the toolbar's language: the story's content, not the chip's. */
+function CardValue() {
+  return formatMoney("5904", useLanguage(), { precision: "euros" });
+}
+
 /** On a holding card, beside its value. */
 export const OnACard: Story = {
   render: (args) => (
     <div className="flex w-[16.25rem] items-center justify-between rounded-l bg-surface p-m shadow-outline">
-      <span className="text-l font-semibold tabular-nums">€5,904</span>
+      <span className="text-l font-semibold tabular-nums">
+        <CardValue />
+      </span>
       <GainChip {...args} />
     </div>
   ),
