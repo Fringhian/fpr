@@ -9,7 +9,10 @@ import {
 import { accessKeys } from "@fpr/db";
 import { ORPCError, os } from "@orpc/server";
 import { fromNodeHeaders } from "better-auth/node";
-import type { ApiContext } from "./orpc.js";
+import type { RequestHandler } from "express";
+import { authBasePath } from "./auth.js";
+import { ApiError } from "./errors.js";
+import type { ApiContext, ApiServices } from "./orpc.js";
 
 /** The signed-in person a request acts for. */
 export interface Viewer {
@@ -100,9 +103,7 @@ async function admit(
   }
   context.res.locals.userId = viewer.id;
 
-  if (!(await accessKeys.hasAccess(context.db, viewer.id))) {
-    const { internalAdapter } = await context.auth.$context;
-    await internalAdapter.deleteUserSessions(viewer.id);
+  if (!(await keepsAccess(context, viewer.id))) {
     throw apiError("access_ended");
   }
 
@@ -110,6 +111,60 @@ async function admit(
     throw apiError("forbidden");
   }
   return viewer;
+}
+
+/**
+ * The access check: whether the person's access key still gives access.
+ * Without one, every session of the person is deleted.
+ */
+export async function keepsAccess(
+  { db, auth }: Pick<ApiServices, "db" | "auth">,
+  userId: string,
+): Promise<boolean> {
+  if (await accessKeys.hasAccess(db, userId)) {
+    return true;
+  }
+  const { internalAdapter } = await auth.$context;
+  await internalAdapter.deleteUserSessions(userId);
+  return false;
+}
+
+/** Better Auth's paths that skip the access check: sign-in checks access itself. */
+const pathsWithoutAccessCheck = [
+  `${authBasePath}/sign-in/`,
+  `${authBasePath}/sign-out`,
+] as const;
+
+/**
+ * The access check in front of Better Auth's own endpoints. A request with
+ * a session whose person's access ended deletes their sessions and is
+ * answered `access_ended`. Sign-in checks access when the session starts,
+ * and sign-out ends the session anyway, so both go straight to Better Auth:
+ * a stale cookie never blocks another person's sign-in on the same browser.
+ */
+export function authAccessCheck(
+  services: Pick<ApiServices, "db" | "auth">,
+): RequestHandler {
+  return async (req, _res, next) => {
+    if (
+      req.headers.cookie === undefined ||
+      pathsWithoutAccessCheck.some((path) => req.path.startsWith(path))
+    ) {
+      next();
+      return;
+    }
+    // Reading the session here leaves extending it to Better Auth's own
+    // endpoint, which sends the renewed cookie.
+    const session = await services.auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+      query: { disableRefresh: true },
+    });
+    if (session === null || (await keepsAccess(services, session.user.id))) {
+      next();
+      return;
+    }
+    next(new ApiError("access_ended"));
+  };
 }
 
 /**

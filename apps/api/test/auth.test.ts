@@ -321,4 +321,52 @@ describe("rate limit", () => {
     expect(elsewhere.status).toBe(200);
     expect(cookieFrom(elsewhere)).toContain(SESSION_COOKIE);
   });
+
+  it("never limits a sign-in without a client address through one shared count", async () => {
+    const person = await addPerson(test.db, auth, "member");
+
+    for (let attempt = 0; attempt <= signInRateLimit.max; attempt += 1) {
+      const response = await postSignIn(
+        server,
+        person.email,
+        "not the right password",
+        null,
+      );
+      expect(response.status).toBe(401);
+    }
+    const signedIn = await postSignIn(
+      server,
+      person.email,
+      TEST_PASSWORD,
+      null,
+    );
+
+    expect(signedIn.status).toBe(200);
+  });
+});
+
+describe("access check on Better Auth's endpoints", () => {
+  it.each([
+    ["/get-session", undefined],
+    [
+      "/change-password",
+      { currentPassword: TEST_PASSWORD, newPassword: "c".repeat(20) },
+    ],
+  ])(
+    "answers %s with access_ended once access ends, and deletes the person's sessions",
+    async (path, body) => {
+      const person = await addPerson(test.db, auth, "member");
+      const cookie = await signIn(server, person);
+      await signIn(server, person);
+      await accessKeys.revoke(test.db, person.keyId);
+
+      const response = await authRequest(path, { body, cookie });
+
+      expect(response.status).toBe(401);
+      expect(await response.json()).toEqual({
+        error: { code: "access_ended" },
+      });
+      expect(await sessionCount(person.id)).toBe(0);
+    },
+  );
 });

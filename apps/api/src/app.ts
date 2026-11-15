@@ -9,6 +9,7 @@ import { type Auth, authBasePath } from "./auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
 import { mountRouter } from "./orpc.js";
+import { authAccessCheck } from "./pipeline.js";
 import { apiRouter } from "./router.js";
 
 export interface AppOptions {
@@ -42,9 +43,11 @@ export function createApp({
 }: AppOptions): Express {
   const app = express();
 
-  // `web` is the one proxy in front of the API, so the address it forwards in
-  // X-Forwarded-For is the client's. The value 1 trusts that single hop and
-  // nothing beyond it.
+  // `web` is the one proxy in front of the API, and forwards the client's
+  // address, resolved from the host's reverse proxy, as the only value of
+  // X-Forwarded-For. The value 1 trusts that single hop and nothing beyond
+  // it, so req.ip is the client's address, the one Better Auth's rate limits
+  // are kept for.
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
 
@@ -96,7 +99,11 @@ export function createApp({
   }
 
   // Better Auth reads its own bodies, so it comes before any body parser.
-  app.all(`${authBasePath}/{*path}`, toNodeHandler(auth));
+  app.all(
+    `${authBasePath}/{*path}`,
+    authAccessCheck({ db, auth }),
+    toNodeHandler(auth),
+  );
   mountRouter(app, router, {
     db,
     auth,
