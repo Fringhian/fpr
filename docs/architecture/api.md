@@ -6,13 +6,16 @@
 
 Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. The price service's internal routes are in `src/prices/`, in `pricesContract`.
 
-The package has three entry points:
+The package has four entry points:
 
 | Entry point | Holds | Used by |
 | --- | --- | --- |
 | `@fpr/contracts` | `apiContract`, the types of each route's input and output, the shared schemas, the error codes, the roles, and the helpers that declare a route | the web app, the API, and the price service |
 | `@fpr/contracts/prices` | `pricesContract` and the types of its routes | the API and the price service |
 | `@fpr/contracts/openapi` | `createOpenApiDocument`, oRPC's generator | the API's `/api/docs`, and `pnpm contracts:openapi` |
+| `@fpr/contracts/values` | the plain lists the schemas are built from, `periods` and `units`, with no runtime import | the web app |
+
+The package is free of side effects (`"sideEffects": false`), so a bundle keeps only the modules it uses.
 
 A test fails when the root entry point loads the price service's routes or the generator. A route is reached through its tree, such as `apiContract.race.leaderboard`, and is not exported on its own. Its schemas stay in its file, which exports their types under short names, such as `Leaderboard` for the response and `LeaderboardQuery` for the input. A schema becomes shared, in `src/schemas/`, once a second area uses it.
 
