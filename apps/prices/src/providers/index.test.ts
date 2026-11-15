@@ -1,5 +1,6 @@
 import { Writable } from "node:stream";
 import { describe, expect, it, vi } from "vitest";
+import { createCallBudget } from "../budget.js";
 import { createLogger } from "../logger.js";
 import type { Fetch } from "./http.js";
 import { createProvider } from "./index.js";
@@ -13,6 +14,7 @@ describe("createProvider", () => {
       logger: createLogger({
         destination: new Writable({ write: (_c, _e, done) => done() }),
       }),
+      budget: createCallBudget({ limit: 10, timeZone: "Europe/Paris" }),
       fetch: fetchMock,
     });
 

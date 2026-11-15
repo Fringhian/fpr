@@ -1,5 +1,6 @@
 import { Writable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { type CallBudget, createCallBudget } from "../budget.js";
 import { createLogger } from "../logger.js";
 import { createEodhdProvider, eodhdLatestBatchSize } from "./eodhd.js";
 import type { Fetch } from "./http.js";
@@ -13,8 +14,16 @@ type LogLine = Record<string, unknown>;
 let fetchMock: ReturnType<typeof vi.fn<Fetch>>;
 let rawLines: string[];
 
-/** A provider whose requests go to `fetchMock` and whose log lines go to `rawLines`. */
-function provider() {
+/**
+ * A provider whose requests go to `fetchMock`, whose log lines go to
+ * `rawLines`, and whose calls count against `budget`, 1,000 a day by default.
+ */
+function provider(
+  budget: CallBudget = createCallBudget({
+    limit: 1000,
+    timeZone: "Europe/Paris",
+  }),
+) {
   const destination = new Writable({
     write(chunk, _encoding, callback) {
       rawLines.push(chunk.toString());
@@ -24,6 +33,7 @@ function provider() {
   return createEodhdProvider({
     apiKey: API_KEY,
     logger: createLogger({ destination }),
+    budget,
     fetch: fetchMock,
     baseUrl: BASE,
   });
@@ -489,6 +499,63 @@ describe("every call", () => {
     await expect(provider().lookup("EXA")).rejects.toMatchObject({
       reason: "unavailable",
     });
+  });
+
+  it("counts the calls each request is billed against the day's budget", async () => {
+    const budget = createCallBudget({ limit: 100, timeZone: "Europe/Paris" });
+    fetchMock
+      .mockResolvedValueOnce(json([]))
+      .mockResolvedValueOnce(json([quote("EXA.PA", 41), quote("B.PA", 2)]))
+      .mockResolvedValueOnce(json({}, 404));
+    const eodhd = provider(budget);
+
+    await eodhd.lookup("EXA");
+    await eodhd.latest(["EXA.PA", "B.PA", "C.PA"]);
+    // A failed request is billed too.
+    await eodhd.closes("NONE.PA", "2026-03-02", "2026-03-02").catch(() => {});
+
+    expect(budget.spent()).toBe(5);
+    expect(logLines().map((line) => line.callsToday)).toEqual([1, 4, 5]);
+  });
+
+  it("refuses a call past the day's cap without sending it", async () => {
+    const budget = createCallBudget({ limit: 2, timeZone: "Europe/Paris" });
+    fetchMock.mockResolvedValue(json([]));
+    const eodhd = provider(budget);
+
+    await eodhd.lookup("EXA");
+    await expect(eodhd.latest(["EXA.PA", "B.PA"])).rejects.toMatchObject({
+      name: "ProviderError",
+      reason: "call_budget_used",
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(budget.spent()).toBe(1);
+    expect(logLines()).toContainEqual(
+      expect.objectContaining({
+        level: "warn",
+        message: "provider call refused: daily call cap reached",
+        endpoint: "real-time",
+        calls: 2,
+        callsToday: 1,
+        callLimit: 2,
+      }),
+    );
+  });
+
+  it("stops the batches of latest at the cap", async () => {
+    const budget = createCallBudget({
+      limit: eodhdLatestBatchSize + 5,
+      timeZone: "Europe/Paris",
+    });
+    const symbols = Array.from({ length: 30 }, (_, i) => `S${i}.PA`);
+    fetchMock.mockResolvedValue(json([]));
+
+    await expect(provider(budget).latest(symbols)).rejects.toMatchObject({
+      reason: "call_budget_used",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(budget.spent()).toBe(eodhdLatestBatchSize);
   });
 
   it("never logs the API key or puts it in an error", async () => {
