@@ -10,7 +10,8 @@ These conventions win over any other skill's advice on styling or components —
 ## Stack
 
 - `apps/web` — React, Vite, TanStack Router (file-based routes), TanStack Query, Tailwind v4.
-- Components live in `apps/web/src/components/ui/`. They move to a package only if a second consumer appears.
+- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. A component lives in the folder of its story's group, with its stories and any `-model.ts` beside it. They move to a package only if a second consumer appears.
+- Components have no unit tests. Their stories are their check, run in Chromium by `test-storybook`.
 
 ## Design workflow
 
@@ -26,13 +27,13 @@ The design reference lives in `design/`, outside git like a design tool's files:
 impeccable's `PRODUCT.md`, `DESIGN.md` (the tokens and rules of the look), and `.impeccable/` stay outside git too. The repository's `.gitignore` lists them all.
 
 1. The tokens in `DESIGN.md` and the design system move into `apps/web/src/theme.css`. From then on `theme.css` holds every design value.
-2. Each component is built in `apps/web/src/components/ui/` from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
+2. Each component is built in the `apps/web/src/components/` folder of its story's group from the design system, with its Storybook story showing every variant and state the design system lists. Once a component has its story, the story is its reference.
 3. Each screen is built from its wireframe, its final look in `design/screens.html`, and the components. Once a screen is built, its code is the reference and the design files are not updated for it.
 
 ## Storybook
 
 - Storybook runs in `apps/web` with the Vite builder and loads the real `theme.css` and fonts.
-- Every component in `src/components/ui/` has a story file beside it. Stories are grouped Foundations, Atoms, Molecules, Organisms, Templates, like the design system.
+- Every component in `src/components/` has a story file beside it. Stories are grouped Foundations, Atoms, Molecules, Organisms, Templates, like the design system.
 - A story shows every variant and state of its component, and the widths where it changes.
 - A component's props are its stories' `args`, with `argTypes` giving each one its control (`inline-radio` for a variant, `boolean`, `text`), so every variant can be changed live in the Controls panel. A prop that takes a component, such as an icon, is picked by name: a `select` of names, and the story's `render` turns the name into the component (a `mapping` can't show its starting value in the panel). A prop that only makes sense with another one uses `if: { arg: … }`.
 - The controls test the component itself and nothing else: its real props, and for a compound component, a `boolean` per optional part that renders it or not (named after the part, `name: "Sky.Band"`). The demo content the story puts inside it (a title, a sentence, a card) is fixed in the story, never a control: a control implies the component accepts that prop. A part being absent is a control, not a story of its own.
@@ -65,7 +66,9 @@ impeccable's craft floor and the Web Interface Guidelines (the `web-design-guide
 - Tokens live in `apps/web/src/theme.css`, the Tailwind v4 `@theme` block — the only place a design value is defined.
 - Tailwind's default scales are reset (`--color-*: initial;`, `--spacing-*: initial;`, `--breakpoint-*: initial;`, and so on), so only registered tokens generate classes.
 - Colors are semantic: `text-primary`, `bg-surface`, never `text-red-500`.
-- Every size scale uses the same names — `xs`, `s`, `m`, `l`, `xl` — with its own values per namespace: spacing (`p-m`, `gap-s`, `w-l`), text (`text-s`), radius (`rounded-m`), container (`max-w-l`). Text adds one more step, `display`, for the page sentence on tablet and desktop.
+- Each state role has a soft fill, its pale ground: `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`. Text on a soft fill takes its role (`bg-positive-soft text-positive`), at 4.5:1 or more.
+- Every size scale uses the same names — `xs`, `s`, `m`, `l`, `xl` — with its own values per namespace: spacing (`p-m`, `gap-s`, `w-l`), text (`text-s`), radius (`rounded-m`), container (`max-w-l`). Text adds one more step, `display`, for the page sentence on tablet and desktop. Spacing adds `0` (`p-0`, `inset-0`, `min-h-0`). Radius adds `card`, 18 px between `m` and `l`, for person rows, option cards and popovers (`rounded-card`).
+- Two outlines: `shadow-outline` draws the divider line outside a card's edge; `inset-shadow-outline` draws it inside the edge, for inputs, options and flat cards, and `inset-shadow-<colour>` recolours it for a state (`focus-within:inset-shadow-primary`, `invalid:inset-shadow-error`). An inset ring and a drop shadow combine (`inset-shadow-outline shadow-float`).
 - Breakpoints are mobile-first: phone is the unprefixed base, then `tablet:` from 40rem (640 px) and `desktop:` from 70rem (1120 px).
 - Light theme only in v1. Components never use `dark:`; a later dark theme is a second set of token values.
 
@@ -115,7 +118,7 @@ cn(
   ```
 - `cn` also joins a class chosen at runtime, as its own argument: `cn("h-s rounded-full", line)`. Never a template literal.
 - A class list with no breakpoint or state class and nothing chosen at runtime stays a plain string.
-- `cn` lives in `src/lib/cn.ts`: `clsx`, then `tailwind-merge` taught the scales of `theme.css`. A new scale or token name in `theme.css` is added to its config too, with a test in `cn.test.ts`.
+- `cn` lives in `src/lib/cn.ts`: `clsx`, then `tailwind-merge` taught the scales of `theme.css`. A new scale or token name in `theme.css` is added to its config too.
 
 ### Variants and utilities
 
@@ -149,6 +152,7 @@ cn(
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
 - Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
+- A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, is one component with data props, the rule inside it. Layout pieces, with no rule to enforce, are compound.
 - A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved before `cn`:
 
   ```tsx

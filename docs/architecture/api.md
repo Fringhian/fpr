@@ -29,7 +29,7 @@ Each definition has one source:
 - A list of values, such as the units, the boards, or the access key states, is defined once with `z.enum`, and a field or discriminant that takes one of its values references it, such as `accessKeyStateSchema.enum.waiting`. A test fails when a value of a shared list is written as a string outside the file that defines it.
 - `src/schemas/` holds the schemas several areas share, one file per theme: ids and moments; a person, their email and display name; passwords, access keys, and reset keys; currencies, prices, and percentages; shares, their names, listings, lookups, and latest prices; and the markers and amounts of a member's performance. The API's routes and the price service's use the same schemas and the same names.
 
-Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones. Tests over every route of `apiContract` and `pricesContract` fail when a route misses one of those codes, when a parameter of its path isn't a required field of its input, or when two routes share a method and path. Each route's tests cover what its schemas accept and refuse. The committed OpenAPI document is the record of each route's method, path, roles, and codes, reviewed in each change's diff.
+Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones. Tests over every route of `apiContract` and `pricesContract` fail when a route misses one of those codes, when a parameter of its path isn't a required field of its input, or when two routes share a method and path. The committed OpenAPI document is the record of each route's method, path, roles, and codes, reviewed in each change's diff.
 
 The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
 
@@ -220,7 +220,7 @@ Every amount in euros has its percentage beside it: a gain is `{ eur, percent }`
 
 The gain leaderboard ranks an anonymous viewer in `percent`, whatever `unit` asks.
 
-A pseudonym is an adjective and an animal, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)`. Two people with the same pseudonym are told apart by a number suffix. It is the same on every screen and visit, and is not stored.
+A pseudonym is an adjective and an animal, such as `Calm Otter`, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)` from two lists of 64 English words in `src/pseudonyms/pseudonym-words.ts`: the digest's first four bytes pick the adjective, and the next four the animal. Like a name, it is the same in both languages. Two people with the same pseudonym are told apart by a number suffix: the one with the smallest id, the person added first, keeps it, and the next ones get ` 2`, ` 3`, and so on. `pseudonyms(secret, userIds)` in `src/pseudonyms/pseudonyms.ts` derives them from the ids of every person, not only those a response shows, so a pseudonym is the same on every screen and visit. A suffix changes only when an earlier person with the same pseudonym is deleted. Pseudonyms are not stored, and changing `PSEUDONYM_SECRET` changes all of them.
 
 The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts in euros), or `quantity()` (quantities held and cash). A test over every response of `apiContract` fails when a field's mark doesn't fit its name: `email`, `displayName`, and `avatarUrl` are `personal`; `quantity…`, `cash…`, and `amountEur` are `quantity`; another `eur` or `…Eur` is `euro` or `quantity`; and `percent`, `…Percent`, `weight`, and `…Weight` are unmarked. A share's prices, `priceEur` and `previousPriceEur`, and a share's price change are market data, listed in the test as exceptions, and stay unmarked.
 
@@ -233,7 +233,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
 | `BETTER_AUTH_SECRET` | Session signing |
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
-| `PSEUDONYM_SECRET` | Pseudonyms |
+| `PSEUDONYM_SECRET` | Pseudonyms. At least 32 characters |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
 | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |
 | `RACE_TIMEZONE` | Where a day starts. Default `Europe/Paris` |

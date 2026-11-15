@@ -12,7 +12,7 @@
 | Request and response types | `@fpr/contracts` |
 | Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
 | Class helpers | `cn` (`clsx` and `tailwind-merge`) in `src/lib/cn.ts`; component variants with `class-variance-authority` |
-| Components | Base UI, wrapped as the app's own components in `src/components/ui/` |
+| Components | Base UI, wrapped as the app's own components in `src/components/` |
 | Component workshop | Storybook, one story per component |
 | Charts | TradingView Lightweight Charts |
 | Icons | Phosphor, `@phosphor-icons/react` |
@@ -33,16 +33,18 @@ The full UI conventions are in the `fpr-ui` skill. The design reference lives in
 `src/theme.css` is the only place a design value is defined. It holds two layers:
 
 - The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes. Beside it, the ridge's two shapes, `--ridge-far` and `--ridge-near`, also plain variables.
-- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, and breakpoint scales are reset, so only these tokens generate classes:
+- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, inset shadow, and breakpoint scales are reset, so only these tokens generate classes:
 
 | Namespace | Tokens | Example |
 | --- | --- | --- |
 | Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `success`, `warning`, `error`, `link`, and the medals `gold`, `silver`, `bronze` | `text-secondary`, `bg-surface` |
+| Soft fill | `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`: the pale ground of each state role, under text of that role at 4.5:1 or more | `bg-positive-soft text-positive` |
 | Member colour | `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`, in this order, each with its `-pastel` | `bg-cobalt-pastel` |
 | Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
-| Spacing | `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s` |
-| Radius | `s` 12, `m` 14, `l` 22, `xl` 24 px, and `full` | `rounded-l` |
+| Spacing | `0`, `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s`, `inset-0` |
+| Radius | `s` 12, `m` 14, `card` 18, `l` 22, `xl` 24 px, and `full`. `card` is the corner of person rows, option cards and popovers | `rounded-l`, `rounded-card` |
 | Shadow | `outline`, `rest`, `float` | `shadow-rest` |
+| Inset shadow | `outline`, the divider line drawn inside the edge of inputs, options and flat cards; `inset-shadow-<colour>` recolours it | `inset-shadow-outline`, `invalid:inset-shadow-error` |
 | Breakpoint | `tablet` from 40rem, `desktop` from 70rem | `tablet:grid-cols-2` |
 
 After the tokens, `theme.css` defines the shared utilities and the state variants:
@@ -57,7 +59,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Figtree is the one typeface. `@fontsource-variable/figtree`, imported in `src/index.css`, ships it with the build as woff2 files with `font-display: swap`, on a variable weight axis from 300 to 900.
 - Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
 - Figures that line up, such as amounts, percentages, ranks, and times, use Tailwind's `tabular-nums`.
-- Icons are Phosphor, drawn through `Icon` in `src/components/ui/icon.tsx`:
+- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon.tsx`:
 
 | Prop | Values |
 | --- | --- |
@@ -74,12 +76,15 @@ The Foundations stories in `src/foundations/` show every token with the value it
 
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
+- Components live in `src/components/foundations/`, `atoms/`, `molecules/` and `organisms/`, each in the folder of its story's sidebar group, with its stories and any `-model.ts` beside it.
+- Components have no unit tests: their stories are their check, run in Chromium with the accessibility checks by `test-storybook`.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
 - The language menu in the toolbar shows every story in English or French, through the `locale` global; a story can fix its own with `globals: { locale: "fr" }`. "Foundations/Formatting" shows every formatter in the chosen language.
 - The canvas is the page ground (`--palette-snow`), so a story ends on snow below its content.
 - A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
 - The accessibility addon checks every story, and a violation fails it.
 - `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
+- The test run bundles every dependency before the first story runs: Vite scans the stories and the app's `index.html`, and `optimizeDeps.include` in `vitest.storybook.config.ts` lists the libraries the components build on, so the browser never reloads mid-run.
 
 ## Design
 
@@ -94,7 +99,7 @@ The design files fix each screen and component until it is built in `apps/web`. 
 
 ## Sky and ridge
 
-The page background is the `Sky` component in `src/components/ui/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
+The page background is the `Sky` component in `src/components/foundations/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
 
 | Part | What it is |
 | --- | --- |
@@ -166,7 +171,7 @@ Share search lives on `/shares`, and the record flow reuses it.
 - Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`. No text is written directly in a component.
 - `react-i18next` translates them. `src/lib/i18n.ts` creates the i18next instance with both files bundled, and `main.tsx` provides it to the app through `I18nextProvider`. The page's `lang` attribute follows its language.
 - Translation keys are typed from `en.json`: an unknown key fails the type check.
-- `src/locales/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
+- `test/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
 - FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language: `DEFAULT_LANGUAGE` in `src/lib/language.ts`.
 - A signed-in person sees the language they chose in Settings.
 - The API sends codes and data, never sentences: errors as codes. The web app writes the words.

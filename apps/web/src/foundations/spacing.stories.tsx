@@ -3,6 +3,7 @@ import { cn } from "../lib/cn";
 import { Specimen, TokenValue } from "./specimen";
 
 const STEPS = [
+  { token: "0", bar: "w-0" },
   { token: "xs", bar: "w-xs" },
   { token: "s", bar: "w-s" },
   { token: "m", bar: "w-m" },
@@ -14,7 +15,7 @@ function Spacing() {
   return (
     <Specimen
       title="Spacing"
-      lead="Five steps for padding, gaps, margins and sizes. Tight inside groups, generous between sections, more space above a heading than below it."
+      lead="Five steps for padding, gaps, margins and sizes, and 0 for none at all (p-0, inset-0). Tight inside groups, generous between sections, more space above a heading than below it."
     >
       <ul className="grid gap-s rounded-l bg-surface p-m shadow-outline">
         {STEPS.map(({ token, bar }) => (
