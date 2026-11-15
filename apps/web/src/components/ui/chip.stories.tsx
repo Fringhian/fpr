@@ -1,5 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useLanguage } from "../../lib/i18n";
+import type { Language } from "../../lib/language";
 import { Chip, type ChipProps } from "./chip";
+
+/** The demo words around the chips, in the toolbar’s language. They are the stories’ content, not the chip’s. */
+const WORDS = {
+  en: { holds: "holds", starShare: "· star share" },
+  fr: { holds: "détient", starShare: "· action vedette" },
+} as const satisfies Record<Language, Record<string, string>>;
+
+function Words({ word }: { word: keyof (typeof WORDS)["en"] }) {
+  return WORDS[useLanguage()][word];
+}
 
 /** Stands in for the Picture atom: a person's initial on their pastel, at 20 px. */
 function PlaceholderPicture({ initial }: { initial: string }) {
@@ -13,8 +25,10 @@ function PlaceholderPicture({ initial }: { initial: string }) {
   );
 }
 
-/** The playground's args: the picture is switched on and off. */
-type PlaygroundArgs = Omit<ChipProps, "picture"> & { picture: boolean };
+/** The playground's args: the picture part is switched on and off. */
+type PlaygroundArgs = Omit<ChipProps, "picture" | "children"> & {
+  picture: boolean;
+};
 
 const meta = {
   title: "Atoms/Chip",
@@ -23,9 +37,21 @@ const meta = {
   parameters: { layout: "centered" },
   args: { children: "Swiss Pharma AG", gain: "12.4" },
   argTypes: {
-    children: { control: { type: "text" } },
+    children: {
+      description:
+        "What the chip names: a share, a person, an ISIN. Fixed in these stories.",
+      control: false,
+    },
     gain: { control: { type: "text" } },
-    picture: { control: false },
+    picture: {
+      description:
+        "The person's picture, at 20 px, before their name. A placeholder stands in for it in these stories.",
+      control: { type: "boolean" },
+    },
+    className: {
+      description: "Classes added to the chip's, which win any conflict.",
+      control: false,
+    },
   },
 } satisfies Meta<typeof Chip>;
 
@@ -35,28 +61,19 @@ export default meta;
 type FixedStory = StoryObj;
 
 /**
- * One chip, configured in the Controls panel. An empty gain leaves it out;
- * the picture control shows a placeholder until the Picture atom exists.
+ * One chip, configured in the Controls panel: a share, or a person once the
+ * picture is on. An empty gain leaves it out.
  */
 export const Playground = {
-  args: { children: "Swiss Pharma AG", gain: "12.4", picture: false },
-  argTypes: {
-    picture: {
-      control: { type: "boolean" },
-      description:
-        "Renders a person's picture before the name (a placeholder in this story).",
-    },
-  },
+  args: { gain: "12.4", picture: false },
   render: ({ picture, gain, ...args }) => (
     <Chip
       {...args}
       gain={gain || undefined}
-      picture={
-        picture ? (
-          <PlaceholderPicture initial={String(args.children).charAt(0)} />
-        ) : undefined
-      }
-    />
+      picture={picture ? <PlaceholderPicture initial="L" /> : undefined}
+    >
+      {picture ? "Lea" : "Swiss Pharma AG"}
+    </Chip>
   ),
 } satisfies StoryObj<PlaygroundArgs>;
 
@@ -83,9 +100,9 @@ export const InASentence: FixedStory = {
   parameters: { controls: { disable: true } },
   render: () => (
     <p className="max-w-[30rem] text-m leading-[1.8] text-primary">
-      <Chip picture={<PlaceholderPicture initial="L" />}>Lea</Chip> holds{" "}
-      <Chip>World Index ETF</Chip> · star share{" "}
-      <Chip gain="12.4">Swiss Pharma AG</Chip>
+      <Chip picture={<PlaceholderPicture initial="L" />}>Lea</Chip>{" "}
+      <Words word="holds" /> <Chip>World Index ETF</Chip>{" "}
+      <Words word="starShare" /> <Chip gain="12.4">Swiss Pharma AG</Chip>
     </p>
   ),
 };
