@@ -1,5 +1,7 @@
-import type { Db } from "@fpr/db";
+import { accessKeys, type Db } from "@fpr/db";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
+import type { Logger } from "pino";
 
 /**
  * Better Auth's tables as FPR stores them: every column in snake_case, ids
@@ -65,31 +67,108 @@ export const authSchema = {
   "advanced" | "user" | "session" | "account" | "verification"
 >;
 
+/** Where Better Auth's endpoints are served: `/api/auth/*`. */
+export const authBasePath = "/api/auth";
+
+/** How long a session lasts: 30 days, extended on use. */
+export const sessionMaxAgeSeconds = 30 * 24 * 60 * 60;
+
+/** How often a session in use is extended: once a day at most. */
+const sessionUpdateAgeSeconds = 24 * 60 * 60;
+
+/** Password sign-ins each client address may try per window. */
+export const signInRateLimit = { window: 60, max: 5 } as const;
+
+/** Passwords are 12 to 128 characters long. */
+export const passwordLength = { min: 12, max: 128 } as const;
+
 export interface CreateAuthOptions {
   /** The process's pool. Better Auth reads and writes through it. */
   db: Db;
   /** `BETTER_AUTH_SECRET`. */
   secret: string;
-  /** `PUBLIC_URL`. */
+  /** `PUBLIC_URL`: the only origin Better Auth trusts. */
   baseURL: string;
+  /** Where Better Auth's warnings and errors go, as pino lines. */
+  logger?: Logger;
 }
 
 /**
  * Better Auth for FPR: email and password only, with no public sign-up and
- * no profile edits of its own.
+ * no profile edits of its own. Sessions are HTTP-only, `Secure`,
+ * `SameSite=Lax` cookies that last 30 days and are extended on use. Writes
+ * are accepted from `PUBLIC_URL` alone, and password sign-ins are
+ * rate-limited per client address, read from the `X-Forwarded-For` that
+ * `web` sets.
+ *
+ * A session starts only for a person whose access key gives access, so a
+ * person whose access ended is refused at sign-in with `access_ended`.
  *
  * Better Auth names its columns itself, so it gets the pool without the
  * camelCase plugin, which would rename the rows it reads back.
  */
-export function createAuth({ db, secret, baseURL }: CreateAuthOptions) {
+export function createAuth({ db, secret, baseURL, logger }: CreateAuthOptions) {
   return betterAuth({
+    ...authSchema,
+    ...(logger === undefined
+      ? {}
+      : {
+          logger: {
+            level: "warn",
+            log: (level, message, ...args: unknown[]) => {
+              logger[level](args.length > 0 ? { args } : {}, message);
+            },
+          },
+        }),
     secret,
     baseURL,
+    basePath: authBasePath,
+    trustedOrigins: [baseURL],
     database: { db: db.withoutPlugins(), type: "postgres" },
-    emailAndPassword: { enabled: true, disableSignUp: true },
+    emailAndPassword: {
+      enabled: true,
+      disableSignUp: true,
+      minPasswordLength: passwordLength.min,
+      maxPasswordLength: passwordLength.max,
+    },
+    session: {
+      ...authSchema.session,
+      expiresIn: sessionMaxAgeSeconds,
+      updateAge: sessionUpdateAgeSeconds,
+    },
+    // Better Auth turns these off in tests and development by default. They
+    // stay on everywhere, so the tests see what production does.
+    rateLimit: {
+      enabled: true,
+      storage: "memory",
+      customRules: { "/sign-in/*": signInRateLimit },
+    },
+    advanced: {
+      ...authSchema.advanced,
+      disableOriginCheck: false,
+      useSecureCookies: true,
+      defaultCookieAttributes: {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+      },
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            if (!(await accessKeys.hasAccess(db, session.userId))) {
+              throw new APIError("UNAUTHORIZED", {
+                code: "access_ended",
+                message: "Your access has ended",
+              });
+            }
+          },
+        },
+      },
+    },
     // A person's profile changes through PATCH /me, which checks it.
     disabledPaths: ["/update-user"],
-    ...authSchema,
   });
 }
 

@@ -11,6 +11,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   /** The instance's origin, used for links and the origin check. */
   PUBLIC_URL: z.url(),
+  /** Signs the session cookies: a long random string, 32 characters or more. */
+  BETTER_AUTH_SECRET: z.string().min(32),
   /** The race's time zone: days, closes, and schedules follow it. */
   RACE_TIMEZONE: z
     .string()
