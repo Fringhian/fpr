@@ -1,3 +1,4 @@
+import { oc } from "@orpc/contract";
 import { describe, expect, it } from "vitest";
 import { apiContract } from "../src/api/index.js";
 import {
@@ -6,6 +7,8 @@ import {
   missingErrorCodes,
   missingPathParams,
   type RouteMeta,
+  type RouteTree,
+  routeMetaSchema,
 } from "../src/contract.js";
 import { pricesContract } from "../src/prices/index.js";
 import { Role } from "../src/roles.js";
@@ -52,6 +55,42 @@ describe("an API route", () => {
       expect(missingErrorCodes(procedure)).toEqual([]);
     },
   );
+});
+
+describe("the API's access declarations", () => {
+  it.each(api)("declare who may call the route: $key", ({ procedure }) => {
+    expect(routeMetaSchema.safeParse(procedure["~orpc"].meta).success).toBe(
+      true,
+    );
+  });
+
+  it("make these routes public, and no other", () => {
+    const publicRoutes = api.flatMap(({ key, procedure }) =>
+      (procedure["~orpc"].meta as RouteMeta).roles === "public" ? [key] : [],
+    );
+
+    expect(publicRoutes).toEqual([
+      "access.setupStatus",
+      "access.setup",
+      "access.check",
+      "access.claim",
+      "access.signIn",
+      "access.checkReset",
+      "access.reset",
+    ]);
+  });
+
+  it("are required by the types: a route from oc alone fails to type-check", () => {
+    const undeclared = {
+      route: oc.route({ method: "GET", path: "/undeclared" }),
+    };
+
+    // @ts-expect-error A route built from `oc` alone declares no access.
+    undeclared satisfies RouteTree;
+    expect(routeMetaSchema.safeParse(undeclared.route["~orpc"].meta)).toEqual(
+      expect.objectContaining({ success: false }),
+    );
+  });
 });
 
 describe("the API's writes", () => {
