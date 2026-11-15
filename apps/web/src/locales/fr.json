@@ -120,5 +120,8 @@
       "YTD": "Cette année",
       "all": "Depuis le début"
     }
+  },
+  "pageBar": {
+    "back": "Retour vers"
   }
 }

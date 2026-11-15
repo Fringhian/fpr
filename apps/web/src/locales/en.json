@@ -117,5 +117,8 @@
       "YTD": "This year",
       "all": "All time"
     }
+  },
+  "pageBar": {
+    "back": "Back to"
   }
 }
