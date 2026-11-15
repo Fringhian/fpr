@@ -60,7 +60,7 @@ afterEach(async () => {
 });
 
 describe("GET /health", () => {
-  it("answers 200 when Postgres answers", async () => {
+  it("answers 200 when Postgres answers, with no token", async () => {
     pingMock.mockResolvedValue(undefined);
     running = await serve();
 
@@ -81,50 +81,24 @@ describe("GET /health", () => {
     expect(body).not.toContain("password");
     expect(JSON.parse(body)).toEqual({ status: "unavailable" });
   });
-
-  it("needs no token", async () => {
-    pingMock.mockResolvedValue(undefined);
-    running = await serve();
-
-    const response = await fetch(`${running.url}/health`);
-
-    expect(response.status).toBe(200);
-  });
 });
 
 describe("token authentication", () => {
-  it("answers 401 unauthenticated without a token", async () => {
+  it("answers 401 unauthenticated without the exact token", async () => {
     running = await serve();
 
-    const response = await fetch(`${running.url}/anything`);
+    for (const headers of [
+      {},
+      { Authorization: "Bearer wrong-token" },
+      { Authorization: `Bearer ${TOKEN.slice(0, -1)}` },
+    ]) {
+      const response = await fetch(`${running.url}/anything`, { headers });
 
-    expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({
-      error: { code: "unauthenticated" },
-    });
-  });
-
-  it("answers 401 with a wrong token", async () => {
-    running = await serve();
-
-    const response = await fetch(`${running.url}/anything`, {
-      headers: { Authorization: "Bearer wrong-token" },
-    });
-
-    expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({
-      error: { code: "unauthenticated" },
-    });
-  });
-
-  it("answers 401 with a token that is a prefix of the right one", async () => {
-    running = await serve();
-
-    const response = await fetch(`${running.url}/anything`, {
-      headers: { Authorization: `Bearer ${TOKEN.slice(0, -1)}` },
-    });
-
-    expect(response.status).toBe(401);
+      expect(response.status).toBe(401);
+      expect(await response.json()).toEqual({
+        error: { code: "unauthenticated" },
+      });
+    }
   });
 
   it("passes the request on with the right token, to the 404 handler", async () => {
@@ -171,5 +145,30 @@ describe("request logging", () => {
     });
 
     expect(running.rawLines.join("")).not.toContain(TOKEN);
+  });
+
+  it("redacts the token, passwords and the Authorization header in any log line", () => {
+    const lines: string[] = [];
+    const logger = createLogger({
+      destination: new Writable({
+        write(chunk, _encoding, callback) {
+          lines.push(chunk.toString());
+          callback();
+        },
+      }),
+    });
+
+    logger.info(
+      {
+        PRICES_TOKEN: "secret-token",
+        password: "hunter2",
+        headers: { authorization: "Bearer secret-token" },
+      },
+      "event",
+    );
+
+    const output = lines.join("");
+    expect(output).not.toContain("secret-token");
+    expect(output).not.toContain("hunter2");
   });
 });
