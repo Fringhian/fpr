@@ -55,6 +55,37 @@ export function splitLine({ points, dashedAfter }: ChartLineShape): {
   return { solid, dashed: join ? [join, ...after] : after };
 }
 
+/** A line's latest point, where it ends on the chart, or `undefined` for a line with none. */
+export function lastPoint({
+  points,
+}: Pick<ChartLineShape, "points">): ChartPoint | undefined {
+  let last: ChartPoint | undefined;
+  for (const point of points) {
+    if (last === undefined || point.day > last.day) last = point;
+  }
+  return last;
+}
+
+/**
+ * The line a pointer at height `y` selects: the nearest one within `reach`
+ * pixels, each line given by its height at the pointer's day. `undefined`
+ * when none is that close.
+ */
+export function nearestLine(
+  lines: readonly { id: string; y: number }[],
+  y: number,
+  reach: number,
+): string | undefined {
+  let nearest: { id: string; distance: number } | undefined;
+  for (const line of lines) {
+    const distance = Math.abs(line.y - y);
+    if (distance <= reach && (!nearest || distance < nearest.distance)) {
+      nearest = { id: line.id, distance };
+    }
+  }
+  return nearest?.id;
+}
+
 /** Every day any line has a point on, in order: the steps the arrow keys move along. */
 export function chartDays(lines: readonly ChartLineShape[]): IsoDate[] {
   const days = new Set<IsoDate>();

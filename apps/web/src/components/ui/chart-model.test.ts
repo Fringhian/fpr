@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   chartDays,
   dayToTime,
+  lastPoint,
+  nearestLine,
   splitLine,
   stepIndex,
   timeToDay,
@@ -64,6 +66,37 @@ describe("chartDays", () => {
         { points: [{ day: "2026-03-05", value: "1.0" }, ...points] },
       ]),
     ).toEqual(["2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05"]);
+  });
+});
+
+describe("lastPoint", () => {
+  it("finds the latest day, whatever the order", () => {
+    expect(lastPoint({ points })).toEqual({
+      day: "2026-03-04",
+      value: "102.00",
+    });
+  });
+
+  it("has nothing for a line without points", () => {
+    expect(lastPoint({ points: [] })).toBeUndefined();
+  });
+});
+
+describe("nearestLine", () => {
+  const lines = [
+    { id: "lea", y: 40 },
+    { id: "max", y: 52 },
+    { id: "noor", y: 120 },
+  ];
+
+  it("picks the nearest line within reach", () => {
+    expect(nearestLine(lines, 47, 12)).toBe("max");
+    expect(nearestLine(lines, 44, 12)).toBe("lea");
+  });
+
+  it("picks nothing beyond reach", () => {
+    expect(nearestLine(lines, 86, 12)).toBeUndefined();
+    expect(nearestLine([], 10, 12)).toBeUndefined();
   });
 });
 

@@ -15,7 +15,9 @@ import {
 } from "lightweight-charts";
 import {
   type KeyboardEvent,
+  type ReactNode,
   useEffect,
+  useEffectEvent,
   useId,
   useMemo,
   useRef,
@@ -37,6 +39,8 @@ import {
   type ChartPoint,
   chartDays,
   dayToTime,
+  lastPoint,
+  nearestLine,
   splitLine,
   stepIndex,
   timeToDay,
@@ -90,6 +94,19 @@ export type ChartVariant = "line" | "sparkline";
 
 export type ChartUnit = "money" | "percent";
 
+/** Where a line ends: its latest point, in pixels from the chart's top left corner. */
+export interface ChartLineEnd {
+  id: string;
+  x: number;
+  y: number;
+}
+
+/** Where the lines end, and the height of the area they are drawn in, above the days. */
+export interface ChartLayout {
+  ends: readonly ChartLineEnd[];
+  height: number;
+}
+
 export interface ChartProps {
   /** `line`: axes, grid, crosshair and the keyboard. `sparkline`: the line alone, for cards, with no axes and no interaction. */
   variant?: ChartVariant;
@@ -105,6 +122,10 @@ export interface ChartProps {
   signed?: boolean;
   /** Classes added to the chart’s own, which win any conflict, such as its height. */
   className?: string;
+  /** `line` only: drawn over the chart from where each line ends, and redrawn as it resizes, such as the race's pictures and signs. */
+  overlay?: (layout: ChartLayout) => ReactNode;
+  /** `line` only: called with a line's `id` when a click or a tap lands on it, or close to it. The pointer turns into a hand over a line. */
+  onSelectLine?: (id: string) => void;
 }
 
 /** The chart's height by variant: 208px for a line chart, 34px for a sparkline. A `className` height wins. */
@@ -114,6 +135,11 @@ const HEIGHTS = {
 } as const satisfies Record<ChartVariant, string>;
 
 const LINE_WIDTH = { focus: 2, context: 1 } as const;
+
+/** How far from a line, in pixels, a click still selects it. */
+const SELECT_REACH = 12;
+
+const NO_LAYOUT: ChartLayout = { ends: [], height: 0 };
 
 interface ValueFormat {
   unit: ChartUnit;
@@ -241,6 +267,45 @@ function place(chart: IChartApi, time: Time): Pick<Active, "x" | "flip"> {
   return { x, flip: x > (left + chart.timeScale().width()) / 2 };
 }
 
+/** The series a line is drawn with on a day: the dashed one after its last final day. */
+function seriesOn({ line, solid, dashed }: DrawnLine, day: IsoDate) {
+  const after = line.dashedAfter !== undefined && day > line.dashedAfter;
+  return (after ? dashed : solid) ?? solid ?? dashed;
+}
+
+/** Where each drawn line ends, measured on the chart as it is now. */
+function measure(chart: IChartApi, drawn: readonly DrawnLine[]): ChartLayout {
+  const left = chart.priceScale("left").width();
+  const ends = drawn.flatMap((part): ChartLineEnd[] => {
+    const last = lastPoint(part.line);
+    const series = last ? seriesOn(part, last.day) : null;
+    if (!last || !series) return [];
+    const x = chart.timeScale().timeToCoordinate(dayToTime(last.day));
+    const y = series.priceToCoordinate(Number(last.value));
+    if (x === null || y === null) return [];
+    return [{ id: part.line.id, x: x + left, y }];
+  });
+  return { ends, height: chart.paneSize().height };
+}
+
+/** The line under the pointer, if one is within reach; the one on top wins a tie. */
+function lineAt(
+  drawn: readonly DrawnLine[],
+  event: MouseEventParams<Time>,
+): string | undefined {
+  if (event.time === undefined || event.point === undefined) return undefined;
+  const day = dayOf(event.time);
+  const heights = drawn.flatMap((part) => {
+    const value = part.values.get(day);
+    const y =
+      value === undefined
+        ? null
+        : seriesOn(part, day)?.priceToCoordinate(Number(value));
+    return y === null || y === undefined ? [] : [{ id: part.line.id, y }];
+  });
+  return nearestLine(heights.toReversed(), event.point.y, SELECT_REACH);
+}
+
 /**
  * A chart on TradingView Lightweight Charts, styled from the tokens, that
  * fills its container’s width and follows it as it resizes.
@@ -258,6 +323,8 @@ export function Chart({
   precision = "cents",
   signed = false,
   className,
+  overlay,
+  onSelectLine,
 }: ChartProps) {
   const { t } = useTranslation();
   const language = useLanguage();
@@ -266,7 +333,11 @@ export function Chart({
   const drawn = useRef<DrawnLine[]>([]);
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [active, setActive] = useState<Active | null>(null);
+  const [layout, setLayout] = useState<ChartLayout>(NO_LAYOUT);
   const interactive = variant === "line";
+  const overlaid = interactive && overlay !== undefined;
+  const selectable = interactive && onSelectLine !== undefined;
+  const selectLine = useEffectEvent((id: string) => onSelectLine?.(id));
 
   const days = useMemo(() => chartDays(lines), [lines]);
   const dayIndex = useMemo(
@@ -360,6 +431,53 @@ export function Chart({
     timeScale.subscribeSizeChange(fit);
     return () => timeScale.unsubscribeSizeChange(fit);
   }, [chart]);
+
+  // Where the lines end, for the overlay: measured once the chart has drawn, and again as it resizes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: new lines are redrawn, so their ends are measured again.
+  useEffect(() => {
+    const element = container.current;
+    if (!chart || !element || !overlaid) return;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() =>
+        setLayout(measure(chart, drawn.current)),
+      );
+    };
+    update();
+    const timeScale = chart.timeScale();
+    timeScale.subscribeSizeChange(update);
+    const resized = new ResizeObserver(update);
+    resized.observe(element);
+    void document.fonts?.ready.then(update);
+    return () => {
+      cancelAnimationFrame(frame);
+      timeScale.unsubscribeSizeChange(update);
+      resized.disconnect();
+      setLayout(NO_LAYOUT);
+    };
+  }, [chart, lines, overlaid]);
+
+  // A click or a tap on a line, or close to it, selects it; the pointer shows which lines it can.
+  useEffect(() => {
+    const element = container.current;
+    if (!chart || !element || !selectable) return;
+    const onClick = (event: MouseEventParams<Time>) => {
+      const id = lineAt(drawn.current, event);
+      if (id !== undefined) selectLine(id);
+    };
+    const onMove = (event: MouseEventParams<Time>) => {
+      element.style.cursor =
+        lineAt(drawn.current, event) === undefined ? "" : "pointer";
+    };
+    chart.subscribeClick(onClick);
+    chart.subscribeCrosshairMove(onMove);
+    return () => {
+      chart.unsubscribeClick(onClick);
+      chart.unsubscribeCrosshairMove(onMove);
+      element.style.cursor = "";
+    };
+  }, [chart, selectable]);
 
   // The axes in the reader's language and the chart's unit.
   useEffect(() => {
@@ -504,6 +622,7 @@ export function Chart({
           "focus-visible:focus-ring",
         )}
       />
+      {overlaid ? overlay(layout) : null}
       {readout && active ? (
         <div
           aria-hidden="true"
