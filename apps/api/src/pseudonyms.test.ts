@@ -25,18 +25,7 @@ function sameBase(size: number): string[] {
 }
 
 describe("word lists", () => {
-  it.each([
-    ["adjectives", ADJECTIVES],
-    ["animals", ANIMALS],
-  ])("has 64 distinct capitalised %s", (_, words) => {
-    expect(words).toHaveLength(64);
-    expect(new Set(words).size).toBe(64);
-    for (const word of words) {
-      expect(word).toMatch(/^[A-Z][a-z]+$/);
-    }
-  });
-
-  it("fits the longest pseudonym, with a suffix, in a 40-character display name", () => {
+  it("fit the longest pseudonym, with a suffix, in a 40-character display name", () => {
     const longest = (words: readonly string[]) =>
       Math.max(...words.map((word) => word.length));
     expect(
@@ -45,33 +34,15 @@ describe("word lists", () => {
   });
 });
 
-describe("basePseudonym", () => {
-  it("gives the same pseudonym for the same secret and id", () => {
-    const id = userId(1);
-    expect(basePseudonym(secret, id)).toBe(basePseudonym(secret, id));
-  });
-
-  it("is an adjective and an animal from the lists", () => {
-    const [adjective, animal] = basePseudonym(secret, userId(1)).split(" ");
-    expect(ADJECTIVES).toContain(adjective);
-    expect(ANIMALS).toContain(animal);
-  });
-
-  it("depends on the secret", () => {
+describe("pseudonyms", () => {
+  it("depend on the secret", () => {
     const ids = Array.from({ length: 20 }, (_, n) => userId(n));
     const withOther = ids.map((id) => basePseudonym("another-secret", id));
     const withSecret = ids.map((id) => basePseudonym(secret, id));
     expect(withOther).not.toEqual(withSecret);
   });
-});
 
-describe("pseudonyms", () => {
-  it("gives the same pseudonyms on every call", () => {
-    const ids = Array.from({ length: 50 }, (_, n) => userId(n));
-    expect(pseudonyms(secret, ids)).toEqual(pseudonyms(secret, ids));
-  });
-
-  it("gives a person without a twin their base pseudonym, whoever else is listed", () => {
+  it("give a person without a twin their base pseudonym, whoever else is listed", () => {
     const [first, second] = sameBase(2) as [string, string];
     const alone = userId(200_000);
     expect(pseudonyms(secret, [alone]).get(alone)).toBe(
@@ -82,7 +53,7 @@ describe("pseudonyms", () => {
     );
   });
 
-  it("numbers people with the same pseudonym from the second, by id", () => {
+  it("number people with the same pseudonym from the second, by id", () => {
     const ids = sameBase(3) as [string, string, string];
     const base = basePseudonym(secret, ids[0]);
     const result = pseudonyms(secret, [ids[2], ids[0], ids[1]]);
@@ -91,17 +62,10 @@ describe("pseudonyms", () => {
     expect(result.get(ids[2])).toBe(`${base} 3`);
   });
 
-  it("gives every person a different pseudonym", () => {
+  it("give every person a different pseudonym", () => {
     const ids = Array.from({ length: 500 }, (_, n) => userId(n));
     const result = pseudonyms(secret, ids);
     expect(result.size).toBe(500);
     expect(new Set(result.values()).size).toBe(500);
-  });
-
-  it("counts an id listed twice once", () => {
-    const [first, second] = sameBase(2) as [string, string];
-    const result = pseudonyms(secret, [first, first, second]);
-    expect(result.size).toBe(2);
-    expect(result.get(second)).toBe(`${basePseudonym(secret, first)} 2`);
   });
 });

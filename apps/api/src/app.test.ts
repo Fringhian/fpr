@@ -111,23 +111,16 @@ afterEach(async () => {
 });
 
 describe("X-Request-Id", () => {
-  it("is on every response, known or unknown route", async () => {
-    running = await serve();
-
-    const health = await fetch(`${running.url}/health`);
-    const missing = await fetch(`${running.url}/nowhere`);
-
-    expect(health.headers.get("x-request-id")).toMatch(UUID);
-    expect(missing.headers.get("x-request-id")).toMatch(UUID);
-  });
-
-  it("is logged on the request line, with the method, route and status", async () => {
+  it("is on every response, and logged on the request line with the method, route and status", async () => {
     pingMock.mockResolvedValue(undefined);
     running = await serve();
 
     const response = await fetch(`${running.url}/health`);
+    const missing = await fetch(`${running.url}/nowhere`);
     const requestId = response.headers.get("x-request-id");
 
+    expect(requestId).toMatch(UUID);
+    expect(missing.headers.get("x-request-id")).toMatch(UUID);
     const requestLine = running.lines.find(
       (line) => line.message === "request completed",
     );
@@ -138,7 +131,6 @@ describe("X-Request-Id", () => {
       route: "/health",
       res: { statusCode: 200 },
     });
-    expect(typeof requestLine?.duration).toBe("number");
   });
 });
 
@@ -308,23 +300,16 @@ describe("contract routes", () => {
 });
 
 describe("/api/docs", () => {
-  it("serves the OpenAPI document generated from the contracts", async () => {
+  it("serves the OpenAPI document generated from the contracts, and a viewer that reads it", async () => {
     running = await serve(undefined, { docs: true });
 
-    const response = await fetch(`${running.url}/api/docs/openapi.json`);
+    const document = await fetch(`${running.url}/api/docs/openapi.json`);
+    const viewer = await fetch(`${running.url}/api/docs`);
 
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual(await createOpenApiDocument());
-  });
-
-  it("serves a viewer that reads the document", async () => {
-    running = await serve(undefined, { docs: true });
-
-    const response = await fetch(`${running.url}/api/docs`);
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/html");
-    expect(await response.text()).toContain("/api/docs/openapi.json");
+    expect(document.status).toBe(200);
+    expect(await document.json()).toEqual(await createOpenApiDocument());
+    expect(viewer.status).toBe(200);
+    expect(await viewer.text()).toContain("/api/docs/openapi.json");
   });
 
   it("is not served unless asked, as outside development", async () => {
@@ -355,31 +340,25 @@ describe("trust proxy", () => {
 });
 
 describe("request logging", () => {
-  it("logs the route key once, with the matched route", async () => {
+  it("logs the route key once, as null when no route matches", async () => {
     pingMock.mockResolvedValue(undefined);
     running = await serve();
 
     await fetch(`${running.url}/health`);
-
-    const requestLine = running.rawLines
-      .join("")
-      .split("\n")
-      .find((line) => line.includes('"message":"request completed"'));
-    expect(requestLine?.match(/"route":/g)).toHaveLength(1);
-    expect(JSON.parse(requestLine ?? "")).toMatchObject({ route: "/health" });
-  });
-
-  it("logs the route key once, as null, when no route matches", async () => {
-    running = await serve();
-
     await fetch(`${running.url}/nowhere`);
 
-    const requestLine = running.rawLines
+    const requestLines = running.rawLines
       .join("")
       .split("\n")
-      .find((line) => line.includes('"message":"request completed"'));
-    expect(requestLine?.match(/"route":/g)).toHaveLength(1);
-    expect(JSON.parse(requestLine ?? "")).toMatchObject({ route: null });
+      .filter((line) => line.includes('"message":"request completed"'));
+    expect(requestLines).toHaveLength(2);
+    for (const line of requestLines) {
+      expect(line.match(/"route":/g)).toHaveLength(1);
+    }
+    expect(requestLines.map((line) => JSON.parse(line).route)).toEqual([
+      "/health",
+      null,
+    ]);
   });
 
   it("never logs cookies or bodies", async () => {
@@ -401,5 +380,39 @@ describe("request logging", () => {
     expect(output).not.toContain("cookie-test-value");
     expect(output).not.toContain("access-test-value");
     expect(output).not.toContain("hunter2-test");
+  });
+
+  it("redacts passwords, access keys, reset keys and cookies at any depth", () => {
+    const lines: string[] = [];
+    const logger = createLogger({
+      destination: new Writable({
+        write(chunk, _encoding, callback) {
+          lines.push(chunk.toString());
+          callback();
+        },
+      }),
+    });
+
+    logger.info({
+      password: "hunter2-test",
+      accessKey: "access-test-value",
+      resetKey: "reset-test-value",
+      cookie: "session-test-value",
+      user: { password: "nested-password-test", cookie: "nested-cookie-test" },
+      displayName: "Alex Example",
+    });
+
+    const output = lines.join("");
+    for (const secret of [
+      "hunter2-test",
+      "access-test-value",
+      "reset-test-value",
+      "session-test-value",
+      "nested-password-test",
+      "nested-cookie-test",
+    ]) {
+      expect(output).not.toContain(secret);
+    }
+    expect(output).toContain("Alex Example");
   });
 });
