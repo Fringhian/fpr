@@ -11,8 +11,10 @@ import type { Db } from "../database.js";
 import type { NewPrice } from "../tables/price.js";
 import { createTestDatabase, type TestDatabase } from "../testing.js";
 import {
+  count,
   deleteIntradayBefore,
   find,
+  latest,
   latestAt,
   listBetween,
   remove,
@@ -201,6 +203,30 @@ describe("latestAt", () => {
     expect(
       await latestAt(db, otherShareId, at("2026-03-10T00:00:00Z")),
     ).toMatchObject({ priceEur: "99", source: "manual" });
+  });
+});
+
+describe("latest", () => {
+  it("is a share's latest price, from any source", async () => {
+    await seedPrices();
+    expect(await latest(db, shareId)).toMatchObject({
+      priceEur: "43",
+      source: "intraday",
+    });
+    expect(await latest(db, otherShareId)).toMatchObject({ priceEur: "99" });
+  });
+
+  it("is nothing for a share with no price", async () => {
+    expect(await latest(db, shareId)).toBeUndefined();
+  });
+});
+
+describe("count", () => {
+  it("counts one share's prices from one source", async () => {
+    await seedPrices();
+    expect(await count(db, shareId, "close")).toBe(2);
+    expect(await count(db, shareId, "manual")).toBe(0);
+    expect(await count(db, otherShareId, "manual")).toBe(1);
   });
 });
 
