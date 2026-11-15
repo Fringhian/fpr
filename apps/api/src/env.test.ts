@@ -4,7 +4,7 @@ import { loadEnv } from "./env.js";
 const valid = {
   DATABASE_URL: "postgres://fpr:fpr@db.example.test:5432/fpr",
   PUBLIC_URL: "https://fpr.example.test",
-  BETTER_AUTH_SECRET: "a-test-secret-of-at-least-thirty-two-characters",
+  PSEUDONYM_SECRET: "0123456789abcdef0123456789abcdef",
 };
 
 describe("loadEnv", () => {
@@ -36,13 +36,13 @@ describe("loadEnv", () => {
     expect(loadEnv({ ...valid, PORT: "8080" }).PORT).toBe(8080);
   });
 
-  it("refuses a BETTER_AUTH_SECRET under 32 characters", () => {
-    expect(() =>
-      loadEnv({ ...valid, BETTER_AUTH_SECRET: "too-short" }),
-    ).toThrow("BETTER_AUTH_SECRET");
+  it("names a PSEUDONYM_SECRET shorter than 32 characters", () => {
+    expect(() => loadEnv({ ...valid, PSEUDONYM_SECRET: "short" })).toThrow(
+      "PSEUDONYM_SECRET",
+    );
   });
 
-  it.each(["DATABASE_URL", "PUBLIC_URL", "BETTER_AUTH_SECRET"])(
+  it.each(["DATABASE_URL", "PUBLIC_URL", "PSEUDONYM_SECRET"])(
     "stops with the name of a missing %s",
     (name) => {
       const source: Record<string, string> = { ...valid };
