@@ -22,7 +22,7 @@ import { WifiSlashIcon } from "@phosphor-icons/react/WifiSlash";
 import { XIcon } from "@phosphor-icons/react/X";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Specimen } from "../../foundations/specimen";
-import { Icon, type IconSize } from "./icon";
+import { Icon, type IconProps, type IconSize } from "./icon";
 
 const NAVIGATION = [
   { name: "house", icon: HouseIcon, use: "Home" },
@@ -120,15 +120,52 @@ function Scale() {
   );
 }
 
+type IconName = (typeof ICONS)[number]["name"];
+
+/** The playground's args: the icon is picked by its name in the Controls panel. */
+type PlaygroundArgs = Omit<IconProps, "icon"> & { icon: IconName };
+
 const meta = {
   title: "Foundations/Icons",
-  parameters: { layout: "fullscreen" },
-} satisfies Meta;
+  component: Icon,
+  tags: ["autodocs"],
+  args: { size: "m", weight: "regular", label: "" },
+  argTypes: {
+    icon: {
+      options: ICONS.map(({ name }) => name),
+      control: { type: "select" },
+    },
+    size: { control: { type: "inline-radio" }, options: ["s", "m", "l"] },
+    weight: {
+      control: { type: "inline-radio" },
+      options: ["regular", "fill"],
+    },
+    label: { control: { type: "text" } },
+  },
+} satisfies Meta<typeof Icon>;
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+/** A catalogue: a fixed render, with nothing to configure. */
+type FixedStory = StoryObj;
 
-export const AllIcons: Story = { render: () => <Catalogue /> };
+/** One icon, configured in the Controls panel. */
+export const Playground = {
+  args: { icon: "house", size: "m", weight: "regular", label: "" },
+  render: ({ icon, ...args }) => (
+    <Icon
+      {...args}
+      icon={ICONS.find(({ name }) => name === icon)?.icon ?? HouseIcon}
+    />
+  ),
+} satisfies StoryObj<PlaygroundArgs>;
 
-export const SizesAndWeights: Story = { render: () => <Scale /> };
+export const AllIcons: FixedStory = {
+  parameters: { layout: "fullscreen", controls: { disable: true } },
+  render: () => <Catalogue />,
+};
+
+export const SizesAndWeights: FixedStory = {
+  parameters: { layout: "fullscreen", controls: { disable: true } },
+  render: () => <Scale />,
+};
