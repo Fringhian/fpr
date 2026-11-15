@@ -2,17 +2,16 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../lib/cn";
 import * as Sky from "./sky";
 
-interface SkyPageProps {
-  sky: boolean;
-  title: string;
-  greeting: string;
-  sentence: string;
+/** Which of Sky's parts the page renders; its content stays the same. */
+interface SkyParts {
+  band: boolean;
+  header: boolean;
 }
 
 const gutters = cn("", "px-m", "tablet:px-l", "desktop:px-l");
 
 /** Stands in for the page bar, at its height in the design. */
-function PageBar({ title }: { title: string }) {
+function PageBar() {
   return (
     <p
       className={cn(
@@ -22,61 +21,48 @@ function PageBar({ title }: { title: string }) {
         "desktop:h-[5rem]",
       )}
     >
-      {title}
+      Home
     </p>
   );
 }
 
-/** A page's top, with or without the sky. */
-function SkyPage({ sky, title, greeting, sentence }: SkyPageProps) {
+/** A page's top, made of the parts the controls switch on. */
+function SkyPage({ band, header }: SkyParts) {
   return (
-    <main className="bg-page font-sans text-primary">
-      {sky ? (
-        <Sky.Root className={cn("pb-xl", gutters)}>
-          <Sky.Band />
-          <Sky.Header>
-            <PageBar title={title} />
-            <p className="text-m text-on-sky">{greeting}</p>
-            <h1
-              className={cn(
-                "font-semibold",
-                "text-xl",
-                "tablet:text-display",
-                "desktop:text-display",
-              )}
-            >
-              {sentence}
-            </h1>
-          </Sky.Header>
-          <article className="grid max-w-[40rem] gap-xs rounded-l bg-surface p-m shadow-rest">
-            <h2 className="text-l font-semibold">
-              The main card starts under the ridge
-            </h2>
-            <p className="text-s text-secondary">
-              Content starts right under the header: 240px from the page top on
-              phone, 236px from tablet up, just below the near ridge, so the
-              whole ridge shows above the card.
-            </p>
-          </article>
-        </Sky.Root>
+    <Sky.Root className={cn("pb-xl font-sans text-primary", gutters)}>
+      {band ? <Sky.Band /> : null}
+      {header ? (
+        <Sky.Header>
+          <PageBar />
+          <p className="text-m text-on-sky">Good evening, Alex</p>
+          <h1
+            className={cn(
+              "font-semibold",
+              "text-xl",
+              "tablet:text-display",
+              "desktop:text-display",
+            )}
+          >
+            This month, you’re up €512 (+4.2%)
+          </h1>
+        </Sky.Header>
       ) : (
-        <Sky.Root className={cn("pb-xl", gutters)}>
-          <PageBar title={title} />
-          <article className="grid max-w-[40rem] gap-xs rounded-l bg-surface p-m shadow-outline">
-            <h2 className="text-l font-semibold">Cards rest on the snow</h2>
-            <p className="text-s text-secondary">
-              A page without a header sentence starts on warm snow, with no
-              ridge: Members, Shares, admin, help, and the step flows on phone.
-            </p>
-          </article>
-        </Sky.Root>
+        <PageBar />
       )}
-    </main>
+      <article className="grid max-w-[40rem] gap-xs rounded-l bg-surface p-m shadow-rest">
+        <h2 className="text-l font-semibold">The page’s first card</h2>
+        <p className="text-s text-secondary">
+          After the header, it starts just below the near ridge: 240px from the
+          top on phone, 236px from tablet up. Without the header, it follows the
+          page bar.
+        </p>
+      </article>
+    </Sky.Root>
   );
 }
 
 const DESCRIPTION = `
-The page background: a peach sky behind the top of the page, closed by a lilac ridge at one fixed height, then warm snow. Import it as a namespace: \`import * as Sky from "…/sky"\`.
+The page background: a peach sky behind the top of the page, closed by a lilac ridge at one fixed height, then warm snow. Import it as a namespace: \`import * as Sky from "…/sky"\`. Every part takes \`className\` and \`children\`, and nothing else.
 
 | Part | What it is |
 | --- | --- |
@@ -86,54 +72,41 @@ The page background: a peach sky behind the top of the page, closed by a lilac r
 | \`Sky.Ridge\` | The ridge alone, for any sky panel that ends in it. |
 
 - The ridge is one 600 × 64 tile, repeated across and never stretched: 52px high on phone, 64px from tablet up. Its top sits 206px from the top on phone, 200px from tablet up, on every page that has it.
-- Only a page with a header sentence has the sky (Home, Portfolio, a member, a share). A header that doesn’t fit means no sky, never a moved ridge.
+- Only a page with a header sentence has the sky (Home, Portfolio, a member, a share), with \`Sky.Band\` and \`Sky.Header\` together. A header that doesn’t fit means no sky, never a moved ridge.
 
-On this page every story renders at the page’s own width, a desktop width. The **Phone** and **Tablet** stories in the sidebar show the narrower ones, and the viewport menu switches any story.
+The controls switch each part on and off. On this page every story renders at the page’s own width, a desktop width: the **Phone** and **Tablet** stories in the sidebar show the narrower ones, and the viewport menu switches any story.
 `;
 
 const meta = {
   title: "Foundations/Sky and ridge",
-  component: SkyPage,
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
     docs: { description: { component: DESCRIPTION } },
   },
-  args: {
-    sky: true,
-    title: "Home",
-    greeting: "Good evening, Alex",
-    sentence: "This month, you’re up €512 (+4.2%)",
-  },
+  args: { band: true, header: true },
   argTypes: {
-    sky: {
+    band: {
+      name: "Sky.Band",
       description:
-        "The sky and its ridge, for a page with a header sentence. Without it, the page starts on warm snow.",
+        "Renders the sky and its ridge. Off, the page starts on warm snow, as a page without a header sentence does.",
       control: { type: "boolean" },
     },
-    title: {
-      description: "The page bar’s title.",
-      control: { type: "text" },
-    },
-    greeting: {
-      description: "The line above the header sentence, on the sky.",
-      control: { type: "text" },
-      if: { arg: "sky" },
-    },
-    sentence: {
+    header: {
+      name: "Sky.Header",
       description:
-        "The header sentence. One too long for the header means the page has no sky.",
-      control: { type: "text" },
-      if: { arg: "sky" },
+        "Renders the header, which holds the page bar and the header sentence. Off, the content follows the page bar: with the sky, it sits up in the sky, above the ridge.",
+      control: { type: "boolean" },
     },
   },
-} satisfies Meta<typeof SkyPage>;
+  render: (parts) => <SkyPage {...parts} />,
+} satisfies Meta<SkyParts>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** The page with the sky, configured in the Controls panel. */
+/** A page with the sky, its parts switched in the Controls panel. */
 export const Desktop: Story = { globals: { viewport: { value: "desktop" } } };
 
 /** The Docs page can't narrow a story, so the narrower widths live in the sidebar only. */
@@ -147,17 +120,14 @@ export const Phone: Story = {
   globals: { viewport: { value: "phone" } },
 };
 
-/** A page without a header sentence: no sky, no ridge. */
-export const WithoutSky: Story = { args: { sky: false } };
-
 /** The ridge alone closes any sky panel, such as the desktop step flow’s. Above its lobes it is transparent, over the sky. */
 export const RidgeAlone: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <main className={cn("bg-page pt-l pb-xl", gutters)}>
+    <div className={cn("pt-l pb-xl", gutters)}>
       <div className="bg-sky pt-xl">
         <Sky.Ridge />
       </div>
-    </main>
+    </div>
   ),
 };
