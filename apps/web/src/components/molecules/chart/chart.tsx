@@ -23,7 +23,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
@@ -31,9 +31,9 @@ import {
   formatPercent,
   type IsoDate,
   type MoneyPrecision,
-} from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
+} from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
 import {
   type ChartPoint,
   chartDays,

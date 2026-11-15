@@ -5,19 +5,19 @@ import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ComponentProps } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { cn } from "../../lib/cn";
-import type { IsoDate } from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import type { ChartPoint } from "./chart";
-import { toDecimal } from "./chart-model";
+import { cn } from "../../../lib/cn";
+import type { IsoDate } from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import type { ChartPoint } from "../chart/chart";
+import { toDecimal } from "../chart/chart-model";
+import * as Menu from "../menu/menu";
 import {
   CashCard,
   type CashCardProps,
   HoldingCard,
   type HoldingCardProps,
 } from "./holding-card";
-import * as Menu from "./menu";
 
 /** The weekdays of March 2026: the period the curves cover. */
 const DAYS: IsoDate[] = Array.from({ length: 31 }, (_, index) =>

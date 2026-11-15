@@ -9,7 +9,7 @@ import {
   useMemo,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import {
   type Decimal,
   formatDate,
@@ -19,22 +19,22 @@ import {
   formatTime,
   type IsoDate,
   type Timestamp,
-} from "../../lib/format";
-import { type GainInput, type GainUnit, gainDisplay } from "../../lib/gain";
-import { useLanguage } from "../../lib/i18n";
-import { Badge } from "../atoms/badge";
-import { GainChip } from "../atoms/gain-chip";
-import { IconButton } from "../atoms/icon-button";
-import { LoadingPlaceholder } from "../atoms/loading-placeholder";
-import { TextLink } from "../atoms/text-link";
-import { Icon, type IconProps } from "../foundations/icon";
+} from "../../../lib/format";
+import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
+import { useLanguage } from "../../../lib/i18n";
+import { Badge } from "../../atoms/badge/badge";
+import { GainChip } from "../../atoms/gain-chip/gain-chip";
+import { IconButton } from "../../atoms/icon-button/icon-button";
+import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
+import { TextLink } from "../../atoms/text-link/text-link";
+import { Icon, type IconProps } from "../../foundations/icon/icon";
 import {
   Chart,
   type ChartColor,
   type ChartLine,
   type ChartPoint,
-} from "./chart";
-import * as Menu from "./menu";
+} from "../chart/chart";
+import * as Menu from "../menu/menu";
 
 /** Where a price comes from: a daily close, the 30-minute refresh, or a value point a member entered. */
 export type PriceSource = "close" | "intraday" | "manual";
