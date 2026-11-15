@@ -4,12 +4,15 @@ import { HouseIcon } from "@phosphor-icons/react/House";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { cn } from "../../lib/cn";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import * as Sky from "../foundations/sky";
-import { PeriodControl, type PeriodSetting } from "../molecules/period-control";
-import * as Sentence from "../molecules/sentence";
+import { cn } from "../../../lib/cn";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import * as Sky from "../../foundations/sky/sky";
+import {
+  PeriodControl,
+  type PeriodSetting,
+} from "../../molecules/period-control/period-control";
+import * as Sentence from "../../molecules/sentence/sentence";
 import * as PageBar from "./page-bar";
 
 /** The icons the back link can lead with, by name. */

@@ -2,8 +2,8 @@ import { useRender } from "@base-ui/react/use-render";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { Icon, type IconProps } from "../foundations/icon";
+import { cn } from "../../../lib/cn";
+import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 /**
  * The bar at the top of every page: the title or the back link on the left,

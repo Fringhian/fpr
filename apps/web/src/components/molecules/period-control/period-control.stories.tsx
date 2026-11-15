@@ -4,7 +4,7 @@ import { SlidersHorizontalIcon } from "@phosphor-icons/react/SlidersHorizontal";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import {
   PeriodControl,
   type PeriodControlProps,

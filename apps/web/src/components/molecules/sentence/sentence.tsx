@@ -1,21 +1,21 @@
 import type { ComponentProps, ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { cn } from "../../lib/cn";
-import { type Decimal, formatMoney, formatPercent } from "../../lib/format";
+import { cn } from "../../../lib/cn";
+import { type Decimal, formatMoney, formatPercent } from "../../../lib/format";
 import {
   type GainInput,
   type GainTone,
   type GainUnit,
   gainDisplay,
-} from "../../lib/gain";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import type { MemberColor } from "../../lib/member-color";
-import type { TimeOfDay } from "../../lib/time-of-day";
-import { Chip } from "../atoms/chip";
-import { GainValue } from "../atoms/gain-value";
-import { Picture } from "../atoms/picture";
-import { TrailSign } from "../atoms/trail-sign";
+} from "../../../lib/gain";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import type { MemberColor } from "../../../lib/member-color";
+import type { TimeOfDay } from "../../../lib/time-of-day";
+import { Chip } from "../../atoms/chip/chip";
+import { GainValue } from "../../atoms/gain-value/gain-value";
+import { Picture } from "../../atoms/picture/picture";
+import { TrailSign } from "../../atoms/trail-sign/trail-sign";
 
 /**
  * The header sentence's block: the greeting, the headline, then the story

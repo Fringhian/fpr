@@ -1,12 +1,12 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
-import { cn } from "../../lib/cn";
-import { useLanguage } from "../../lib/i18n";
-import type { Language } from "../../lib/language";
-import { MEMBER_COLORS } from "../../lib/member-color";
-import { Chip } from "../atoms/chip";
-import { Picture } from "../atoms/picture";
-import { TrailSign } from "../atoms/trail-sign";
-import * as Sky from "../foundations/sky";
+import { cn } from "../../../lib/cn";
+import { useLanguage } from "../../../lib/i18n";
+import type { Language } from "../../../lib/language";
+import { MEMBER_COLORS } from "../../../lib/member-color";
+import { Chip } from "../../atoms/chip/chip";
+import { Picture } from "../../atoms/picture/picture";
+import { TrailSign } from "../../atoms/trail-sign/trail-sign";
+import * as Sky from "../../foundations/sky/sky";
 import * as Sentence from "./sentence";
 
 /** Stands in for the page bar, at its height in the design. */
