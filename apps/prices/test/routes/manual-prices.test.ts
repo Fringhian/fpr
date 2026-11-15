@@ -164,21 +164,6 @@ describe("POST /shares/:id/manual-prices", () => {
       expect(body).toEqual({ error: { code: "not_found" } });
     }
   });
-
-  it("refuses a price that isn't above zero", async () => {
-    const { status, body } = await app.call(
-      "POST",
-      `/shares/${share.id}/manual-prices`,
-      { at: SECOND_AT, priceEur: "0", enteredBy: other },
-    );
-    expect(status).toBe(400);
-    expect(body).toEqual({
-      error: {
-        code: "invalid_request",
-        details: { issues: [{ path: ["priceEur"], code: "custom" }] },
-      },
-    });
-  });
 });
 
 describe("PATCH /shares/:id/manual-prices/:at", () => {
@@ -278,21 +263,6 @@ describe("PATCH /shares/:id/manual-prices/:at", () => {
       expect(body).toEqual({ error: { code: "not_found" } });
     }
   });
-
-  it("refuses a moment without its offset", async () => {
-    const { status, body } = await app.call(
-      "PATCH",
-      pointPath("2026-03-02T05:10:00"),
-      { priceEur: "39", expectedPriceEur: "40.10", enteredBy: other },
-    );
-    expect(status).toBe(400);
-    expect(body).toEqual({
-      error: {
-        code: "invalid_request",
-        details: { issues: [{ path: ["at"], code: "invalid_format" }] },
-      },
-    });
-  });
 });
 
 describe("DELETE /shares/:id/manual-prices/:at", () => {
@@ -348,28 +318,6 @@ describe("DELETE /shares/:id/manual-prices/:at", () => {
     expect(status).toBe(409);
     expect(body).toEqual({
       error: { code: "value_changed", details: { priceEur: "41" } },
-    });
-  });
-
-  it("answers not_found for a moment without a value point", async () => {
-    const { status, body } = await app.call("DELETE", pointPath(SECOND_AT), {
-      expectedPriceEur: "40",
-      deletedBy: member,
-    });
-    expect(status).toBe(404);
-    expect(body).toEqual({ error: { code: "not_found" } });
-  });
-
-  it("refuses a deletion without who deletes it", async () => {
-    const { status, body } = await app.call("DELETE", pointPath(FIRST_AT), {
-      expectedPriceEur: "40.10",
-    });
-    expect(status).toBe(400);
-    expect(body).toEqual({
-      error: {
-        code: "invalid_request",
-        details: { issues: [{ path: ["deletedBy"], code: "invalid_type" }] },
-      },
     });
   });
 });

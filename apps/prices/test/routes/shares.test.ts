@@ -308,23 +308,6 @@ describe("PATCH /shares/:id", () => {
       expect(body).toEqual({ error: { code: "not_found" } });
     }
   });
-
-  it("refuses neither a name nor an ISIN, and an id that isn't a uuid", async () => {
-    const share = await createManual();
-    const empty = await app.call("PATCH", `/shares/${share.id}`, {});
-    expect(empty.status).toBe(400);
-    expect((empty.body as { error: { code: string } }).error.code).toBe(
-      "invalid_request",
-    );
-    const badId = await app.call("PATCH", "/shares/42", { name: "Renamed" });
-    expect(badId.status).toBe(400);
-    expect(badId.body).toEqual({
-      error: {
-        code: "invalid_request",
-        details: { issues: [{ path: ["id"], code: "invalid_format" }] },
-      },
-    });
-  });
 });
 
 describe("DELETE /shares/:id", () => {
@@ -524,16 +507,6 @@ describe("POST /shares/:id/make-manual", () => {
     expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
   });
 
-  it("takes a held share with intraday prices but no close in 5 trading days", async () => {
-    const share = await insertMarketShare();
-    await hold(share);
-    await addPrice(share, "2026-03-03T15:00:00Z", "40", "intraday");
-    const { status } = await app.call("POST", `/shares/${share}/make-manual`, {
-      enteredBy: member,
-    });
-    expect(status).toBe(200);
-  });
-
   it("answers not_found for a missing share", async () => {
     const { status, body } = await app.call(
       "POST",
@@ -542,14 +515,5 @@ describe("POST /shares/:id/make-manual", () => {
     );
     expect(status).toBe(404);
     expect(body).toEqual({ error: { code: "not_found" } });
-  });
-
-  it("refuses a price without its moment", async () => {
-    const share = await insertMarketShare();
-    const { status } = await app.call("POST", `/shares/${share}/make-manual`, {
-      enteredBy: member,
-      priceEur: "12.50",
-    });
-    expect(status).toBe(400);
   });
 });

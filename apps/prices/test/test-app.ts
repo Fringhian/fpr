@@ -3,8 +3,8 @@ import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
 import type { Db } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
-import { createApp } from "./app.js";
-import { createLogger } from "./logger.js";
+import { createApp } from "../src/app.js";
+import { createLogger } from "../src/logger.js";
 
 /** The bearer token of every test app. */
 export const TEST_TOKEN = "test-token";
