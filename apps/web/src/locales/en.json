@@ -73,5 +73,18 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "smallParts": {
+    "marketStatus": {
+      "open": "Markets open · prices as of {{time}}",
+      "closed": "Markets closed · close of {{date}}"
+    },
+    "stepProgress": {
+      "label": "Progress",
+      "value": "Step {{step}} of {{total}}"
+    },
+    "loadingPlaceholder": {
+      "default": "Loading…"
+    }
   }
 }
