@@ -112,10 +112,12 @@ export function Lane({
     >
       <Collapsible.Trigger
         className={cn(
-          "grid w-full cursor-pointer items-center rounded-m text-start text-primary",
+          "grid w-full cursor-pointer items-center rounded-m bg-transparent text-start text-primary transition-colors duration-150",
           "grid-cols-[auto_minmax(0,1fr)_3.5rem_4.25rem] gap-[0.625rem] px-s py-[0.4375rem]",
           "tablet:grid-cols-[auto_11.25rem_minmax(0,1fr)_5.5rem] tablet:gap-[0.875rem] tablet:px-[0.75rem] tablet:py-s",
           "desktop:grid-cols-[auto_14.375rem_minmax(0,1fr)_5.5rem] desktop:gap-[0.875rem] desktop:px-[0.75rem] desktop:py-s",
+          // A light charcoal veil, so it reads on a white lane and on the viewer's tinted one.
+          "hover:bg-primary/5",
           "focus-visible:focus-ring",
         )}
       >
