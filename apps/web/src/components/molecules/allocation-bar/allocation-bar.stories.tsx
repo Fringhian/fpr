@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, within } from "storybook/test";
-import type { AllocationHolding } from "../../lib/allocation";
-import { cn } from "../../lib/cn";
-import { MEMBER_COLORS } from "../../lib/member-color";
+import type { AllocationHolding } from "../../../lib/allocation";
+import { cn } from "../../../lib/cn";
+import { MEMBER_COLORS } from "../../../lib/member-color";
 import { AllocationBar, type AllocationBarProps } from "./allocation-bar";
 
 function holding(name: string, weight: string | null): AllocationHolding {

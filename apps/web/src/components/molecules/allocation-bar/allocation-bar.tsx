@@ -4,11 +4,11 @@ import {
   type AllocationHolding,
   type AllocationPart,
   allocate,
-} from "../../lib/allocation";
-import { cn } from "../../lib/cn";
-import { type Decimal, formatPercent } from "../../lib/format";
-import { useLanguage } from "../../lib/i18n";
-import type { MemberColor } from "../../lib/member-color";
+} from "../../../lib/allocation";
+import { cn } from "../../../lib/cn";
+import { type Decimal, formatPercent } from "../../../lib/format";
+import { useLanguage } from "../../../lib/i18n";
+import type { MemberColor } from "../../../lib/member-color";
 
 /** Sets the person's colour, and the surface it lightens towards, for the parts to mix. */
 const TONES = {
