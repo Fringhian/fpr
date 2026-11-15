@@ -9,6 +9,7 @@ import * as Segment from "./segment";
 interface SegmentArgs {
   backdrop: Segment.Backdrop;
   disabled: boolean;
+  loopFocus: boolean;
 }
 
 const STAGES = {
@@ -39,12 +40,12 @@ function Stage({
 const PERIODS = ["1D", "1W", "1M", "3M", "YTD", "all"] as const;
 type Period = (typeof PERIODS)[number];
 
-function PeriodSegment({ backdrop, disabled }: SegmentArgs) {
+function PeriodSegment(args: SegmentArgs) {
   const { t } = useTranslation();
+
   return (
     <Segment.Root<Period>
-      backdrop={backdrop}
-      disabled={disabled}
+      {...args}
       defaultValue="1M"
       aria-label={t("controls.period.label")}
     >
@@ -60,15 +61,14 @@ function PeriodSegment({ backdrop, disabled }: SegmentArgs) {
 type Unit = "euro" | "percent";
 
 function UnitSegment({
-  backdrop,
-  disabled,
   anonymous = false,
+  ...args
 }: SegmentArgs & { anonymous?: boolean }) {
   const { t } = useTranslation();
+
   return (
     <Segment.Root<Unit>
-      backdrop={backdrop}
-      disabled={disabled}
+      {...args}
       defaultValue="percent"
       aria-label={t("controls.unit.label")}
     >
@@ -82,12 +82,12 @@ function UnitSegment({
 
 type Standings = "gain" | "balance";
 
-function StandingsSegment({ backdrop, disabled }: SegmentArgs) {
+function StandingsSegment(args: SegmentArgs) {
   const { t } = useTranslation();
+
   return (
     <Segment.Root<Standings>
-      backdrop={backdrop}
-      disabled={disabled}
+      {...args}
       defaultValue="gain"
       aria-label={t("controls.standings.label")}
     >
@@ -102,12 +102,12 @@ function StandingsSegment({ backdrop, disabled }: SegmentArgs) {
 const LANGUAGES = ["fr", "en"] as const;
 type LanguageOption = (typeof LANGUAGES)[number];
 
-function LanguageSegment({ backdrop, disabled }: SegmentArgs) {
+function LanguageSegment(args: SegmentArgs) {
   const { t } = useTranslation();
+
   return (
     <Segment.Root<LanguageOption>
-      backdrop={backdrop}
-      disabled={disabled}
+      {...args}
       defaultValue="fr"
       aria-label={t("controls.language.label")}
     >
@@ -126,21 +126,21 @@ A row of capsules where one is selected in charcoal. It is Base UI’s ToggleGro
 
 | Part | What it is |
 | --- | --- |
-| \`Segment.Root\` | The track: a capsule holding the options. Takes \`backdrop\`, the selection (\`value\` with \`onValueChange\`, or \`defaultValue\`), \`disabled\`, and an \`aria-label\` that names the choice. |
-| \`Segment.Item\` | One option, with its \`value\`. Grey text at rest, charcoal with white text when selected. Takes \`disabled\` for an option the person can’t pick. |
+| \`Segment.Root\` | The track: a capsule holding the options. Takes \`backdrop\`, the selection (\`value\` with \`onValueChange\`, or \`defaultValue\`), and an \`aria-label\` that names the choice. Every other prop goes to Base UI’s ToggleGroup, \`className\` included: a string, or a function of the group’s state. |
+| \`Segment.Item\` | One option, with its \`value\`. Grey text at rest, charcoal with white text when selected. Every other prop goes to Base UI’s Toggle, such as \`disabled\` for an option the person can’t pick. |
 
 - **Backdrop**: \`sky\` sits on the peach sky, on a white track. \`snow\` sits on the page or a white surface, on a sand track.
 - **Keyboard**: Tab reaches the group, the arrow keys move between its options, and Space or Enter selects the focused one.
 - **Used for** the period and the unit in the page bar, Gain / Balance on the standings, and the language in Settings and the first-use steps. An anonymous viewer sees the unit on % only, with € disabled.
 
-The controls switch the backdrop and disable the whole segment. Each story fixes its options; the language menu in the toolbar shows them in French.
+The controls change the segment’s own props. Each story fixes its options; the language menu in the toolbar shows them in French.
 `;
 
 const meta = {
   title: "Atoms/Capsule segment",
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-  args: { backdrop: "sky", disabled: false },
+  args: { backdrop: "sky", disabled: false, loopFocus: true },
   argTypes: {
     backdrop: {
       description:
@@ -150,6 +150,11 @@ const meta = {
     },
     disabled: {
       description: "Disables every option.",
+      control: { type: "boolean" },
+    },
+    loopFocus: {
+      description:
+        "Base UI’s `loopFocus`: the arrow keys wrap from the last option to the first.",
       control: { type: "boolean" },
     },
   },

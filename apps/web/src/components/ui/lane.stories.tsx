@@ -117,7 +117,13 @@ const meta = {
   parameters: {
     docs: { description: { component: DESCRIPTION } },
   },
-  argTypes: { children: { control: false } },
+  argTypes: {
+    children: {
+      description:
+        "What the opened lane shows under its row at every width, such as a link to the member’s page.",
+      control: false,
+    },
+  },
 } satisfies Meta<typeof Lane>;
 
 export default meta;
@@ -184,7 +190,10 @@ const configurable = {
       options: Object.keys(PHOTOS),
       table: { type: { summary: "string | null" } },
     },
-    you: { control: { type: "boolean" } },
+    you: {
+      control: { type: "boolean" },
+      table: { type: { summary: "boolean" } },
+    },
     medal: {
       control: { type: "inline-radio" },
       options: ["none", ...MEDALS],
@@ -212,10 +221,35 @@ const configurable = {
       control: { type: "text" },
       table: { type: { summary: "IsoDate | null" } },
     },
-    incomplete: { control: { type: "boolean" } },
-    open: { control: { type: "boolean" } },
-    defaultOpen: { table: { disable: true } },
-    onOpenChange: { table: { disable: true } },
+    incomplete: {
+      control: { type: "boolean" },
+      table: { type: { summary: "boolean" } },
+    },
+    open: {
+      description:
+        "Base UI’s `open`: the lane is open. On phone it shows the best share under the row, then `children`.",
+      control: { type: "boolean" },
+      table: { type: { summary: "boolean" } },
+    },
+    defaultOpen: {
+      description:
+        "Base UI’s `defaultOpen`: the lane’s starting state when `open` isn’t controlled.",
+      control: false,
+      table: { type: { summary: "boolean" } },
+    },
+    onOpenChange: {
+      description:
+        "Base UI’s `onOpenChange`: called when the lane is pressed, with the state it asks for. The standings focus the member with it.",
+      control: false,
+      table: {
+        type: { summary: "(open: boolean, eventDetails) => void" },
+      },
+    },
+    className: {
+      description:
+        "Classes added to the lane’s, which win any conflict: a string, or a function of the collapsible’s state.",
+      control: false,
+    },
   },
   render: function ConfigurableLane(args) {
     return renderLane(args, useOpenArg());
@@ -335,7 +369,7 @@ export const Opened: Story = {
     return renderLane(
       args,
       useOpenArg(),
-      <TextLink href="#sam" caret className="text-s">
+      <TextLink href="#sam" toPage className="text-s">
         Open Sam’s page
       </TextLink>,
     );

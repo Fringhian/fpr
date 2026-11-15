@@ -86,6 +86,19 @@ describe("Lane", () => {
     ).not.toContain("€");
   });
 
+  it("passes every other prop to the collapsible root, its classes included", () => {
+    const html = render({ id: "lane-sam", className: "rounded-l" });
+    expect(html).toMatch(/^<div[^>]* id="lane-sam" class="rounded-l"/);
+  });
+
+  it("takes classes from a function of the collapsible's state", () => {
+    const html = render({
+      defaultOpen: true,
+      className: (state) => (state.open ? "shadow-rest" : ""),
+    });
+    expect(html).toMatch(/^<div[^>]*class="rounded-m shadow-rest"/);
+  });
+
   it("opens to show the best share with its gain", () => {
     const html = render({ open: true });
     expect(html).toMatch(/<button[^>]*aria-expanded="true"/);
@@ -115,5 +128,15 @@ describe("LaneNotStarted", () => {
 
   it("renders nothing when everyone has started", () => {
     expect(notStarted([])).toBe("");
+  });
+
+  it("passes every other prop to its paragraph, its classes included", () => {
+    const html = renderToStaticMarkup(
+      <I18nextProvider i18n={createI18n("en")}>
+        <LaneNotStarted names={["Kim"]} id="not-started" className="pt-m" />
+      </I18nextProvider>,
+    );
+    expect(html).toMatch(/^<p id="not-started" class="[^"]*pt-m/);
+    expect(html).not.toContain("pt-s");
   });
 });

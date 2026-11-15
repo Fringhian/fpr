@@ -35,8 +35,9 @@ const badge = cva(
 
 /**
  * The states a badge names: a share entered by hand, a share whose prices
- * haven't arrived, a balance that leaves such a share out, an access link in use, not opened yet, or revoked, a share
- * held in the past, a change just saved.
+ * haven't arrived, a balance that leaves such a share out, an access link in
+ * use, not opened yet, or revoked, a share held in the past, a change just
+ * saved.
  */
 export type BadgeState =
   | "manual"
@@ -48,14 +49,22 @@ export type BadgeState =
   | "heldBefore"
   | "saved";
 
-export interface BadgeProps extends Omit<ComponentProps<"span">, "children"> {
+export interface BadgeOwnProps {
   /** The state the badge names. Its words and colour follow from it. */
   state: BadgeState;
 }
 
-/** A small capsule label for a state, its words in the reader's language. */
+/** The badge writes its own words, so it takes no `children`. */
+export type BadgeProps = BadgeOwnProps &
+  Omit<ComponentProps<"span">, keyof BadgeOwnProps | "children">;
+
+/**
+ * A small capsule label for a state, its words in the reader's language.
+ * Every other prop goes to the `<span>`, `className` included.
+ */
 export function Badge({ state, className, ...props }: BadgeProps) {
   const { t } = useTranslation();
+
   return (
     <span {...props} className={cn(badge({ state }), className)}>
       {t(`badge.${state}`)}

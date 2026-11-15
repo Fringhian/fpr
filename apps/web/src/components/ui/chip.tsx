@@ -4,7 +4,7 @@ import { type Decimal, formatPercent } from "../../lib/format";
 import { useLanguage } from "../../lib/i18n";
 import { MINUS } from "../../lib/typography";
 
-export interface ChipProps extends Omit<ComponentProps<"span">, "children"> {
+export interface ChipOwnProps {
   /** What the chip names: a share, a person, an ISIN. */
   children: ReactNode;
   /** The person's picture, at 20 px, before their name. */
@@ -16,6 +16,9 @@ export interface ChipProps extends Omit<ComponentProps<"span">, "children"> {
   gain?: Decimal | undefined;
 }
 
+export type ChipProps = ChipOwnProps &
+  Omit<ComponentProps<"span">, keyof ChipOwnProps>;
+
 /** The gain's colour, read from the sign it is written with once rounded. */
 function gainTone(text: string): string {
   if (text.startsWith("+")) {
@@ -26,14 +29,16 @@ function gainTone(text: string): string {
 
 function ChipGain({ percent }: { percent: Decimal }) {
   const language = useLanguage();
+
   const text = formatPercent(percent, language, { signed: true });
+
   return <span className={cn("tabular-nums", gainTone(text))}>{text}</span>;
 }
 
 /**
  * A white capsule with an outline, for a share or a person mentioned in a
  * sentence: a share's name, optionally with its gain; a person's picture and
- * name; an ISIN.
+ * name; an ISIN. Every other prop goes to the `<span>`, `className` included.
  */
 export function Chip({
   children,
@@ -42,12 +47,14 @@ export function Chip({
   className,
   ...props
 }: ChipProps) {
+  const start = picture ? "pl-[0.1875rem]" : "pl-[0.6875rem]";
+
   return (
     <span
       {...props}
       className={cn(
         "inline-flex items-center gap-[0.375rem] rounded-full bg-surface py-[0.1875rem] pr-[0.6875rem] text-s font-semibold whitespace-nowrap text-primary shadow-outline",
-        picture ? "pl-[0.1875rem]" : "pl-[0.6875rem]",
+        start,
         className,
       )}
     >

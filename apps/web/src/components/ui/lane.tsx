@@ -44,19 +44,19 @@ export interface LaneBest {
   percent: Decimal | null;
 }
 
-interface LaneOwnProps {
+export interface LaneOwnProps {
   /** The member's display name, or an anonymous viewer's pseudonym. */
   name: string;
   /** The member's colour: their picture's pastel and their bar. */
   color: MemberColor;
   /** The member's photo, or `null` for their initial. An anonymous viewer always receives `null`. */
-  photo?: string | null;
+  photo?: string | null | undefined;
   /** The viewer's own lane: tinted, with “· you” after the name. */
-  you?: boolean;
+  you?: boolean | undefined;
   /** The first three lanes' gold, silver and bronze ring, on tablet and desktop only. */
-  medal?: PictureMedal | null;
+  medal?: PictureMedal | null | undefined;
   /** The member's best share over the period, under the name on tablet and desktop, and in the opened lane on phone. `null` when they held no priced share. */
-  best?: LaneBest | null;
+  best?: LaneBest | null | undefined;
   /**
    * What the lane shows: `{ board: "gain", gain, unit }` for the gain over
    * the period in the unit setting, or `{ board: "balance", balance }`. An
@@ -69,29 +69,31 @@ interface LaneOwnProps {
    * `laneScale`, so the zero line sits at the same place in each lane and the
    * bars compare. Without it, the lane is measured against itself.
    */
-  scale?: LaneScale;
+  scale?: LaneScale | undefined;
   /** The day the member's history starts when it is after the period's start: their gain is measured from it, and the lane says “since 12 Feb”. */
-  measuredFrom?: IsoDate | null;
+  measuredFrom?: IsoDate | null | undefined;
   /** A held share has no price yet: it is left out of the balance, and the lane says “Incomplete”. */
-  incomplete?: boolean;
-  /** The lane is open: on phone, it shows the best share under the row, then `children`. */
-  open?: boolean;
-  /** The lane's starting state when `open` isn't controlled. */
-  defaultOpen?: boolean;
-  /** Called when the lane is pressed, with the state it asks for. The standings focus the member with it. */
-  onOpenChange?: (open: boolean) => void;
+  incomplete?: boolean | undefined;
   /** What the opened lane shows under its row at every width, such as a link to the member's page. */
   children?: ReactNode;
 }
 
+/**
+ * The lane's own props, then every prop of Base UI's collapsible root:
+ * `open`, `defaultOpen` and `onOpenChange`, called when the lane is pressed
+ * with the state it asks for, `className`, a string or a function of its
+ * state.
+ */
 export type LaneProps = LaneOwnProps &
-  Omit<ComponentProps<"div">, keyof LaneOwnProps>;
+  Omit<ComponentProps<typeof Collapsible.Root>, keyof LaneOwnProps>;
 
 /**
  * One member in the standings: their picture, name and best share, a bar from
  * the zero line, and their value. Gains go right of the zero line and losses
  * left; the order and the bars show the ranking, with no rank numbers. The
- * whole row is a button that opens the lane in place.
+ * whole row is a button that opens the lane in place: on phone, the opened
+ * lane shows the best share under the row, then `children`. Every other prop
+ * goes to Base UI's collapsible root, `className` included.
  */
 export function Lane({
   name,
@@ -104,30 +106,31 @@ export function Lane({
   scale,
   measuredFrom = null,
   incomplete = false,
-  open,
-  defaultOpen,
-  onOpenChange,
   children,
   className,
   ...props
 }: LaneProps) {
   const { t } = useTranslation();
   const language = useLanguage();
+
   const amount = laneAmount(value);
   const bar = laneBar(
     amount,
     scale ?? { min: Math.min(0, amount ?? 0), max: Math.max(0, amount ?? 0) },
   );
   const hasMarkers = incomplete || measuredFrom !== null;
+  const tint = you ? "bg-highlight" : "";
+
   return (
     <Collapsible.Root
       {...props}
-      {...(open === undefined ? {} : { open })}
-      {...(defaultOpen === undefined ? {} : { defaultOpen })}
-      {...(onOpenChange
-        ? { onOpenChange: (next: boolean) => onOpenChange(next) }
-        : {})}
-      className={cn("rounded-m", you ? "bg-highlight" : "", className)}
+      className={(state) =>
+        cn(
+          "rounded-m",
+          tint,
+          typeof className === "function" ? className(state) : className,
+        )
+      }
     >
       <Collapsible.Trigger
         className={cn(
@@ -279,13 +282,20 @@ function listFormat(language: Language): Intl.ListFormat {
   return format;
 }
 
-export interface LaneNotStartedProps
-  extends Omit<ComponentProps<"p">, "children"> {
+export interface LaneNotStartedOwnProps {
   /** The names of the members with no entry yet. Renders nothing when empty. */
   names: readonly string[];
 }
 
-/** The members who haven't started, in one line under the lanes: “Kim and Lea haven’t started yet.” */
+/** The line writes its own words, so it takes no `children`. */
+export type LaneNotStartedProps = LaneNotStartedOwnProps &
+  Omit<ComponentProps<"p">, keyof LaneNotStartedOwnProps | "children">;
+
+/**
+ * The members who haven't started, in one line under the lanes: “Kim and Lea
+ * haven’t started yet.” Every other prop goes to the `<p>`, `className`
+ * included.
+ */
 export function LaneNotStarted({
   names,
   className,
@@ -293,10 +303,13 @@ export function LaneNotStarted({
 }: LaneNotStartedProps) {
   const { t } = useTranslation();
   const language = useLanguage();
-  if (names.length === 0) {
-    return null;
-  }
-  return (
+
+  const sentence = t("lane.notStarted", {
+    count: names.length,
+    names: listFormat(language).format(names),
+  });
+
+  return names.length === 0 ? null : (
     <p
       {...props}
       className={cn(
@@ -307,10 +320,7 @@ export function LaneNotStarted({
         className,
       )}
     >
-      {t("lane.notStarted", {
-        count: names.length,
-        names: listFormat(language).format(names),
-      })}
+      {sentence}
     </p>
   );
 }
