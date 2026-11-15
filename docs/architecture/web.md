@@ -12,7 +12,7 @@
 | Request and response types | `@fpr/contracts` |
 | Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
 | Class helpers | `cn` (`clsx` and `tailwind-merge`) in `src/lib/cn.ts`; component variants with `class-variance-authority` |
-| Components | Base UI, wrapped as the app's own components in `src/components/ui/` |
+| Components | Base UI, wrapped as the app's own components in `src/components/` |
 | Component workshop | Storybook, one story per component |
 | Charts | TradingView Lightweight Charts |
 | Icons | Phosphor, `@phosphor-icons/react` |
@@ -59,7 +59,7 @@ The Foundations stories in `src/foundations/` show every token with the value it
 - Figtree is the one typeface. `@fontsource-variable/figtree`, imported in `src/index.css`, ships it with the build as woff2 files with `font-display: swap`, on a variable weight axis from 300 to 900.
 - Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
 - Figures that line up, such as amounts, percentages, ranks, and times, use Tailwind's `tabular-nums`.
-- Icons are Phosphor, drawn through `Icon` in `src/components/ui/icon.tsx`:
+- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon.tsx`:
 
 | Prop | Values |
 | --- | --- |
@@ -76,6 +76,8 @@ The Foundations stories in `src/foundations/` show every token with the value it
 
 - Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
 - Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
+- Components live in `src/components/foundations/`, `atoms/`, `molecules/` and `organisms/`, each in the folder of its story's sidebar group, with its stories and any `-model.ts` beside it.
+- Components have no unit tests: their stories are their check, run in Chromium with the accessibility checks by `test-storybook`.
 - The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
 - The language menu in the toolbar shows every story in English or French, through the `locale` global; a story can fix its own with `globals: { locale: "fr" }`. "Foundations/Formatting" shows every formatter in the chosen language.
 - The canvas is the page ground (`--palette-snow`), so a story ends on snow below its content.
@@ -97,7 +99,7 @@ The design files fix each screen and component until it is built in `apps/web`. 
 
 ## Sky and ridge
 
-The page background is the `Sky` component in `src/components/ui/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
+The page background is the `Sky` component in `src/components/foundations/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky"`), with its story under Foundations, Sky and ridge.
 
 | Part | What it is |
 | --- | --- |
@@ -169,7 +171,7 @@ Share search lives on `/shares`, and the record flow reuses it.
 - Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`. No text is written directly in a component.
 - `react-i18next` translates them. `src/lib/i18n.ts` creates the i18next instance with both files bundled, and `main.tsx` provides it to the app through `I18nextProvider`. The page's `lang` attribute follows its language.
 - Translation keys are typed from `en.json`: an unknown key fails the type check.
-- `src/locales/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
+- `test/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
 - FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language: `DEFAULT_LANGUAGE` in `src/lib/language.ts`.
 - A signed-in person sees the language they chose in Settings.
 - The API sends codes and data, never sentences: errors as codes. The web app writes the words.
