@@ -249,7 +249,7 @@ function LineEnds({
       <svg
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-[0] size-full overflow-visible stroke-muted",
+          "pointer-events-none absolute inset-0 size-full overflow-visible stroke-muted",
           wide,
         )}
       >
@@ -279,7 +279,7 @@ function LineEnds({
           />
         ),
       )}
-      <div className={cn("pointer-events-none absolute inset-[0]", wide)}>
+      <div className={cn("pointer-events-none absolute inset-0", wide)}>
         {marks.map((mark) => (
           <div
             key={mark.id}
@@ -401,7 +401,7 @@ export function Race({
       <div
         className={cn(
           "min-w-0",
-          "pr-[0]",
+          "pr-0",
           "tablet:pr-[10rem]",
           "desktop:pr-[10rem]",
         )}

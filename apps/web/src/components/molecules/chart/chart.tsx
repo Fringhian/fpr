@@ -675,7 +675,7 @@ export function Chart({
               : `translateX(calc(${active.x}px + var(--spacing-s)))`,
           }}
           className={cn(
-            "pointer-events-none absolute top-[0] left-[0] z-10 grid gap-xs rounded-s border border-divider bg-surface px-s py-xs shadow-float",
+            "pointer-events-none absolute top-0 left-0 z-10 grid gap-xs rounded-s border border-divider bg-surface px-s py-xs shadow-float",
             "",
             "",
             "",
