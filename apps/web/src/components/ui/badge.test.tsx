@@ -25,6 +25,7 @@ describe("Badge", () => {
     expect(render("active")).toContain("text-success");
     expect(render("saved")).toContain("text-success");
     expect(render("pricePending")).toContain("text-warning");
+    expect(render("incomplete")).toContain("text-warning");
     expect(render("revoked")).toContain("text-warning");
     expect(render("heldBefore")).toContain("bg-highlight text-on-sky");
   });
