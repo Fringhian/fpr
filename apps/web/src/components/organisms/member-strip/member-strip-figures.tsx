@@ -12,6 +12,7 @@ import {
   type ChartLine,
   type ChartPoint,
 } from "../../molecules/chart/chart";
+import { gainFormat } from "../../molecules/chart/chart-model";
 
 export type CurveProps = {
   /** The member's name, which names the curve. */
@@ -58,7 +59,7 @@ export function Curve({
     <Chart
       {...props}
       variant="sparkline"
-      unit={unit === "eur" ? "money" : "percent"}
+      {...gainFormat(unit)}
       lines={lines}
       label={t(
         yours === undefined ? "memberStrip.curve" : "memberStrip.curveVsYou",
