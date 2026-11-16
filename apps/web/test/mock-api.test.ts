@@ -50,6 +50,15 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
         at: now.toISOString(),
       }),
     "portfolio.log": () => client.portfolio.log({ userId: sam, limit: 3 }),
+    "portfolio.logEntry": async () => {
+      const { entries } = await client.portfolio.log({ userId: sam, limit: 1 });
+      return client.portfolio.logEntry({
+        userId: sam,
+        entryId: entries[0]?.id ?? "",
+      });
+    },
+    "portfolio.cashAt": () =>
+      client.portfolio.cashAt({ userId: sam, at: now.toISOString() }),
     "portfolio.balanceHistory": () =>
       client.portfolio.balanceHistory({ userId: sam, period: "3M" }),
     "shares.search": () => client.shares.search({ q: "", period: "1M" }),
