@@ -1,17 +1,12 @@
 import { os } from "@orpc/server";
 import { fromNodeHeaders } from "better-auth/node";
-import { clientAddress } from "../auth.js";
+import { clientAddress } from "../auth/rate-limit.js";
 import { apiError } from "../errors.js";
 import type { ApiContext } from "../orpc.js";
 import { isWrite, routeAccess } from "./route.js";
 
 /** Requests each client address may send to one public write per window. */
 export const publicWriteRateLimit = { window: 60, max: 5 } as const;
-
-/** The outcome of counting one request. */
-export type RateLimitDecision =
-  | { allowed: true }
-  | { allowed: false; retryAfterSeconds: number };
 
 /**
  * Counts requests per key in fixed windows, in memory. Each count lasts one
@@ -20,21 +15,26 @@ export type RateLimitDecision =
  */
 export interface RateLimiter {
   /** Counts a request under `key`, and says whether it may go on. */
-  consume(key: string): RateLimitDecision;
+  consume(
+    key: string,
+  ): { allowed: true } | { allowed: false; retryAfterSeconds: number };
 }
 
 /** A rate limiter allowing `max` requests per key within `window` seconds. */
-export function createRateLimiter(
-  { window, max }: { window: number; max: number },
-  clock: () => number = Date.now,
-): RateLimiter {
+export function createRateLimiter({
+  window,
+  max,
+}: {
+  window: number;
+  max: number;
+}): RateLimiter {
   const windowMs = window * 1000;
   const counts = new Map<string, { count: number; resetAt: number }>();
   let nextSweep = 0;
 
   return {
     consume(key) {
-      const now = clock();
+      const now = Date.now();
       if (now >= nextSweep) {
         for (const [counted, entry] of counts) {
           if (entry.resetAt <= now) {

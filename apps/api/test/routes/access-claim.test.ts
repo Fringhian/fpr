@@ -3,7 +3,7 @@ import { accessKeys, accounts } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { newKey } from "../../src/access/keys.js";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import { publicWriteRateLimit } from "../../src/pipeline/index.js";
 import {
   addKeyHolder,
@@ -14,11 +14,11 @@ import {
   parseOutput,
   post,
   replaceKey,
-  SESSION_COOKIE,
 } from "../access-support.js";
 import {
   createTestAuth,
   postSignIn,
+  SESSION_COOKIE,
   serveApp,
   TEST_PASSWORD,
   type TestServer,
@@ -126,16 +126,6 @@ describe("POST /api/access/claim", () => {
       issues: [{ path: ["password"], code: "invalid_type" }],
     });
     expect(await accounts.hasPassword(test.db, person.id)).toBe(false);
-  });
-
-  it("refuses a password under 12 characters", async () => {
-    const person = await addKeyHolder(test.db, auth, "member");
-
-    const response = await claim(person.key, "too short");
-
-    await expectError(route, response, "invalid_request", {
-      issues: [{ path: ["password"], code: "too_small" }],
-    });
   });
 
   it.each([

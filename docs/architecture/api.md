@@ -1,43 +1,33 @@
 # API
 
-`apps/api`, an Express (TypeScript) server. It is the only block the browser talks to, under `/api` on the instance's origin. It answers JSON, and every request and response body is a Zod schema in `@fpr/contracts`.
+`apps/api`, an Express server and the only block the browser talks to, under `/api` on the instance's origin. It answers JSON, implements the route contracts of `@fpr/contracts` with oRPC's server, and reads and writes Postgres through `@fpr/db`. Better Auth runs inside it: see `auth.md`.
 
 ## Route contracts
 
-Each route is an oRPC contract in `@fpr/contracts`. `apiContract` holds every API route, one key per area, each area in its folder under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. A route's key is its area and its name, such as `me.get`, and the OpenAPI document uses it as the operation id and the area as its tag. The price service's internal routes are in `src/prices/`, in `pricesContract`.
-
-The package has three entry points:
+Every route is an oRPC contract in `packages/contracts`. `apiContract` holds the API's routes, one folder per area under `src/api/`: `access`, `me`, `portfolio`, `shares`, `race`, and `admin`. `pricesContract`, in `src/prices/`, holds the price service's internal routes.
 
 | Entry point | Holds | Used by |
 | --- | --- | --- |
-| `@fpr/contracts` | `apiContract`, the types of each route's input and output, the shared schemas, the error codes, the roles, and the helpers that declare a route | the web app, the API, and the price service |
-| `@fpr/contracts/prices` | `pricesContract` and the types of its routes | the API and the price service |
-| `@fpr/contracts/openapi` | `createOpenApiDocument`, oRPC's generator | the API's `/api/docs`, and `pnpm contracts:openapi` |
+| `@fpr/contracts` | `apiContract`, the shared schemas, the error codes, and the roles | web, API, price service |
+| `@fpr/contracts/prices` | `pricesContract` | API, price service |
+| `@fpr/contracts/openapi` | The OpenAPI generator | the API's `/api/docs`, `pnpm contracts:openapi` |
 
-A test fails when the root entry point loads the price service's routes or the generator. A route is reached through its tree, such as `apiContract.race.leaderboard`, and is not exported on its own. Its schemas stay in its file, which exports their types under short names, such as `Leaderboard` for the response and `LeaderboardQuery` for the input. A schema becomes shared, in `src/schemas/`, once a second area uses it.
+A contract declares who may call it, its method and path under `/api`, its input (path params, query, and body in one Zod object), its output, and its error codes. It starts from `publicRoute` or from `signedInRoute(roles)`: a route that declares neither fails to type-check, and the API refuses it with `403 forbidden`.
 
-A contract starts from `publicRoute`, or from `signedInRoute(roles)` with the roles it accepts, and declares:
+- Roles and the role lists routes share live in `src/roles.ts`.
+- A list of values, such as the units, the boards, or the access key states, is a `z.enum` defined once, and every use references it.
+- A schema stays in its route's file until a second area uses it, then moves to `src/schemas/`. The API's and the price service's routes share these schemas under the same names.
 
-- who may call it, set by its base as `{ roles }` in its oRPC meta, `RouteMeta`;
+Tests over every route of both contracts fail when:
 
-- its method, its path under `/api` with `{params}`, such as `/users/{userId}/portfolio`, and a one-line summary, with `.route()`;
-- its input, with `.input()`: the path params, the query, and the body in one Zod object;
-- its response, with `.output()`;
-- its error codes, with `.errors(errorMap(...))`, each sent with its status, and a code whose `details` follow a schema with `.errors(errorWithDetails(code, schema))`.
+- a route misses a code the request pipeline can answer it with: `internal_error` always, `invalid_request` with an input, `unauthenticated` and `access_ended` when signed in, `forbidden` for a write or a route that refuses a role;
+- a path parameter isn't a required field of the input, or two routes share a method and path;
+- a route other than setup, the access link routes, and password reset is public;
+- a write accepts anonymous viewers, or accepts guests outside `/me`;
+- a value of a shared list is written as a string outside the file that defines it;
+- `@fpr/contracts` loads the price service's routes or the generator.
 
-Each definition has one source:
-
-- `src/roles.ts` holds the roles, `Role` to name one, such as `Role.admin`, and the role lists routes share: `adminRoles`, `adminAreaRoles`, `writerRoles`, and `profileRoles`.
-- A list of values, such as the units, the boards, or the access key states, is defined once with `z.enum`, and a field or discriminant that takes one of its values references it, such as `accessKeyStateSchema.enum.waiting`. A test fails when a value of a shared list is written as a string outside the file that defines it.
-- `src/schemas/` holds the schemas several areas share, one file per theme: ids and moments; a person, their email and display name; passwords, access keys, and reset keys; currencies, prices, and percentages; shares, their names, listings, lookups, and latest prices; and the markers and amounts of a member's performance. The API's routes and the price service's use the same schemas and the same names.
-
-Every route declares the codes the request pipeline can answer it with: `internal_error` always, `invalid_request` when it has an input, `unauthenticated` and `access_ended` when it isn't public, and `forbidden` for a write, or for a route that refuses a role. `publicRoute` and `signedInRoute` carry the first ones. Tests over every route of `apiContract` and `pricesContract` fail when a route misses one of those codes, when a parameter of its path isn't a required field of its input, or when two routes share a method and path. The committed OpenAPI document is the record of each route's method, path, roles, and codes, reviewed in each change's diff.
-
-A route is refused unless it declares who may call it. `apiContract` satisfies `RouteTree`, so a route built from `oc` alone, without `publicRoute` or `signedInRoute(roles)`, fails to type-check, and the request pipeline answers a route without a declaration with `403 forbidden`. A test over `apiContract` lists its public routes, the setup, access link, and password reset routes, and fails when another route is public.
-
-The API implements the contracts with oRPC's server, mounted on Express under `/api`. oRPC validates each input and output with its schema. Errors keep the format of Errors below: a declared code is sent as it is, a failed input validation as `invalid_request` with its issues in `details`, and anything else as `internal_error`, logged with its stack. A path no contract matches goes on to Express, which answers `not_found`.
-
-The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from the contracts by oRPC's generator and `pnpm contracts:openapi`. `pnpm contracts:openapi --check` fails when the file is not up to date, and CI runs it. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. Each error response has one body per code, with the typed `details` of a code declared with `errorWithDetails`, and the details of `invalid_request` under `components` as `InvalidRequestDetails`. A response without a body, such as a `204`, has no content. In development, the API serves the document at `/api/docs/openapi.json` and the Scalar viewer at `/api/docs`. The price service's internal routes are declared the same way and left out of the document.
+The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from `apiContract` by `pnpm contracts:openapi` and committed, so each change's diff shows its routes, roles, and codes. CI runs `pnpm contracts:openapi --check`, which fails when the file is out of date. Each operation lists its roles in `x-roles`, and each field the anonymizer replaces carries `x-anonymize`. In development, the API serves it at `/api/docs/openapi.json` with the Scalar viewer at `/api/docs`.
 
 ## Request pipeline
 
@@ -54,196 +44,177 @@ flowchart LR
     Anon --> Res["Response"]
 ```
 
-1. **Origin check**: a write, any method but `GET` and `HEAD`, whose `Origin` header isn't `PUBLIC_URL`'s origin is refused with `403 forbidden`, public routes included, and so is a write without an `Origin`.
-2. **Rate limit**: a public write, such as a claim or a password reset, is limited per client address and per route: five requests within a minute, then `429 rate_limited` with `Retry-After` until the minute ends. The client address is read as for Better Auth's limits, and the counts are kept in memory. A request without a client address is not limited, so clients never share one count, and the first one since the API started is logged as an error. See `auth.md`, Client address.
-3. **Session**: Better Auth reads the session cookie: without a session, the answer is `401 unauthenticated`. A session extended on use comes with its renewed cookie. A route that declares no access is refused with `403 forbidden`.
-4. **Access check**: the person's access key still gives access. Otherwise every session of the person is deleted and the answer is `401 access_ended`. Better Auth's endpoints at `/api/auth/*` run the same check, `keepsAccess`, through `authAccessCheck`, except sign-in and sign-out. See `auth.md`.
-5. **Role guard**: each route declares the roles it accepts in its contract, with `signedInRoute(roles)`. A role the route doesn't list is refused with `403 forbidden`. Anonymous viewers are refused every write, whatever the route lists. Guests are refused every write except to their own profile: a test over `apiContract` fails when a write lists anonymous viewers, or lists guests outside `/me`.
-6. **Input validation**: oRPC validates the input with the route's contract. A failure is `400 invalid_request` with the field errors.
-7. **Handler**: receives the validated input and the signed-in person, `context.viewer`, with their id, role, and session id, then reads and writes Postgres through `@fpr/db`. The handler of a write to a path with `{userId}` checks ownership with `assertMayWriteUser(viewer, userId)` from `apps/api/src/ownership.ts`: the admin writes anyone's data, everyone else only their own, compared without case, and any other write is refused with `403 forbidden`. Input validation comes first, so an invalid body to another person's `{userId}` is `400 invalid_request`.
+1. **Origin check**: a write, any method but `GET` and `HEAD`, whose `Origin` isn't `PUBLIC_URL`'s origin, or that has none, is `403 forbidden`, public routes included.
+2. **Rate limit**: a public write past its client address's limit is `429 rate_limited`. See `auth.md`, Rate limits.
+3. **Session**: Better Auth reads the session cookie. Without a session, the answer is `401 unauthenticated`. A session extended on use sends its renewed cookie.
+4. **Access check**: when the person's access key no longer gives access, every session of the person is deleted and the answer is `401 access_ended`. See `auth.md`, Access keys.
+5. **Role guard**: a role the route doesn't list is `403 forbidden`, and so is every write by an anonymous viewer.
+6. **Input validation**: a failure is `400 invalid_request`.
+7. **Handler**: a write to one person's data is allowed to that person and the admin, and `403 forbidden` for anyone else. Validation runs first, so an invalid body to another person's data is `400`.
 8. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
 
-Public routes go from the origin check and the rate limit straight to input validation, without a session, an access check, or a role guard, and their handlers get `context.viewer` as `null`. Signed-in routes skip the rate limit.
-
-The first five steps are chained oRPC middlewares, one per file in `apps/api/src/pipeline/`: `origin.ts`, `rate-limit.ts`, `session.ts`, `access.ts`, and `roles.ts`. `index.ts` composes them in that order as `requestPipeline`, which every route of `apiContract` goes through. `apps/api/src/implement.ts` exports `api`, the contract implemented behind `requestPipeline`. Each area's handlers are in their folder, such as `apps/api/src/access/`, and `apps/api/src/router.ts` gathers them under the contract's keys. A handler of a route that isn't public narrows `context.viewer` with the `signedIn` middleware: `api.me.get.use(signedIn).handler(({ context }) => context.viewer.id)`. A handler answers its own errors with `apiError(code, details)` from `apps/api/src/errors.ts`. The request log line carries the person's id once the session is read.
+Public routes skip the session, access check, and role guard, and their handlers have no signed-in person. Signed-in routes skip the rate limit. The first five steps live in `apps/api/src/pipeline/`. The request log line carries the signed-in person's id.
 
 ## Errors
 
-Errors are `{ "error": { "code", "details" } }`, and the web app turns the code into text in the person's language. `details` is an object, present when the code carries more, such as the entry a refused change would break or the stored value a stale edit missed. `@fpr/contracts` holds the codes and the status each one is sent with:
+Every error is `{ "error": { "code", "details" } }`. The web app turns the code into text in the person's language. `details` is an object, present when the code carries more. An error a route doesn't declare is sent as `internal_error` and logged with its stack. A path no route matches is `not_found`. `@fpr/contracts` holds each code and its status:
 
 | Status | Code | When |
 | --- | --- | --- |
-| `400` | `invalid_request` | The body, query, or path fails its schema. `details` lists the issues, `{ issues: [{ path, code }] }`: each field's path in the input, such as `["amountEur"]`, and Zod's issue code, such as `too_small` or `invalid_format`, without its text |
+| `400` | `invalid_request` | The input fails its schema. `details`: `{ issues: [{ path, code }] }`, each field's path and Zod's issue code, without text |
 | `401` | `unauthenticated` | No session, or it expired |
-| `401` | `access_ended` | The person's key no longer gives access. See `auth.md` |
-| `403` | `forbidden` | The role can't do this, the data belongs to another member, or the `Origin` isn't `PUBLIC_URL` |
+| `401` | `access_ended` | The person's key no longer gives access |
+| `403` | `forbidden` | The role can't do this, the data belongs to someone else, or the `Origin` is wrong |
 | `404` | `not_found` | No such route, person, share, entry, or value point |
 | `409` | `admin_exists` | `POST /setup` once an admin exists |
 | `409` | `color_taken` | Another person has the colour, and not all ten are taken |
 | `409` | `email_taken` | Another person has the email |
-| `409` | `isin_taken` | Another share has the ISIN. `details` has that share's id, `{ shareId }` |
+| `409` | `isin_taken` | Another share has the ISIN. `details`: `{ shareId }` |
 | `409` | `share_in_use` | Deleting a share a share change refers to |
 | `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
-| `409` | `value_changed` | A value point is no longer `expectedPriceEur`, or one already exists at the moment a new one is added. `details` has the stored price, `{ priceEur }` |
+| `409` | `value_changed` | A value point isn't the expected value, or one exists at that moment. `details`: `{ priceEur }` |
 | `409` | `refresh_running` | A price refresh while a run is going |
 | `413` | `avatar_too_large` | A picture over 2 MB |
 | `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
-| `422` | `invalid_access_key` | Claiming a key that isn't waiting, or signing in with one that doesn't give access, or with a key of the other kind of person. `details` has its state, `{ state }` |
-| `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair, without saying which |
-| `422` | `invalid_bootstrap_key` | `POST /setup` with a key other than `ADMIN_BOOTSTRAP_KEY` |
-| `422` | `holding_below_zero` | A change, edit, or deletion that takes a holding below zero. `details` names the entry it would break |
+| `422` | `invalid_access_key` | A key that isn't waiting, doesn't give access, or is for the other kind of person. `details`: `{ state }` |
+| `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair |
+| `422` | `invalid_bootstrap_key` | `POST /setup` with the wrong bootstrap key |
+| `422` | `holding_below_zero` | A change, edit, or deletion that takes a holding below zero. `details` names the entry it breaks |
 | `422` | `future_moment` | A share change, cash balance, or value point dated in the future |
-| `422` | `last_admin` | Revoking, ending, replacing, deleting, or changing the role of the last admin |
+| `422` | `last_admin` | Revoking, ending, replacing, deleting, or demoting the last admin |
 | `422` | `has_portfolio_entries` | Making a guest of a person with portfolio entries |
 | `422` | `anonymous_role_fixed` | Making someone anonymous, or an anonymous viewer something else |
 | `422` | `last_value_point` | Deleting a manual share's only value point |
-| `429` | `rate_limited` | Too many requests from one client |
+| `429` | `rate_limited` | Too many requests from one client address |
 | `429` | `call_budget_used` | A lookup or refresh once the day's provider calls are used |
 | `500` | `internal_error` | An unexpected failure, logged with its request id |
 | `503` | `provider_unavailable` | A lookup while the price provider doesn't answer |
 
 ## Routes
 
-Every role can read every member's data. A `:userId` write acts on one member's data: a member may write only their own, the admin anyone's.
+Every role reads every member's data. A write to one person's data is allowed to that person and the admin. The contracts and the OpenAPI document hold each route's fields.
 
-The API sits behind `web`, and trusts the client address `web` forwards as the only value of `X-Forwarded-For`, so rate limits apply per real client. `web` resolves it from the host's reverse proxy: see `auth.md`, Client address. A request to `/api/auth/*` or a public write without one is not rate-limited, and the first one is logged as an error.
+Who may call: **public** (no session), **all** (every signed-in role), **profile** (all but anonymous), **writers** (admin and member), **admin**, and **admin area** (the admin, and anonymous viewers read-only).
 
-### Public
+### Access
 
-| Route | Purpose |
-| --- | --- |
-| `/api/auth/*` | Better Auth: sign-in, sign-out, session |
-| `POST /access/check` | The key's state (`waiting`, `claimed`, `expired`, `replaced`, `revoked`, `ended`, or `unknown`), and for a known key whether its person signs in with a `password` or the `link`. For a waiting password user, also their email, display name, and whether they already have a password: `{ key }` |
-| `POST /access/claim` | Claim a password user's waiting key: `{ key, password }`, without `password` when the person already has one. Answers whether a session started: it starts when the claim sets the password, and a person who already had one signs in with it |
-| `POST /access/sign-in` | An anonymous viewer's sign-in: `{ key }` |
-| `POST /password-reset/check` | Page 1: `{ email, key }` is valid |
-| `POST /password-reset` | Page 2: `{ email, key, password }` |
-| `GET /setup` | Whether an admin exists, which closes `/setup` |
-| `POST /setup` | Create the first admin with the bootstrap key: `{ bootstrapKey, email, displayName, password }`. Refused with `409` once an admin exists |
+| Route | Who | What |
+| --- | --- | --- |
+| `/api/auth/*` | public | Better Auth: password sign-in, sign-out, session, password change |
+| `POST /access/check` | public | A key's state, and who it is for while waiting |
+| `POST /access/claim` | public | Claim a password user's waiting key, setting the password on first use |
+| `POST /access/sign-in` | public | Sign an anonymous viewer in with their key |
+| `POST /password-reset/check`, `POST /password-reset` | public | Check an email and reset key pair, then set the new password |
+| `GET /setup`, `POST /setup` | public | Whether an admin exists; create the first admin with the bootstrap key |
 
-Every write here is rate-limited per client address and per route: see Request pipeline. The handlers are in `apps/api/src/access/`.
-
-- **Access key states**: a revoked key is `replaced` when its person has a newer key, and `revoked` otherwise. A key past `access_until` is `ended`, claimed or not. A claimed key is `claimed`, an unclaimed key past `claim_before` is `expired`, and any other is `waiting`.
-- **Claim**: a key that isn't waiting, or an anonymous viewer's key, is refused with `invalid_access_key` and its state. Without `password` for a person who has none, or with one for a person who has one, the answer is `400 invalid_request` on `password`. The key is locked while it is claimed, so two claims at once claim it once.
-- **Anonymous sign-in**: a waiting or claimed key of an anonymous viewer starts a session, and the first visit sets `claimed_at`. Any other key, or a password user's key, is refused with `invalid_access_key` and its state.
-- **Password reset**: an unknown key, a key of another person, an email of nobody, an anonymous viewer, or a used, replaced, or expired key all answer `invalid_reset_key`. The reset sets the password, `used_at`, and deletes every session of the person in one transaction.
-- **Setup**: `admin_exists` comes before the key check. The bootstrap key is compared in constant time. The admin, their password, and their claimed access key are created in one transaction holding an advisory lock, so two setups at once create one admin.
-- Setup, claims, and anonymous sign-ins start the session through a server-only Better Auth endpoint, `startAccessSession` in `apps/api/src/access/session.ts`, never reachable over HTTP. It creates the session and its cookie as password sign-in does, so the access check on new sessions applies.
+Every public write is rate-limited per client address: see `auth.md`.
 
 ### Me
 
-| Route | Purpose |
-| --- | --- |
-| `GET /me` | The signed-in person: id, role, display name, picture, colour, language (empty until they pick one), and whether onboarding is finished |
-| `PATCH /me` | Change the display name (1 to 40 characters), colour (1 to 10), or language, or mark onboarding finished |
-| `/api/auth/change-password` | Change the password, with the current one. Ends the person's other sessions |
-| `PUT /me/avatar` | Upload a picture, JPEG, PNG, or WebP up to 2 MB, as the raw request body with its media type. Stored in S3-compatible storage |
-| `DELETE /me/avatar` | Go back to the initial on the person's colour |
-| `GET /users/:userId/avatar` | The uploaded picture. A person without one is drawn by the web app as their initial on their colour |
+| Route | Who | What |
+| --- | --- | --- |
+| `GET /me` | all | The signed-in person: role, display name, picture, colour, language, onboarding |
+| `PATCH /me` | profile | Change display name, colour, or language, or finish onboarding |
+| `PUT /me/avatar`, `DELETE /me/avatar` | profile | Upload a picture, stored in S3-compatible storage, or remove it |
+| `GET /users/:userId/avatar` | profile | A person's uploaded picture |
 
-A colour another person has is refused with `409`, unless all ten are taken. `PATCH /me`, `PUT /me/avatar`, and `DELETE /me/avatar` answer the person as `GET /me` does. Anonymous viewers see no photos: `GET /users/:userId/avatar` refuses them with `403`.
+A person without a picture is drawn by the web app as their initial on their colour.
 
 ### Portfolio
 
-| Route | Purpose |
-| --- | --- |
-| `GET /users/:userId/portfolio?period=` | Each holding's position (quantity, value, weight, and gain over the period), latest price, and a small price series for the period; the holdings' value and the cash, each with its weight; the balance; its gain over the period; `latestPricesAt`, the time of the latest prices; `firstEntryOn`, `measuredFrom`, and `incomplete` |
-| `GET /users/:userId/holdings/:shareId?at=` | The quantity of a share the member held at a moment, zero when they held none: `{ share, at, quantity }`. `at` is a timestamp with its offset. A sale shows it before its quantity is typed. `404` for an unknown person or share |
-| `GET /users/:userId/log?limit=&before=` | Share changes and cash balances, newest first, a page at a time: `limit` entries, 50 by default and 100 at most, after the `before` cursor the previous page returned |
-| `POST /users/:userId/changes` | Add or remove shares: `{ id, shareId, quantityDelta, effectiveAt }`. `quantityDelta` is above zero for a purchase, below zero for a sale, and never zero. `id` is optional |
-| `PATCH /changes/:id`, `DELETE /changes/:id` | Edit a share change's quantity or moment, `{ quantityDelta, effectiveAt }`, or delete it |
-| `POST /users/:userId/cash-balances` | Set cash: `{ id, amountEur, effectiveAt }`, with `amountEur` zero or more. `id` is optional |
-| `PATCH /cash-balances/:id`, `DELETE /cash-balances/:id` | Edit a cash balance's amount or moment, `{ amountEur, effectiveAt }`, or delete it |
-| `GET /users/:userId/balance-history?period=` | The member's points at each close of the period, then at each refresh today, each with the balance and the gain since the period's start, with the share changes and cash balances in the period for the chart's markers |
+| Route | Who | What |
+| --- | --- | --- |
+| `GET /users/:userId/portfolio?period=` | all | Holdings with their position and price series, cash, balance, gain over the period |
+| `GET /users/:userId/holdings/:shareId?at=` | all | The quantity of a share held at a moment |
+| `GET /users/:userId/log` | all | Share changes and cash balances, newest first, paged |
+| `GET /users/:userId/balance-history?period=` | all | Balance and gain at each close of the period, then each refresh today, with the entries for chart markers |
+| `POST /users/:userId/changes` | writers | Add or remove shares |
+| `PATCH /changes/:id`, `DELETE /changes/:id` | writers | Edit or delete a share change |
+| `POST /users/:userId/cash-balances` | writers | Set cash from a moment |
+| `PATCH /cash-balances/:id`, `DELETE /cash-balances/:id` | writers | Edit or delete a cash balance |
 
-The `id` of `POST /users/:userId/changes` and `POST /users/:userId/cash-balances` is a UUID the client generates for the entry it creates. A request repeating an `id` already stored for that person answers the stored entry as it is, with `201`, and creates nothing, so a save sent twice is saved once. An `id` another person's entry has is refused with `403`. Without an `id`, the API generates one.
-
-Every write to `portfolio_changes` runs in one transaction that takes a per-user advisory lock, then checks that no holding of that member goes below zero at any moment. A refusal, `holding_below_zero`, names the entry it would break in `details`: the stored share change the holding would go below zero at, or `null` for the change sent, and the quantity held just before it. The portfolio routes answer `not_found` for a person with no portfolio: a guest or an anonymous viewer. A change that makes a market share held for the first time, or is dated before its stored history, is saved first, then the API asks the price service for that history without waiting. See `prices.md`.
+- A person with no portfolio, a guest or an anonymous viewer, is `not_found` on these routes.
+- A new share change or cash balance may carry a UUID the client generates. A request repeating an `id` already stored for that person answers the stored entry with `201` and creates nothing. An `id` another person's entry has is `403`.
+- Every write to share changes runs in one transaction holding a per-person advisory lock, and checks that no holding of that person goes below zero at any moment. `holding_below_zero` names the stored change the holding breaks at, or `null` for the change sent, and the quantity held just before it.
+- A change that makes a market share held for the first time, or is dated before its stored history, is saved, then the API asks the price service for that history without waiting. See `prices.md`.
 
 ### Shares
 
-| Route | Purpose |
-| --- | --- |
-| `GET /shares?q=&period=` | Stored shares matching a name, ISIN, or symbol, read from Postgres, each with its latest price, change over the period in euros and in percent, a small price series, and its holders. With an empty query, every stored share, held ones first |
-| `POST /shares/lookup` | Look up an ISIN or ticker at the provider, through the price service's `POST /lookup`: `{ query }`, 1 to 100 characters. Returns `{ shares, listings }`: the matching shares, stored, and the listings the provider returned without an ISIN. `{ query, isin }`, with a listing's symbol as `query`, is forwarded to the price service's `POST /shares/market`, which stores that listing under the ISIN the member typed, and returns it in `shares`. Refused with `404` when the provider no longer returns the symbol, and `409` when another share has the ISIN |
-| `POST /shares/manual` | Create a manual share, through the price service: `{ isin, name, priceEur, at }` |
-| `GET /shares/:id?period=` | A share's details, latest price with its time and source, change over the period in euros and in percent, and the signed-in member's position: quantity, value, weight in their balance, and gain since they bought, each purchase valued at that day's price |
-| `GET /shares/:id/prices?range=` | Chart points for `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`: intraday points for `1D` and `1W`, daily closes otherwise |
-| `GET /shares/:id/holders` | Each member's changes on this share, for the chart markers, and their position on it, with its gain since they bought |
-| `GET /shares/:id/values` | A manual share's value points, newest first, each with who entered it |
-| `GET /shares/:id/value-events` | A manual share's value edits, newest first: who changed which value, from what to what |
-| `PATCH /shares/:id` | Edit a manual share's name or ISIN: `{ name, isin }`. An ISIN another share already has is refused |
-| `POST /shares/:id/values` | Add a value point to a manual share: `{ at, priceEur }` |
-| `PATCH /shares/:id/values/:at`, `DELETE …` | Edit a value point's price, `{ priceEur, expectedPriceEur }`, or delete it, `{ expectedPriceEur }`. Refused with `409` and the stored value when it is no longer `expectedPriceEur`, so a second editor confirms over the first |
-| `DELETE /shares/:id` | Admin only, through the price service. Delete a share no share change refers to, with its prices. Refused with `409` otherwise |
+| Route | Who | What |
+| --- | --- | --- |
+| `GET /shares?q=&period=` | all | Stored shares matching a name, ISIN, or symbol, with price, change, and holders |
+| `POST /shares/lookup` | writers | Look up an ISIN or ticker at the provider, or store a listing under the ISIN the member typed |
+| `POST /shares/manual` | writers | Create a manual share with its first value |
+| `GET /shares/:id?period=` | all | A share's price, change, and the viewer's position on it |
+| `GET /shares/:id/prices?range=` | all | Chart points: intraday for `1D` and `1W`, daily closes otherwise |
+| `GET /shares/:id/holders` | all | Each member's changes and position on the share |
+| `PATCH /shares/:id` | writers | Edit a manual share's name or ISIN |
+| `DELETE /shares/:id` | admin | Delete a share no share change refers to, with its prices |
+| `GET /shares/:id/values`, `GET /shares/:id/value-events` | all | A manual share's value points, and its value edits |
+| `POST /shares/:id/values` | writers | Add a value point |
+| `PATCH /shares/:id/values/:at`, `DELETE …` | writers | Edit or delete a value point |
 
-Any member and the admin can edit a manual share and its value points.
-
-- `:at` is the value point's moment as `GET /shares/:id/values` returns it, an ISO 8601 timestamp with its offset, percent-encoded as one path segment: `/shares/:id/values/2026-03-02T16%3A30%3A00Z`. The API matches the instant, so `2026-03-02T17:30:00+01:00` names the same value point.
-- A manual share's name is 1 to 100 characters, trimmed, and each value is above zero, as in the price service.
-- A market share has no value points: its value lists are empty, and editing its name, ISIN, or values answers `404`.
-- A position is the same in a portfolio, on a share's page, and among its holders: `{ quantity, valueEur, weight, gain }`, its gain over the period in a portfolio and since bought on a share. Its quantity and euro amounts are marked for the anonymizer. Share prices, changes, and value points are not.
-
-No share route calls the provider except `POST /shares/lookup`. Everything else reads Postgres.
+- Only `POST /shares/lookup` reaches the provider. Every other read comes from Postgres.
+- The price service is the only writer of shares, prices, and value points: lookups, manual shares, value points, and share deletion go through it.
+- Any member and the admin can edit a manual share and its value points. A value point edit or deletion carries the value the client last saw, `expectedPriceEur`, and is `409 value_changed` with the stored value when it differs, so a second editor confirms over the first.
+- `:at` is the value point's moment as `GET /shares/:id/values` returns it, percent-encoded as one path segment. The API matches the instant, whatever the offset.
+- A market share has no value points: editing its name, ISIN, or values is `404`.
+- A position is the same shape everywhere: quantity, value, weight, and gain, over the period in a portfolio and since bought on a share.
 
 ### Race
 
-| Route | Purpose |
-| --- | --- |
-| `GET /leaderboards/:board?period=&unit=` | `balance`, or `gain` over `1D`, `1W`, `1M`, `3M`, `YTD`, or `all`, as of the last close. Each row carries the member's best holding over the period, with its gain |
-| `GET /leaderboards/shares?period=` | The shares held in the race, ranked by their change in percent over the period, each with its change in euros and in percent |
-| `GET /members?period=` | Every member with the date of their first entry, their points since the period's start at each close, their gain and balance, and their top three holdings with weights |
-| `GET /race?period=` | Every member's points since the period's start at each close, then at each refresh since the last close. The points after the last close are marked provisional. Also returns `latestPricesAt`, the time of the latest prices, and whether today's refreshes are running |
+| Route | Who | What |
+| --- | --- | --- |
+| `GET /leaderboards/:board?period=&unit=` | all | `balance`, or `gain` over the period, as of the last close, each row with its best holding |
+| `GET /leaderboards/shares?period=` | all | The shares held in the race, ranked by their change in percent |
+| `GET /members?period=` | all | Every member with their curve, gain, balance, and top three holdings |
+| `GET /race?period=` | all | Every member's points at each close, then provisional points at each refresh since |
 
-Every gain carries euros and percent, `{ eur, percent }`, and a member's point carries their balance and their gain, so the web app draws the unit the viewer picks without a new request. `unit` decides an order only: the gain leaderboard ranks by the gain in `eur` or in `percent`, `eur` when left out, and names the unit it ranked by. The balance leaderboard ranks by balance and has no unit. An anonymous viewer is ranked in `percent`, whatever `unit` asks.
+Periods are `1D`, `1W`, `1M`, `3M`, `YTD`, and `all`. Every gain is `{ eur, percent }` and every point carries balance and gain, so the web app switches units without a new request. `unit` only orders the gain leaderboard, `eur` by default, and the response names the unit it ranked by.
 
 ### Admin
 
-| Route | Purpose |
-| --- | --- |
-| `GET /admin/people` | Every person, their role, and their access status: `waiting`, `active`, `expired`, `revoked`, or `ended` |
-| `POST /admin/people` | Add a person. Returns the access link once |
-| `PATCH /admin/people/:id` | Change a person's display name, email, role, or access end date |
-| `POST /admin/people/:id/revoke`, `/restore` | Revoke or restore access |
-| `POST /admin/people/:id/replace-link` | Replace the access link. Returns the new link once |
-| `POST /admin/people/:id/reset-key` | Generate a reset key. Returns it once |
-| `DELETE /admin/people/:id` | Delete a person and their data |
-| `GET /admin/shares` | Every stored share in one group: needs attention (held, with no price or a latest close older than the last trading day), tracked, manual, or not held, with its latest price, its time, and its source, its holders, and whether any share change refers to it |
-| `POST /admin/shares/:id/make-manual` | Turn a market share that needs attention into a manual share, through the price service: `{ priceEur, at }` when it has no price yet. Refused with `409` for any other share |
-| `POST /admin/prices/refresh` | Run the price refresh now, through the price service. Refused with `409` while a run is going, and `429` once the day's call cap is reached |
+| Route | Who | What |
+| --- | --- | --- |
+| `GET /admin/people` | admin area | Every person, their role, and their access status |
+| `POST /admin/people` | admin | Add a person. Returns the access link once |
+| `PATCH /admin/people/:id` | admin | Change display name, email, role, or access end date |
+| `DELETE /admin/people/:id` | admin | Delete a person and their data |
+| `POST /admin/people/:id/revoke`, `/restore` | admin | Revoke or restore access |
+| `POST /admin/people/:id/replace-link` | admin | Replace the access link. Returns the new link once |
+| `POST /admin/people/:id/reset-key` | admin | Generate a reset key. Returns it once |
+| `GET /admin/shares` | admin area | Every stored share, grouped as needing attention, tracked, manual, or not held |
+| `POST /admin/shares/:id/make-manual` | admin | Turn a market share that needs attention into a manual share |
+| `POST /admin/prices/refresh` | admin | Run the price refresh now |
 
-Anonymous viewers may read `GET /admin/people` and `GET /admin/shares`.
-
-Role changes move between `admin`, `member`, and `guest`. A person with portfolio entries can't become a guest, the last admin can't stop being one, and nobody becomes or stops being `anonymous`.
+The rules on roles, the last admin, and access are in `auth.md`, Admin rules. Making manual and refreshing go through the price service.
 
 ## Race calculation
 
-Leaderboards and the race chart come from one series per member: their balance at each day's close from their first entry, then their balance at each intraday refresh since the last close. A balance is each holding × the share's latest price at that moment, plus cash. The series is computed in Postgres from `portfolio_changes`, `cash_balances`, and `prices`.
+Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each day's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
 
-- **Balance**: the value of the series at the last close.
-- **Gain**: the value at the last close minus the value at the period's start, in euros, or divided by the value at the period's start, in percent.
+- **Balance**: the series at the last close.
+- **Gain**: the series at the last close minus its value at the period's start, in euros, or divided by it, in percent.
+- **A holding's gain over a period**: its value at the end, minus its value at the start, minus the shares added, plus the shares removed, each at its day's price.
+- **Gain since bought**: a holding's value minus its cost. A purchase costs its quantity × that day's price. A sale removes cost at the holding's average cost.
 - Leaderboards use closes only. The intraday points serve the race chart's current day, portfolios, and share pages.
-- **A holding's gain over a period**: its value at the end, minus its value at the start, minus the value of the shares added during the period, plus the value of the shares removed, each valued at its day's price. It feeds "what moved" a member and each holding card.
-- **Gain since bought**: a holding's value minus its cost. Each purchase costs its quantity × the share's price on its day; a sale removes cost at the holding's average cost.
+- A member whose first entry is after the period's start is measured from it, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the others, marked incomplete.
 
-A member whose first entry is after the period's start is measured from their first entry, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the shares that have one, with an "incomplete" marker. The series is cached in memory. The API clears it on every write it makes or forwards (portfolio changes, cash balances, manual shares and values), and each request recomputes it when the latest `created_at` in `prices` has changed since, which catches the scheduled runs.
+The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` in `prices` has changed, which catches the price service's runs.
 
 ## Anonymization
 
-For an anonymous viewer, the anonymizer replaces, in every response:
+For an anonymous viewer, the API replaces in every response:
 
-- display names with pseudonyms, and photos with nothing, so the web app draws the pseudonym's initial on the person's colour;
-- emails with nothing;
-- every amount in euros with nothing: the percentage beside it stays;
-- quantities held with each holding's weight in percent of the portfolio, and cash with its weight too.
+- display names with pseudonyms, and pictures and emails with nothing;
+- every amount in euros with nothing, keeping the percentage beside it;
+- quantities held and cash with their weight in percent of the portfolio.
 
-Every amount in euros has its percentage beside it: a gain is `{ eur, percent }`, a holding's `valueEur` has its `weight`, and the holdings' value and the cash have theirs. A member's total balance has no percentage, so anonymous viewers see ranks without amounts, and draw a member's curve from the gain in percent. Share prices, their changes, and value points are market data and stay in euros. A test fails when a response has an amount in euros without its percentage, a balance aside.
+Every amount in euros has a percentage beside it, a member's balance aside: anonymous viewers see ranks without balances, curves in percent, and the gain leaderboard ranked in percent whatever `unit` asks. Share prices, their changes, and value points are market data and stay in euros.
 
-The gain leaderboard ranks an anonymous viewer in `percent`, whatever `unit` asks.
+Each response field the anonymizer replaces is marked in its contract schema with `personal()`, `euro()`, or `quantity()`. A test over every response fails when a field's mark doesn't fit its name, or when an amount in euros has no percentage beside it.
 
-A pseudonym is an adjective and an animal, such as `Calm Otter`, picked with `HMAC-SHA256(PSEUDONYM_SECRET, userId)` from two lists of 64 English words in `src/pseudonyms/pseudonym-words.ts`: the digest's first four bytes pick the adjective, and the next four the animal. Like a name, it is the same in both languages. Two people with the same pseudonym are told apart by a number suffix: the one with the smallest id, the person added first, keeps it, and the next ones get ` 2`, ` 3`, and so on. `pseudonyms(secret, userIds)` in `src/pseudonyms/pseudonyms.ts` derives them from the ids of every person, not only those a response shows, so a pseudonym is the same on every screen and visit. A suffix changes only when an earlier person with the same pseudonym is deleted. Pseudonyms are not stored, and changing `PSEUDONYM_SECRET` changes all of them.
-
-The anonymizer works on the contract's fields: each schema in `@fpr/contracts` marks its fields with `personal()` (names, pictures, emails), `euro()` (amounts in euros), or `quantity()` (quantities held and cash). A test over every response of `apiContract` fails when a field's mark doesn't fit its name: `email`, `displayName`, and `avatarUrl` are `personal`; `quantity…`, `cash…`, and `amountEur` are `quantity`; another `eur` or `…Eur` is `euro` or `quantity`; and `percent`, `…Percent`, `weight`, and `…Weight` are unmarked. A share's prices, `priceEur` and `previousPriceEur`, and a share's price change are market data, listed in the test as exceptions, and stay unmarked.
+A pseudonym is an English adjective and animal, such as `Calm Otter`, picked from two lists of 64 words by `HMAC-SHA256(PSEUDONYM_SECRET, userId)`, the same in both languages. Two people with the same pseudonym are told apart by a suffix: the person added first keeps it, the next ones get ` 2`, ` 3`, and so on. Pseudonyms are derived from every person of the instance, not only those a response shows, so a pseudonym is the same on every screen and visit. They are not stored: changing `PSEUDONYM_SECRET` changes every one, and deleting a person can change a later person's suffix.
 
 ## Configuration
 
@@ -254,7 +225,7 @@ The anonymizer works on the contract's fields: each schema in `@fpr/contracts` m
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
 | `BETTER_AUTH_SECRET` | Session signing. 32 characters or more |
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key. 32 characters or more |
-| `PSEUDONYM_SECRET` | Pseudonyms. At least 32 characters |
+| `PSEUDONYM_SECRET` | Pseudonyms. 32 characters or more |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
 | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |
 | `RACE_TIMEZONE` | Where a day starts. Default `Europe/Paris` |

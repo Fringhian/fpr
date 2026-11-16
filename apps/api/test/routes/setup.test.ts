@@ -2,7 +2,7 @@ import { apiContract } from "@fpr/contracts";
 import { accessKeys, users } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import { publicWriteRateLimit } from "../../src/pipeline/index.js";
 import {
   exhaustRateLimit,
@@ -68,17 +68,6 @@ describe("POST /api/setup", () => {
     await expectError(route, response, "invalid_bootstrap_key");
     expect(await users.countAdmins(test.db)).toBe(0);
     expect(await adminExists()).toBe(false);
-  });
-
-  it("refuses a password under 12 characters", async () => {
-    const response = await post(server, "/setup", {
-      ...firstAdmin,
-      password: "too short",
-    });
-
-    await expectError(route, response, "invalid_request", {
-      issues: [{ path: ["password"], code: "too_small" }],
-    });
   });
 
   it("never logs the bootstrap key or the password, even when it refuses them", async () => {

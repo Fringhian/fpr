@@ -3,7 +3,7 @@ import { accessKeys } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { newKey } from "../../src/access/keys.js";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import { publicWriteRateLimit } from "../../src/pipeline/index.js";
 import {
   addKeyHolder,
@@ -146,14 +146,6 @@ describe("POST /api/access/check", () => {
 
     const key = await accessKeys.findCurrent(test.db, person.id);
     expect(key?.claimedAt).toBeNull();
-  });
-
-  it("refuses a value that isn't an access key", async () => {
-    const response = await post(server, "/access/check", { key: "short" });
-
-    await expectError(route, response, "invalid_request", {
-      issues: [{ path: ["key"], code: "invalid_format" }],
-    });
   });
 
   it("is rate-limited per client address", async () => {

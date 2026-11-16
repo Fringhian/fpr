@@ -1,8 +1,7 @@
 import type { AccessKeyState } from "@fpr/contracts";
 import { type AccessKey, accessKeys, type Db } from "@fpr/db";
 
-/** The state of a key that exists. */
-export type KnownKeyState = Exclude<AccessKeyState, "unknown">;
+type KnownKeyState = Exclude<AccessKeyState, "unknown">;
 
 /**
  * What a key is now, in this order:
@@ -14,7 +13,7 @@ export type KnownKeyState = Exclude<AccessKeyState, "unknown">;
  * - `expired` once `claimBefore` has passed;
  * - `waiting` otherwise.
  */
-export function keyState(
+function keyState(
   key: AccessKey,
   latestKeyId: string,
   now: Date,

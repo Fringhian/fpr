@@ -1,20 +1,15 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
-/** A new key, and the hash that is stored in its place. */
-export interface NewKey {
-  /** 32 random bytes in base64url, shown once and never stored. */
-  key: string;
-  /** Its SHA-256 hash, in hexadecimal. */
-  codeHash: string;
-}
-
 /** The stored form of an access or reset key: its SHA-256 hash, in hexadecimal. */
 export function hashKey(key: string): string {
   return createHash("sha256").update(key).digest("hex");
 }
 
-/** A new access or reset key: 32 random bytes in base64url, with its hash. */
-export function newKey(): NewKey {
+/**
+ * A new access or reset key: 32 random bytes in base64url, shown once and
+ * never stored, with the hash stored in its place.
+ */
+export function newKey(): { key: string; codeHash: string } {
   const key = randomBytes(32).toString("base64url");
   return { key, codeHash: hashKey(key) };
 }

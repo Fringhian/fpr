@@ -7,7 +7,6 @@ import { routeAccess } from "./route.js";
 
 /** The signed-in person a request acts for. */
 export interface Viewer {
-  /** Their user id. */
   id: string;
   role: Role;
   /** The session the request came with. */

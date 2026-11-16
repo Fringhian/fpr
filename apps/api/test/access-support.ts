@@ -13,17 +13,15 @@ import { accessKeys, type Db, type Role, resetKeys, users } from "@fpr/db";
 import { expect } from "vitest";
 import type { z } from "zod";
 import { newKey } from "../src/access/keys.js";
-import type { Auth } from "../src/auth.js";
+import type { Auth } from "../src/auth/auth.js";
 import {
   cookieFrom,
   newClientAddress,
+  SESSION_COOKIE,
   TEST_PASSWORD,
   TEST_PUBLIC_URL,
   type TestServer,
 } from "./test-support.js";
-
-/** The name of Better Auth's session cookie. */
-export const SESSION_COOKIE = "__Secure-better-auth.session_token";
 
 export interface PostOptions {
   /** The client address, one of its own by default, or none with `null`. */
@@ -212,7 +210,18 @@ export async function addResetKey(
   return key;
 }
 
-/** One day, in milliseconds. */
+/** Adds a password user with a claimed access key and a usable reset key. */
+export async function addResetKeyHolder(
+  db: Db,
+  auth: Auth,
+): Promise<KeyHolder & { resetKey: string }> {
+  const person = await addKeyHolder(db, auth, "member", {
+    withPassword: true,
+    key: { claimed: true },
+  });
+  return { ...person, resetKey: await addResetKey(db, person.id) };
+}
+
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**

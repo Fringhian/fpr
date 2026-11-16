@@ -3,7 +3,7 @@ import { accessKeys } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { newKey } from "../../src/access/keys.js";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import { publicWriteRateLimit } from "../../src/pipeline/index.js";
 import {
   addKeyHolder,

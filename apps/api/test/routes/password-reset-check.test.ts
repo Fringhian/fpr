@@ -3,11 +3,12 @@ import { resetKeys } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { newKey } from "../../src/access/keys.js";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import { publicWriteRateLimit } from "../../src/pipeline/index.js";
 import {
   addKeyHolder,
   addResetKey,
+  addResetKeyHolder,
   exhaustRateLimit,
   expectError,
   post,
@@ -31,13 +32,8 @@ afterAll(async () => {
   await test.drop();
 });
 
-/** A password user with a usable reset key. */
-async function personWithResetKey() {
-  const person = await addKeyHolder(test.db, auth, "member", {
-    withPassword: true,
-    key: { claimed: true },
-  });
-  return { ...person, resetKey: await addResetKey(test.db, person.id) };
+function personWithResetKey() {
+  return addResetKeyHolder(test.db, auth);
 }
 
 function checkReset(email: string, key: string) {

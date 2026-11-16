@@ -10,14 +10,14 @@ import { Writable } from "node:stream";
 import { accessKeys, type Db, type Role, users } from "@fpr/db";
 import type { AnyRouter } from "@orpc/server";
 import { createApp } from "../src/app.js";
-import { type Auth, createAuth } from "../src/auth.js";
+import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
 
-/** The instance's origin in tests. */
 export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
-/** Every test person's password. */
 export const TEST_PASSWORD = "a long enough password";
+
+export const SESSION_COOKIE = "__Secure-better-auth.session_token";
 
 /** `ADMIN_BOOTSTRAP_KEY` in tests. */
 export const TEST_BOOTSTRAP_KEY =
@@ -80,7 +80,6 @@ export async function serveApp(options: {
 export interface TestPerson {
   id: string;
   email: string;
-  /** Their access key's id. */
   keyId: string;
 }
 

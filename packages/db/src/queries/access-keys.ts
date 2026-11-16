@@ -2,7 +2,6 @@ import { sql } from "kysely";
 import type { Db } from "../database.js";
 import type { AccessKey, NewAccessKey } from "../tables/access-key.js";
 
-/** `at` as a query value, or the database's clock when it is omitted. */
 const momentOrNow = (at: Date | undefined) => at ?? sql<Date>`now()`;
 
 /** Creates a key. `claimBefore` defaults to 7 days from now. */

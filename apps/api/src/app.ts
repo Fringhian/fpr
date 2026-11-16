@@ -2,10 +2,15 @@ import { randomUUID } from "node:crypto";
 import { type Db, ping } from "@fpr/db";
 import type { AnyRouter } from "@orpc/server";
 import { toNodeHandler } from "better-auth/node";
-import express, { type Express } from "express";
+import express, {
+  type Express,
+  type Request,
+  type RequestHandler,
+  type Response,
+} from "express";
 import type { Logger } from "pino";
-import { pinoHttp } from "pino-http";
-import { type Auth, authBasePath } from "./auth.js";
+import { type HttpLogger, pinoHttp } from "pino-http";
+import { type Auth, authBasePath } from "./auth/auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
 import { mountRouter } from "./orpc.js";
@@ -58,59 +63,17 @@ export function createApp({
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
 
-  app.use(
-    pinoHttp({
-      logger,
-      genReqId: () => randomUUID(),
-      // Only the request id, method and route are logged. Headers (cookies)
-      // and bodies (passwords, keys) are never part of a log line.
-      serializers: {
-        req: (req) => ({ id: req.id, method: req.method }),
-        res: (res) => ({ statusCode: res.statusCode }),
-      },
-      // The route is known only once Express has matched it, which is after
-      // the request has started, so it is read when the response finishes.
-      // pino-http also binds the props when the request starts; the route is
-      // left out then, so the key appears once in each line. The signed-in
-      // person's id is known once the request pipeline has read the session.
-      customProps: (req, res) =>
-        res.writableFinished
-          ? {
-              route: req.route?.path ?? null,
-              userId: (res.locals.userId as string | undefined) ?? null,
-            }
-          : {},
-      customAttributeKeys: { responseTime: "duration" },
-    }),
-  );
-  app.use((req, res, next) => {
-    res.setHeader("X-Request-Id", String(req.id));
-    next();
-  });
+  app.use(logRequests(logger));
+  app.use(exposeRequestId);
 
-  app.get("/health", async (req, res) => {
-    try {
-      await ping(db);
-      res.status(200).json({ status: "ok" });
-    } catch (error) {
-      req.log.error(
-        { err: error, requestId: req.id },
-        "health check failed: Postgres did not answer",
-      );
-      res.status(503).json({ status: "unavailable" });
-    }
-  });
+  app.get("/health", healthCheck(db));
 
   if (docs) {
     app.use(docsPath, docsRouter());
   }
 
   // Better Auth reads its own bodies, so it comes before any body parser.
-  app.all(
-    `${authBasePath}/{*path}`,
-    authAccessCheck({ db, auth }),
-    toNodeHandler(auth),
-  );
+  mountAuth(app, { db, auth });
   mountRouter(app, router, {
     db,
     auth,
@@ -124,4 +87,59 @@ export function createApp({
   app.use(errorHandler);
 
   return app;
+}
+
+function logRequests(logger: Logger): HttpLogger<Request, Response> {
+  return pinoHttp<Request, Response>({
+    logger,
+    genReqId: () => randomUUID(),
+    // Only the request id, method and route are logged. Headers (cookies)
+    // and bodies (passwords, keys) are never part of a log line.
+    serializers: {
+      req: (req) => ({ id: req.id, method: req.method }),
+      res: (res) => ({ statusCode: res.statusCode }),
+    },
+    // The route is known only once Express has matched it, which is after
+    // the request has started, so it is read when the response finishes.
+    // pino-http also binds the props when the request starts; the route is
+    // left out then, so the key appears once in each line. The signed-in
+    // person's id is known once the request pipeline has read the session.
+    customProps: (req, res) =>
+      res.writableFinished
+        ? {
+            route: req.route?.path ?? null,
+            userId: (res.locals.userId as string | undefined) ?? null,
+          }
+        : {},
+    customAttributeKeys: { responseTime: "duration" },
+  });
+}
+
+const exposeRequestId: RequestHandler = (req, res, next) => {
+  res.setHeader("X-Request-Id", String(req.id));
+  next();
+};
+
+function healthCheck(db: Db): RequestHandler {
+  return async (req, res) => {
+    try {
+      await ping(db);
+      res.status(200).json({ status: "ok" });
+    } catch (error) {
+      req.log.error(
+        { err: error, requestId: req.id },
+        "health check failed: Postgres did not answer",
+      );
+      res.status(503).json({ status: "unavailable" });
+    }
+  };
+}
+
+/** Serves Better Auth at `/api/auth/*`, behind the access check. */
+function mountAuth(app: Express, services: { db: Db; auth: Auth }): void {
+  app.all(
+    `${authBasePath}/{*path}`,
+    authAccessCheck(services),
+    toNodeHandler(services.auth),
+  );
 }

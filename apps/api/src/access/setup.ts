@@ -1,12 +1,19 @@
-import { Role } from "@fpr/contracts";
+import { colorSchema, Role } from "@fpr/contracts";
 import { accessKeys, accounts, users } from "@fpr/db";
 import { apiError } from "../errors.js";
 import { api } from "../implement.js";
 import { newKey, sameSecret } from "./keys.js";
 import { startSession } from "./session.js";
 
-/** The colours a person can have, from 1 to 10. */
-const colorCount = 10;
+/** The first colour nobody has, or 1 once every colour is taken. */
+function firstFreeColor(taken: number[]): number {
+  for (let color = 1; colorSchema.safeParse(color).success; color += 1) {
+    if (!taken.includes(color)) {
+      return color;
+    }
+  }
+  return 1;
+}
 
 /** Whether an admin exists, which closes `/setup`. */
 export const getSetupStatus = api.access.setupStatus.handler(
@@ -40,16 +47,11 @@ export const setUpFirstAdmin = api.access.setup.handler(
       if ((await users.countAdmins(trx)) > 0) {
         throw apiError("admin_exists");
       }
-      const taken = new Set(await users.colorsInUse(trx));
-      const color =
-        Array.from({ length: colorCount }, (_, index) => index + 1).find(
-          (candidate) => !taken.has(candidate),
-        ) ?? 1;
       const user = await users.insert(trx, {
         email: input.email,
         displayName: input.displayName,
         role: Role.admin,
-        color,
+        color: firstFreeColor(await users.colorsInUse(trx)),
         avatarKey: null,
         locale: null,
         onboardedAt: null,

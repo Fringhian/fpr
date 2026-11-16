@@ -46,7 +46,6 @@ export interface CreateDbOptions {
   onIdleError?: (error: Error) => void;
 }
 
-/** How long a query waits for a connection before failing. */
 const CONNECTION_TIMEOUT_MS = 5_000;
 
 /**

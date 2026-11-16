@@ -1,6 +1,6 @@
 import type { Logger } from "pino";
-import type { CallBudget } from "../budget.js";
-import { createEodhdProvider } from "./eodhd.js";
+import type { CallBudget } from "../market/budget.js";
+import { createEodhdProvider } from "./eodhd/eodhd.js";
 import type { Fetch } from "./http.js";
 import type { PriceProvider, ProviderName } from "./provider.js";
 

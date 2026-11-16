@@ -5,14 +5,15 @@ import {
   type Auth,
   passwordLength,
   sessionMaxAgeSeconds,
-  signInRateLimit,
-} from "../src/auth.js";
+} from "../src/auth/auth.js";
+import { signInRateLimit } from "../src/auth/rate-limit.js";
 import {
   addPerson,
   cookieFrom,
   createTestAuth,
   newClientAddress,
   postSignIn,
+  SESSION_COOKIE,
   serveApp,
   signIn,
   TEST_PASSWORD,
@@ -25,8 +26,6 @@ const UUID_V7 =
 
 /** Every person is added by the admin. */
 const ADDED_BY_ADMIN = { method: "admin" } as const;
-
-const SESSION_COOKIE = "__Secure-better-auth.session_token";
 
 let test: TestDatabase;
 let auth: Auth;
