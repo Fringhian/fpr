@@ -11,6 +11,7 @@ Every route is an oRPC contract in `packages/contracts`. `apiContract` holds the
 | `@fpr/contracts` | `apiContract`, the shared schemas, the error codes, and the roles | web, API, price service |
 | `@fpr/contracts/prices` | `pricesContract` | API, price service |
 | `@fpr/contracts/openapi` | The OpenAPI generator | the API's `/api/docs`, `pnpm contracts:openapi` |
+| `@fpr/contracts/values` | The plain lists the schemas are built from, with no Zod or oRPC | web |
 
 A contract declares who may call it, its method and path under `/api`, its input (path params, query, and body in one Zod object), its output, and its error codes. It starts from `publicRoute` or from `signedInRoute(roles)`: a route that declares neither fails to type-check, and the API refuses it with `403 forbidden`.
 

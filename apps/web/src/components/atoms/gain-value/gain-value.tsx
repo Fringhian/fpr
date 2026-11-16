@@ -1,8 +1,12 @@
-import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "../../../lib/cn";
 import type { MoneyPrecision } from "../../../lib/format";
-import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
+import {
+  type GainInput,
+  type GainTone,
+  type GainUnit,
+  gainDisplay,
+} from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 
 export interface GainOwnProps {
@@ -24,15 +28,12 @@ export interface GainOwnProps {
 export type GainValueProps = GainOwnProps &
   Omit<ComponentProps<"span">, keyof GainOwnProps | "children">;
 
-const gainValue = cva("font-semibold tabular-nums", {
-  variants: {
-    tone: {
-      positive: "text-positive",
-      negative: "text-negative",
-      flat: "text-secondary",
-    },
-  },
-});
+/** The text colour of each gain tone: green up, red down, grey when it rounds to zero. */
+export const GAIN_TONE_TEXT = {
+  positive: "text-positive",
+  negative: "text-negative",
+  flat: "text-secondary",
+} as const satisfies Record<GainTone, `text-${string}`>;
 
 /**
  * A gain or a loss, always with its sign (+ or −) as well as its colour: green
@@ -51,7 +52,14 @@ export function GainValue({
   const shown = gainDisplay(gain, unit, language, { precision });
 
   return shown === null ? null : (
-    <span {...props} className={cn(gainValue({ tone: shown.tone }), className)}>
+    <span
+      {...props}
+      className={cn(
+        "font-semibold tabular-nums",
+        GAIN_TONE_TEXT[shown.tone],
+        className,
+      )}
+    >
       {shown.text}
     </span>
   );

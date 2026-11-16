@@ -1,7 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "../../../lib/cn";
+import { stateClassName } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 const iconButton = cva(
@@ -11,8 +11,9 @@ const iconButton = cva(
     "",
     "",
     "not-disabled:hover:bg-highlight not-disabled:hover:text-primary",
+    "popup-open:bg-highlight popup-open:text-primary",
     "focus-visible:focus-ring",
-    "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+    "disabled:dimmed",
   ],
   {
     variants: {
@@ -34,7 +35,7 @@ export interface IconButtonOwnProps {
   /** Draws a white disc with an outline behind the icon, for a button over a picture or the sky. */
   ring?: boolean;
   /** `m` 40px, the default; `s` 24px, beside a line of text, such as the info icon next to an idea that needs a sentence. */
-  size?: "s" | "m";
+  size?: "s" | "m" | undefined;
 }
 
 export type IconButtonProps = IconButtonOwnProps &
@@ -56,18 +57,11 @@ export function IconButton({
   className,
   ...props
 }: IconButtonProps) {
-  const classes = iconButton({ size, ring });
-
   return (
     <BaseButton
       {...props}
       aria-label={label}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(iconButton({ size, ring }), className)}
     >
       <Icon icon={icon} size={ICON_SIZES[size]} />
     </BaseButton>

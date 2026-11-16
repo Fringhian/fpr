@@ -4,7 +4,6 @@ import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
 import { MEMBER_COLORS } from "../../../lib/member-color";
 import { Chip } from "../../atoms/chip/chip";
-import { Picture } from "../../atoms/picture/picture";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
 import * as Sky from "../../foundations/sky/sky";
 import * as Sentence from "./sentence";
@@ -85,11 +84,7 @@ function PartsSentence({ greeting, headline, story, wide }: SentenceParts) {
       {headline ? <Sentence.Headline>{text.headline}</Sentence.Headline> : null}
       {story ? (
         <Sentence.Story>
-          <TrailSign
-            picture={
-              <Picture name="Sam" color="vermilion" size="xs" aria-hidden />
-            }
-          >
+          <TrailSign person={{ name: "Sam", color: "vermilion" }}>
             Sam
           </TrailSign>
           {text.lead}

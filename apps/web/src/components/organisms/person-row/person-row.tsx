@@ -1,4 +1,3 @@
-import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
@@ -6,7 +5,6 @@ import { formatDate, type IsoDate, type Timestamp } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
 import { Badge, type BadgeState } from "../../atoms/badge/badge";
-import { IconButton } from "../../atoms/icon-button/icon-button";
 import { Picture } from "../../atoms/picture/picture";
 import type { IconProps } from "../../foundations/icon/icon";
 import * as Menu from "../../molecules/menu/menu";
@@ -53,80 +51,10 @@ export function PersonList({ className, ...props }: PersonListProps) {
   );
 }
 
-interface PersonRowOwnProps {
-  /** The person's display name, or the pseudonym an anonymous viewer sees in its place. */
-  name: string;
-  /** The person's colour: their picture sits on its pastel. */
-  color: MemberColor;
-  /** The photo's URL, or `null` for the initial. An anonymous viewer always receives `null`. */
-  photo?: string | null | undefined;
-  /** The sign-in email, or `null`: an anonymous viewer has none, and an anonymous viewer reading the list sees none. */
-  email: string | null;
-  /** Where the person's access stands, named by its badge. */
-  status: AccessStatus;
-  /** When access ends, as a day or a timestamp, or `null` for no end date. */
-  accessUntil: IsoDate | Timestamp | null;
-  /** The ⋯ menu's items, as `Menu.Item`s and a `Menu.Separator`. Without them the row has no ⋯, as for an anonymous viewer, who reads the admin area without changing it. */
-  actions?: ReactNode;
-  /** The ⋯ button's icon, any Phosphor icon. Three dots by default. */
-  moreIcon?: IconProps["icon"] | undefined;
-}
-
-export type PersonRowProps = PersonRowOwnProps &
-  Omit<ComponentProps<"li">, keyof PersonRowOwnProps | "children">;
-
-/**
- * A person in the admin area: picture, name, email, access status, end date,
- * and the ⋯ menu of what the admin can do. It goes in a `PersonList`. On
- * tablet the email moves under the name; on phone the status and end date go
- * under it too.
- */
-export function PersonRow({
-  name,
-  color,
-  photo,
-  email,
-  status,
-  accessUntil,
-  actions,
-  moreIcon = DotsThreeIcon,
-  className,
-  ...props
-}: PersonRowProps) {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  const until =
-    accessUntil === null
-      ? null
-      : t("personRow.until", {
-          date: formatDate(accessUntil, language, { year: true }),
-        });
-
+/** The name, and the email under it on phone and tablet or in its own column on desktop. */
+function PersonName({ name, email }: { name: string; email: string | null }) {
   return (
-    <li
-      {...props}
-      className={cn(
-        "col-span-full grid grid-cols-subgrid items-center rounded-[1.125rem] bg-surface px-[0.875rem] py-[0.625rem] shadow-outline",
-        "gap-y-[0.125rem]",
-        "tablet:gap-y-0",
-        "desktop:gap-y-0",
-        className,
-      )}
-    >
-      <Picture
-        name={name}
-        color={color}
-        photo={photo ?? null}
-        size="s"
-        aria-hidden
-        className={cn(
-          "col-1",
-          "row-[1/span_3]",
-          "tablet:row-[1/span_2]",
-          "desktop:row-1",
-        )}
-      />
+    <>
       <span
         className={cn(
           "col-2 truncate text-s font-semibold text-primary",
@@ -150,62 +78,143 @@ export function PersonRow({
           {email}
         </span>
       )}
+    </>
+  );
+}
+
+/**
+ * The access status's badge and the end date, under the name on phone and in
+ * their own columns from tablet up.
+ */
+function PersonAccess({
+  status,
+  accessUntil,
+}: {
+  status: AccessStatus;
+  accessUntil: IsoDate | Timestamp | null;
+}) {
+  const { t } = useTranslation();
+  const language = useLanguage();
+
+  return (
+    <span
+      className={cn(
+        "",
+        "col-2 row-3 mt-xs flex flex-wrap items-center gap-x-s gap-y-xs",
+        "tablet:contents",
+        "desktop:contents",
+      )}
+    >
+      <Badge
+        state={BADGES[status]}
+        className={cn(
+          "justify-self-start",
+          "col-auto row-auto",
+          "tablet:col-3 tablet:row-[1/span_2]",
+          "desktop:col-4 desktop:row-1",
+        )}
+      />
       <span
         className={cn(
-          "",
-          "col-2 row-3 mt-xs flex flex-wrap items-center gap-x-s gap-y-xs",
-          "tablet:contents",
-          "desktop:contents",
+          "text-xs whitespace-nowrap text-secondary",
+          "col-auto row-auto",
+          "tablet:col-4 tablet:row-[1/span_2]",
+          "desktop:col-5 desktop:row-1",
         )}
       >
-        <Badge
-          state={BADGES[status]}
-          className={cn(
-            "justify-self-start",
-            "col-auto row-auto",
-            "tablet:col-3 tablet:row-[1/span_2]",
-            "desktop:col-4 desktop:row-1",
-          )}
-        />
-        <span
-          className={cn(
-            "text-xs whitespace-nowrap text-secondary",
-            "col-auto row-auto",
-            "tablet:col-4 tablet:row-[1/span_2]",
-            "desktop:col-5 desktop:row-1",
-          )}
-        >
-          {until ?? (
-            <>
-              <span aria-hidden>–</span>
-              <span className="sr-only">{t("personRow.noEnd")}</span>
-            </>
-          )}
-        </span>
+        {accessUntil === null ? (
+          <>
+            <span aria-hidden>–</span>
+            <span className="sr-only">{t("personRow.noEnd")}</span>
+          </>
+        ) : (
+          t("personRow.until", {
+            date: formatDate(accessUntil, language, { year: true }),
+          })
+        )}
       </span>
+    </span>
+  );
+}
+
+interface PersonRowOwnProps {
+  /** The person's display name, or the pseudonym an anonymous viewer sees in its place. */
+  name: string;
+  /** The person's colour: their picture sits on its pastel. */
+  color: MemberColor;
+  /** The photo's URL, or `null` for the initial. An anonymous viewer always receives `null`. */
+  photo?: string | null | undefined;
+  /** The sign-in email, or `null`: an anonymous viewer has none, and an anonymous viewer reading the list sees none. */
+  email: string | null;
+  /** Where the person's access stands, named by its badge. */
+  status: AccessStatus;
+  /** When access ends, as a day or a timestamp, or `null` for no end date. */
+  accessUntil: IsoDate | Timestamp | null;
+  /** The ⋯ menu's items, as `Menu.Item`s and a `Menu.Separator`. Without them the row has no ⋯, as for an anonymous viewer, who reads the admin area without changing it. */
+  actions?: ReactNode;
+  /** The ⋯ button's icon, any Phosphor icon. Three dots by default. */
+  actionsIcon?: IconProps["icon"] | undefined;
+}
+
+export type PersonRowProps = PersonRowOwnProps &
+  Omit<ComponentProps<"li">, keyof PersonRowOwnProps | "children">;
+
+/**
+ * A person in the admin area: picture, name, email, access status, end date,
+ * and the ⋯ menu of what the admin can do. It goes in a `PersonList`. On
+ * tablet the email moves under the name; on phone the status and end date go
+ * under it too.
+ */
+export function PersonRow({
+  name,
+  color,
+  photo,
+  email,
+  status,
+  accessUntil,
+  actions,
+  actionsIcon,
+  className,
+  ...props
+}: PersonRowProps) {
+  return (
+    <li
+      {...props}
+      className={cn(
+        "col-span-full grid grid-cols-subgrid items-center rounded-card bg-surface px-[0.875rem] py-[0.625rem] shadow-outline",
+        "gap-y-[0.125rem]",
+        "tablet:gap-y-0",
+        "desktop:gap-y-0",
+        className,
+      )}
+    >
+      <Picture
+        name={name}
+        color={color}
+        photo={photo ?? null}
+        size="s"
+        aria-hidden
+        className={cn(
+          "col-1",
+          "row-[1/span_3]",
+          "tablet:row-[1/span_2]",
+          "desktop:row-1",
+        )}
+      />
+      <PersonName name={name} email={email} />
+      <PersonAccess status={status} accessUntil={accessUntil} />
       {actions === undefined ? null : (
         <Menu.Root>
-          <Menu.Trigger
+          <Menu.MoreTrigger
+            subject={name}
+            icon={actionsIcon}
+            size="s"
             className={cn(
               "",
               "col-3 row-[1/span_3]",
               "tablet:col-5 tablet:row-[1/span_2]",
               "desktop:col-6 desktop:row-1",
             )}
-            render={
-              <IconButton
-                icon={moreIcon}
-                label={t("menu.moreFor", { subject: name })}
-                size="s"
-                className={cn(
-                  "",
-                  "",
-                  "",
-                  "",
-                  "popup-open:bg-highlight popup-open:text-primary",
-                )}
-              />
-            }
           />
           <Menu.Popup>{actions}</Menu.Popup>
         </Menu.Root>

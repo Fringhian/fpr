@@ -167,9 +167,9 @@ export interface DateOptions {
   /** `short` (the default): `3 Mar`. `long`: `3 March`. `weekday`: `Tue 3 Mar`. */
   style?: DateStyle;
   /** Adds the year: `3 Mar 2026`. */
-  year?: boolean;
+  year?: boolean | undefined;
   /** The time zone a timestamp's day is read in. The browser's by default. */
-  timeZone?: string;
+  timeZone?: string | undefined;
 }
 
 /**
@@ -219,7 +219,7 @@ export function formatDate(
 
 export interface TimeOptions {
   /** The time zone the time is read in. The browser's by default. */
-  timeZone?: string;
+  timeZone?: string | undefined;
 }
 
 /** A time of day, on the 24-hour clock: `14:30`. */
@@ -237,4 +237,19 @@ export function formatTime(
     minute: "2-digit",
     ...(timeZone ? { timeZone } : {}),
   }).format(date);
+}
+
+const listFormats = new Map<Language, Intl.ListFormat>();
+
+/** Names joined into one list: `Kim and Nora`, `Kim et Nora`. */
+export function formatList(
+  items: readonly string[],
+  language: Language,
+): string {
+  let format = listFormats.get(language);
+  if (!format) {
+    format = new Intl.ListFormat(language, { type: "conjunction" });
+    listFormats.set(language, format);
+  }
+  return format.format(items);
 }

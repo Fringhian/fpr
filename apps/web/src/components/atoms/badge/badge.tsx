@@ -4,14 +4,13 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 
 /** A grey outline: a plain fact. */
-const NEUTRAL =
-  "bg-surface text-secondary shadow-[inset_0_0_0_1.5px_var(--color-divider)]";
+const NEUTRAL = "bg-surface text-secondary inset-shadow-outline";
 /** A green outline: something works. */
 const SUCCESS =
-  "bg-surface text-success shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--color-success)_27%,var(--color-surface))]";
+  "bg-surface text-success inset-shadow-outline inset-shadow-success/27";
 /** A red outline: something needs attention. */
 const WARNING =
-  "bg-surface text-warning shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--color-warning)_27%,var(--color-surface))]";
+  "bg-surface text-warning inset-shadow-outline inset-shadow-warning/27";
 /** A soft fill, no outline: a past fact. */
 const SOFT = "bg-highlight text-on-sky";
 

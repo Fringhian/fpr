@@ -127,6 +127,38 @@
   "popover": {
     "helpLink": "More in How FPR works"
   },
+  "moverRow": {
+    "empty": "Nothing has moved over the period yet."
+  },
+  "focusPanel": {
+    "period": {
+      "you": {
+        "1D": "Your day",
+        "1W": "Your week",
+        "1M": "Your month",
+        "3M": "Your 3 months",
+        "YTD": "Your year so far",
+        "all": "Since you started"
+      },
+      "them": {
+        "1D": "Their day",
+        "1W": "Their week",
+        "1M": "Their month",
+        "3M": "Their 3 months",
+        "YTD": "Their year so far",
+        "all": "Since they started"
+      }
+    },
+    "moved": {
+      "you": "What moved you",
+      "them": "What moved them"
+    },
+    "open": {
+      "you": "Open your portfolio",
+      "them": "Open {{name}}’s page"
+    },
+    "backToYou": "Back to you"
+  },
   "personRow": {
     "until": "Until {{date}}",
     "noEnd": "No end date"
@@ -190,6 +222,13 @@
       "fr": "Français",
       "en": "English"
     }
+  },
+  "raceCard": {
+    "title": "The race",
+    "label": "The race: each member’s gain since the start of the period",
+    "you": "You",
+    "focusOn": "Focus on {{name}}",
+    "notFinal": "Today, not final"
   },
   "periodControl": {
     "title": "Period",

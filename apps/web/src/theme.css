@@ -146,6 +146,28 @@
   --breakpoint-desktop: 70rem;
 }
 
+/* Motion, always emitted so scripts read the same values: a quick state
+   change, a popup or a panel, a bar or a lane moving. */
+@theme static {
+  --transition-duration-s: 150ms;
+  --transition-duration-m: 200ms;
+  --transition-duration-l: 300ms;
+  --ease-soft: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Controls answer a tap at once, with no grey flash on touch screens. */
+@layer base {
+  button,
+  a,
+  [role="button"],
+  summary,
+  label,
+  input {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 /*
  * Shared utilities and state variants.
  *
@@ -159,6 +181,18 @@
 @utility focus-ring {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* A control that can't be used, applied with `disabled:dimmed`. */
+@utility dimmed {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* A menu's or a popover's popup fading and scaling in from its trigger, and
+   out to it; still under reduced motion. */
+@utility popup-motion {
+  @apply transition-[opacity,scale] duration-s ease-soft motion-reduce:transition-none starting-style:scale-[0.96] starting-style:opacity-0 ending-style:scale-[0.96] ending-style:opacity-0;
 }
 
 /* Dialogs, sheets, popovers, menus and disclosures that are open */
