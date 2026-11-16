@@ -26,12 +26,42 @@ export type ChangeSummary = {
 /** What a log entry records, as its title says it. */
 export type EntrySummary = ChangeSummary | { kind: "cashSet"; amount: Decimal };
 
+/**
+ * What a log entry records for an anonymous viewer, who reads no quantity or
+ * cash: its weight in the holder's balance at its moment, in percent, signed
+ * like a change. An entry with no weight then, without a price or with a
+ * zero balance, has `null`: a change of unknown weight is neither bought nor
+ * sold, but `traded`.
+ */
+export type WeighedSummary =
+  | { kind: "bought" | "sold"; share: string; weight: Decimal }
+  | { kind: "traded"; share: string; weight: null }
+  | { kind: "cashSet"; weight: Decimal | null };
+
+type Direction = { sold: boolean; size: Decimal };
+
+/**
+ * A signed quantity or weight as its direction and its size above zero, or
+ * `null` for `null`. For an anonymous viewer the API replaces every quantity
+ * and cash field of an entry with the entry's weight, `null` when it has
+ * none, though the contract types the field as the decimal a member reads.
+ */
+export function directionOf(signed: Decimal | null): Direction | null {
+  return signed === null ? null : split(signed);
+}
+
+function split(signed: Decimal): Direction {
+  const sold = signed.startsWith("-");
+  return { sold, size: sold ? signed.slice(1) : signed };
+}
+
+/** A share change for a viewer who reads quantities; an anonymous viewer's reads as `weighedSummaryOf`. */
 export function changeSummaryOf(change: PortfolioChange): ChangeSummary {
-  const sold = change.quantityDelta.startsWith("-");
+  const { sold, size } = split(change.quantityDelta);
   return {
     kind: sold ? "sold" : "bought",
     share: change.share.name,
-    quantity: sold ? change.quantityDelta.slice(1) : change.quantityDelta,
+    quantity: size,
   };
 }
 
@@ -41,12 +71,36 @@ export function entrySummaryOf(entry: SavedEntry): EntrySummary {
     : changeSummaryOf(entry);
 }
 
-/** The entry's title, as History writes it: “Bought 10 World Index ETF”, “Cash set to €2,000”. */
+export function weighedSummaryOf(entry: SavedEntry): WeighedSummary {
+  if (entry.type === "cash") {
+    return { kind: "cashSet", weight: entry.amountEur };
+  }
+  const share = entry.share.name;
+  const direction = directionOf(entry.quantityDelta);
+  return direction === null
+    ? { kind: "traded", share, weight: null }
+    : {
+        kind: direction.sold ? "sold" : "bought",
+        share,
+        weight: entry.quantityDelta,
+      };
+}
+
+/**
+ * The entry's title, as History writes it: “Bought 10 World Index ETF”,
+ * “Cash set to €2,000”, or for an anonymous viewer without its quantity or
+ * cash, “Bought World Index ETF”, “Cash set”.
+ */
 export function entryTitle(
-  entry: EntrySummary,
+  entry: EntrySummary | WeighedSummary,
   t: TFunction,
   language: Language,
 ): string {
+  if ("weight" in entry) {
+    return entry.kind === "cashSet"
+      ? t("timelineRow.weighed.cashSet")
+      : t(`timelineRow.weighed.${entry.kind}`, { share: entry.share });
+  }
   return entry.kind === "cashSet"
     ? t("timelineRow.cashSet", { amount: formatMoney(entry.amount, language) })
     : t(`timelineRow.${entry.kind}`, {
