@@ -1,3 +1,4 @@
+import { API_URL } from "../api/api.ts";
 import { leaveApp } from "./session-ended.ts";
 
 /**
@@ -6,7 +7,7 @@ import { leaveApp } from "./session-ended.ts";
  * leaves the person signed in, and sign-in then leads them Home.
  */
 export async function signOut(): Promise<void> {
-  await fetch("/api/auth/sign-out", {
+  await fetch(`${API_URL}/auth/sign-out`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: "{}",

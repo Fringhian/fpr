@@ -8,6 +8,9 @@ import { type ApiClient, createApiClient } from "./client.ts";
 /** TanStack Query's options for each route of an API client. */
 export type Api = RouterUtils<ApiClient>;
 
+/** The API's base URL, on the app's own origin: the contracts' routes and Better Auth's `/auth` both sit under it. */
+export const API_URL = `${window.location.origin}/api`;
+
 /**
  * The app's one API client, with TanStack Query's options for each route:
  * `useQuery(api.race.members.queryOptions({ input }))` to read,
@@ -16,7 +19,7 @@ export type Api = RouterUtils<ApiClient>;
  */
 export const api: Api = createTanstackQueryUtils(
   createApiClient({
-    url: `${window.location.origin}/api`,
+    url: API_URL,
     onAccessEnded: signOutOnAccessEnded,
   }),
 );
