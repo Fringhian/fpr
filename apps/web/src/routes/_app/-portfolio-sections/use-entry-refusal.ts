@@ -8,7 +8,6 @@ import { useLanguage } from "../../../lib/i18n";
 import { useEntryTitle } from "../../../lib/log-entry";
 import { RACE_TIME_ZONE } from "../../../lib/race-day";
 
-/** The stored change a `holding_below_zero` refusal names, from its details. */
 function brokenChange(error: unknown): PortfolioChange | null {
   if (!isApiError(error, "holding_below_zero")) return null;
   const details: unknown = error.data;

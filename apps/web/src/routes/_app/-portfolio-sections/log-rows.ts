@@ -14,7 +14,6 @@ export type LogRow = {
   row: TimelineEntry;
 };
 
-/** Each cash balance's amount before it, walking from the oldest entry up. */
 function cashBefore(
   entries: readonly PortfolioLogEntry[],
   complete: boolean,

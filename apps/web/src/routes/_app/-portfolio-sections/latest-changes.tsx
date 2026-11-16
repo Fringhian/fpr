@@ -8,7 +8,6 @@ import { cn } from "../../../lib/cn";
 import { EntryList } from "./entry-list";
 import type { LogRow } from "./log-rows";
 
-/** The latest changes a portfolio shows; History has every one. */
 const LATEST = 3;
 
 /**

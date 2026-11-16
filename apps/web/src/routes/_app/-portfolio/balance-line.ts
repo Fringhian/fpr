@@ -9,7 +9,6 @@ import type { MemberColor } from "../../../lib/member-color";
 import { raceDayOf } from "../../../lib/race-day";
 import { balancePoints, lastCloseOf } from "../../../lib/series";
 
-/** Each share change of the period as a mark: up for a purchase, down for a sale. Cash balances have none. */
 function changeMarks(
   entries: PortfolioBalanceHistory["entries"],
   t: TFunction,

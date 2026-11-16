@@ -13,7 +13,8 @@ import type { ChartLine, ChartMark } from "./chart-types";
 // Lightweight Charts scales an arrow with the days' spacing; at 0.5 it stays a small sign beside the line.
 const MARK_SIZE = 0.5;
 
-/** The day a mark shows on: its own when the line has a point that day, else the line's next point, else its last. */
+// A mark shows on its own day when the line has a point then, else on the
+// line's next point, else on its last.
 function shownDay(days: readonly IsoDate[], day: IsoDate): IsoDate | undefined {
   return days.find((candidate) => candidate >= day) ?? days.at(-1);
 }
@@ -41,7 +42,6 @@ export function markLabelsOn(
   return [...new Set(labels)];
 }
 
-/** One arrow per day and direction, however many marks it stands for. */
 function arrows(
   element: Element,
   marks: readonly ChartMark[],

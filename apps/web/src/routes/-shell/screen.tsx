@@ -8,10 +8,6 @@ import * as PageBar from "../../components/organisms/page-bar/page-bar";
 import * as AppLayout from "../../components/templates/app-layout/app-layout";
 import { useViewState } from "../../lib/view-state/use-view-state";
 
-/**
- * What a page leads back to from below it: a navigation item, or another
- * page, named by `label`, with the router's link to it.
- */
 type Parent =
   | "members"
   | "portfolio"

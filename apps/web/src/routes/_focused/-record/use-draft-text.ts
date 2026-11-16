@@ -9,7 +9,6 @@ import { DEFAULT_SETTING } from "../../../lib/view-state/view-search";
 import type { Draft } from "./draft";
 import { useFlow } from "./flow";
 
-/** The draft's share's name: the edited entry's, else the share's page's, once it loads. */
 function useShareName(draft: Draft): string | undefined {
   const api = useApi();
   const { entry, shareId, kind } = draft;

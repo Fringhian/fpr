@@ -64,7 +64,6 @@ export function Input({
   );
 }
 
-/** A share's line under its name: its symbol, or “Manual”, and its latest price. */
 function useShareLine(): (share: ShareQuote) => string {
   const { t } = useTranslation();
   const language = useLanguage();

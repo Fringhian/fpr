@@ -16,10 +16,6 @@ const dayButton = cn(
   "disabled:dimmed",
 );
 
-/**
- * The day the keyboard is on, moved by the arrow keys and kept in the month
- * shown, focused once a key moves it.
- */
 function useFocusedDay(value: IsoDate, max: IsoDate, month: IsoDate) {
   const [focused, setFocused] = useState(value);
   const table = useRef<HTMLTableElement>(null);

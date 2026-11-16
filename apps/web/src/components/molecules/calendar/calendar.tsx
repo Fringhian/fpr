@@ -17,10 +17,7 @@ export type CalendarProps = {
   max: IsoDate;
 } & Omit<ComponentProps<"fieldset">, "onChange" | "defaultValue">;
 
-/**
- * The month shown: `value`'s at first, and again whenever `value` changes
- * from outside; `max`'s when `value` is after it.
- */
+// The month shown follows `value` again whenever it changes from outside.
 function useShownMonth(value: IsoDate, max: IsoDate) {
   const start = monthOf(value > max ? max : value);
   const [shown, setShown] = useState(() => ({ value, month: start }));

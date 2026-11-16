@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useApi } from "../../../lib/api/use-api";
 import { logRows } from "./log-rows";
 
-/** Entries per page of the log: Portfolio's latest changes read the first. */
 const PAGE_SIZE = 20;
 
 /** A member's log, newest first, a page at a time: one cache entry, whoever reads it. */

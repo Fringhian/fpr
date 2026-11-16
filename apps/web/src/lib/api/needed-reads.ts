@@ -1,6 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 
-/** What `neededReads` reads of a query or an infinite query. */
 type Read = Pick<UseQueryResult<unknown>, "isError" | "data"> & {
   refetch: () => Promise<unknown>;
 };

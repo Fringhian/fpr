@@ -1,6 +1,5 @@
 import { type RefObject, useEffect, useEffectEvent } from "react";
 
-/** How far below the screen the end of the list starts loading the next page. */
 const AHEAD = "600px";
 
 /**

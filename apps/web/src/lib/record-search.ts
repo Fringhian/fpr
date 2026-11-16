@@ -42,7 +42,7 @@ export type RecordSearch = {
   amount?: Decimal | undefined;
 };
 
-/** A decimal from the address: the router reads a bare `10` as a number. */
+// The router reads a bare `10` in the address as a number.
 function decimalIn(value: unknown): Decimal | undefined {
   const text = typeof value === "number" ? String(value) : value;
   return typeof text === "string" && decimalPattern.test(text)

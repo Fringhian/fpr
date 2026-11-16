@@ -3,11 +3,9 @@ import { decimalPattern } from "@fpr/contracts/values";
 import Big from "big.js";
 import { INTL_LOCALE } from "../../../lib/language";
 
-/**
- * The marks a number is written with in `language`, from Intl: its decimal
- * mark, and the marks accepted between thousands — Intl's own group mark,
- * any space, and the other of `,` and `.`, as in “1.200,50” in French.
- */
+// The language's decimal mark, from Intl, and the marks accepted between
+// thousands: Intl's own group mark, any space, and the other of `,` and `.`,
+// as in “1.200,50” in French.
 function marksOf(language: Language) {
   const parts = new Intl.NumberFormat(INTL_LOCALE[language]).formatToParts(
     12345.6,
@@ -21,11 +19,8 @@ function marksOf(language: Language) {
   };
 }
 
-/**
- * The whole part without its group marks, or `null` when a mark sits
- * anywhere but between groups of three digits: “1,20” in English is refused
- * rather than read as 1.20 or 120.
- */
+// A group mark counts only between groups of three digits: “1,20” in English
+// is refused rather than read as 1.20 or 120.
 function ungroup(whole: string, groups: readonly string[]): string | null {
   if (/^\d+$/.test(whole)) return whole;
   const mark = groups.find((group) =>

@@ -44,7 +44,7 @@ export function addMonths(month: IsoDate, months: number): IsoDate {
   return date.toISOString().slice(0, 10);
 }
 
-/** The day's place in a week starting on Monday: 0 for Monday, 6 for Sunday. */
+// 0 for Monday, 6 for Sunday: JavaScript's week starts on Sunday.
 function weekdayOf(day: IsoDate): number {
   return (new Date(`${day}T12:00:00Z`).getUTCDay() + 6) % 7;
 }

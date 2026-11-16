@@ -5,7 +5,6 @@ import type {
 } from "../../../lib/record-search";
 import type { Draft } from "./draft";
 
-/** The steps a change goes through: cash has no share. */
 function stepsOf(kind: RecordKind | undefined): readonly RecordStep[] {
   return kind === "cash"
     ? ["what", "when", "amount", "review"]

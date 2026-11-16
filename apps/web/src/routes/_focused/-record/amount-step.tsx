@@ -17,7 +17,6 @@ import { RecordPage } from "./record-page";
 import { useCashBefore, useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
 
-/** The text typed in the field, starting from the draft's amount. */
 function useTyped() {
   const language = useLanguage();
   const { draft } = useFlow();
