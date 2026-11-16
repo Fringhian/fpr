@@ -1,3 +1,4 @@
+import type { Decimal, LatestPrice, ShareKind } from "@fpr/contracts";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import {
   type ComponentProps,
@@ -6,7 +7,6 @@ import {
   useId,
 } from "react";
 import { cn } from "../../../lib/cn";
-import type { Decimal, Timestamp } from "../../../lib/format";
 import type { GainInput, GainUnit } from "../../../lib/gain";
 import { Card } from "../../atoms/card/card";
 import type { IconProps } from "../../foundations/icon/icon";
@@ -21,25 +21,15 @@ import {
 
 export { CashCard, type CashCardProps } from "./cash-card";
 
-/** Where a price comes from: a daily close, the 30-minute refresh, or a value point a member entered. */
-export type PriceSource = "close" | "intraday" | "manual";
-
-/** A share's latest price, as the API sends it: what one unit was worth, when, and where it comes from. */
-export interface HoldingPrice {
-  at: Timestamp;
-  priceEur: Decimal;
-  source: PriceSource;
-}
-
 export type HoldingCardProps = {
   /** The share's name. */
   name: string;
   /** `manual` for a share members value by hand: a Manual badge, and its value “as of” the day of its last value point. */
-  kind?: "market" | "manual";
+  kind?: ShareKind;
   /** The quantity held, the decimal string as entered: `74.328` reads 74.328 units. An anonymous viewer never sees it. */
   quantity: Decimal;
   /** The latest price with its time and source, or `null` while the share's prices haven't arrived: the card then shows it pending, not counted. */
-  latestPrice: HoldingPrice | null;
+  latestPrice: LatestPrice | null;
   /** The share's price over the period, one point per day, for the curve. Pass a stable array. */
   curve: readonly ChartPoint[];
   /** The holding's value in euros. `null` while pending; an anonymous viewer has none. */

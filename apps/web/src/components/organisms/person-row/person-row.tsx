@@ -1,7 +1,8 @@
+import type { IsoDate, Timestamp } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatDate, type IsoDate, type Timestamp } from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
 import { Badge, type BadgeState } from "../../atoms/badge/badge";

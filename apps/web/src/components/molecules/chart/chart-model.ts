@@ -1,5 +1,5 @@
+import type { Decimal, IsoDate } from "@fpr/contracts";
 import type { UTCTimestamp } from "lightweight-charts";
-import type { Decimal, IsoDate } from "../../../lib/format";
 
 /** One point of a line: a calendar day and its value, the decimal string the API sends. */
 export interface ChartPoint {

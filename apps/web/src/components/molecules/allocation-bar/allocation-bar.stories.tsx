@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, within } from "storybook/test";
-import type { AllocationHolding } from "../../../lib/allocation";
 import { cn } from "../../../lib/cn";
 import { MEMBER_COLORS } from "../../../lib/member-color";
 import { AllocationBar, type AllocationBarProps } from "./allocation-bar";
+import type { AllocationHolding } from "./allocation-bar-model";
 
 function holding(name: string, weight: string | null): AllocationHolding {
   return { id: name.toLowerCase().replaceAll(" ", "-"), name, weight };
@@ -91,7 +91,7 @@ How a portfolio splits between its shares and its cash, on the Portfolio page an
 - The biggest share is drawn in the person’s colour, and each smaller one lighter, in even steps towards the surface. The cash is grey, last.
 - The key names every part with its percentage, so no part rests on colour alone. The bar itself is hidden from screen readers; the key, a list, carries it.
 - Past five shares, the rest fold into “Other”, the lightest part.
-- Each weight is in percent of the parts’ total, rounded to one decimal so the key adds up to 100.0%. \`allocate\` in \`src/lib/allocation.ts\` computes them.
+- Each weight is in percent of the parts’ total, rounded to one decimal so the key adds up to 100.0%. \`allocate\` in \`allocation-bar-model.ts\` computes them.
 - A share whose price is pending (\`weight: null\`) is left out, like the balance leaves it out. With nothing to split, it renders nothing.
 - It reads weights only, never amounts, so an anonymous viewer sees the same bar.
 

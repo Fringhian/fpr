@@ -1,4 +1,4 @@
-import type { Language } from "./language";
+import type { Language } from "@fpr/contracts";
 
 /**
  * A name's initial: its first character as a reader sees it (an accented

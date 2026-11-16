@@ -1,9 +1,9 @@
+import type { Language } from "@fpr/contracts";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/ArrowSquareOut";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { TextLink, type TextLinkProps } from "./text-link";
 
 /** The icons `toPageIcon` offers, by name. */

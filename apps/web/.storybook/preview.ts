@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import {
   Controls,
   Description,
@@ -11,7 +12,7 @@ import type { i18n as I18n } from "i18next";
 import { createElement, Fragment } from "react";
 import { I18nextProvider } from "react-i18next";
 import { createI18n } from "../src/lib/i18n";
-import { type Language, pickLanguage } from "../src/lib/language";
+import { pickLanguage } from "../src/lib/language";
 import "../src/index.css";
 
 // One instance per language, so switching never mutates one during a render.

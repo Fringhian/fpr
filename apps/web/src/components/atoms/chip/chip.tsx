@@ -1,7 +1,7 @@
+import type { Decimal } from "@fpr/contracts";
 import { cva } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
-import type { Decimal } from "../../../lib/format";
 import { GainValue } from "../gain-value/gain-value";
 
 /**

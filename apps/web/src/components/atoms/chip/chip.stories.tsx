@@ -1,6 +1,6 @@
+import type { Language } from "@fpr/contracts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Chip, type ChipProps } from "./chip";
 
 /** The demo words around the chips, in the toolbar’s language. They are the stories’ content, not the chip’s. */

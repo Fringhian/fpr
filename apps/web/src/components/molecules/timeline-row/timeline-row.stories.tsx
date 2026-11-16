@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { CoinsIcon } from "@phosphor-icons/react/Coins";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
@@ -10,7 +11,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import * as Menu from "../menu/menu";
 import {
   type TimelineEntry,

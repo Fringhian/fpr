@@ -1,7 +1,7 @@
+import type { Language } from "@fpr/contracts";
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { MEMBER_COLORS } from "../../../lib/member-color";
 import { Chip } from "../../atoms/chip/chip";
 import { Picture } from "../../atoms/picture/picture";

@@ -5,7 +5,6 @@ import { gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import type { GainOwnProps } from "../gain-value/gain-value";
 
-/** The part writes its own text: it takes every prop of a `<span>` but `children`. */
 export type GainChipProps = GainOwnProps &
   Omit<ComponentProps<"span">, keyof GainOwnProps | "children">;
 

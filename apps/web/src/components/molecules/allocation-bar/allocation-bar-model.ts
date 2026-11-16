@@ -1,11 +1,10 @@
+import type { Decimal } from "@fpr/contracts";
 import Big from "big.js";
-import type { Decimal } from "./format";
 
 /** A holding as the allocation reads it: the API's share and its weight in percent of the balance. */
 export interface AllocationHolding {
-  /** The share's id, unique in the portfolio. */
+  /** Unique in the portfolio. */
   id: string;
-  /** The share's name. */
   name: string;
   /** Its weight in percent of the balance, or `null` while its price is pending. */
   weight: Decimal | null;
@@ -30,19 +29,19 @@ export type AllocationPart =
     }
   | { kind: "cash"; weight: Decimal };
 
-/** The shares named one by one; the rest fold into "Other". */
-export const NAMED_SHARES = 5;
+// The shares named one by one; the rest fold into "Other".
+const NAMED_SHARES = 5;
 
-/** The tone of the biggest share, and of the smallest coloured part. */
-export const STRONGEST_TONE = 100;
-export const LIGHTEST_TONE = 34;
+// The tone of the biggest share, and of the smallest coloured part.
+const STRONGEST_TONE = 100;
+const LIGHTEST_TONE = 34;
 
-/** Tenths of a percent in the whole: the key's weights add up to 100.0 %. */
+// Tenths of a percent in the whole: the key's weights add up to 100.0 %.
 const WHOLE = 1000;
 
 const ZERO = new Big(0);
 
-/** A part before rounding, with its weight as given. */
+// A part before rounding, with its weight as given.
 type Slice =
   | { kind: "share"; raw: Big; holding: AllocationHolding }
   | { kind: "other"; raw: Big; count: number }
@@ -87,7 +86,7 @@ function tenths(raws: readonly Big[]): Big[] {
 }
 
 /** The tone of the coloured part at `rank` among `count`: even steps from the strongest to the lightest. */
-export function toneAt(rank: number, count: number): number {
+function toneAt(rank: number, count: number): number {
   if (count <= 1) return STRONGEST_TONE;
   const step = (STRONGEST_TONE - LIGHTEST_TONE) / (count - 1);
   return Math.round(STRONGEST_TONE - rank * step);

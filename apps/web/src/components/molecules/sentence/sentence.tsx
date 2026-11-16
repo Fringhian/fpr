@@ -1,7 +1,7 @@
-import type { Period } from "@fpr/contracts";
+import type { Decimal, Language, Period } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { type Decimal, formatMoney, formatPercent } from "../../../lib/format";
+import { formatMoney, formatPercent } from "../../../lib/format/money";
 import {
   type GainInput,
   type GainTone,
@@ -9,7 +9,6 @@ import {
   gainDisplay,
 } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import type { MemberColor } from "../../../lib/member-color";
 import type { TimeOfDay } from "../../../lib/time-of-day";
 import { Chip } from "../../atoms/chip/chip";

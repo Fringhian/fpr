@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { ArrowUpRightIcon } from "@phosphor-icons/react/ArrowUpRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
@@ -7,7 +8,6 @@ import { QuestionIcon } from "@phosphor-icons/react/Question";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import * as Popover from "./popover";
 
 /** The demo idea and its explanation, in the toolbar’s language. They are the story’s content, not the popover’s. */

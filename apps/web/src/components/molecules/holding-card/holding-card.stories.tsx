@@ -1,3 +1,4 @@
+import type { IsoDate, Language } from "@fpr/contracts";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
@@ -6,9 +7,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ComponentProps } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
-import type { IsoDate } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import type { ChartPoint } from "../chart/chart";
 import { toDecimal } from "../chart/chart-model";
 import * as Menu from "../menu/menu";

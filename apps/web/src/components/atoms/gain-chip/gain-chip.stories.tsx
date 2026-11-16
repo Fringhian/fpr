@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { formatMoney } from "../../../lib/format";
+import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { GainChip } from "./gain-chip";
 
