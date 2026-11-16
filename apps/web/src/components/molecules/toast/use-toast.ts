@@ -23,30 +23,41 @@ export function useToast() {
   const { t } = useTranslation();
   const { add, close } = BaseToast.useToastManager();
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const offer = ({
+      action,
+      onAction,
+      ...message
+    }: Message & { action: ReactNode; onAction: () => void }) => {
+      const id: string = add({
+        ...message,
+        actionProps: {
+          children: action,
+          onClick: () => {
+            close(id);
+            onAction();
+          },
+        },
+      });
+      return id;
+    };
+    return {
       /** A message that goes by itself after 5 s. */
       show: (message: Message) => add(message),
+      /** A message with one action, such as Reload: a press closes it and runs `onAction`. */
+      offer,
       /**
        * A message with Undo, which stays 8 s: a press on Undo closes it and
        * runs `onUndo`, which reverses what was just done.
        */
-      offerUndo: ({ onUndo, ...message }: Message & { onUndo: () => void }) => {
-        const id: string = add({
+      offerUndo: ({ onUndo, ...message }: Message & { onUndo: () => void }) =>
+        offer({
           timeout: UNDO_TIMEOUT,
           ...message,
-          actionProps: {
-            children: t("toast.undo"),
-            onClick: () => {
-              close(id);
-              onUndo();
-            },
-          },
-        });
-        return id;
-      },
+          action: t("toast.undo"),
+          onAction: onUndo,
+        }),
       close,
-    }),
-    [add, close, t],
-  );
+    };
+  }, [add, close, t]);
 }

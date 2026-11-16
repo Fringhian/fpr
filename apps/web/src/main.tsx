@@ -1,3 +1,4 @@
+import { registerSW } from "virtual:pwa-register";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
@@ -5,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { api } from "./lib/api/api.ts";
 import { createQueryClient } from "./lib/api/query-client.ts";
+import { offerUpdate } from "./lib/app-update.tsx";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
 import { languageOf } from "./lib/language-choice.ts";
 import { signInAgain } from "./lib/session/session-ended.ts";
@@ -12,10 +14,19 @@ import { createAppRouter } from "./router.ts";
 import "./index.css";
 
 // `pnpm dev:mock` answers every API call with the mock API. Any other mode
-// drops this branch, and the mocks with it, from the build.
+// drops this branch, and the mocks with it, from the build, and registers
+// the app's service worker instead, which `pnpm dev` leaves out.
 if (import.meta.env.MODE === "mock") {
   const { startMockApi } = await import("./mocks/browser.ts");
   await startMockApi();
+} else {
+  const updateApp = registerSW({
+    onNeedRefresh: () => offerUpdate(() => void updateApp(true)),
+    // An installed app can stay open for days: it looks for a new version hourly.
+    onRegisteredSW: (_url, registration) => {
+      setInterval(() => void registration?.update(), 60 * 60 * 1000);
+    },
+  });
 }
 
 // The device's language until the session loads, which may switch it.

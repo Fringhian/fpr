@@ -1,6 +1,7 @@
 import type { Language } from "@fpr/contracts";
 import { TrashIcon } from "@phosphor-icons/react/Trash";
 import { type ReactNode, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { Button } from "../../atoms/button/button";
@@ -21,6 +22,8 @@ export const TEXTS = {
     savedDetail: "Bought 10 World Index ETF on 3 March",
     copied: "Access link copied",
     save: "Save change",
+    release: "Release a new version",
+    reloaded: "Reloaded on the new version",
   },
   fr: {
     changes: [
@@ -34,6 +37,8 @@ export const TEXTS = {
     savedDetail: "Achat de 10 World Index ETF le 3 mars",
     copied: "Lien d’accès copié",
     save: "Enregistrer le mouvement",
+    release: "Publier une nouvelle version",
+    reloaded: "Rechargé sur la nouvelle version",
   },
 } as const satisfies Record<
   Language,
@@ -119,6 +124,33 @@ export function EveryKind() {
   }, [toast, text]);
 
   return <Page />;
+}
+
+/** A new version of FPR waits, with Reload, kept until pressed or dismissed, as the app shows it. */
+export function NewVersion() {
+  const text = TEXTS[useLanguage()];
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [reloaded, setReloaded] = useState(false);
+
+  return (
+    <Page>
+      <Button
+        intent="primary"
+        onClick={() =>
+          toast.offer({
+            title: t("toast.update"),
+            action: t("toast.reload"),
+            onAction: () => setReloaded(true),
+            timeout: 0,
+          })
+        }
+      >
+        {text.release}
+      </Button>
+      {reloaded ? <p className="text-s">{text.reloaded}</p> : null}
+    </Page>
+  );
 }
 
 /** Saving shows a message that goes by itself after `timeout` ms. */
