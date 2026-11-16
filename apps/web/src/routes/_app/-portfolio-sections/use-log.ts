@@ -7,14 +7,11 @@ import { logRows } from "./log-rows";
 /** Entries per page of the log: Portfolio's latest changes read the first. */
 const PAGE_SIZE = 20;
 
-/**
- * A member's log, newest first, a page at a time, as timeline rows once
- * their portfolio is known too: its holdings give each change its before →
- * after. Portfolio and History read the same first page.
- */
-export function useLog(userId: Id, portfolio: Portfolio | undefined) {
+/** A member's log, newest first, a page at a time: one cache entry, whoever reads it. */
+export function useLogPages(userId: Id, enabled = true) {
   const api = useApi();
-  const log = useInfiniteQuery(
+
+  return useInfiniteQuery(
     api.portfolio.log.infiniteOptions({
       input: (before: string | undefined) => ({
         userId,
@@ -23,8 +20,18 @@ export function useLog(userId: Id, portfolio: Portfolio | undefined) {
       }),
       initialPageParam: undefined,
       getNextPageParam: (page) => page.nextBefore ?? undefined,
+      enabled,
     }),
   );
+}
+
+/**
+ * A member's log, newest first, a page at a time, as timeline rows once
+ * their portfolio is known too: its holdings give each change its before →
+ * after. Portfolio and History read the same first page.
+ */
+export function useLog(userId: Id, portfolio: Portfolio | undefined) {
+  const log = useLogPages(userId);
 
   const pages = log.data?.pages;
   const complete = !log.hasNextPage;

@@ -550,6 +550,155 @@
     "undoRefused": "Impossible d’annuler la suppression",
     "breaks": "Une position passerait sous zéro à {{change}} le {{date}}. Modifiez ou supprimez d’abord ce mouvement."
   },
+  "changeSummary": {
+    "notYet": "pas encore choisi"
+  },
+  "undoList": {
+    "undo": "Annuler",
+    "undone": "Annulé"
+  },
+  "calendar": {
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant"
+  },
+  "shareSearch": {
+    "label": "Rechercher par nom, ISIN ou symbole",
+    "clear": "Effacer la recherche",
+    "retry": "Réessayer",
+    "loading": "Chargement des actions…",
+    "empty": "FPR n’a encore aucune action.",
+    "none": "Aucune action de FPR ne correspond à {{q}}."
+  },
+  "recordChange": {
+    "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
+    "kinds": {
+      "buy": {
+        "done": "Acheté",
+        "option": "Parts achetées",
+        "line": "Ajoutées à une position ou à une nouvelle"
+      },
+      "sell": {
+        "done": "Vendu",
+        "option": "Parts vendues",
+        "line": "Une partie ou toute une position"
+      },
+      "cash": {
+        "done": "Liquidités",
+        "option": "Liquidités",
+        "line": "Ce que vous détenez en liquidités"
+      }
+    },
+    "actions": {
+      "share": "Choisir l’action",
+      "date": "Choisir la date",
+      "quantity": "Saisir la quantité",
+      "amount": "Saisir le montant",
+      "review": "Vérifier le mouvement",
+      "save": "Enregistrer le mouvement"
+    },
+    "what": {
+      "question": "Qu’est-ce qui a changé ?",
+      "missing": "Choisissez ce qui a changé."
+    },
+    "share": {
+      "question": "Quelle action ?",
+      "missing": "Choisissez une action dans la liste."
+    },
+    "when": {
+      "question": "Quand ?",
+      "quick": "Aujourd’hui ou hier",
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "calendar": "Choisir un jour"
+    },
+    "amount": {
+      "aboveZero": "Saisissez un nombre supérieur à zéro, comme 10 ou 74,328.",
+      "zeroOrMore": "Saisissez un montant de zéro ou plus, comme 1500."
+    },
+    "quantity": {
+      "question": {
+        "buy": {
+          "you": "Combien en avez-vous acheté ?",
+          "member": "Combien de parts {{name}} a achetées ?"
+        },
+        "sell": {
+          "you": "Combien en avez-vous vendu ?",
+          "member": "Combien de parts {{name}} a vendues ?"
+        }
+      },
+      "label": "Quantité",
+      "help": "Les décimales sont acceptées : 74,328.",
+      "loadingHeld": "Vérification de la quantité détenue ce jour-là…",
+      "held": {
+        "you": "Vous en déteniez {{quantity}} le {{date}}.",
+        "member": "{{name}} en détenait {{quantity}} le {{date}}."
+      },
+      "tooMany": "{{held}} Saisissez {{quantity}} ou moins.",
+      "all": "Tout"
+    },
+    "cash": {
+      "question": {
+        "you": "Vos liquidités le {{date}}",
+        "member": "Les liquidités de {{name}} le {{date}}"
+      },
+      "label": "Liquidités en euros",
+      "loadingBefore": "Vérification des liquidités fixées avant…",
+      "noneBefore": "Aucune liquidité fixée avant ce jour.",
+      "before": "Avant : {{amount}}, fixé le {{date}}."
+    },
+    "review": {
+      "question": "Vérifier et enregistrer",
+      "units": "{{quantity}} {{share}}",
+      "on": "le {{date}}",
+      "holding": {
+        "you": "Votre position passe de {{before}} à {{after}}.",
+        "member": "La position de {{name}} passe de {{before}} à {{after}}."
+      },
+      "cashWas": {
+        "you": "Vos liquidités étaient de {{amount}} avant.",
+        "member": "Les liquidités de {{name}} étaient de {{amount}} avant."
+      },
+      "firstCash": {
+        "you": "Votre première saisie de liquidités.",
+        "member": "La première saisie de liquidités de {{name}}."
+      },
+      "saving": "Enregistrement…"
+    },
+    "saved": {
+      "question": "{{change}} le {{date}}",
+      "session": "Cette session",
+      "another": "Enregistrer un autre mouvement",
+      "done": "Terminé",
+      "undoRefused": "Impossible d’annuler ce mouvement",
+      "now": {
+        "you": "Votre portefeuille maintenant",
+        "member": "Le portefeuille de {{name}} maintenant"
+      }
+    },
+    "summary": {
+      "title": "Ce mouvement",
+      "what": "Quoi",
+      "share": "Action",
+      "when": "Quand",
+      "quantity": "Combien",
+      "amount": "Montant"
+    },
+    "load": {
+      "entry": {
+        "loading": "Chargement du mouvement…",
+        "failed": "Impossible de charger ce mouvement",
+        "missing": "Ce mouvement n’existe plus"
+      },
+      "member": {
+        "loading": "Chargement du membre…",
+        "failed": "Impossible de charger ce membre",
+        "missing": "Ce membre ne fait pas partie de la course"
+      },
+      "failedLine": "Vérifiez votre connexion et réessayez.",
+      "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",
+      "retry": "Réessayer"
+    }
+  },
   "historyPage": {
     "loading": "Chargement de votre historique…",
     "loadingMore": "Chargement d’autres mouvements…",

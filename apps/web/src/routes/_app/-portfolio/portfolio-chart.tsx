@@ -15,8 +15,8 @@ import * as ChartCard from "../-portfolio-sections/chart-card";
 import type { RecordLink } from "../-portfolio-sections/record-link";
 import { balanceLine } from "./balance-line";
 
-/** The balance over the period with its marks, and what the marks and the dashed end mean. */
-function Balance({
+/** The balance over the period with its marks, and what the marks and the dashed end mean: Portfolio's chart, and Record a change's once saved. */
+export function Balance({
   history,
   color,
 }: {

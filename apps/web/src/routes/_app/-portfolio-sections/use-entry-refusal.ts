@@ -24,37 +24,44 @@ function brokenChange(error: unknown): PortfolioChange | null {
 }
 
 /**
- * Shows why a write to a log entry was refused, in a toast that stays until
- * dismissed. A refusal for a holding going below zero names the change it
- * would break and its day: “Sold 5 Swiss Pharma AG” on 24 Feb.
+ * Why a write to a log entry was refused, written out. A refusal for a
+ * holding going below zero names the change it would break and its day:
+ * “Sold 5 Swiss Pharma AG” on 24 Feb.
  */
-export function useEntryRefusal() {
+export function useEntryRefusalText(): (error: unknown) => string {
   const { t } = useTranslation();
   const language = useLanguage();
-  const toast = useToast();
   const errorText = useErrorText();
 
-  return (title: string, error: unknown) => {
+  return (error) => {
     const change = brokenChange(error);
     const kind = change?.quantityDelta.startsWith("-") ? "sold" : "bought";
-    const description =
-      change === null
-        ? errorText(error)
-        : t("entryActions.breaks", {
-            change: quote(
-              t(`timelineRow.${kind}`, {
-                quantity: formatQuantity(
-                  change.quantityDelta.replace(/^-/, ""),
-                  language,
-                ),
-                share: change.share.name,
-              }),
-              language,
-            ),
-            date: formatDate(change.effectiveAt, language, {
-              timeZone: RACE_TIME_ZONE,
+    return change === null
+      ? errorText(error)
+      : t("entryActions.breaks", {
+          change: quote(
+            t(`timelineRow.${kind}`, {
+              quantity: formatQuantity(
+                change.quantityDelta.replace(/^-/, ""),
+                language,
+              ),
+              share: change.share.name,
             }),
-          });
-    toast.show({ title, description, timeout: 0 });
+            language,
+          ),
+          date: formatDate(change.effectiveAt, language, {
+            timeZone: RACE_TIME_ZONE,
+          }),
+        });
+  };
+}
+
+/** Shows why a write to a log entry was refused, in a toast that stays until dismissed. */
+export function useEntryRefusal() {
+  const toast = useToast();
+  const refusalText = useEntryRefusalText();
+
+  return (title: string, error: unknown) => {
+    toast.show({ title, description: refusalText(error), timeout: 0 });
   };
 }
