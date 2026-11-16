@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
+import { entered } from "../../decimal.js";
 import { roles, writerRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
 import { priceEurSchema } from "../../schemas/money.js";
@@ -8,7 +9,7 @@ import {
   pricePointSchema,
   valueChangedDetailsSchema,
 } from "../../schemas/share.js";
-import { timestampSchema } from "../../schemas/time.js";
+import { entryMomentSchema, timestampSchema } from "../../schemas/time.js";
 import { shareIdParamsSchema } from "./schemas.js";
 
 /**
@@ -126,7 +127,12 @@ export const addShareValue = signedInRoute(writerRoles)
     summary: "Add a value point to a manual share",
     successStatus: 201,
   })
-  .input(shareIdParamsSchema.extend(pricePointSchema.shape))
+  .input(
+    shareIdParamsSchema.extend({
+      at: entryMomentSchema,
+      priceEur: entered(priceEurSchema),
+    }),
+  )
   .output(shareValueSchema)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
@@ -150,7 +156,7 @@ export type ShareValueParams = z.infer<typeof shareValueParamsSchema>;
  * last saw.
  */
 export const shareValueUpdateBodySchema = z.object({
-  priceEur: priceEurSchema,
+  priceEur: entered(priceEurSchema),
   expectedPriceEur: priceEurSchema,
 });
 

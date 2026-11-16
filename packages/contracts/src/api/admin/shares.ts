@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { entered } from "../../decimal.js";
 import { adminAreaRoles, adminRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
 import { priceEurSchema } from "../../schemas/money.js";
 import { personSchema } from "../../schemas/person.js";
 import { latestPriceSchema, shareSummarySchema } from "../../schemas/share.js";
-import { timestampSchema } from "../../schemas/time.js";
+import { entryMomentSchema, timestampSchema } from "../../schemas/time.js";
 
 /** A stored share as the admin area lists it. */
 export const adminShareSchema = shareSummarySchema.extend({
@@ -48,8 +49,8 @@ export type AdminShareGroups = z.infer<typeof adminShareGroupsSchema>;
 export const adminMakeManualSchema = z
   .object({
     id: idSchema,
-    priceEur: priceEurSchema.optional(),
-    at: timestampSchema.optional(),
+    priceEur: entered(priceEurSchema).optional(),
+    at: entryMomentSchema.optional(),
   })
   .refine(
     ({ priceEur, at }) => (priceEur === undefined) === (at === undefined),

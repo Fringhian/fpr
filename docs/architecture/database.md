@@ -94,7 +94,7 @@ One row per share a member looked up at the provider, and per manual share.
 
 ### `portfolio_changes`
 
-One row per change to a holding: "+3 of this share", "−2 of that one". `quantity_delta` is never zero and allows decimals for fund units. `effective_at` is never in the future, checked by the API. `created_by` is the member, or the admin editing on their behalf.
+One row per change to a holding: "+3 of this share", "−2 of that one". `quantity_delta` is never zero and allows decimals for fund units. `effective_at` is never in the future or before 2000-01-01, checked by the API. `created_by` is the member, or the admin editing on their behalf.
 
 A holding at a moment is the sum of its changes up to and including that moment, and is never below zero. The API checks this on every create, edit, and delete, in a transaction holding an advisory lock on the person's changes, so two simultaneous writes cannot both pass. The view `current_positions` lists each person's holdings above zero: `user_id`, `share_id`, `quantity`.
 

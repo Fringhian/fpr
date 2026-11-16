@@ -138,3 +138,9 @@ export const errorCodes = [
  * negative zero. Trailing zeros are kept, as Postgres `numeric` returns them.
  */
 export const decimalPattern = /^(?!-0(?:\.0+)?$)-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
+
+/** The most digits a quantity, amount, or price a person enters has, before and after the point. */
+export const enteredDecimalDigits = { integer: 12, fraction: 8 } as const;
+
+/** The earliest day a share change, cash balance, or value point can be dated, in UTC. */
+export const earliestEntryDay = "2000-01-01";

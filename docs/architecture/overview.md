@@ -35,7 +35,7 @@ flowchart LR
 - Every route is an oRPC contract in `@fpr/contracts`, shared by the web app, the API, and the price service. The OpenAPI document is generated from them. See `api.md`, Route contracts.
 - Every process reaches Postgres through `@fpr/db`.
 - Money is in euros. The price service converts prices to EUR when it fetches them, and every amount stored is in EUR.
-- Quantities, prices, and amounts are Postgres `numeric` and travel in JSON as decimal strings, never floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero. Arithmetic on them happens in Postgres or with `big.js`.
+- Quantities, prices, and amounts are Postgres `numeric` and travel in JSON as decimal strings, never floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero. One a person enters has at most 12 digits before the point and 8 after. Arithmetic on them happens in Postgres or with `big.js`.
 - Days, weeks, and year-to-date start in the instance's time zone, `RACE_TIMEZONE`.
 - Tests are integration tests in each workspace's `test/`: the API and the price service over HTTP, with one file per API route in `test/routes/`; sign-in and access; the database's rules against a real Postgres; guards over every contract route; and the locales. Components are checked by their stories, run in Chromium.
 
