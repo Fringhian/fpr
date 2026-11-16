@@ -146,9 +146,9 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 ## Data
 
-- Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query.
+- Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query. The client finds each route's method and path in `src/lib/api/contract.gen.json`, generated from the contracts without their schemas: a web test fails when it is out of date, and `pnpm test --project @fpr/web -u` rewrites it.
 - In development and in Storybook, MSW can answer every route with mock responses built from invented fixtures, validated against the contracts.
-- A write invalidates the queries it affects. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
+- A write invalidates the queries it affects, from one table that names every write route. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
 - Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Each refetch reads Postgres only.
 - Every price shows its time: "as of 14:30", or "close of 5 March".
 - The race chart draws the points after the last close dashed, labelled "today, not final".
