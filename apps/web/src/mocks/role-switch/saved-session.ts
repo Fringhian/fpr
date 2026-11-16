@@ -17,6 +17,20 @@ function askedPersona(): Persona | undefined {
 }
 
 /**
+ * Whether `?mock-empty` asks for an instance with nobody yet, where `/setup`
+ * is open, removed from the address once read. It lasts until the next load.
+ */
+export function readEmpty(): boolean {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("mock-empty")) {
+    return false;
+  }
+  url.searchParams.delete("mock-empty");
+  window.history.replaceState(window.history.state, "", url);
+  return true;
+}
+
+/**
  * The session the mock API starts with: `?mock-as=<persona>`, else the one
  * saved by the last visit, else the member's.
  */

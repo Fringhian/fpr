@@ -1,7 +1,7 @@
 import type { Id } from "@fpr/contracts";
 import { useEffect, useState } from "react";
 import { cn } from "../../lib/cn.ts";
-import { accessKeys, mockPassword } from "../magic.ts";
+import { accessKeys, mockBootstrapKey, mockPassword } from "../magic.ts";
 import {
   type Persona,
   personaOf,
@@ -95,6 +95,9 @@ export function RoleSwitch({ session }: { session: Id | null }) {
         <PersonaList current={current} />
         <p>Password: “{mockPassword}”. Access links:</p>
         <AccessLinks />
+        <a className="text-link underline" href="/setup?mock-empty">
+          Setup, on an empty instance (key “{mockBootstrapKey}”)
+        </a>
         <button type="button" className="text-left underline" onClick={hide}>
           Hide (Alt+Shift+M shows it)
         </button>
