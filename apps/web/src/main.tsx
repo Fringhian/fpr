@@ -22,9 +22,13 @@ if (import.meta.env.MODE === "mock") {
 } else {
   const updateApp = registerSW({
     onNeedRefresh: () => offerUpdate(() => void updateApp(true)),
-    // An installed app can stay open for days: it looks for a new version hourly.
+    // An installed app can stay open for days: it looks for a new version
+    // hourly. Offline or with the server down, a look fails until the next.
     onRegisteredSW: (_url, registration) => {
-      setInterval(() => void registration?.update(), 60 * 60 * 1000);
+      setInterval(
+        () => registration?.update().catch(() => undefined),
+        60 * 60 * 1000,
+      );
     },
   });
 }
