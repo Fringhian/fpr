@@ -1,6 +1,6 @@
 import type { Plugin, PluginOption } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import { themeColor } from "./theme.ts";
+import { paletteColor, themeColor } from "./theme.ts";
 
 const page = themeColor("page");
 
@@ -44,7 +44,7 @@ export function installableApp(): PluginOption[] {
         scope: "/",
         display: "standalone",
         theme_color: page,
-        background_color: page,
+        background_color: paletteColor("blush"),
         icons: [
           { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
           { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },

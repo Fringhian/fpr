@@ -18,16 +18,21 @@ function find(pattern: string, what: string): string {
   return value;
 }
 
-/** A colour role, such as `page` for `--color-page`, as the hex value of the palette hue it points at. */
-export function themeColor(role: string): string {
-  const hue = find(
-    `--color-${role}:\\s*var\\(--palette-([a-z-]+)\\)`,
-    `--color-${role}`,
-  );
+/** A palette hue, such as `blush` for `--palette-blush`, as its hex value. */
+export function paletteColor(hue: string): string {
   return find(`--palette-${hue}:\\s*(#[0-9a-f]{6})`, `--palette-${hue}`);
 }
 
-/** The path of one layer of the ridge's 600 × 64 tile. */
-export function ridgePath(layer: "far" | "near"): string {
-  return find(`--ridge-${layer}:[^;]*?d='([^']+)'`, `--ridge-${layer}`);
+/**
+ * A colour token, such as `page` for `--color-page` or `cobalt` for
+ * `--color-cobalt`, as its hex value: its own, or that of the palette hue it
+ * points at.
+ */
+export function themeColor(role: string): string {
+  const value = find(
+    `--color-${role}:\\s*(#[0-9a-f]{6}|var\\(--palette-[a-z-]+\\))`,
+    `--color-${role}`,
+  );
+  const hue = value.match(/^var\(--palette-([a-z-]+)\)$/)?.[1];
+  return hue === undefined ? value : paletteColor(hue);
 }
