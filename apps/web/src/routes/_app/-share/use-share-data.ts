@@ -55,7 +55,7 @@ export function useShareData(shareId: Id) {
     holders: holders.data?.holders,
     values: manual ? values.data?.values : undefined,
     events: manual ? events.data?.events : undefined,
-    ...neededReads([share, prices, holders]),
+    ...neededReads([share, prices, holders, values, events]),
   };
 }
 
