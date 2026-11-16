@@ -2,7 +2,7 @@ import { type ComponentProps, type ReactNode, useMemo, useRef } from "react";
 import { cn } from "../../../lib/cn";
 import type { MoneyPrecision } from "../../../lib/format/money";
 import { type DrawnLine, useChartLines } from "./chart-lines";
-import type { ChartUnit } from "./chart-model";
+import type { ChartUnit, ChartValueFormat } from "./chart-model";
 import { LinePlot } from "./chart-plot";
 import { useAxisFormat, useChartApi } from "./chart-setup";
 import type { ChartLayout, ChartLine, ChartVariant } from "./chart-types";
@@ -44,6 +44,21 @@ const HEIGHTS = {
 
 const LINE_FRAME = "relative w-full min-w-0 font-sans text-xs text-secondary";
 
+/** The chart drawn in `container`, with its lines in `drawn`, its axes written in `format`. */
+function useChart(
+  variant: ChartVariant,
+  lines: readonly ChartLine[],
+  format: ChartValueFormat,
+) {
+  const container = useRef<HTMLDivElement>(null);
+  const drawn = useRef<DrawnLine[]>([]);
+  const chart = useChartApi(container, drawn, variant);
+  useChartLines(chart, container, drawn, { lines, variant });
+  useAxisFormat(chart, format);
+
+  return { chart, container, drawn };
+}
+
 /**
  * A chart on TradingView Lightweight Charts, styled from the tokens, that
  * fills its container’s width and follows it as it resizes.
@@ -68,15 +83,11 @@ export function Chart({
   onSelectLine,
   ...props
 }: ChartProps) {
-  const container = useRef<HTMLDivElement>(null);
   const format = useMemo(
     () => ({ unit, precision, signed }),
     [unit, precision, signed],
   );
-  const drawn = useRef<DrawnLine[]>([]);
-  const chart = useChartApi(container, drawn, variant);
-  useChartLines(chart, container, drawn, { lines, variant });
-  useAxisFormat(chart, format);
+  const { chart, container, drawn } = useChart(variant, lines, format);
 
   if (variant === "sparkline") {
     return (
