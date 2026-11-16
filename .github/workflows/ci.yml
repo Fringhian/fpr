@@ -90,6 +90,9 @@ jobs:
       fail-fast: false
       matrix:
         app: [web, api, prices]
+        include:
+          - app: backup
+            file: deploy/backup.Dockerfile
     steps:
       - uses: actions/checkout@v7
 
@@ -101,7 +104,7 @@ jobs:
       - uses: docker/build-push-action@v7
         with:
           context: .
-          file: apps/${{ matrix.app }}/Dockerfile
+          file: ${{ matrix.file || format('apps/{0}/Dockerfile', matrix.app) }}
           push: false
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
