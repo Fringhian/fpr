@@ -2,16 +2,15 @@ import type { Portfolio, PortfolioBalanceHistory } from "@fpr/contracts";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "../../../components/atoms/button/button";
 import { Chart } from "../../../components/molecules/chart/chart";
 import {
   MarkKey,
   NotFinalKey,
 } from "../../../components/molecules/chart/chart-key";
-import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
 import * as ChartCard from "../-portfolio-sections/chart-card";
+import { PhoneAction } from "../-portfolio-sections/page-action";
 import type { RecordLink } from "../-portfolio-sections/record-link";
 import { balanceLine } from "./balance-line";
 
@@ -90,15 +89,9 @@ export function PortfolioChart({
         )}
         <ChartCard.Split portfolio={portfolio} color={color} titled />
       </ChartCard.Root>
-      <Button
-        size="wide"
-        icon={PlusIcon}
-        nativeButton={false}
-        render={recordLink()}
-        className={cn("", "inline-grid", "tablet:hidden", "desktop:hidden")}
-      >
+      <PhoneAction icon={PlusIcon} render={recordLink()}>
         {t("portfolioPage.record")}
-      </Button>
+      </PhoneAction>
     </>
   );
 }

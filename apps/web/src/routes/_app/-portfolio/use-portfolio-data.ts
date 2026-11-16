@@ -11,16 +11,13 @@ import { usePortfolioReads } from "../-portfolio-sections/use-portfolio-reads";
 export function usePortfolioData() {
   const { person } = useSession();
   const { portfolio, history } = usePortfolioReads(person.id);
-  const { log, rows } = useLog(person.id, portfolio.data);
+  const { log, rows, cashSetAt } = useLog(person.id, portfolio.data);
 
-  const cash = log.data?.pages
-    .flatMap((page) => page.entries)
-    .find((entry) => entry.type === "cash");
   return {
     portfolio: portfolio.data,
     history: history.data,
     rows,
-    cashSetAt: cash?.effectiveAt,
+    cashSetAt,
     ...neededReads([portfolio, history, log]),
   };
 }

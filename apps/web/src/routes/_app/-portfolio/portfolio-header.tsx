@@ -1,13 +1,12 @@
 import type { Period, Portfolio } from "@fpr/contracts";
 import { Trans, useTranslation } from "react-i18next";
-import { Button } from "../../../components/atoms/button/button";
 import { GAIN_TONE_TEXT } from "../../../components/atoms/gain-value/gain-value";
 import { HEADLINE_KEY } from "../../../components/molecules/sentence/sentence-headline";
 import { Headline } from "../../../components/molecules/sentence/sentence-parts";
-import { cn } from "../../../lib/cn";
 import { formatMoney } from "../../../lib/format/money";
 import { gainDisplay, sentenceAmount } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
+import { HeaderAction } from "../-portfolio-sections/page-action";
 import type { RecordLink } from "../-portfolio-sections/record-link";
 import { PriceNote } from "./price-note";
 
@@ -74,19 +73,9 @@ export function PortfolioHeader({
         <PortfolioHeadline portfolio={portfolio} period={period} />
         <PriceNote portfolio={portfolio} />
       </div>
-      <Button
-        intent="primary"
-        nativeButton={false}
-        render={recordLink()}
-        className={cn(
-          "shrink-0",
-          "hidden",
-          "tablet:inline-grid",
-          "desktop:inline-grid",
-        )}
-      >
+      <HeaderAction intent="primary" render={recordLink()}>
         {t("portfolioPage.record")}
-      </Button>
+      </HeaderAction>
     </div>
   );
 }

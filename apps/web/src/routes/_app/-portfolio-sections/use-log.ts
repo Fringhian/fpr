@@ -28,7 +28,8 @@ export function useLogPages(userId: Id, enabled = true) {
 /**
  * A member's log, newest first, a page at a time, as timeline rows once
  * their portfolio is known too: its holdings give each change its before →
- * after. Portfolio and History read the same first page.
+ * after. Portfolio and History read the same first page, which also gives
+ * the moment of the latest cash balance.
  */
 export function useLog(userId: Id, portfolio: Portfolio | undefined) {
   const log = useLogPages(userId);
@@ -47,5 +48,8 @@ export function useLog(userId: Id, portfolio: Portfolio | undefined) {
         : undefined,
     [pages, holdings, complete],
   );
-  return { log, rows };
+  const cash = pages
+    ?.flatMap((page) => page.entries)
+    .find((entry) => entry.type === "cash");
+  return { log, rows, cashSetAt: cash?.effectiveAt };
 }
