@@ -144,7 +144,7 @@ describe("Shares", () => {
     value.priceEur = "60.00";
     typeInto(field("price"), "54");
     await submit(page, () =>
-      expect(text()).toContain("Someone changed this value to €60.00"),
+      expect(text()).toContain("Robin Leclerc changed this value to €60.00"),
     );
     expect(value.priceEur).toBe("60.00");
 
@@ -209,7 +209,7 @@ describe("Shares", () => {
         [
           ...document.body.querySelectorAll<HTMLElement>("[role=menuitem]"),
         ].find((item) => item.textContent?.startsWith("Delete")),
-      () => expect(text()).toContain("Someone changed it to €60.00"),
+      () => expect(text()).toContain("Robin Leclerc changed it to €60.00"),
     );
     await vi.waitFor(() => expect(firstRow()?.textContent).toContain("€60.00"));
     expect(value.priceEur).toBe("60.00");

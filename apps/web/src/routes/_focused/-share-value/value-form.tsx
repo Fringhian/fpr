@@ -17,7 +17,7 @@ import { ValueFields } from "./value-fields";
 import { ValueNotice } from "./value-notice";
 import { ValuePanel } from "./value-panel";
 
-/** “Last value: €40.10 on 3 Mar. Every holder's balance updates.” */
+/** “Last value: €40.10 on 3 Mar, by Lea. Every holder's balance updates.” */
 function LastValue({ value }: { value: ShareValue | undefined }) {
   const { t } = useTranslation();
   const language = useLanguage();
@@ -30,6 +30,9 @@ function LastValue({ value }: { value: ShareValue | undefined }) {
         ? t("valueForm.last", {
             price: formatMoney(value.priceEur, language),
             date: formatDate(value.at, language, { timeZone }),
+            by: value.enteredBy
+              ? t("valueForm.lastBy", { name: value.enteredBy.displayName })
+              : "",
           })
         : null}{" "}
       {t("valueForm.updates")}

@@ -3,7 +3,8 @@ import type {
   ErrorCode,
   Id,
   IsinTakenDetails,
-  ValueChangedDetails,
+  MadeBy,
+  ShareValueChangedDetails,
 } from "@fpr/contracts";
 import { errorCodes } from "@fpr/contracts/values";
 import { ORPCError } from "@orpc/client";
@@ -98,13 +99,18 @@ export function isinTakenBy(error: unknown): Id | null {
   return details?.shareId ?? null;
 }
 
-/** The value point's stored price, when the API refused a value write with `value_changed`. */
-export function changedPrice(error: unknown): Decimal | null {
+/** A value point as stored when a write was refused over it: its price, and who entered it, `null` when that isn't known. */
+export type ValueConflict = { priceEur: Decimal; changedBy: MadeBy };
+
+/** The value point as stored, when the API refused a value write with `value_changed`. */
+export function changedValue(error: unknown): ValueConflict | null {
   if (!isApiError(error, "value_changed")) {
     return null;
   }
-  const details = error.data as Partial<ValueChangedDetails> | undefined;
-  return details?.priceEur ?? null;
+  const details = error.data as Partial<ShareValueChangedDetails> | undefined;
+  return details?.priceEur === undefined
+    ? null
+    : { priceEur: details.priceEur, changedBy: details.changedBy ?? null };
 }
 
 /**

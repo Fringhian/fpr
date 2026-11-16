@@ -74,7 +74,7 @@ export const invalidations = {
   "admin.resetKey": ["admin.people"],
   "admin.deletePerson": [...valuation, "admin.people", "me.people"],
   "admin.makeManual": valuation,
-  "admin.refreshPrices": valuation,
+  "admin.refreshPrices": [...valuation, "admin.refreshState"],
 } as const satisfies Partial<Record<RoutePath, Stale>>;
 
 function staleAfter(mutationKey: QueryKey | undefined): Stale | undefined {

@@ -1,7 +1,8 @@
-import type { Decimal, Id, ShareValue } from "@fpr/contracts";
+import type { Id, ShareValue } from "@fpr/contracts";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { TextLink } from "../../../components/atoms/text-link/text-link";
+import type { ValueConflict } from "../../../lib/api/errors";
 import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
@@ -18,8 +19,8 @@ export function ValueNotice({
   taken,
 }: {
   shareId: Id;
-  /** The price the value being edited has now. */
-  changed: Decimal | null;
+  /** The price the value being edited has now, and who entered it. */
+  changed: ValueConflict | null;
   /** The value already at the moment typed. */
   taken: ShareValue | null;
 }) {
@@ -31,7 +32,14 @@ export function ValueNotice({
     <div role="status">
       {changed !== null ? (
         <p className="rounded-m bg-warning-soft p-m text-s text-warning">
-          {t("valueForm.changed", { price: formatMoney(changed, language) })}
+          {changed.changedBy === null
+            ? t("valueForm.changed", {
+                price: formatMoney(changed.priceEur, language),
+              })
+            : t("valueForm.changedBy", {
+                name: changed.changedBy.displayName,
+                price: formatMoney(changed.priceEur, language),
+              })}
         </p>
       ) : taken !== null ? (
         <p className="grid gap-xs rounded-m bg-warning-soft p-m text-s text-warning">

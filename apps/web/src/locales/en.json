@@ -582,6 +582,7 @@
     "changed": {
       "title": "Delete this value?",
       "description": "Someone changed it to {{price}} in the meantime.",
+      "descriptionBy": "{{name}} changed it to {{price}} in the meantime.",
       "confirm": "Delete {{price}}",
       "keep": "Keep it"
     }
@@ -603,9 +604,11 @@
     "day": "Date",
     "time": "Time",
     "future": "Enter a time that has passed, such as 09:30.",
-    "last": "Last value: {{price}} on {{date}}.",
+    "last": "Last value: {{price}} on {{date}}{{by}}.",
+    "lastBy": ", by {{name}}",
     "updates": "Every holder’s balance updates.",
     "changed": "Someone changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
+    "changedBy": "{{name}} changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
     "taken": "There’s already a value of {{price}} on {{date}} at {{time}}.",
     "editTaken": "Edit that value",
     "save": "Save value",
@@ -1061,6 +1064,7 @@
   "adminShares": {
     "loading": "Loading the shares…",
     "neverPriced": "Never priced",
+    "addedOn": "added {{date}}",
     "groups": {
       "needsAttention": {
         "title": "Needs attention",
@@ -1091,8 +1095,20 @@
       "schedule": "Prices refresh every 30 minutes on trading days.",
       "action": "Refresh prices now",
       "running": "Refreshing…",
-      "done_one": "Refreshed at {{time}}: {{count}} share priced.",
-      "done_other": "Refreshed at {{time}}: {{count}} shares priced."
+      "lastRun": {
+        "succeeded_one": "Last run {{time}}, {{count}} share priced",
+        "succeeded_other": "Last run {{time}}, {{count}} shares priced",
+        "partial_one": "Last run {{time}}, {{count}} share priced and {{failures}} failed",
+        "partial_other": "Last run {{time}}, {{count}} shares priced and {{failures}} failed",
+        "failed": "Last run {{time}} failed, no price fetched",
+        "skipped": "Last run {{time}} skipped, the day’s calls were used up"
+      },
+      "noRun": "No run yet",
+      "next": "next {{time}}",
+      "dayTime": "{{day}}, {{time}}",
+      "runsToday_one": "{{count}} run today",
+      "runsToday_other": "{{count}} runs today",
+      "callsLeft": "{{left}} of {{limit}} provider calls left"
     },
     "makeManual": {
       "title": "Make {{name}} manual?",

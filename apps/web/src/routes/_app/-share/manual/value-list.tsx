@@ -109,7 +109,7 @@ function ValueRow({
   );
 }
 
-/** Asks before deleting a value someone changed in the meantime, showing its new price. */
+/** Asks before deleting a value someone changed in the meantime, naming them, with its new price. */
 function ChangedConfirm({
   changed,
   onConfirm,
@@ -123,12 +123,20 @@ function ChangedConfirm({
   const language = useLanguage();
 
   const price = changed ? formatMoney(changed.priceEur, language) : "";
+  const by = changed?.changedBy;
   return (
     <ConfirmDialog.Basic
       open={changed !== null}
       onOpenChange={(open) => (open ? undefined : onDismiss())}
       title={t("valueActions.changed.title")}
-      description={t("valueActions.changed.description", { price })}
+      description={
+        by
+          ? t("valueActions.changed.descriptionBy", {
+              name: by.displayName,
+              price,
+            })
+          : t("valueActions.changed.description", { price })
+      }
       confirmLabel={t("valueActions.changed.confirm", { price })}
       cancelLabel={t("valueActions.changed.keep")}
       onConfirm={onConfirm}
