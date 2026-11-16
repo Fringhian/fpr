@@ -1,13 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Placeholder } from "../-placeholder";
 
-export const Route = createFileRoute("/")({
-  component: Home,
+export const Route = createFileRoute("/_app/")({
+  component: () => <Placeholder page="home" />,
 });
-
-function Home() {
-  return (
-    <main>
-      <h1>FPR</h1>
-    </main>
-  );
-}

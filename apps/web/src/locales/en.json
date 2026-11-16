@@ -274,6 +274,45 @@
   "appLayout": {
     "skip": "Skip to content"
   },
+  "pages": {
+    "home": "Home",
+    "members": "Members",
+    "member": "Member",
+    "memberRecord": "Record a change for a member",
+    "portfolio": "Portfolio",
+    "portfolioRecord": "Record a change",
+    "portfolioHistory": "History",
+    "shares": "Shares",
+    "share": "Share",
+    "help": "How FPR works",
+    "people": "People",
+    "trackedShares": "Tracked shares",
+    "signIn": "Sign in",
+    "setup": "Set up FPR",
+    "access": "Access link",
+    "resetPassword": "Reset your password",
+    "onboarding": "Welcome"
+  },
+  "pageStates": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "This page doesn’t exist or was moved.",
+      "action": "Go to Home"
+    },
+    "loadFailed": {
+      "title": "Can’t load this page",
+      "description": "Check your connection and try again.",
+      "action": "Retry"
+    },
+    "adminOnPhone": {
+      "title": "Admin works on a larger screen",
+      "description": "Open FPR on a tablet or a computer to use it."
+    },
+    "accessEnded": {
+      "title": "Your access has ended",
+      "description": "Ask the admin if you think this is a mistake."
+    }
+  },
   "errors": {
     "invalidRequest": "Something you entered isn’t right. Check it and try again.",
     "unauthenticated": "You’re signed out. Sign in to carry on.",

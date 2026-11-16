@@ -279,6 +279,45 @@
   "appLayout": {
     "skip": "Aller au contenu"
   },
+  "pages": {
+    "home": "Accueil",
+    "members": "Membres",
+    "member": "Membre",
+    "memberRecord": "Enregistrer un mouvement pour un membre",
+    "portfolio": "Portefeuille",
+    "portfolioRecord": "Enregistrer un mouvement",
+    "portfolioHistory": "Historique",
+    "shares": "Titres",
+    "share": "Titre",
+    "help": "Comment fonctionne FPR",
+    "people": "Personnes",
+    "trackedShares": "Titres suivis",
+    "signIn": "Se connecter",
+    "setup": "Configurer FPR",
+    "access": "Lien d’accès",
+    "resetPassword": "Réinitialiser votre mot de passe",
+    "onboarding": "Bienvenue"
+  },
+  "pageStates": {
+    "notFound": {
+      "title": "Page introuvable",
+      "description": "Cette page n’existe pas ou a été déplacée.",
+      "action": "Aller à l’accueil"
+    },
+    "loadFailed": {
+      "title": "Impossible de charger cette page",
+      "description": "Vérifiez votre connexion et réessayez.",
+      "action": "Réessayer"
+    },
+    "adminOnPhone": {
+      "title": "L’administration s’utilise sur un plus grand écran",
+      "description": "Ouvrez FPR sur une tablette ou un ordinateur pour l’utiliser."
+    },
+    "accessEnded": {
+      "title": "Votre accès a pris fin",
+      "description": "Demandez à l’admin si vous pensez que c’est une erreur."
+    }
+  },
   "errors": {
     "invalidRequest": "Une saisie n’est pas valide. Vérifiez-la et réessayez.",
     "unauthenticated": "Vous êtes déconnecté. Reconnectez-vous pour continuer.",

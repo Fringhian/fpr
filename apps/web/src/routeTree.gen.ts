@@ -9,50 +9,518 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as FocusedRouteImport } from './routes/_focused'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppAdminRouteRouteImport } from './routes/_app/admin/route'
+import { Route as AppHelpRouteImport } from './routes/_app/help'
+import { Route as AppPortfolioRouteRouteImport } from './routes/_app/portfolio/route'
+import { Route as FocusedOnboardingRouteImport } from './routes/_focused/onboarding'
+import { Route as FocusedResetPasswordRouteImport } from './routes/_focused/reset-password'
+import { Route as FocusedSetupRouteImport } from './routes/_focused/setup'
+import { Route as FocusedSignInRouteImport } from './routes/_focused/sign-in'
+import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
+import { Route as AppAdminPeopleRouteImport } from './routes/_app/admin/people'
+import { Route as AppAdminSharesRouteImport } from './routes/_app/admin/shares'
+import { Route as AppMembersIndexRouteImport } from './routes/_app/members/index'
+import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
+import { Route as AppPortfolioHistoryRouteImport } from './routes/_app/portfolio/history'
+import { Route as AppSharesIndexRouteImport } from './routes/_app/shares/index'
+import { Route as AppSharesShareIdRouteImport } from './routes/_app/shares/$shareId'
+import { Route as FocusedAccessKeyRouteImport } from './routes/_focused/access.$key'
+import { Route as FocusedPortfolioRecordRouteImport } from './routes/_focused/portfolio/record'
+import { Route as AppMembersUserIdIndexRouteImport } from './routes/_app/members/$userId/index'
+import { Route as FocusedMembersUserIdRecordRouteImport } from './routes/_focused/members/$userId/record'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FocusedRoute = FocusedRouteImport.update({
+  id: '/_focused',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHelpRoute = AppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioRouteRoute = AppPortfolioRouteRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const FocusedOnboardingRoute = FocusedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const FocusedResetPasswordRoute = FocusedResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const FocusedSetupRoute = FocusedSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const FocusedSignInRoute = FocusedSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminRouteRoute,
+} as any)
+const AppAdminPeopleRoute = AppAdminPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => AppAdminRouteRoute,
+} as any)
+const AppAdminSharesRoute = AppAdminSharesRouteImport.update({
+  id: '/shares',
+  path: '/shares',
+  getParentRoute: () => AppAdminRouteRoute,
+} as any)
+const AppMembersIndexRoute = AppMembersIndexRouteImport.update({
+  id: '/members/',
+  path: '/members/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioIndexRoute = AppPortfolioIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppPortfolioRouteRoute,
+} as any)
+const AppPortfolioHistoryRoute = AppPortfolioHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppPortfolioRouteRoute,
+} as any)
+const AppSharesIndexRoute = AppSharesIndexRouteImport.update({
+  id: '/shares/',
+  path: '/shares/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSharesShareIdRoute = AppSharesShareIdRouteImport.update({
+  id: '/shares/$shareId',
+  path: '/shares/$shareId',
+  getParentRoute: () => AppRoute,
+} as any)
+const FocusedAccessKeyRoute = FocusedAccessKeyRouteImport.update({
+  id: '/access/$key',
+  path: '/access/$key',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const FocusedPortfolioRecordRoute = FocusedPortfolioRecordRouteImport.update({
+  id: '/portfolio/record',
+  path: '/portfolio/record',
+  getParentRoute: () => FocusedRoute,
+} as any)
+const AppMembersUserIdIndexRoute = AppMembersUserIdIndexRouteImport.update({
+  id: '/members/$userId/',
+  path: '/members/$userId/',
+  getParentRoute: () => AppRoute,
+} as any)
+const FocusedMembersUserIdRecordRoute =
+  FocusedMembersUserIdRecordRouteImport.update({
+    id: '/members/$userId/record',
+    path: '/members/$userId/record',
+    getParentRoute: () => FocusedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
+  '/admin': typeof AppAdminRouteRouteWithChildren
+  '/portfolio': typeof AppPortfolioRouteRouteWithChildren
+  '/help': typeof AppHelpRoute
+  '/onboarding': typeof FocusedOnboardingRoute
+  '/reset-password': typeof FocusedResetPasswordRoute
+  '/setup': typeof FocusedSetupRoute
+  '/sign-in': typeof FocusedSignInRoute
+  '/admin/people': typeof AppAdminPeopleRoute
+  '/admin/shares': typeof AppAdminSharesRoute
+  '/portfolio/history': typeof AppPortfolioHistoryRoute
+  '/shares/$shareId': typeof AppSharesShareIdRoute
+  '/access/$key': typeof FocusedAccessKeyRoute
+  '/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/admin/': typeof AppAdminIndexRoute
+  '/members/': typeof AppMembersIndexRoute
+  '/portfolio/': typeof AppPortfolioIndexRoute
+  '/shares/': typeof AppSharesIndexRoute
+  '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
+  '/help': typeof AppHelpRoute
+  '/onboarding': typeof FocusedOnboardingRoute
+  '/reset-password': typeof FocusedResetPasswordRoute
+  '/setup': typeof FocusedSetupRoute
+  '/sign-in': typeof FocusedSignInRoute
+  '/admin/people': typeof AppAdminPeopleRoute
+  '/admin/shares': typeof AppAdminSharesRoute
+  '/portfolio/history': typeof AppPortfolioHistoryRoute
+  '/shares/$shareId': typeof AppSharesShareIdRoute
+  '/access/$key': typeof FocusedAccessKeyRoute
+  '/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/admin': typeof AppAdminIndexRoute
+  '/members': typeof AppMembersIndexRoute
+  '/portfolio': typeof AppPortfolioIndexRoute
+  '/shares': typeof AppSharesIndexRoute
+  '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/members/$userId': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_focused': typeof FocusedRouteWithChildren
+  '/_app/admin': typeof AppAdminRouteRouteWithChildren
+  '/_app/portfolio': typeof AppPortfolioRouteRouteWithChildren
+  '/_app/help': typeof AppHelpRoute
+  '/_focused/onboarding': typeof FocusedOnboardingRoute
+  '/_focused/reset-password': typeof FocusedResetPasswordRoute
+  '/_focused/setup': typeof FocusedSetupRoute
+  '/_focused/sign-in': typeof FocusedSignInRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/admin/people': typeof AppAdminPeopleRoute
+  '/_app/admin/shares': typeof AppAdminSharesRoute
+  '/_app/portfolio/history': typeof AppPortfolioHistoryRoute
+  '/_app/shares/$shareId': typeof AppSharesShareIdRoute
+  '/_focused/access/$key': typeof FocusedAccessKeyRoute
+  '/_focused/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
+  '/_app/members/': typeof AppMembersIndexRoute
+  '/_app/portfolio/': typeof AppPortfolioIndexRoute
+  '/_app/shares/': typeof AppSharesIndexRoute
+  '/_focused/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/_app/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/portfolio'
+    | '/help'
+    | '/onboarding'
+    | '/reset-password'
+    | '/setup'
+    | '/sign-in'
+    | '/admin/people'
+    | '/admin/shares'
+    | '/portfolio/history'
+    | '/shares/$shareId'
+    | '/access/$key'
+    | '/portfolio/record'
+    | '/admin/'
+    | '/members/'
+    | '/portfolio/'
+    | '/shares/'
+    | '/members/$userId/record'
+    | '/members/$userId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/help'
+    | '/onboarding'
+    | '/reset-password'
+    | '/setup'
+    | '/sign-in'
+    | '/admin/people'
+    | '/admin/shares'
+    | '/portfolio/history'
+    | '/shares/$shareId'
+    | '/access/$key'
+    | '/portfolio/record'
+    | '/admin'
+    | '/members'
+    | '/portfolio'
+    | '/shares'
+    | '/members/$userId/record'
+    | '/members/$userId'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_focused'
+    | '/_app/admin'
+    | '/_app/portfolio'
+    | '/_app/help'
+    | '/_focused/onboarding'
+    | '/_focused/reset-password'
+    | '/_focused/setup'
+    | '/_focused/sign-in'
+    | '/_app/'
+    | '/_app/admin/people'
+    | '/_app/admin/shares'
+    | '/_app/portfolio/history'
+    | '/_app/shares/$shareId'
+    | '/_focused/access/$key'
+    | '/_focused/portfolio/record'
+    | '/_app/admin/'
+    | '/_app/members/'
+    | '/_app/portfolio/'
+    | '/_app/shares/'
+    | '/_focused/members/$userId/record'
+    | '/_app/members/$userId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  FocusedRoute: typeof FocusedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_focused': {
+      id: '/_focused'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof FocusedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/help': {
+      id: '/_app/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof AppHelpRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portfolio': {
+      id: '/_app/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_focused/onboarding': {
+      id: '/_focused/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof FocusedOnboardingRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_focused/reset-password': {
+      id: '/_focused/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof FocusedResetPasswordRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_focused/setup': {
+      id: '/_focused/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof FocusedSetupRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_focused/sign-in': {
+      id: '/_focused/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof FocusedSignInRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppAdminRouteRoute
+    }
+    '/_app/admin/people': {
+      id: '/_app/admin/people'
+      path: '/people'
+      fullPath: '/admin/people'
+      preLoaderRoute: typeof AppAdminPeopleRouteImport
+      parentRoute: typeof AppAdminRouteRoute
+    }
+    '/_app/admin/shares': {
+      id: '/_app/admin/shares'
+      path: '/shares'
+      fullPath: '/admin/shares'
+      preLoaderRoute: typeof AppAdminSharesRouteImport
+      parentRoute: typeof AppAdminRouteRoute
+    }
+    '/_app/members/': {
+      id: '/_app/members/'
+      path: '/members'
+      fullPath: '/members/'
+      preLoaderRoute: typeof AppMembersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portfolio/': {
+      id: '/_app/portfolio/'
+      path: '/'
+      fullPath: '/portfolio/'
+      preLoaderRoute: typeof AppPortfolioIndexRouteImport
+      parentRoute: typeof AppPortfolioRouteRoute
+    }
+    '/_app/portfolio/history': {
+      id: '/_app/portfolio/history'
+      path: '/history'
+      fullPath: '/portfolio/history'
+      preLoaderRoute: typeof AppPortfolioHistoryRouteImport
+      parentRoute: typeof AppPortfolioRouteRoute
+    }
+    '/_app/shares/': {
+      id: '/_app/shares/'
+      path: '/shares'
+      fullPath: '/shares/'
+      preLoaderRoute: typeof AppSharesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shares/$shareId': {
+      id: '/_app/shares/$shareId'
+      path: '/shares/$shareId'
+      fullPath: '/shares/$shareId'
+      preLoaderRoute: typeof AppSharesShareIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_focused/access/$key': {
+      id: '/_focused/access/$key'
+      path: '/access/$key'
+      fullPath: '/access/$key'
+      preLoaderRoute: typeof FocusedAccessKeyRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_focused/portfolio/record': {
+      id: '/_focused/portfolio/record'
+      path: '/portfolio/record'
+      fullPath: '/portfolio/record'
+      preLoaderRoute: typeof FocusedPortfolioRecordRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_app/members/$userId/': {
+      id: '/_app/members/$userId/'
+      path: '/members/$userId'
+      fullPath: '/members/$userId/'
+      preLoaderRoute: typeof AppMembersUserIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_focused/members/$userId/record': {
+      id: '/_focused/members/$userId/record'
+      path: '/members/$userId/record'
+      fullPath: '/members/$userId/record'
+      preLoaderRoute: typeof FocusedMembersUserIdRecordRouteImport
+      parentRoute: typeof FocusedRoute
     }
   }
 }
 
+interface AppAdminRouteRouteChildren {
+  AppAdminPeopleRoute: typeof AppAdminPeopleRoute
+  AppAdminSharesRoute: typeof AppAdminSharesRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+}
+
+const AppAdminRouteRouteChildren: AppAdminRouteRouteChildren = {
+  AppAdminPeopleRoute: AppAdminPeopleRoute,
+  AppAdminSharesRoute: AppAdminSharesRoute,
+  AppAdminIndexRoute: AppAdminIndexRoute,
+}
+
+const AppAdminRouteRouteWithChildren = AppAdminRouteRoute._addFileChildren(
+  AppAdminRouteRouteChildren,
+)
+
+interface AppPortfolioRouteRouteChildren {
+  AppPortfolioHistoryRoute: typeof AppPortfolioHistoryRoute
+  AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
+}
+
+const AppPortfolioRouteRouteChildren: AppPortfolioRouteRouteChildren = {
+  AppPortfolioHistoryRoute: AppPortfolioHistoryRoute,
+  AppPortfolioIndexRoute: AppPortfolioIndexRoute,
+}
+
+const AppPortfolioRouteRouteWithChildren =
+  AppPortfolioRouteRoute._addFileChildren(AppPortfolioRouteRouteChildren)
+
+interface AppRouteChildren {
+  AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
+  AppPortfolioRouteRoute: typeof AppPortfolioRouteRouteWithChildren
+  AppHelpRoute: typeof AppHelpRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppSharesShareIdRoute: typeof AppSharesShareIdRoute
+  AppMembersIndexRoute: typeof AppMembersIndexRoute
+  AppSharesIndexRoute: typeof AppSharesIndexRoute
+  AppMembersUserIdIndexRoute: typeof AppMembersUserIdIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
+  AppPortfolioRouteRoute: AppPortfolioRouteRouteWithChildren,
+  AppHelpRoute: AppHelpRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppSharesShareIdRoute: AppSharesShareIdRoute,
+  AppMembersIndexRoute: AppMembersIndexRoute,
+  AppSharesIndexRoute: AppSharesIndexRoute,
+  AppMembersUserIdIndexRoute: AppMembersUserIdIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface FocusedRouteChildren {
+  FocusedOnboardingRoute: typeof FocusedOnboardingRoute
+  FocusedResetPasswordRoute: typeof FocusedResetPasswordRoute
+  FocusedSetupRoute: typeof FocusedSetupRoute
+  FocusedSignInRoute: typeof FocusedSignInRoute
+  FocusedAccessKeyRoute: typeof FocusedAccessKeyRoute
+  FocusedPortfolioRecordRoute: typeof FocusedPortfolioRecordRoute
+  FocusedMembersUserIdRecordRoute: typeof FocusedMembersUserIdRecordRoute
+}
+
+const FocusedRouteChildren: FocusedRouteChildren = {
+  FocusedOnboardingRoute: FocusedOnboardingRoute,
+  FocusedResetPasswordRoute: FocusedResetPasswordRoute,
+  FocusedSetupRoute: FocusedSetupRoute,
+  FocusedSignInRoute: FocusedSignInRoute,
+  FocusedAccessKeyRoute: FocusedAccessKeyRoute,
+  FocusedPortfolioRecordRoute: FocusedPortfolioRecordRoute,
+  FocusedMembersUserIdRecordRoute: FocusedMembersUserIdRecordRoute,
+}
+
+const FocusedRouteWithChildren =
+  FocusedRoute._addFileChildren(FocusedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  FocusedRoute: FocusedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
