@@ -32,17 +32,14 @@ const item = cva(
   },
 );
 
-export interface ItemOwnProps {
-  /** `danger` (red text) for an action that deletes, revokes or signs out. Put it last, after a `Separator`. */
-  intent?: "default" | "danger";
-}
-
 /**
  * The item's own props, then every prop of Base UI's `Menu.Item`, `className`
  * included: a string, or a function of the item's state.
  */
-export type ItemProps = ItemOwnProps &
-  Omit<ComponentProps<typeof BaseMenu.Item>, keyof ItemOwnProps>;
+export type ItemProps = {
+  /** `danger` (red text) for an action that deletes, revokes or signs out. Put it last, after a `Separator`. */
+  intent?: "default" | "danger";
+} & Omit<ComponentProps<typeof BaseMenu.Item>, "intent">;
 
 /** A sheet's item: a `<button>` that runs `onClick`, then closes the sheet unless `closeOnClick` is false. */
 function SheetItem({
@@ -99,11 +96,11 @@ export function Item({ intent = "default", className, ...props }: ItemProps) {
 }
 
 /**
- * The item's own props, then every prop of Base UI's `Menu.LinkItem`,
+ * The item's `intent`, then every prop of Base UI's `Menu.LinkItem`,
  * `className` included: a string, or a function of the item's state.
  */
-export type LinkItemProps = ItemOwnProps &
-  Omit<ComponentProps<typeof BaseMenu.LinkItem>, keyof ItemOwnProps>;
+export type LinkItemProps = Pick<ItemProps, "intent"> &
+  Omit<ComponentProps<typeof BaseMenu.LinkItem>, "intent">;
 
 /** A sheet's link item: an `<a>`, or the element `render` gives, that closes the sheet when `closeOnClick` is true. */
 function SheetLinkItem({
