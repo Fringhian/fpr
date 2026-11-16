@@ -81,10 +81,21 @@ function ChangeAndTime({ share }: { share: ShareDetail }) {
   );
 }
 
+function ManualInfo() {
+  const { t } = useTranslation();
+
+  return (
+    <HelpInfo section="manual" title={t("helpInfo.manual.title")} align="end">
+      {t("helpInfo.manual.body")}
+    </HelpInfo>
+  );
+}
+
 /**
  * The latest price, big, with its change over the period and its time, or
  * who entered a manual share's last value and when: beside it on phone,
- * under it from tablet up. Price pending until the share has a price.
+ * under it from tablet up. Price pending until the share has a price. A
+ * manual share's ⓘ sits beside its price, or its pending badge.
  */
 export function SharePrice({
   share,
@@ -93,12 +104,17 @@ export function SharePrice({
   share: ShareDetail;
   lastValue: ShareValue | undefined;
 }) {
-  const { t } = useTranslation();
   const language = useLanguage();
 
   const manual = share.kind === "manual";
+  const info = manual ? <ManualInfo /> : null;
   if (share.latestPrice === null) {
-    return <Badge state="pricePending" className="w-fit self-start" />;
+    return (
+      <span className="inline-flex items-center gap-xs self-start">
+        <Badge state="pricePending" />
+        {info}
+      </span>
+    );
   }
   return (
     <div
@@ -120,15 +136,7 @@ export function SharePrice({
         >
           {formatMoney(share.latestPrice.priceEur, language)}
         </span>
-        {manual ? (
-          <HelpInfo
-            section="manual"
-            title={t("helpInfo.manual.title")}
-            align="end"
-          >
-            {t("helpInfo.manual.body")}
-          </HelpInfo>
-        ) : null}
+        {info}
       </span>
       {manual && lastValue ? (
         <EnteredBy value={lastValue} />
