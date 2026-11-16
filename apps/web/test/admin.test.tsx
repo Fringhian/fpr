@@ -77,6 +77,15 @@ describe("Admin, people", () => {
     expect(screenText()).toContain("Rui Costa");
   });
 
+  it("open the page of a member still waiting for their link in edit mode, to prepare their portfolio", async () => {
+    await visit(`/members/${fixturePersonId("camille")}?edit=true`, "admin");
+    await vi.waitFor(() =>
+      expect(screenText()).toContain(
+        "Vous modifiez le portefeuille de Camille Roux.",
+      ),
+    );
+  });
+
   it("keep the dialog open while a new link is created, then show it", async () => {
     const { release } = await visit("/admin/people", "admin", {
       hold: (url) => url.pathname.endsWith("/replace-link"),
