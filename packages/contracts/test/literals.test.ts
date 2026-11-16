@@ -9,15 +9,15 @@ import { adminAccessStatuses } from "../src/api/admin/people.js";
 import { languages } from "../src/api/me/profile.js";
 import { leaderboardBoards } from "../src/api/race/leaderboards.js";
 import { shareValueActions } from "../src/api/shares/values.js";
-import { periods, units } from "../src/period.js";
 import { roles } from "../src/roles.js";
 import { priceSources, shareKinds } from "../src/schemas/share.js";
+import { periods, units } from "../src/values.js";
 
 /** Each shared list, and the file that defines it, relative to `src/`. */
 const lists: [values: readonly string[], definedIn: string][] = [
   [roles, "roles.ts"],
-  [periods, "period.ts"],
-  [units, "period.ts"],
+  [periods, "values.ts"],
+  [units, "values.ts"],
   [leaderboardBoards, "api/race/leaderboards.ts"],
   [shareKinds, "schemas/share.ts"],
   [priceSources, "schemas/share.ts"],

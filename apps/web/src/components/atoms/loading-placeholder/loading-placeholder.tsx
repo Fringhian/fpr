@@ -33,7 +33,7 @@ export function LoadingPlaceholder({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute inset-[0] -z-10 rounded-[inherit] bg-highlight",
+          "absolute inset-0 -z-10 rounded-[inherit] bg-highlight",
           "",
           "",
           "",

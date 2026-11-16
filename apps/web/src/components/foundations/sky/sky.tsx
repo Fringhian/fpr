@@ -22,7 +22,7 @@ export function Band({ className, ...props }: ComponentProps<"div">) {
       {...props}
       aria-hidden
       className={cn(
-        "absolute inset-x-[0] top-[0] -z-10 bg-sky",
+        "absolute inset-x-0 top-0 -z-10 bg-sky",
         "pt-[12.875rem]",
         "tablet:pt-[12.5rem]",
         "desktop:pt-[12.5rem]",

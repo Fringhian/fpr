@@ -6,13 +6,14 @@ import {
   type LineSeriesPartialOptions,
   LineStyle,
 } from "lightweight-charts";
+import { cssVariable } from "../../../lib/css-variable";
 import type { ChartLine, ChartVariant } from "./chart-types";
 
 const LINE_WIDTH = { focus: 2, context: 1 } as const;
 
 /** A colour token's value, read where the chart sits so it follows the theme. */
 export function token(element: Element, name: string): string {
-  return getComputedStyle(element).getPropertyValue(`--color-${name}`).trim();
+  return cssVariable(`--color-${name}`, element);
 }
 
 function baseOptions(element: HTMLElement): DeepPartial<ChartOptions> {

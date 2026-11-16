@@ -169,6 +169,35 @@ function describe(
   }
 }
 
+/** What happened, then its before → after and who made it, when they say something. */
+function TimelineText({
+  title,
+  change,
+  madeBy,
+}: {
+  title: string;
+  change: ReactNode;
+  madeBy: string | undefined;
+}) {
+  const { t } = useTranslation();
+
+  const author =
+    madeBy === undefined ? null : t("timelineRow.madeBy", { name: madeBy });
+
+  return (
+    <span className="grid min-w-0">
+      <span className="text-s font-semibold text-primary">{title}</span>
+      {change !== null || author !== null ? (
+        <span className="text-xs text-secondary tabular-nums">
+          {change}
+          {change !== null && author !== null ? " · " : null}
+          {author}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 /**
  * One recorded change or value, in a `TimelineList`: the date, the kind's icon
  * in a soft circle, what happened with its before → after under it, who made
@@ -197,13 +226,7 @@ export function TimelineRow(props: TimelineRowProps) {
     ...rest
   } = props;
   const { title, change } = describe(props, t, language);
-  const day = formatDate(date, language, {
-    ...(timeZone === undefined ? {} : { timeZone }),
-    ...(year === undefined ? {} : { year }),
-  });
-  const author =
-    madeBy === undefined ? null : t("timelineRow.madeBy", { name: madeBy });
-  const hasDetail = change !== null || author !== null;
+  const day = formatDate(date, language, { timeZone, year });
 
   return (
     <li
@@ -223,16 +246,7 @@ export function TimelineRow(props: TimelineRowProps) {
       <span className="inline-flex size-[1.75rem] items-center justify-center rounded-full bg-highlight text-primary">
         <Icon icon={icon ?? TIMELINE_ICONS[kind]} size="s" />
       </span>
-      <span className="grid min-w-0">
-        <span className="text-s font-semibold text-primary">{title}</span>
-        {hasDetail ? (
-          <span className="text-xs text-secondary tabular-nums">
-            {change}
-            {change !== null && author !== null ? " · " : null}
-            {author}
-          </span>
-        ) : null}
-      </span>
+      <TimelineText title={title} change={change} madeBy={madeBy} />
       {actions ? (
         <Menu.Root>
           <Menu.MoreTrigger

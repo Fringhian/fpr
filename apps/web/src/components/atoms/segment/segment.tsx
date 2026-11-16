@@ -2,7 +2,7 @@ import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { cva } from "class-variance-authority";
 import { type RefAttributes, useState } from "react";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 
 const root = cva(
   ["inline-flex gap-[0.125rem] rounded-full p-[0.1875rem]", "", "", ""],
@@ -24,7 +24,7 @@ const item = cn(
   "hover:not-pressed:not-disabled:text-primary",
   "pressed:bg-primary pressed:text-on-primary",
   "focus-visible:focus-ring",
-  "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+  "disabled:dimmed",
 );
 
 /** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
@@ -83,7 +83,6 @@ export function Root<Value extends string>({
 
   const selected = value ?? held;
   const pressed = selected === undefined ? [] : [selected];
-  const classes = root({ backdrop });
 
   return (
     <ToggleGroup<Value>
@@ -98,12 +97,7 @@ export function Root<Value extends string>({
         setHeld(next);
         onValueChange?.(next, eventDetails);
       }}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(root({ backdrop }), className)}
     />
   );
 }
@@ -134,11 +128,6 @@ export function Item<Value extends string>({
   ...props
 }: ItemProps<Value>) {
   return (
-    <Toggle<Value>
-      {...props}
-      className={(state) =>
-        cn(item, typeof className === "function" ? className(state) : className)
-      }
-    />
+    <Toggle<Value> {...props} className={stateClassName(item, className)} />
   );
 }

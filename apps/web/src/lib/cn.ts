@@ -23,6 +23,10 @@ const twMerge = extendTailwindMerge({
       "rounded-l": [{ "rounded-l": ["none", "full", fromTheme("radius")] }],
     },
   },
+  extend: {
+    theme: { ease: ["soft"] },
+    classGroups: { duration: [{ duration: ["s", "m", "l"] }] },
+  },
 });
 
 /**
@@ -32,4 +36,17 @@ const twMerge = extendTailwindMerge({
  */
 export function cn(...groups: ClassValue[]): string {
   return twMerge(clsx(groups));
+}
+
+/**
+ * The `className` of a Base UI part: its own classes, then the caller's,
+ * which is a string or a function of the part's state, so the caller's win.
+ * `className={stateClassName(classes, className)}`.
+ */
+export function stateClassName<State>(
+  classes: ClassValue,
+  className: string | ((state: State) => string | undefined) | undefined,
+): (state: State) => string {
+  return (state) =>
+    cn(classes, typeof className === "function" ? className(state) : className);
 }

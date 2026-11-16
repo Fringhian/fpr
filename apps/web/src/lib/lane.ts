@@ -1,5 +1,11 @@
+import { type UnitScale, unitScale } from "./bar-track";
 import type { Decimal } from "./format";
-import type { GainInput, GainUnit } from "./gain";
+import {
+  type GainAmount,
+  type GainInput,
+  type GainUnit,
+  gainAmount,
+} from "./gain";
 
 /**
  * What a lane shows, by standings: a gain over the period in the unit
@@ -11,73 +17,24 @@ export type LaneValue =
   | { board: "balance"; balance: Decimal | null };
 
 /**
- * The lowest and highest values across the lanes, in the unit the bars draw.
- * `min` is at most zero and `max` at least zero, so the zero line sits at the
- * same place in every lane.
+ * The value a lane's bar draws, in the unit it reads in: the gain as
+ * `gainAmount` reads it, in euros without a percentage (a start at zero), or
+ * the balance in euros. `null` when there is nothing to draw.
  */
-export interface LaneScale {
-  min: number;
-  max: number;
-}
-
-/** A bar's geometry, in percent of the track's width. */
-export interface LaneBar {
-  /** Where the zero line sits. */
-  zero: number;
-  /** Where the bar starts: at the zero line for a gain, left of it for a loss. */
-  start: number;
-  width: number;
-}
-
-/**
- * The number a lane's bar draws: the gain in the unit asked for, in percent
- * when there are no euros (an anonymous viewer), or the balance in euros.
- * `null` when there is nothing to draw.
- */
-export function laneAmount(value: LaneValue): number | null {
+export function laneAmount(value: LaneValue): GainAmount | null {
   if (value.board === "balance") {
-    return value.balance === null ? null : Number(value.balance);
+    return value.balance === null
+      ? null
+      : { amount: value.balance, unit: "eur" };
   }
-  const eur = value.gain.eur ?? null;
-  const amount =
-    value.unit === "eur" && eur !== null ? eur : value.gain.percent;
-  return amount === null ? null : Number(amount);
+  return gainAmount(value.gain, value.unit);
 }
-
-/** The scale every lane of one standings shares: from the lowest value to the highest, zero included. */
-export function laneScale(values: Iterable<LaneValue>): LaneScale {
-  let min = 0;
-  let max = 0;
-  for (const value of values) {
-    const amount = laneAmount(value);
-    if (amount !== null) {
-      min = Math.min(min, amount);
-      max = Math.max(max, amount);
-    }
-  }
-  return { min, max };
-}
-
-const clamp = (percent: number): number => Math.min(100, Math.max(0, percent));
 
 /**
- * The bar of an amount on a scale: from the zero line, rightwards for a gain
- * and leftwards for a loss, its length relative to the scale's whole span.
+ * The scale every lane of one standings shares, in each unit: a lane is drawn
+ * against the biggest lane that reads in its unit. The balance board reads in
+ * euros only.
  */
-export function laneBar(amount: number | null, scale: LaneScale): LaneBar {
-  const min = Math.min(0, scale.min);
-  const span = Math.max(0, scale.max) - min;
-  if (span === 0) {
-    return { zero: 0, start: 0, width: 0 };
-  }
-  const zero = clamp((-min / span) * 100);
-  if (amount === null) {
-    return { zero, start: zero, width: 0 };
-  }
-  const end = clamp(((amount - min) / span) * 100);
-  return {
-    zero,
-    start: Math.min(zero, end),
-    width: Math.abs(end - zero),
-  };
+export function laneScale(values: Iterable<LaneValue>): UnitScale {
+  return unitScale(Array.from(values, laneAmount));
 }

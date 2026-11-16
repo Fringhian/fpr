@@ -92,7 +92,7 @@ const inACard: Decorator = (Story) => (
 const DESCRIPTION = `
 One member in the standings: their picture, name and best share, a bar from the zero line, and their value. The order and the bars show the ranking: there are no rank numbers.
 
-- Gains go right of the zero line and losses left. Every lane of one standings shares a \`scale\`, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare.
+- Gains go right of the zero line and losses left. Every lane of one standings shares a \`scale\`, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare. The scale holds one span per unit, as the mover list's does: a gain with no percentage (a start at zero) reads in euros, its figure and its bar alike, and is drawn against the lanes in euros. The balance board reads in euros only.
 - The viewer’s own lane is tinted, with “· you” after the name.
 - The first three lanes ring their pictures in gold, silver and bronze on tablet and desktop. The phone shows no ring.
 - A member whose history starts after the period’s start says “since” that day; a member with a share whose prices haven’t arrived says “Incomplete”.
@@ -215,7 +215,12 @@ const configurable = {
     },
     scale: {
       control: { type: "object" },
-      table: { type: { summary: "{ min: number; max: number }" } },
+      table: {
+        type: {
+          summary:
+            "{ eur: { min: number; max: number }; percent: { min: number; max: number } }",
+        },
+      },
     },
     measuredFrom: {
       control: { type: "text" },
@@ -301,7 +306,7 @@ export const InEuros: Story = {
   args: {
     ...configurable.args,
     value: { board: "gain", gain: { eur: "610", percent: "6.1" }, unit: "eur" },
-    scale: { min: -88.1, max: 610 },
+    scale: { eur: { min: -88.1, max: 610 }, percent: { min: 0, max: 0 } },
   },
 };
 
@@ -311,7 +316,7 @@ export const Balance: Story = {
   args: {
     ...configurable.args,
     value: { board: "balance", balance: "12374" },
-    scale: { min: 0, max: 15200 },
+    scale: { eur: { min: 0, max: 15200 }, percent: { min: 0, max: 0 } },
   },
 };
 

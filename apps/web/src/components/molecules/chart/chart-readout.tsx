@@ -3,6 +3,7 @@ import { cn } from "../../../lib/cn";
 import { formatDate, type IsoDate } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
+import { MEMBER_FILLS } from "../../../lib/member-color";
 import type { Active } from "./chart-active";
 import { type ChartValueFormat, formatChartValue } from "./chart-model";
 import type { ChartColor, ChartLine } from "./chart-types";
@@ -17,16 +18,7 @@ const SWATCHES = {
   positive: "bg-positive",
   negative: "bg-negative",
   muted: "bg-muted",
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
+  ...MEMBER_FILLS,
 } as const satisfies Record<ChartColor, `bg-${string}`>;
 
 /** The readout's box: it slides along with the crosshair, and jumps with reduced motion. */
@@ -35,7 +27,7 @@ const BOX = cn(
   "",
   "",
   "",
-  "motion-safe:transition-transform",
+  "motion-safe:transition-transform motion-safe:duration-s motion-safe:ease-soft",
 );
 
 /** What the readout shows on a day: the date, marked when a value is not final, and each line's value that day. */

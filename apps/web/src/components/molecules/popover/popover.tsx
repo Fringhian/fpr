@@ -10,7 +10,8 @@ import {
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
+import { COLLISION_PADDING } from "../../../lib/popup";
 import { usePhone } from "../../../lib/use-phone";
 import { IconButton } from "../../atoms/icon-button/icon-button";
 import { TextLink, type TextLinkProps } from "../../atoms/text-link/text-link";
@@ -104,20 +105,7 @@ export function InfoTrigger({
   return (
     <Trigger
       {...props}
-      render={
-        <IconButton
-          icon={icon}
-          label={label}
-          size="s"
-          className={cn(
-            "",
-            "",
-            "",
-            "",
-            "popup-open:bg-highlight popup-open:text-primary",
-          )}
-        />
-      }
+      render={<IconButton icon={icon} label={label} size="s" />}
     />
   );
 }
@@ -134,15 +122,8 @@ export type PopupState = Pick<
   "open" | "transitionStatus"
 >;
 
-const popup = cn(
-  "w-[17.5rem] max-w-(--available-width) origin-(--transform-origin) rounded-[1.125rem] bg-surface px-m py-[0.875rem] font-sans text-s text-primary shadow-float outline-none",
-  "",
-  "",
-  "",
-  "transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none",
-  "starting-style:scale-[0.96] starting-style:opacity-0",
-  "ending-style:scale-[0.96] ending-style:opacity-0",
-);
+const popup =
+  "popup-motion w-[17.5rem] max-w-(--available-width) origin-(--transform-origin) rounded-card bg-surface px-m py-[0.875rem] font-sans text-s text-primary shadow-float outline-none";
 
 /**
  * The popup's placement, then every prop of Base UI's `Popover.Popup` but
@@ -215,19 +196,14 @@ export function Popup({
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
-        collisionPadding={16}
+        collisionPadding={COLLISION_PADDING}
         className="z-50"
       >
         <BasePopover.Popup
           {...props}
           ref={setRefs}
           initialFocus={initialFocus ?? popupRef}
-          className={(state) =>
-            cn(
-              popup,
-              typeof className === "function" ? className(state) : className,
-            )
-          }
+          className={stateClassName(popup, className)}
         />
       </BasePopover.Positioner>
     </BasePopover.Portal>
@@ -257,12 +233,7 @@ export function Title({ className, ...props }: TitleProps) {
   return (
     <BasePopover.Title
       {...props}
-      className={(state) =>
-        cn(
-          "text-s font-semibold",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("text-s font-semibold", className)}
     />
   );
 }
@@ -281,12 +252,7 @@ export function Description({ className, ...props }: DescriptionProps) {
   return (
     <BasePopover.Description
       {...props}
-      className={(state) =>
-        cn(
-          "mt-xs text-s",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("mt-xs text-s", className)}
     />
   );
 }

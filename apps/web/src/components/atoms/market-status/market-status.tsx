@@ -39,14 +39,13 @@ export function MarketStatus({
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const zone = timeZone === undefined ? {} : { timeZone };
   const text =
     status === "open"
       ? t("smallParts.marketStatus.open", {
-          time: formatTime(pricedAt, language, zone),
+          time: formatTime(pricedAt, language, { timeZone }),
         })
       : t("smallParts.marketStatus.closed", {
-          date: formatDate(pricedAt, language, { style: "weekday", ...zone }),
+          date: formatDate(pricedAt, language, { style: "weekday", timeZone }),
         });
 
   return (
