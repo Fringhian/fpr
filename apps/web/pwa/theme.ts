@@ -1,10 +1,10 @@
-import { readFileSync } from "node:fs";
-
 /**
  * Values of `src/theme.css`, the one place the look is defined, for what the
  * build writes outside the styles: the manifest, the `theme-color` meta tag
  * and the icons.
  */
+import { readFileSync } from "node:fs";
+
 const theme = readFileSync(
   new URL("../src/theme.css", import.meta.url),
   "utf-8",
