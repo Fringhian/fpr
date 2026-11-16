@@ -66,19 +66,11 @@ const sam = {
 
 const gutters = cn("", "px-m", "tablet:px-l", "desktop:px-l");
 
-/**
- * A page's top, made of the parts the controls switch on. It keeps the period
- * setting the way the app shell will, so the sentence follows the control.
- */
-function Page({ back, controls, sky, icon }: PageArgs) {
-  const language = useLanguage();
-  const [setting, setSetting] = useState<PeriodSetting>({
-    period: "1M",
-    unit: "percent",
-  });
+/** The bar's left end: the back link and the page's name, or the title, which is the heading on snow. */
+function BarStart({ back, sky, icon }: Omit<PageArgs, "controls">) {
+  const labels = LABELS[useLanguage()];
 
-  const labels = LABELS[language];
-  const left = back ? (
+  return back ? (
     <>
       <PageBar.Back href="#members" icon={ICONS[icon]}>
         {sky ? labels.members : labels.portfolio}
@@ -90,21 +82,19 @@ function Page({ back, controls, sky, icon }: PageArgs) {
       {sky ? labels.home : labels.members}
     </PageBar.Title>
   );
-  const bar = (
-    <PageBar.Root>
-      {left}
-      {controls ? (
-        <PageBar.Controls>
-          <PeriodControl
-            value={setting}
-            onChange={setSetting}
-            backdrop={sky ? "sky" : "snow"}
-          />
-        </PageBar.Controls>
-      ) : null}
-    </PageBar.Root>
-  );
-  const sentence = back ? (
+}
+
+/** The header sentence: a member's, under a back link, or Home's race. */
+function PageSentence({
+  back,
+  setting,
+}: {
+  back: boolean;
+  setting: PeriodSetting;
+}) {
+  const labels = LABELS[useLanguage()];
+
+  return back ? (
     <Sentence.Root>
       <Sentence.Headline>{sam.name}</Sentence.Headline>
       <Sentence.Story>{labels.memberStory}</Sentence.Story>
@@ -122,6 +112,33 @@ function Page({ back, controls, sky, icon }: PageArgs) {
       starShare={{ name: "Swiss Pharma AG", gain: "12.4" }}
     />
   );
+}
+
+/**
+ * A page's top, made of the parts the controls switch on. It keeps the period
+ * setting the way the app shell will, so the sentence follows the control.
+ */
+function Page({ back, controls, sky, icon }: PageArgs) {
+  const labels = LABELS[useLanguage()];
+  const [setting, setSetting] = useState<PeriodSetting>({
+    period: "1M",
+    unit: "percent",
+  });
+
+  const bar = (
+    <PageBar.Root>
+      <BarStart back={back} sky={sky} icon={icon} />
+      {controls ? (
+        <PageBar.Controls>
+          <PeriodControl
+            value={setting}
+            onChange={setSetting}
+            backdrop={sky ? "sky" : "snow"}
+          />
+        </PageBar.Controls>
+      ) : null}
+    </PageBar.Root>
+  );
 
   return (
     <Sky.Root className={cn("pb-xl font-sans text-primary", gutters)}>
@@ -130,7 +147,7 @@ function Page({ back, controls, sky, icon }: PageArgs) {
           <Sky.Band />
           <Sky.Header>
             {bar}
-            {sentence}
+            <PageSentence back={back} setting={setting} />
           </Sky.Header>
         </>
       ) : (
