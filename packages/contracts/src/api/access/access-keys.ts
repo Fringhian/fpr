@@ -2,7 +2,11 @@ import { z } from "zod";
 import { personal } from "../../anonymize.js";
 import { errorMap, errorWithDetails, publicRoute } from "../../contract.js";
 import { accessKeySchema, passwordSchema } from "../../schemas/access.js";
-import { displayNameSchema, emailSchema } from "../../schemas/person.js";
+import {
+  displayNameSchema,
+  emailSchema,
+  personSchema,
+} from "../../schemas/person.js";
 import { accessKeyStates } from "../../values.js";
 
 export { accessKeyStates };
@@ -54,6 +58,9 @@ export const accessCheckResponseSchema = z.discriminatedUnion("state", [
       signsInWith: z.literal(signInMethod.password),
       email: personal(emailSchema),
       displayName: personal(displayNameSchema),
+      color: personSchema.shape.color,
+      /** Loads once the person is signed in: the picture route takes a session. */
+      avatarUrl: personSchema.shape.avatarUrl,
       hasPassword: z.boolean(),
     }),
     z.object({

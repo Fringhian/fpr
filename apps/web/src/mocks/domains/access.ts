@@ -42,6 +42,8 @@ function checkResponse(store: MockStore, key: string): AccessCheckResponse {
     signsInWith,
     email: person.email ?? "",
     displayName: person.displayName,
+    color: person.color,
+    avatarUrl: null,
     hasPassword: person.password !== null,
   };
 }

@@ -428,6 +428,22 @@
                               "maxLength": 40,
                               "x-anonymize": "personal"
                             },
+                            "color": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 10
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "x-anonymize": "personal"
+                            },
                             "hasPassword": {
                               "type": "boolean"
                             }
@@ -437,6 +453,8 @@
                             "signsInWith",
                             "email",
                             "displayName",
+                            "color",
+                            "avatarUrl",
                             "hasPassword"
                           ]
                         },
