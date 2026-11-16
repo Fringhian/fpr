@@ -2,7 +2,7 @@ import { currencySchema, dateSchema, decimalSchema } from "@fpr/contracts";
 import { z } from "zod";
 
 /** A decimal string above zero. EODHD sends `0` or `"NA"` for a missing price. */
-const positiveDecimalSchema = decimalSchema.refine(
+export const positiveDecimalSchema = decimalSchema.refine(
   (value) => !value.startsWith("-") && /[1-9]/.test(value),
   { error: "Expected a price above zero" },
 );
@@ -26,8 +26,8 @@ export const quoteSchema = z.object({
   close: positiveDecimalSchema,
 });
 
-/** One trading day of `GET /eod/{symbol}`. */
+/** One trading day of `GET /eod/{symbol}`. A close at or below zero is skipped by name. */
 export const eodRowSchema = z.object({
   date: dateSchema,
-  close: positiveDecimalSchema,
+  close: decimalSchema,
 });

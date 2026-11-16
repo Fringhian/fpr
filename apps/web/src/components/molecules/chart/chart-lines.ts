@@ -2,20 +2,24 @@ import type { Decimal, IsoDate } from "@fpr/contracts";
 import {
   type IChartApi,
   type ISeriesApi,
+  type ISeriesMarkersPluginApi,
   LineSeries,
   type LineSeriesPartialOptions,
+  type Time,
 } from "lightweight-charts";
 import { type RefObject, useEffect } from "react";
+import { drawMarks } from "./chart-marks";
 import { type ChartPoint, dayToTime, splitLine } from "./chart-model";
 import { seriesOptions } from "./chart-options";
 import type { ChartLine, ChartVariant } from "./chart-types";
 
-/** A line's drawn parts: the solid series, and the dashed one after its last final day. */
+/** A line's drawn parts: the solid series, the dashed one after its last final day, and its marks. */
 export interface DrawnLine {
   line: ChartLine;
   values: Map<IsoDate, Decimal>;
   solid: ISeriesApi<"Line"> | null;
   dashed: ISeriesApi<"Line"> | null;
+  marks: ISeriesMarkersPluginApi<Time>[];
 }
 
 /** The series a line is drawn with on a day: the dashed one after its last final day. */
@@ -46,12 +50,24 @@ function drawLine(
   line: ChartLine,
   variant: ChartVariant,
 ): DrawnLine {
-  const { solid, dashed } = splitLine(line);
+  const parts = splitLine(line);
+  const series = {
+    solid: addPart(
+      chart,
+      parts.solid,
+      seriesOptions(element, line, false, variant),
+    ),
+    dashed: addPart(
+      chart,
+      parts.dashed,
+      seriesOptions(element, line, true, variant),
+    ),
+  };
   return {
     line,
     values: new Map(line.points.map((point) => [point.day, point.value])),
-    solid: addPart(chart, solid, seriesOptions(element, line, false, variant)),
-    dashed: addPart(chart, dashed, seriesOptions(element, line, true, variant)),
+    ...series,
+    marks: variant === "line" ? drawMarks(element, line, series) : [],
   };
 }
 
@@ -75,7 +91,8 @@ export function useChartLines(
     );
     chart.timeScale().fitContent();
     return () => {
-      for (const { solid, dashed } of drawn.current) {
+      for (const { solid, dashed, marks } of drawn.current) {
+        for (const plugin of marks) plugin.detach();
         if (solid) chart.removeSeries(solid);
         if (dashed) chart.removeSeries(dashed);
       }

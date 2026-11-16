@@ -91,11 +91,13 @@ function States() {
     { name: "Focus", className: "focus-ring" },
     { name: "Selected", className: "", defaultValue: "bought" },
     { name: "Disabled", className: "", disabled: true },
+    { name: "No icon", className: "", noIcon: true },
   ] as const satisfies ReadonlyArray<{
     name: string;
     className: string;
     defaultValue?: Change;
     disabled?: boolean;
+    noIcon?: boolean;
   }>;
 
   return (
@@ -112,7 +114,7 @@ function States() {
           >
             <Option.Item<Change>
               value="bought"
-              icon={PlusIcon}
+              icon={"noIcon" in state ? undefined : PlusIcon}
               title={text.bought}
               description={text.boughtLine}
               className={state.className}
@@ -130,11 +132,11 @@ One answer in a step that asks a question, such as Record a change’s “What c
 | Part | What it is |
 | --- | --- |
 | \`Option.Group\` | The answers to one question, on Base UI’s radio group. It takes \`value\` or \`defaultValue\`, \`onValueChange\`, \`disabled\`, \`readOnly\` and \`name\`, typed by the value: \`<Option.Group<Change>>\`. Name it after its question with \`aria-labelledby\`. |
-| \`Option.Item\` | One answer: \`value\`, \`icon\`, \`title\` and \`description\`, one line. Selected, it is outlined in charcoal. |
+| \`Option.Item\` | One answer: \`value\`, \`icon\`, \`title\` and \`description\`, one line. Selected, it is outlined in charcoal. Without \`icon\`, such as a share in the Shares search, the text starts at the edge. |
 
 - The group is one tab stop. The arrow keys move between the options and select the one they reach; Space selects the focused one.
 - The options stack and fill their column, at every width.
-- **States**: rest, hover (blush), the focus ring, selected (a charcoal outline), disabled.
+- **States**: rest, hover (blush), the focus ring, selected (a charcoal outline), disabled, and an option with no icon.
 `;
 
 const meta = {

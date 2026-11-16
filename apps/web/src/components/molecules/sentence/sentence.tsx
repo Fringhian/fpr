@@ -9,6 +9,7 @@ import { Greeting, Root } from "./sentence-parts";
 import { type Standing, type StarShare, StoryLine } from "./sentence-story";
 import type { TimeOfDay } from "./time-of-day";
 
+export { hasHeadline } from "./sentence-headline";
 export { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 export type { SentenceLeader, Standing, StarShare } from "./sentence-story";
 

@@ -1,4 +1,4 @@
-import type { IsoDate, Language } from "@fpr/contracts";
+import type { Language } from "@fpr/contracts";
 import { shareKinds, units } from "@fpr/contracts/values";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
@@ -9,32 +9,9 @@ import { type ComponentProps, useId } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { ChartPoint } from "../chart/chart";
-import { toDecimal } from "../chart/chart-model";
+import { walk } from "../../../mocks/story-curves";
 import * as Menu from "../menu/menu";
 import * as HoldingCard from "./holding-card";
-
-/** The weekdays of March 2026: the period the curves cover. */
-const DAYS: IsoDate[] = Array.from({ length: 31 }, (_, index) =>
-  new Date(Date.UTC(2026, 2, 1 + index)).toISOString().slice(0, 10),
-).filter((day) => {
-  const weekday = new Date(`${day}T00:00:00Z`).getUTCDay();
-  return weekday !== 0 && weekday !== 6;
-});
-
-/** An invented, repeatable random walk ending on `end`: the same curve on every load. */
-function walk(seed: number, end: number, drift: number, swing: number) {
-  let state = seed;
-  const steps = DAYS.map(() => {
-    state = (state * 16_807) % 2_147_483_647;
-    return (state / 2_147_483_647 - 0.5) * swing + drift;
-  });
-  let value = end - steps.reduce((sum, step) => sum + step, 0);
-  return DAYS.map((day, index): ChartPoint => {
-    value += steps[index] ?? 0;
-    return { day, value: toDecimal(value) };
-  });
-}
 
 /** Invented shares, held by an invented member. */
 const WORLD_INDEX = walk(11, 98.4, 0.35, 1.6);
@@ -82,26 +59,38 @@ const ACTIONS_ICONS = {
  */
 type StoryArgs = Omit<
   HoldingCard.BasicProps,
-  "link" | "linkIcon" | "actions" | "actionsIcon"
+  "link" | "linkIcon" | "you" | "actions" | "actionsIcon"
 > & {
   link: boolean;
   linkIcon: keyof typeof LINK_ICONS;
+  you: boolean;
   actions: boolean;
   actionsIcon: keyof typeof ACTIONS_ICONS;
 };
+
+/** The viewer, an invented member, when they hold the share too. */
+const YOU = { name: "Alex", color: "cobalt", photo: null } as const;
 
 /** The share page's link, as the router's `<Link>` would be: the card gives it its content. */
 function ShareLink(props: ComponentProps<"a">) {
   return <a {...props} href="#share" />;
 }
 
-function Card({ link, linkIcon, actions, actionsIcon, ...props }: StoryArgs) {
+function Card({
+  link,
+  linkIcon,
+  you,
+  actions,
+  actionsIcon,
+  ...props
+}: StoryArgs) {
   return (
     <div className="max-w-[17rem]">
       <HoldingCard.Basic
         {...props}
         link={link ? <ShareLink /> : undefined}
         linkIcon={LINK_ICONS[linkIcon]}
+        you={you ? YOU : null}
         actions={actions ? <Actions /> : undefined}
         actionsIcon={ACTIONS_ICONS[actionsIcon]}
       />
@@ -177,6 +166,7 @@ const PENDING = {
 const SLOTS = {
   link: true,
   linkIcon: "caret-right",
+  you: false,
   actions: true,
   actionsIcon: "dots-three",
 } as const satisfies Partial<StoryArgs>;
@@ -186,6 +176,7 @@ One share someone holds: its name, the quantity as entered with the latest price
 
 - **Your holding**: \`actions\` takes the ⋯ menu’s items, such as Buy more and Sell. The card knows no route: the page passes them. \`actionsIcon\` is the button’s icon, three dots by default.
 - **link**: the router’s link to the share’s page; the whole card opens it, and the name ends with \`linkIcon\`, a caret by default.
+- **Someone else’s holding**: no ⋯, and \`you\`, the viewer when they hold the share too, puts their small picture in the corner.
 - **Manual** share (\`kind="manual"\`): a badge, and the price “as of” the day of its last value point.
 - **Price pending** (\`latestPrice={null}\`): its prices are loading, and it is not counted yet.
 - **anonymous**: the weight in percent replaces the quantity and the value, and the gain reads in percent.
@@ -233,6 +224,7 @@ const meta = {
       options: Object.keys(LINK_ICONS),
       if: { arg: "link" },
     },
+    you: { control: { type: "boolean" }, name: "you (you hold it too)" },
     actions: { control: { type: "boolean" }, name: "actions (⋯ menu)" },
     actionsIcon: {
       control: { type: "select" },
@@ -260,6 +252,18 @@ const card = {
 
 /** Your holding, up over the period: the gain and the curve in green. ⋯ opens Buy more and Sell. */
 export const Gain = { ...card, args: SLOTS } satisfies CardStory;
+
+/** Someone else’s holding, on their page: no ⋯, and the viewer’s small picture in the corner because they hold the share too. */
+export const SomeoneElses = {
+  ...card,
+  args: { ...SLOTS, actions: false, you: true },
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement);
+    await expect(
+      card.getByRole("img", { name: "You hold it too" }),
+    ).toBeVisible();
+  },
+} satisfies CardStory;
 
 /** A loss: the gain and the curve in red, with the minus sign. Priced at yesterday’s close. */
 export const Loss = {

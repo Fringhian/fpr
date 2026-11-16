@@ -1,6 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../../src/database.js";
-import { insert, lockById, needsAttention } from "../../src/queries/shares.js";
+import {
+  insert,
+  listHeldMarket,
+  lockById,
+  needsAttention,
+} from "../../src/queries/shares.js";
 import type { NewShare } from "../../src/tables/share.js";
 import { createTestDatabase, type TestDatabase } from "../../src/testing.js";
 
@@ -73,51 +78,55 @@ describe("lockById", () => {
   });
 });
 
+let people = 0;
+/** Records a new person's change on a share, and returns their id. */
+async function hold(
+  shareId: string,
+  quantityDelta = "2",
+  effectiveAt = "2026-03-01T10:00:00Z",
+): Promise<string> {
+  people += 1;
+  const person = await db
+    .insertInto("user")
+    .values({
+      email: `person${people}@example.com`,
+      displayName: `Person ${people}`,
+      avatarKey: null,
+      role: "member",
+      color: (people % 10) + 1,
+      locale: null,
+      onboardedAt: null,
+    })
+    .returning("id")
+    .executeTakeFirstOrThrow();
+  await db
+    .insertInto("portfolioChanges")
+    .values({
+      userId: person.id,
+      shareId,
+      quantityDelta,
+      effectiveAt: new Date(effectiveAt),
+      createdBy: person.id,
+    })
+    .execute();
+  return person.id;
+}
+
+async function addPrice(
+  shareId: string,
+  at: string,
+  source: "close" | "intraday",
+): Promise<void> {
+  await db
+    .insertInto("prices")
+    .values({ shareId, at: new Date(at), priceEur: "40", source })
+    .execute();
+}
+
 describe("needsAttention", () => {
   const closesSince = "2026-03-03";
   const check = (id: string, timeZone = "Europe/Paris") =>
     needsAttention(db, id, closesSince, timeZone);
-
-  let people = 0;
-  /** Records a new person's change on a share, and returns their id. */
-  const hold = async (shareId: string, quantityDelta = "2") => {
-    people += 1;
-    const person = await db
-      .insertInto("user")
-      .values({
-        email: `person${people}@example.com`,
-        displayName: `Person ${people}`,
-        avatarKey: null,
-        role: "member",
-        color: (people % 10) + 1,
-        locale: null,
-        onboardedAt: null,
-      })
-      .returning("id")
-      .executeTakeFirstOrThrow();
-    await db
-      .insertInto("portfolioChanges")
-      .values({
-        userId: person.id,
-        shareId,
-        quantityDelta,
-        effectiveAt: new Date("2026-03-01T10:00:00Z"),
-        createdBy: person.id,
-      })
-      .execute();
-    return person.id;
-  };
-
-  const addPrice = async (
-    shareId: string,
-    at: string,
-    source: "close" | "intraday",
-  ) => {
-    await db
-      .insertInto("prices")
-      .values({ shareId, at: new Date(at), priceEur: "40", source })
-      .execute();
-  };
 
   it("is true for a held market share until a close from the day given is stored", async () => {
     const row = await insert(db, marketShare());
@@ -172,5 +181,74 @@ describe("needsAttention", () => {
     await hold(manual.id);
     expect(await check(manual.id)).toBe(false);
     expect(await check(UNKNOWN_ID)).toBe(false);
+  });
+});
+
+describe("listHeldMarket", () => {
+  const missing = async (id: string) =>
+    (await listHeldMarket(db, "Europe/Paris")).find((row) => row.id === id)
+      ?.missingCloses;
+
+  it("finds a held share missing the closes of its earliest holding, in the time zone's days", async () => {
+    const row = await insert(db, marketShare());
+    // Sunday 1 March, 00:30 in Paris: still 28 February in UTC.
+    await hold(row.id, "2", "2026-02-28T23:30:00Z");
+    expect(await missing(row.id)).toBe(true);
+
+    // Monday 2 March's close: after the first held day.
+    await addPrice(row.id, "2026-03-02T22:59:59Z", "close");
+    expect(await missing(row.id)).toBe(true);
+
+    // Friday 27 February's close covers a weekend start.
+    await addPrice(row.id, "2026-02-27T22:59:59Z", "close");
+    expect(await listHeldMarket(db, "Europe/Paris")).toEqual([
+      {
+        id: row.id,
+        providerSymbol: "EXC.US",
+        tradingCurrency: "USD",
+        historyStartsOn: null,
+        firstHeldOn: "2026-03-01",
+        firstCloseOn: "2026-02-27",
+        lastCloseOn: "2026-03-02",
+        missingCloses: false,
+      },
+    ]);
+  });
+
+  it("counts closes from historyStartsOn when the provider's history starts after the holding", async () => {
+    const row = await insert(
+      db,
+      marketShare({ historyStartsOn: "2026-03-02" }),
+    );
+    await hold(row.id);
+    await addPrice(row.id, "2026-03-02T22:59:59Z", "close");
+    expect(await missing(row.id)).toBe(false);
+  });
+
+  it("leaves out a share nobody holds now and a manual share", async () => {
+    const sold = await insert(db, marketShare());
+    const person = await hold(sold.id, "2");
+    await db
+      .insertInto("portfolioChanges")
+      .values({
+        userId: person,
+        shareId: sold.id,
+        quantityDelta: "-2",
+        effectiveAt: new Date("2026-03-02T10:00:00Z"),
+        createdBy: person,
+      })
+      .execute();
+    const manual = await insert(
+      db,
+      marketShare({
+        isin: "FR0000000002",
+        kind: "manual",
+        tradingCurrency: null,
+        providerSymbol: null,
+        exchange: null,
+      }),
+    );
+    await hold(manual.id);
+    expect(await listHeldMarket(db, "Europe/Paris")).toEqual([]);
   });
 });

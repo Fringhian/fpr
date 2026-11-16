@@ -10,7 +10,7 @@ import { attentionWindowStart } from "../market/trading-day.js";
 import { service } from "../orpc.js";
 import { storeValuePoint } from "./value-point.js";
 
-function toShareSummary(share: Share): ShareSummary {
+export function toShareSummary(share: Share): ShareSummary {
   return {
     id: share.id,
     isin: share.isin,

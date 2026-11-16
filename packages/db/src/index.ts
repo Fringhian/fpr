@@ -37,7 +37,7 @@ export type {
   ShareValue,
 } from "./queries/share-values.js";
 export * as shareValues from "./queries/share-values.js";
-export type { ShareChanges } from "./queries/shares.js";
+export type { HeldMarketShare, ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";
 export * as users from "./queries/users.js";

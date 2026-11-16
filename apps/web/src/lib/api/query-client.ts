@@ -1,4 +1,10 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  type QueryKey,
+} from "@tanstack/react-query";
 import { holdsSession } from "../session/session-query.ts";
 import { isApiError, isRefusal } from "./errors.ts";
 import { invalidateAfter } from "./invalidation.ts";
@@ -46,3 +52,33 @@ export const livePrices = {
   refetchIntervalInBackground: false,
   refetchOnWindowFocus: "always",
 } as const;
+
+/** A price read that a page keeps on screen while a new period or unit loads. */
+export const liveView = {
+  ...livePrices,
+  placeholderData: keepPreviousData,
+} as const;
+
+/**
+ * A price read kept on screen like `liveView`, but only while the `subject`
+ * of its input stays the same: a read of another member shows its own
+ * loading and its own error, never the last member's data.
+ */
+export function liveViewFor<Input extends object>(
+  input: Input,
+  subject: keyof Input,
+) {
+  return {
+    ...livePrices,
+    placeholderData: <Data>(
+      previous: Data | undefined,
+      previousQuery: { queryKey: QueryKey } | undefined,
+    ) => {
+      // An oRPC query key is `[path, { input, type }]`.
+      const key = previousQuery?.queryKey[1] as
+        | { input?: Partial<Input> }
+        | undefined;
+      return key?.input?.[subject] === input[subject] ? previous : undefined;
+    },
+  } as const;
+}

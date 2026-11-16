@@ -5,6 +5,7 @@ import {
   formatPercent,
   type MoneyPrecision,
 } from "../../../lib/format/money";
+import type { GainUnit } from "../../../lib/gain";
 
 export type ChartUnit = "money" | "percent";
 
@@ -15,6 +16,15 @@ export interface ChartValueFormat {
   precision: MoneyPrecision;
   /** A sign on every value but zero, for gains: `+4.2%`. */
   signed: boolean;
+}
+
+/** A chart of gains: signed, in whole euros or in percent, as the unit setting says. */
+export function gainFormat(unit: GainUnit): ChartValueFormat {
+  return {
+    unit: unit === "eur" ? "money" : "percent",
+    precision: "euros",
+    signed: true,
+  };
 }
 
 /**

@@ -26,6 +26,24 @@ export const lookupErrors = {
   offline: "provider_unavailable",
 } as const;
 
+/**
+ * The address switches of `pnpm dev:mock`, each read once on load and removed
+ * from the address, lasting until the next load: `?mock-as=<persona>` signs
+ * in as a persona, `?mock-empty` starts with nobody yet, `?mock-slow` (or
+ * `?mock-slow=<ms>`) delays every answer, and `?mock-fail=<path>` answers
+ * `500 internal_error` to every route whose path starts with it, such as
+ * `?mock-fail=/race` or `?mock-fail=/leaderboards`.
+ */
+export const urlSwitches = {
+  persona: "mock-as",
+  empty: "mock-empty",
+  slow: "mock-slow",
+  fail: "mock-fail",
+} as const;
+
+/** How long `?mock-slow` delays every answer when it names no time, in milliseconds. */
+export const slowDelayMs = 3000;
+
 /** Any public write whose key or email starts with this answers `429 rate_limited`. */
 export const rateLimitedPrefix = "rate-limited";
 

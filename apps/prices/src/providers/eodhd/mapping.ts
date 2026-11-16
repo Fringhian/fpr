@@ -46,6 +46,43 @@ export function readRows<S extends z.ZodType>(
   return kept;
 }
 
+/** EODHD's country names that differ from their English names. */
+const countryAliases: Readonly<Record<string, string>> = {
+  usa: "US",
+  uk: "GB",
+};
+
+let codesByName: Map<string, string> | undefined;
+
+/** Every two-letter region code by its English name, in lowercase. */
+function regionCodes(): Map<string, string> {
+  const names = new Intl.DisplayNames("en", { type: "region" });
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const codes = new Map<string, string>();
+  for (const first of letters) {
+    for (const second of letters) {
+      const code = first + second;
+      const name = names.of(code);
+      // A retired code, such as DD or FX, is an alias of a current one.
+      const current = new Intl.Locale(`und-${code}`).region === code;
+      if (current && name !== undefined && name !== code) {
+        codes.set(name.toLowerCase(), code);
+      }
+    }
+  }
+  return codes;
+}
+
+/** EODHD's country name, such as `France` or `USA`, as an ISO 3166 code. */
+function countryCode(name: string | null | undefined): string | null {
+  const key = name?.trim().toLowerCase();
+  if (!key) {
+    return null;
+  }
+  codesByName ??= regionCodes();
+  return countryAliases[key] ?? codesByName.get(key) ?? null;
+}
+
 export function toListing(
   item: z.infer<typeof searchItemSchema>,
 ): ProviderListing {
@@ -55,7 +92,7 @@ export function toListing(
     isin: isin.success ? isin.data : null,
     name: item.Name,
     exchange: item.Exchange,
-    country: item.Country?.trim() || null,
+    countryCode: countryCode(item.Country),
     tradingCurrency: item.Currency,
     type: item.Type?.trim() ?? "",
     primary: item.isPrimary ?? null,

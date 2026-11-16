@@ -1,6 +1,7 @@
 import { type ComponentProps, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
+import { Brand } from "../../atoms/brand/brand";
 import { SideAccountMenu } from "./navigation-account";
 import { Item } from "./navigation-item";
 import { type Destination, destinationsFor } from "./navigation-model";
@@ -45,22 +46,12 @@ function AdminGroup({
   );
 }
 
-function Brand() {
-  const { t } = useTranslation();
-
-  return (
-    <p
-      className={cn(
-        "text-m font-semibold tracking-[0.08em]",
-        "pb-[0.75rem] text-center",
-        "tablet:px-0 tablet:pb-[0.75rem] tablet:text-center",
-        "desktop:px-[0.625rem] desktop:pb-[0.875rem] desktop:text-start",
-      )}
-    >
-      {t("navigation.brand")}
-    </p>
-  );
-}
+const brand = cn(
+  "",
+  "pb-[0.75rem] text-center",
+  "tablet:px-0 tablet:pb-[0.75rem] tablet:text-center",
+  "desktop:px-[0.625rem] desktop:pb-[0.875rem] desktop:text-start",
+);
 
 export type SideProps = ComponentProps<"nav">;
 
@@ -87,7 +78,7 @@ export function Side({ className, ...props }: SideProps) {
         className,
       )}
     >
-      <Brand />
+      <Brand className={brand} />
       <ul
         className={cn(
           "flex flex-col",

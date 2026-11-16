@@ -104,7 +104,7 @@ async function seedPrices(): Promise<void> {
 }
 
 describe("upsert", () => {
-  it("replaces the price, source, and entered_by at the same moment", async () => {
+  it("replaces the price, source, and entered_by at the same moment, with a new created_at", async () => {
     const person = await db
       .insertInto("user")
       .values({
@@ -119,6 +119,8 @@ describe("upsert", () => {
       .returning("id")
       .executeTakeFirstOrThrow();
     const first = await upsert(db, price());
+    const longAgo = new Date("2020-01-01T00:00:00Z");
+    await db.updateTable("prices").set({ createdAt: longAgo }).execute();
     const second = await upsert(
       db,
       price({
@@ -133,7 +135,9 @@ describe("upsert", () => {
       priceEur: "39.95",
       source: "manual",
       enteredBy: person.id,
+      createdAt: expect.any(Date),
     });
+    expect(second.createdAt.getTime()).toBeGreaterThan(longAgo.getTime());
     expect(await db.selectFrom("prices").selectAll().execute()).toHaveLength(1);
   });
 });

@@ -297,7 +297,7 @@ A screen with a need \`Basic\` doesn't cover composes the parts with its own chi
 | --- | --- | --- |
 | \`bought\` | \`share\`, \`quantity\`, \`before\`, \`after\` | “Bought 10 World Index ETF”, “50 → 60”, or “New holding” from zero |
 | \`sold\` | \`share\`, \`quantity\`, \`before\`, \`after\` | “Sold 5 US Health ETF”, “12 → 7” |
-| \`cashSet\` | \`amount\`, \`before\` (\`null\` for the first) | “Cash set to €2,000.00”, “was €2,400.00” or “First cash entry” |
+| \`cashSet\` | \`amount\`, \`before\` (\`null\` for the first, left out while not known) | “Cash set to €2,000.00”, “was €2,400.00” or “First cash entry”, or no line |
 | \`valueAdded\` | \`price\` | “Value of €38.60 added” |
 | \`valueEdited\` | \`price\`, \`before\` | “Value changed to €40.10”, “was €41.00” |
 

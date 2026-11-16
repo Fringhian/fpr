@@ -77,15 +77,16 @@ The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a sno
 | --- | --- | --- |
 | `/setup` | First-admin setup | Admin, first-admin case |
 | `/sign-in` | Sign in | ACC-2 |
-| `/access/$key` | Access link: set a password, or sign in as an anonymous viewer | ACC-1, ANO-1 |
+| `/access/$key` | Access link, shown at `/access` once its key leaves the address: set a password, or sign in as an anonymous viewer | ACC-1, ANO-1 |
 | `/reset-password` | Email and reset key, then the new password | ACC-3 |
 | `/onboarding` | Name, colour and optional photo, the prepared portfolio, then a welcome | ONB-1 to ONB-4 |
 | `/` | Home: the race, the focused member's panel, the standings | LDB-1 to LDB-3, LDB-7, CMP-1 to CMP-3 |
 | `/members` | Every member | CMP-4 |
-| `/members/$userId` | A member's page, read-only, or editable by the admin | CMP-5, ADM-7 |
+| `/members/$userId` | A member's page, read-only, or editable by the admin with `?edit=true` | CMP-5, ADM-7 |
 | `/portfolio` | My portfolio, its chart, and the latest changes | POR-1, POR-6 |
 | `/portfolio/record` | Record a change: bought, sold, or cash | POR-2 to POR-4, POR-7 |
 | `/members/$userId/record` | The admin records a change for a member, with the same flow | ADM-7 |
+| `/members/$userId/history` | Every change of a member's portfolio, for the admin in edit mode | ADM-7 |
 | `/portfolio/history` | Every share change and cash balance | POR-5 |
 | `/shares` | Every share, and the search | SHR-1, SHR-5, SHR-7 |
 | `/shares/$shareId` | A share's page | SHR-2 to SHR-6 |
@@ -137,7 +138,7 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 - Every amount, quantity and percentage arrives as the decimal string the API sends, and is formatted exactly, with no floating-point rounding. A quantity keeps the fractional digits it was entered with.
 - A signed value has a sign unless it rounds to zero. An unsigned one has a minus only when negative, and never shows a negative zero. Every minus is `−` (U+2212).
-- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone.
+- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone, except on a chart, which puts each point on its day in `Europe/Paris`, the default `RACE_TIMEZONE`, where the API dates its closes.
 
 ### Typography
 
