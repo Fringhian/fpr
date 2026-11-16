@@ -1,18 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
-import { click } from "./interact.ts";
+import { buttonNamed, click, screenText } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
-
-/** The text of the whole document: menus and toasts render in portals. */
-function screenText(): string {
-  return document.body.textContent ?? "";
-}
-
-function buttonNamed(name: string): HTMLElement | undefined {
-  return [
-    ...document.body.querySelectorAll<HTMLElement>("button, [role=menuitem]"),
-  ].find((element) => element.textContent?.trim() === name);
-}
 
 /** Deletes the History row that says `title` through its ⋯ menu. */
 async function deleteRow(title: string, done: () => void) {

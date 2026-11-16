@@ -1,24 +1,27 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
 import * as Toast from "../../components/molecules/toast/toast";
 import * as Navigation from "../../components/organisms/navigation/navigation";
 import * as AppLayout from "../../components/templates/app-layout/app-layout";
 import { memberColor } from "../../lib/member-color";
 import { signOut } from "../../lib/session/sign-out";
 import { useSession } from "../../lib/session/use-session";
+import { Settings } from "../-settings/settings";
 
 const renderLink = ({ href }: Navigation.NavigationLink) => <Link to={href} />;
 
 /**
  * The template's frame around every everyday page, kept while the person
  * moves between them: the navigation for their role, its current item read
- * from the address, the page in the column, and the toasts' region. Each
- * page renders its own `Screen`.
+ * from the address, the page in the column, Settings, which the account menu
+ * opens, and the toasts' region. Each page renders its own `Screen`.
  */
 export function AppShell() {
   const { person, role } = useSession();
   const current = useRouterState({
     select: (state) => Navigation.destinationAt(state.location.pathname),
   });
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <AppLayout.Frame
@@ -30,10 +33,12 @@ export function AppShell() {
         photo: person.avatarUrl,
       }}
       renderLink={renderLink}
+      onSettings={() => setSettingsOpen(true)}
       onSignOut={() => void signOut()}
       toasts={<Toast.Region />}
     >
       <Outlet />
+      <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </AppLayout.Frame>
   );
 }

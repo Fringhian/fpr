@@ -417,9 +417,6 @@
       "description": "C’est votre courbe sur le graphique, votre barre dans le classement et votre avatar.",
       "taken": "Les couleurs pâles sont prises : l’initiale montre qui l’a.",
       "usePhoto": "Utiliser une photo",
-      "changePhoto": "Changer de photo",
-      "removePhoto": "Retirer la photo",
-      "uploading": "Envoi…",
       "action": {
         "portfolio": "Voir votre portefeuille",
         "welcome": "Rencontrer les autres"
@@ -860,6 +857,95 @@
     "loadingMore": "Chargement d’autres mouvements…",
     "moreFailed": "Impossible de charger plus de mouvements.",
     "none": "Vous n’avez encore rien enregistré."
+  },
+  "photoControl": {
+    "change": "Changer de photo",
+    "remove": "Retirer la photo",
+    "uploading": "Envoi…",
+    "retry": "Réessayer"
+  },
+  "settings": {
+    "title": "Réglages",
+    "addPhoto": "Ajouter une photo",
+    "colour": "Couleur",
+    "name": "Nom affiché",
+    "language": "Langue",
+    "languageKept": "Gardée sur cet appareil.",
+    "password": {
+      "open": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "action": "Changer le mot de passe",
+      "loading": "Changement…",
+      "wrong": "Ce n’est pas votre mot de passe actuel. Vérifiez-le et réessayez.",
+      "changed": "Mot de passe changé. Vos autres sessions sont déconnectées."
+    },
+    "saved": "Chaque changement est enregistré aussitôt"
+  },
+  "helpPage": {
+    "contents": "Sur cette page",
+    "sections": {
+      "race": {
+        "title": "La course",
+        "body": "Le gain de chacun depuis le début de la période choisie, sur un seul graphique. Votre courbe et celle du membre mis en avant sont en couleur, les autres en gris."
+      },
+      "periods": {
+        "title": "Périodes et € / %",
+        "body": "La période fixe le départ de chaque gain, d’aujourd’hui à depuis le début. En €, on compte l’argent gagné. En %, un petit portefeuille peut gagner à la performance."
+      },
+      "today": {
+        "title": "Aujourd’hui et clôtures",
+        "body": "Aujourd’hui bouge toutes les 30 minutes et reste en pointillés jusqu’à la clôture du marché. Le classement n’utilise que les cours de clôture."
+      },
+      "record": {
+        "title": "Enregistrer un mouvement",
+        "body": "Un achat de la semaine dernière s’enregistre à son jour, et FPR le rejoue depuis ce jour-là."
+      },
+      "cash": {
+        "title": "Liquidités",
+        "body": "Vos liquidités ne changent que quand vous les définissez. Acheter ou vendre ne les modifie jamais, alors redéfinissez-les quand de l’argent entre ou sort."
+      },
+      "search": {
+        "title": "Trouver un titre",
+        "body": "Tapez un nom ou collez un ISIN, FPR le cherche chez son fournisseur de cours."
+      },
+      "manual": {
+        "title": "Titres manuels",
+        "body": "Un titre que personne ne suit prend sa valeur auprès des membres. Tout le monde peut la mettre à jour."
+      },
+      "missing": {
+        "title": "Cours manquants",
+        "body": "Un titre dont les cours ne sont pas arrivés n’est pas compté, jamais à zéro, et le total est marqué incomplet."
+      },
+      "splits": {
+        "title": "Divisions et dividendes",
+        "body": "Une division d’actions s’enregistre comme un achat des nouvelles actions le jour de la division. Un dividende versé en espèces se reporte dans vos liquidités."
+      },
+      "credits": {
+        "title": "Crédits",
+        "body": "Les graphiques sont dessinés avec TradingView Lightweight Charts™, conçu par TradingView.",
+        "notice": "TradingView Lightweight Charts™ Copyright (c) 2023 TradingView, Inc.",
+        "link": "tradingview.com"
+      }
+    }
+  },
+  "helpInfo": {
+    "race": {
+      "title": "Ce que montre la course",
+      "body": "Chaque ligne est le gain d’un membre depuis le début de la période choisie. En %, un petit portefeuille peut battre un gros. La fin en pointillés, c’est aujourd’hui, définitive à la clôture du marché."
+    },
+    "unit": {
+      "title": "€ ou %",
+      "body": "En €, on compte l’argent gagné par chacun sur la période. En %, on compare la performance, et un petit portefeuille peut battre un gros."
+    },
+    "cash": {
+      "title": "Liquidités",
+      "body": "Les liquidités ne changent que quand on les définit. Acheter ou vendre ne les modifie jamais."
+    },
+    "incomplete": {
+      "title": "Incomplet",
+      "body": "Certains titres attendent encore leurs cours. D’ici là, ils ne sont pas comptés, jamais à zéro."
+    }
   },
   "pageStates": {
     "notFound": {

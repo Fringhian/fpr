@@ -411,9 +411,6 @@
       "description": "It’s your curve on the chart, your bar in the standings, and your picture.",
       "taken": "Faded colours are taken: the initial shows who has it.",
       "usePhoto": "Use a photo instead",
-      "changePhoto": "Change photo",
-      "removePhoto": "Remove photo",
-      "uploading": "Uploading…",
       "action": {
         "portfolio": "See your portfolio",
         "welcome": "Meet everyone"
@@ -846,6 +843,95 @@
     "loadingMore": "Loading more changes…",
     "moreFailed": "Can’t load more changes.",
     "none": "You haven’t recorded anything yet."
+  },
+  "photoControl": {
+    "change": "Change photo",
+    "remove": "Remove photo",
+    "uploading": "Uploading…",
+    "retry": "Retry"
+  },
+  "settings": {
+    "title": "Settings",
+    "addPhoto": "Upload a photo",
+    "colour": "Colour",
+    "name": "Display name",
+    "language": "Language",
+    "languageKept": "Kept on this device.",
+    "password": {
+      "open": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "action": "Change password",
+      "loading": "Changing…",
+      "wrong": "This isn’t your current password. Check it and try again.",
+      "changed": "Password changed. Your other sessions are signed out."
+    },
+    "saved": "Changes are saved as you make them"
+  },
+  "helpPage": {
+    "contents": "On this page",
+    "sections": {
+      "race": {
+        "title": "The race",
+        "body": "Everyone’s gain since the start of the period you pick, on one chart. Your line and the member you focus on are in colour, the others in grey."
+      },
+      "periods": {
+        "title": "Periods and € / %",
+        "body": "The period sets where every gain starts, from today to all time. € counts the money earned. % lets a small portfolio win on performance."
+      },
+      "today": {
+        "title": "Today and closes",
+        "body": "Today moves every 30 minutes and stays dashed until the market closes. The standings use closing prices only."
+      },
+      "record": {
+        "title": "Recording a change",
+        "body": "Bought something last week? Record it with that day: FPR replays it from then."
+      },
+      "cash": {
+        "title": "Cash",
+        "body": "Your cash only changes when you set it. Buying or selling never moves it, so set it again when money comes in or goes out."
+      },
+      "search": {
+        "title": "Finding a share",
+        "body": "Type a name, or paste an ISIN: FPR looks it up at its price provider."
+      },
+      "manual": {
+        "title": "Manual shares",
+        "body": "A share nobody tracks gets its value from members. Anyone can update it."
+      },
+      "missing": {
+        "title": "Missing prices",
+        "body": "A share whose prices haven’t arrived isn’t counted, never at €0, and the total says “incomplete”."
+      },
+      "splits": {
+        "title": "Splits and dividends",
+        "body": "A split: record the new shares as a purchase on the split day. A dividend paid in cash: set your cash."
+      },
+      "credits": {
+        "title": "Credits",
+        "body": "The charts are drawn with TradingView Lightweight Charts™, made by TradingView.",
+        "notice": "TradingView Lightweight Charts™ Copyright (c) 2023 TradingView, Inc.",
+        "link": "tradingview.com"
+      }
+    }
+  },
+  "helpInfo": {
+    "race": {
+      "title": "What the race shows",
+      "body": "Each line is one member’s gain since the start of the period you picked. In %, a small portfolio can beat a big one. The dashed end is today: it becomes final at the market close."
+    },
+    "unit": {
+      "title": "€ or %",
+      "body": "€ counts the money each member earned over the period. % compares their performance, so a small portfolio can beat a big one."
+    },
+    "cash": {
+      "title": "Cash",
+      "body": "Cash only changes when it’s set. Buying or selling never moves it."
+    },
+    "incomplete": {
+      "title": "Incomplete",
+      "body": "Some shares are still waiting for their prices. Until they arrive, they aren’t counted, never at €0."
+    }
   },
   "pageStates": {
     "notFound": {

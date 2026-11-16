@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { type ChangeEvent, useState } from "react";
-import { isApiError, useErrorText } from "../../../lib/api/errors";
-import { useApi } from "../../../lib/api/use-api";
+import { isApiError, useErrorText } from "../../lib/api/errors";
+import { useApi } from "../../lib/api/use-api";
 
 /** A refusal of the picture itself: another picture is the fix, not a retry. */
 function refusesPicture(error: unknown): boolean {

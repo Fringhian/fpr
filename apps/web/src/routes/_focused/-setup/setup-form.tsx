@@ -13,9 +13,9 @@ import {
   DisplayNameField,
   EmailField,
   NewPasswordField,
-} from "../-access/access-fields";
+} from "../../-account/access-fields";
+import { useRefusal } from "../../-account/use-refusal";
 import { AccessPage } from "../-access/access-page";
-import { useRefusal } from "../-access/use-refusal";
 
 /** The fields the API knows the answer of but the form can't check. */
 const blame = { invalid_bootstrap_key: "bootstrapKey" } as const;

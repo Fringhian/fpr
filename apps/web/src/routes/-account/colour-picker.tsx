@@ -1,10 +1,10 @@
-import * as Swatch from "../../../components/atoms/swatch/swatch";
-import { cn } from "../../../lib/cn";
+import * as Swatch from "../../components/atoms/swatch/swatch";
+import { cn } from "../../lib/cn";
 import {
   MEMBER_COLORS,
   type MemberColor,
   memberColor,
-} from "../../../lib/member-color";
+} from "../../lib/member-color";
 import { useOthers } from "./use-others";
 
 /** The others' colours, and whether every colour is taken, so they can be shared. */
