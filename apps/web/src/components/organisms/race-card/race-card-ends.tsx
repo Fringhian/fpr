@@ -1,5 +1,5 @@
 import { cn } from "../../../lib/cn";
-import type { MemberColor } from "../../../lib/member-color";
+import { MEMBER_FILLS } from "../../../lib/member-color";
 import type { ChartLayout } from "../../molecules/chart/chart";
 import type { ChartValueFormat } from "../../molecules/chart/chart-model";
 import { EndPicture, Sign } from "./race-card-marks";
@@ -10,20 +10,6 @@ import {
   roleOf,
   spreadMarks,
 } from "./race-card-model";
-
-/** The dot at the end of a line in colour. */
-const DOTS = {
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
-} as const satisfies Record<MemberColor, string>;
 
 /** From a line's end to the left edge of its mark, in pixels. */
 const MARK_OFFSET = 12;
@@ -106,7 +92,7 @@ function Dots({ marks }: { marks: readonly Mark[] }) {
         key={mark.id}
         aria-hidden
         style={{ left: mark.x, top: mark.y }}
-        className={cn(DOT, DOTS[mark.member.color])}
+        className={cn(DOT, MEMBER_FILLS[mark.member.color])}
       />
     ),
   );

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import type { IsoDate } from "../../../lib/format";
 import type { GainUnit } from "../../../lib/gain";
+import { Card } from "../../atoms/card/card";
 import { Chart } from "../../molecules/chart/chart";
 import type { ChartValueFormat } from "../../molecules/chart/chart-model";
 import { LineEnds } from "./race-card-ends";
@@ -17,10 +18,12 @@ export type { RaceMember } from "./race-card-model";
  */
 export function Root({ className, ...props }: ComponentProps<"section">) {
   return (
-    <section
+    <Card
       {...props}
+      elevation="rest"
+      render={<section />}
       className={cn(
-        "grid min-w-0 gap-s rounded-l bg-surface font-sans text-primary shadow-rest",
+        "grid min-w-0 gap-s font-sans text-primary",
         "p-m",
         "tablet:p-l",
         "desktop:p-l",
