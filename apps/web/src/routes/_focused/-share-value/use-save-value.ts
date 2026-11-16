@@ -83,7 +83,7 @@ export function useSaveValue(shareId: Id, editing: ShareValue | undefined) {
     taken,
     refusal: write.isError && !conflict ? errorText(write.error) : null,
     reset: () => {
-      if (add.isError) add.reset();
+      if (write.isError) write.reset();
       setTaken(null);
     },
   };
