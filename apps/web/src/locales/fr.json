@@ -797,6 +797,18 @@
       "tooMany": "{{held}} Saisissez {{quantity}} ou moins.",
       "all": "Tout"
     },
+    "overTime": {
+      "title": {
+        "you": "Vos {{share}} au fil du temps",
+        "member": "Les {{share}} de {{name}} au fil du temps"
+      },
+      "bought": "Achat de {{quantity}}",
+      "sold": "Vente de {{quantity}}",
+      "thisSale": "Cette vente",
+      "unknown": "Pas encore connu",
+      "loading": "Chargement de la position au fil du temps…",
+      "failed": "Impossible de charger la position au fil du temps."
+    },
     "cash": {
       "question": {
         "you": "Vos liquidités le {{date}}",

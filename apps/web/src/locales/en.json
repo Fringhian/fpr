@@ -783,6 +783,18 @@
       "tooMany": "{{held}} Enter {{quantity}} or less.",
       "all": "All"
     },
+    "overTime": {
+      "title": {
+        "you": "Your {{share}} over time",
+        "member": "{{name}}’s {{share}} over time"
+      },
+      "bought": "Bought {{quantity}}",
+      "sold": "Sold {{quantity}}",
+      "thisSale": "This sale",
+      "unknown": "Not known yet",
+      "loading": "Loading the holding over time…",
+      "failed": "Can’t load the holding over time."
+    },
     "cash": {
       "question": {
         "you": "Your cash on {{date}}",

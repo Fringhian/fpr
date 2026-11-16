@@ -12,8 +12,9 @@ import { useLanguage } from "../../../lib/i18n";
 import { raceTimeZone } from "../../../lib/race-day";
 import { AmountForm } from "./amount-form";
 import { useFlow } from "./flow";
+import { HoldingOverTime } from "./holding-over-time";
 import { ReadLine } from "./read-line";
-import { RecordPage } from "./record-page";
+import { DraftSummary, RecordPage } from "./record-page";
 import { useCashBefore, useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
 
@@ -152,12 +153,21 @@ function CashStep() {
   );
 }
 
-/** How many, or how much for cash. */
+/** How many, or how much for cash. A sale's panel adds the holding over time. */
 export function AmountStep() {
   const { draft } = useFlow();
 
   return (
-    <RecordPage>
+    <RecordPage
+      panel={
+        draft.kind === "sell" ? (
+          <>
+            <DraftSummary />
+            <HoldingOverTime />
+          </>
+        ) : undefined
+      }
+    >
       {draft.kind === "cash" ? <CashStep /> : <QuantityStep />}
     </RecordPage>
   );
