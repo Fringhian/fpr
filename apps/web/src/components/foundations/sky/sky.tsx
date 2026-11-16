@@ -13,8 +13,8 @@ export function Root({ className, ...props }: ComponentProps<"div">) {
 
 /**
  * The peach sky behind the top of the page, closed by the ridge at the fixed
- * horizon: the ridge's top sits 206px from the page top on phone, 200px from
- * tablet up. Goes inside `Root`, which it fills across.
+ * horizon: the ridge's top sits 206px below the top safe area on phone, 200px
+ * from tablet up. Goes inside `Root`, which it fills across.
  */
 export function Band({ className, ...props }: ComponentProps<"div">) {
   return (
@@ -23,9 +23,9 @@ export function Band({ className, ...props }: ComponentProps<"div">) {
       aria-hidden
       className={cn(
         "absolute inset-x-0 top-0 -z-10 bg-sky",
-        "pt-[12.875rem]",
-        "tablet:pt-[12.5rem]",
-        "desktop:pt-[12.5rem]",
+        "pt-[calc(12.875rem+var(--safe-top))]",
+        "tablet:pt-[calc(12.5rem+var(--safe-top))]",
+        "desktop:pt-[calc(12.5rem+var(--safe-top))]",
         className,
       )}
     >
@@ -37,10 +37,10 @@ export function Band({ className, ...props }: ComponentProps<"div">) {
 /**
  * The header sentence's place, over the sky. The page's content starts right
  * under it, just below the near ridge, so the whole ridge shows above the
- * first card: 240px from the top of `Root` on phone, 236px from tablet up.
- * Its content flows from its top: the page bar, then the header sentence.
- * Its height is fixed: a header that doesn't fit means the page has no sky,
- * never a moved ridge.
+ * first card: 240px below the top safe area on phone, 236px from tablet up.
+ * Its content flows from its top: the page bar, which pads for the safe area,
+ * then the header sentence. Its height is fixed: a header that doesn't fit
+ * means the page has no sky, never a moved ridge.
  */
 export function Header({ className, ...props }: ComponentProps<"header">) {
   return (
@@ -48,9 +48,9 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
       {...props}
       className={cn(
         "flex flex-col",
-        "h-[15rem] pb-[0.75rem]",
-        "tablet:h-[14.75rem] tablet:pb-[1.125rem]",
-        "desktop:h-[14.75rem] desktop:pb-[1.125rem]",
+        "h-[calc(15rem+var(--safe-top))] pb-[0.75rem]",
+        "tablet:h-[calc(14.75rem+var(--safe-top))] tablet:pb-[1.125rem]",
+        "desktop:h-[calc(14.75rem+var(--safe-top))] desktop:pb-[1.125rem]",
         className,
       )}
     />

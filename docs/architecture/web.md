@@ -69,7 +69,7 @@ The design reference lives in `design/`, outside git: the wireframes draw every 
 
 ### Sky and ridge
 
-The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a snow ground and, behind the top of the page, a peach sky closed by a two-layer ridge. A page with a header sentence (Home, Portfolio, a member, a share) has the sky, with the sentence above the ridge; a page without one starts on snow. The header has a fixed height, so a sentence that doesn't fit means the page has no sky. Its story, Foundations › Sky and ridge, shows the geometry at each width.
+The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a snow ground and, behind the top of the page, a peach sky closed by a two-layer ridge. A page with a header sentence (Home, Portfolio, a member, a share) has the sky, with the sentence above the ridge; a page without one starts on snow. The header has a fixed height below the top safe area, so a sentence that doesn't fit means the page has no sky. Its story, Foundations › Sky and ridge, shows the geometry at each width.
 
 ## Screens
 
@@ -99,9 +99,9 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 
 - Desktop: a sidebar with Home, Members, Portfolio and Shares, then an Admin group with People and Tracked shares for admins. The account menu at its bottom opens Settings, How FPR works, and Sign out.
 - Tablet: a navigation rail with the same items and the account menu.
-- Phone: a top bar with the page title or a back link and the account menu, and a floating tab bar with the four items, which the content scrolls under. Nothing floats beside it.
+- Phone: the account menu at the end of the page bar, and a floating tab bar with the four items, which the content scrolls under. Nothing floats beside it.
 - Guests and anonymous viewers have no Portfolio item.
-- Every page starts with a page bar: the title or back link, then the period and unit. On a phone, the period and unit are one button in the top bar that opens a sheet.
+- Every page starts with a page bar: the title or back link, then the period and unit. On a phone, the period and unit are one button in the page bar that opens a sheet.
 - The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL.
 - Every view's state is in the URL, so a shared link opens on the same view: `period` and `unit` everywhere, `focus` (the kept member) and `standings` (`gain` or `balance`) on Home, `q` on Shares.
 

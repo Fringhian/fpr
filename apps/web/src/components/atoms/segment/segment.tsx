@@ -4,13 +4,25 @@ import { cva } from "class-variance-authority";
 import { type RefAttributes, useState } from "react";
 import { cn, stateClassName } from "../../../lib/cn";
 
+/** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
+export type Backdrop = "sky" | "snow";
+
+/**
+ * The capsule's resting fill on each backdrop: white veiling the sky, the
+ * divider tint on snow. Any capsule that sits beside a segment takes it.
+ */
+export const backdropFill = {
+  sky: "bg-surface/75",
+  snow: "bg-divider/50",
+} as const satisfies Record<Backdrop, string>;
+
 const root = cva(
   ["inline-flex gap-[0.125rem] rounded-full p-[0.1875rem]", "", "", ""],
   {
     variants: {
       backdrop: {
-        sky: ["bg-surface/75"],
-        snow: ["bg-divider/50"],
+        sky: [backdropFill.sky],
+        snow: [backdropFill.snow],
       },
     },
   },
@@ -26,9 +38,6 @@ const item = cn(
   "focus-visible:focus-ring",
   "disabled:dimmed",
 );
-
-/** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
-export type Backdrop = "sky" | "snow";
 
 /** The selected option, either held by the segment or by its owner. */
 type Selection<Value extends string> =

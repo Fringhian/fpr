@@ -159,6 +159,23 @@
     },
     "backToYou": "Back to you"
   },
+  "navigation": {
+    "label": "Main",
+    "brand": "FPR",
+    "admin": "Admin",
+    "items": {
+      "home": "Home",
+      "members": "Members",
+      "portfolio": "Portfolio",
+      "shares": "Shares",
+      "people": "People",
+      "trackedShares": "Tracked shares"
+    },
+    "account": "{{name}}, your account",
+    "settings": "Settings",
+    "help": "How FPR works",
+    "signOut": "Sign out"
+  },
   "personRow": {
     "until": "Until {{date}}",
     "noEnd": "No end date"
@@ -246,5 +263,8 @@
     "label": "How it’s split",
     "other": "Other",
     "cash": "Cash"
+  },
+  "pageBar": {
+    "back": "Back to"
   }
 }

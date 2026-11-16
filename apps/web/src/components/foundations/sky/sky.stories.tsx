@@ -71,7 +71,7 @@ The page background: a peach sky behind the top of the page, closed by a lilac r
 | \`Sky.Header\` | The page bar and the header sentence, over the sky. Content starts right under it: 240px from the top on phone, 236px from tablet up. |
 | \`Sky.Ridge\` | The ridge alone, for any sky panel that ends in it. |
 
-- The ridge is one 600 × 64 tile, repeated across and never stretched: 52px high on phone, 64px from tablet up. Its top sits 206px from the top on phone, 200px from tablet up, on every page that has it.
+- The ridge is one 600 × 64 tile, repeated across and never stretched: 52px high on phone, 64px from tablet up. Its top sits 206px from the top on phone, 200px from tablet up, on every page that has it. In an installed app, the sky reaches under the notch or status bar, and every height here counts from below that safe area.
 - Only a page with a header sentence has the sky (Home, Portfolio, a member, a share), with \`Sky.Band\` and \`Sky.Header\` together. A header that doesn’t fit means no sky, never a moved ridge.
 
 The controls switch each part on and off. On this page every story renders at the page’s own width, a desktop width: the **Phone** and **Tablet** stories in the sidebar show the narrower ones, and the viewport menu switches any story.
