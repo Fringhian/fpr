@@ -49,6 +49,12 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
         shareId: world,
         at: now.toISOString(),
       }),
+    "portfolio.holdingHistory": () =>
+      client.portfolio.holdingHistory({
+        userId: sam,
+        shareId: world,
+        period: "1M",
+      }),
     "portfolio.log": () => client.portfolio.log({ userId: sam, limit: 3 }),
     "portfolio.logEntry": async () => {
       const { entries } = await client.portfolio.log({ userId: sam, limit: 1 });

@@ -1,7 +1,7 @@
 import type { PortfolioLog } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, type PipelineContext } from "../../server/implementer.ts";
-import { plain } from "../../store/decimal.ts";
+import { Big, money, plain, ratio, zero } from "../../store/decimal.ts";
 import { firstEntryOn } from "../../store/people.ts";
 import {
   entryWeight,
@@ -15,7 +15,12 @@ import {
 } from "../../store/series.ts";
 import { requireShare, toShareSummary } from "../../store/shares.ts";
 import type { MockStore, StoredEntry } from "../../store/types.ts";
-import { cashOf, changesOf, quantitiesAt } from "../../store/valuation.ts";
+import {
+  cashOf,
+  changesOf,
+  priceAt,
+  quantitiesAt,
+} from "../../store/valuation.ts";
 import { portfolioOwner } from "./owner.ts";
 
 /** Newest first, by moment then id. */
@@ -93,6 +98,42 @@ export const portfolioReads = {
       quantity: held === undefined ? "0" : plain(held),
     };
   }),
+
+  holdingHistory: mock.portfolio.holdingHistory.handler(
+    ({ context, input }) => {
+      const { store } = context;
+      portfolioOwner(store, input.userId);
+      const share = requireShare(store, input.shareId, () =>
+        mockError("not_found"),
+      );
+      const window = periodWindow(
+        store,
+        input.period,
+        firstEntryOn(store, input.userId),
+      );
+      const changes = changesOf(store, input.userId);
+      const moments = seriesPoints(
+        store,
+        input.userId,
+        window,
+        windowInstants(store, window),
+      );
+      return {
+        share: toShareSummary(share),
+        points: moments.map(({ at, balanceEur }) => {
+          const atMs = Date.parse(at);
+          const held = quantitiesAt(changes, atMs).get(share.id) ?? zero;
+          const value = priceAt(share, atMs)?.times(held) ?? null;
+          return {
+            at,
+            quantity: plain(held),
+            valueEur: value === null ? null : money(value),
+            weight: value === null ? null : ratio(value, new Big(balanceEur)),
+          };
+        }),
+      };
+    },
+  ),
 
   log: mock.portfolio.log.handler(({ context, input }) => {
     portfolioOwner(context.store, input.userId);
