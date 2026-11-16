@@ -1,21 +1,15 @@
 import type { Role } from "@fpr/contracts";
+import { profileRoles } from "@fpr/contracts/values";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import * as Segment from "../../../../components/atoms/segment/segment";
 import * as Field from "../../../../components/molecules/field/field";
-import { today } from "../../../../lib/date-field";
-
-/** The roles a person moves between: nobody becomes or stops being anonymous. */
-const CHANGEABLE_ROLES = [
-  "admin",
-  "member",
-  "guest",
-] as const satisfies readonly Role[];
+import { raceToday } from "../../../../lib/race-day";
 
 /**
- * The day access ends, named `accessUntil`, empty for no end. A day before
- * today is refused, unless it is the one the person already has. `reason`,
- * when set, disables the field and says why under it.
+ * The race day access ends, named `accessUntil`, empty for no end. A day
+ * before today is refused, unless it is the one the person already has.
+ * `reason`, when set, disables the field and says why under it.
  */
 export function EndDateField({
   defaultValue = "",
@@ -30,7 +24,7 @@ export function EndDateField({
     typeof value === "string" &&
     value !== "" &&
     value !== defaultValue &&
-    value < today()
+    value < raceToday()
       ? t("adminPeople.fields.endDatePast")
       : null;
 
@@ -51,7 +45,8 @@ export function EndDateField({
 }
 
 /**
- * The role, as a segment of admin, member and guest. `guestReason` disables
+ * The role, as a segment of the roles with a profile, admin, member and
+ * guest: nobody becomes or stops being anonymous. `guestReason` disables
  * guest and says why; `reason` disables every role and says why.
  */
 export function RoleField({
@@ -85,7 +80,7 @@ export function RoleField({
         disabled={reason !== undefined}
         className="self-start"
       >
-        {CHANGEABLE_ROLES.map((role) => (
+        {profileRoles.map((role) => (
           <Segment.Item
             key={role}
             value={role}
