@@ -9,8 +9,9 @@ import {
 } from "../src/anonymize.js";
 import { anonymizeResponse } from "../src/anonymize-response.js";
 import { apiContract } from "../src/api/index.js";
-import { contractProcedures } from "../src/contract.js";
+import { contractProcedures, type RouteMeta } from "../src/contract.js";
 import { decimalSchema } from "../src/decimal.js";
+import { Role } from "../src/roles.js";
 import { priceChangeSchema } from "../src/schemas/performance.js";
 
 type Def = z.core.$ZodTypeDef & Record<string, unknown>;
@@ -107,13 +108,18 @@ function nameRuleBroken({ key, field }: Field): string | undefined {
     : `expected ${kinds.map((kind) => kind ?? "no mark").join(" or ")}`;
 }
 
-const responseFields = contractProcedures(apiContract).flatMap(
-  ([path, procedure]) =>
+/** The fields of every response an anonymous viewer can get: a write's never is. */
+const responseFields = contractProcedures(apiContract)
+  .filter(([, procedure]) => {
+    const { roles } = procedure["~orpc"].meta as RouteMeta;
+    return roles === "public" || roles.includes(Role.anonymous);
+  })
+  .flatMap(([path, procedure]) =>
     fieldsOf(
       procedure["~orpc"].outputSchema ?? z.never(),
       marketDataSchemas,
     ).map((field) => ({ route: path.join("."), ...field })),
-);
+  );
 
 describe("every response field", () => {
   const named = responseFields.filter(

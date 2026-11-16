@@ -16,7 +16,8 @@ import { inThisYear, RACE_TIME_ZONE } from "../../../lib/race-day";
 import { useSession } from "../../../lib/session/use-session";
 import { useViewState } from "../../../lib/view-state/use-view-state";
 
-const holds = (holder: ShareHolder) => !/^0(?:\.0+)?$/.test(holder.quantity);
+const holds = ({ quantity }: ShareHolder) =>
+  quantity === null || !/^0(?:\.0+)?$/.test(quantity);
 
 /** “40 units · since 12 Jan”, an anonymous viewer's “12.4% of their portfolio · since 12 Jan”. */
 function HolderLine({ holder }: { holder: ShareHolder }) {
@@ -26,16 +27,18 @@ function HolderLine({ holder }: { holder: ShareHolder }) {
 
   const first = holder.changes[0]?.effectiveAt;
   const year = first !== undefined && !inThisYear(first);
-  const amount = anonymous
-    ? holder.weight === null
+  const shown = anonymous ? holder.weight : holder.quantity;
+  const amount =
+    shown === null
       ? null
-      : t("sharePage.holders.weight", {
-          weight: formatPercent(holder.weight, language),
-        })
-    : t("holdingCard.units", {
-        count: Number(holder.quantity),
-        quantity: formatQuantity(holder.quantity, language),
-      });
+      : anonymous
+        ? t("sharePage.holders.weight", {
+            weight: formatPercent(shown, language),
+          })
+        : t("holdingCard.units", {
+            count: Number(shown),
+            quantity: formatQuantity(shown, language),
+          });
   const since =
     first === undefined
       ? null

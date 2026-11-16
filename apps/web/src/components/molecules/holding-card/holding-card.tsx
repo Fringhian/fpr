@@ -34,8 +34,8 @@ export type BasicProps = {
   name: string;
   /** `manual` for a share members value by hand: a Manual badge, and its value “as of” the day of its last value point. */
   kind?: ShareKind;
-  /** The quantity held, the decimal string as entered: `74.328` reads 74.328 units. An anonymous viewer never sees it. */
-  quantity: Decimal;
+  /** The quantity held, the decimal string as entered: `74.328` reads 74.328 units. An anonymous viewer never sees it, and reads `null` for a holding with no weight. */
+  quantity: Decimal | null;
   /** The latest price with its time and source, or `null` while the share's prices haven't arrived: the card then shows it pending, not counted. */
   latestPrice: LatestPrice | null;
   /** The share's price over the period, one point per day, for the curve. Pass a stable array. */

@@ -222,6 +222,14 @@
     "heldSpoken": "de {{before}} à {{after}} parts détenues",
     "newHolding": "Nouvelle ligne",
     "firstCash": "Premières liquidités saisies",
+    "weighed": {
+      "bought": "Achat de {{share}}",
+      "sold": "Vente de {{share}}",
+      "traded": "Mouvement sur {{share}}",
+      "cashSet": "Liquidités fixées"
+    },
+    "weight": "{{weight}} du portefeuille",
+    "weightUnknown": "Poids inconnu",
     "was": "au lieu de {{before}}",
     "madeBy": "par {{name}}",
     "subject": "{{title}}, {{date}}"
@@ -565,7 +573,7 @@
     "marks": {
       "bought": "{{name}} a acheté {{quantity}}",
       "sold": "{{name}} a vendu {{quantity}}",
-      "changed": "{{name}} a modifié sa position"
+      "weight": "{{weight}} de son portefeuille"
     },
     "chart": "{{name}}, cours {{period}}",
     "pricesFrom": "Cours depuis le {{date}}",

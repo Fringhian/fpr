@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { quantity } from "../../anonymize.js";
 import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
 import { decimalSchema, entered } from "../../decimal.js";
 import { writerRoles } from "../../roles.js";
@@ -19,7 +18,7 @@ export const portfolioChangeSchema = z.object({
   type: z.literal("change"),
   id: idSchema,
   share: shareSummarySchema,
-  quantityDelta: quantity(portfolioQuantityDeltaSchema),
+  quantityDelta: portfolioQuantityDeltaSchema,
   effectiveAt: timestampSchema,
   madeBy: madeBySchema,
 });
@@ -34,7 +33,7 @@ export const portfolioHoldingBelowZeroDetailsSchema = z.object({
   /** The stored share change the holding would go below zero at, or `null` when it is the change sent. */
   change: portfolioChangeSchema.nullable(),
   /** The quantity held just before that change, with the write applied. */
-  held: quantity(decimalSchema),
+  held: decimalSchema,
 });
 
 export type PortfolioHoldingBelowZeroDetails = z.infer<

@@ -8,7 +8,10 @@ import {
   portfolioCashAmountSchema,
   portfolioCashBalanceSchema,
 } from "./cash.js";
-import { portfolioChangeSchema } from "./changes.js";
+import {
+  portfolioChangeSchema,
+  portfolioQuantityDeltaSchema,
+} from "./changes.js";
 
 /**
  * A share change or a cash balance, told apart by `type`, with what it
@@ -18,10 +21,12 @@ import { portfolioChangeSchema } from "./changes.js";
  */
 export const portfolioLogEntrySchema = z.discriminatedUnion("type", [
   portfolioChangeSchema.extend({
+    quantityDelta: quantity(portfolioQuantityDeltaSchema),
     quantityAfter: quantity(decimalSchema),
   }),
   portfolioCashBalanceSchema.extend({
-    previousAmountEur: quantity(portfolioCashAmountSchema.nullable()),
+    amountEur: quantity(portfolioCashAmountSchema),
+    previousAmountEur: quantity(portfolioCashAmountSchema),
   }),
 ]);
 

@@ -17,7 +17,7 @@ export const portfolioCashAmountSchema = decimalSchema.refine(
 export const portfolioCashBalanceSchema = z.object({
   type: z.literal("cash"),
   id: idSchema,
-  amountEur: quantity(portfolioCashAmountSchema),
+  amountEur: portfolioCashAmountSchema,
   effectiveAt: timestampSchema,
   madeBy: madeBySchema,
 });

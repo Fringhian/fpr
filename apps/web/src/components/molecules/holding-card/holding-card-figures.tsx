@@ -34,7 +34,7 @@ export function Details({
   anonymous,
   timeZone,
 }: {
-  quantity: Decimal;
+  quantity: Decimal | null;
   latestPrice: LatestPrice | null;
   anonymous: boolean;
   timeZone: string | undefined;
@@ -46,7 +46,7 @@ export function Details({
   const priceTime =
     latestPrice === null ? null : priceTimeOf(latestPrice, timeZone);
   const details = [
-    anonymous
+    anonymous || quantity === null
       ? null
       : t("holdingCard.units", {
           count: Number(quantity),

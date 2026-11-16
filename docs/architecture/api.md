@@ -213,11 +213,11 @@ For an anonymous viewer, the API replaces in every response:
 
 - display names with pseudonyms, and pictures and emails with nothing;
 - every amount in euros with nothing, keeping the percentage beside it;
-- quantities held and cash with their weight in percent of the portfolio.
+- quantities held and cash with their weight in percent of the portfolio, or `null` without one: no price at the moment, or a balance of zero.
 
 Every amount in euros has a percentage beside it, a member's balance aside: anonymous viewers see ranks without balances, curves in percent, and the gain leaderboard ranked in percent whatever `unit` asks. Share prices, their changes, and value points are market data and stay in euros.
 
-Each response field the anonymizer replaces is marked in its contract schema with `personal()`, `euro()`, or `quantity()`. A test over every response fails when a field's mark doesn't fit its name, or when an amount in euros has no percentage beside it.
+Each response field the anonymizer replaces is marked in its contract schema with `personal()`, `euro()`, or `quantity()`, and a `quantity()` field is nullable. A test over every response an anonymous viewer can get fails when a field's mark doesn't fit its name, or when an amount in euros has no percentage beside it.
 
 A pseudonym is an English adjective and animal, such as `Calm Otter`, picked from two lists of 64 words by `HMAC-SHA256(PSEUDONYM_SECRET, userId)`, the same in both languages. Two people with the same pseudonym are told apart by a suffix: the person added first keeps it, the next ones get ` 2`, ` 3`, and so on. Pseudonyms are derived from every person of the instance, not only those a response shows, so a pseudonym is the same on every screen and visit. They are not stored: changing `PSEUDONYM_SECRET` changes every one, and deleting a person can change a later person's suffix.
 

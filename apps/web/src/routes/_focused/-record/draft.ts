@@ -1,13 +1,11 @@
-import type {
-  Decimal,
-  Id,
-  IsoDate,
-  PortfolioLogEntry,
-  Timestamp,
-} from "@fpr/contracts";
+import type { Decimal, Id, IsoDate, Timestamp } from "@fpr/contracts";
 import Big from "big.js";
 import { isPositive } from "../../../lib/amount";
-import { type EntrySummary, entrySummaryOf } from "../../../lib/log-entry";
+import {
+  type EntrySummary,
+  entrySummaryOf,
+  type SavedEntry,
+} from "../../../lib/log-entry";
 import { momentOfDay, raceDayOf } from "../../../lib/race-day";
 import type { RecordKind, RecordSearch } from "../../../lib/record-search";
 
@@ -25,7 +23,7 @@ export type Draft = {
   /** Units bought or sold, above zero, or the cash in euros. */
   amount?: Decimal | undefined;
   /** The share change or cash balance edited, or nothing for a new one. */
-  entry?: PortfolioLogEntry | undefined;
+  entry?: SavedEntry | undefined;
 };
 
 const KINDS = {
@@ -34,7 +32,7 @@ const KINDS = {
   cashSet: "cash",
 } as const satisfies Record<EntrySummary["kind"], RecordKind>;
 
-function answersOf(entry: PortfolioLogEntry) {
+function answersOf(entry: SavedEntry) {
   const summary = entrySummaryOf(entry);
   return {
     kind: KINDS[summary.kind],
@@ -49,7 +47,7 @@ function answersOf(entry: PortfolioLogEntry) {
  */
 export function draftOf(
   search: RecordSearch,
-  entry: PortfolioLogEntry | undefined,
+  entry: SavedEntry | undefined,
   today: IsoDate,
 ): Draft {
   const edited = entry && answersOf(entry);

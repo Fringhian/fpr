@@ -2,7 +2,7 @@
   "info": {
     "title": "FPR API",
     "version": "1",
-    "description": "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio."
+    "description": "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio, or `null` without one."
   },
   "servers": [
     {
@@ -3100,8 +3100,15 @@
                       ]
                     },
                     "cashEur": {
-                      "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
                       "x-anonymize": "quantity"
                     },
                     "cashWeight": {
@@ -3182,8 +3189,15 @@
                         "type": "object",
                         "properties": {
                           "quantity": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
                             "x-anonymize": "quantity"
                           },
                           "valueEur": {
@@ -3638,8 +3652,15 @@
                       "format": "date-time"
                     },
                     "quantity": {
-                      "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
                       "x-anonymize": "quantity"
                     }
                   },
@@ -3924,8 +3945,15 @@
                             "format": "date-time"
                           },
                           "quantity": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
                             "x-anonymize": "quantity"
                           },
                           "valueEur": {
@@ -4241,8 +4269,15 @@
                                 ]
                               },
                               "quantityDelta": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               },
                               "effectiveAt": {
@@ -4276,8 +4311,15 @@
                                 ]
                               },
                               "quantityAfter": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               }
                             },
@@ -4302,8 +4344,15 @@
                                 "format": "uuid"
                               },
                               "amountEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               },
                               "effectiveAt": {
@@ -4641,8 +4690,15 @@
                           ]
                         },
                         "quantityDelta": {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
                           "x-anonymize": "quantity"
                         },
                         "effectiveAt": {
@@ -4676,8 +4732,15 @@
                           ]
                         },
                         "quantityAfter": {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
                           "x-anonymize": "quantity"
                         }
                       },
@@ -4702,8 +4765,15 @@
                           "format": "uuid"
                         },
                         "amountEur": {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
                           "x-anonymize": "quantity"
                         },
                         "effectiveAt": {
@@ -4971,8 +5041,15 @@
                       "type": "object",
                       "properties": {
                         "amountEur": {
-                          "type": "string",
-                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
                           "x-anonymize": "quantity"
                         },
                         "setAt": {
@@ -5270,8 +5347,7 @@
                     },
                     "quantityDelta": {
                       "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                      "x-anonymize": "quantity"
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                     },
                     "effectiveAt": {
                       "type": "string",
@@ -5574,8 +5650,7 @@
                                         },
                                         "quantityDelta": {
                                           "type": "string",
-                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                          "x-anonymize": "quantity"
+                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                         },
                                         "effectiveAt": {
                                           "type": "string",
@@ -5624,8 +5699,7 @@
                                 },
                                 "held": {
                                   "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                  "x-anonymize": "quantity"
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                 }
                               },
                               "required": [
@@ -5785,8 +5859,7 @@
                     },
                     "quantityDelta": {
                       "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                      "x-anonymize": "quantity"
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                     },
                     "effectiveAt": {
                       "type": "string",
@@ -6089,8 +6162,7 @@
                                         },
                                         "quantityDelta": {
                                           "type": "string",
-                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                          "x-anonymize": "quantity"
+                                          "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                         },
                                         "effectiveAt": {
                                           "type": "string",
@@ -6139,8 +6211,7 @@
                                 },
                                 "held": {
                                   "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                  "x-anonymize": "quantity"
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                 }
                               },
                               "required": [
@@ -6454,8 +6525,7 @@
                                     },
                                     "quantityDelta": {
                                       "type": "string",
-                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                                      "x-anonymize": "quantity"
+                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                                     },
                                     "effectiveAt": {
                                       "type": "string",
@@ -6504,8 +6574,7 @@
                             },
                             "held": {
                               "type": "string",
-                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                              "x-anonymize": "quantity"
+                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                             }
                           },
                           "required": [
@@ -6630,8 +6699,7 @@
                     },
                     "amountEur": {
                       "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                      "x-anonymize": "quantity"
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                     },
                     "effectiveAt": {
                       "type": "string",
@@ -6962,8 +7030,7 @@
                     },
                     "amountEur": {
                       "type": "string",
-                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-                      "x-anonymize": "quantity"
+                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
                     },
                     "effectiveAt": {
                       "type": "string",
@@ -7613,8 +7680,15 @@
                                 ]
                               },
                               "quantityDelta": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               },
                               "effectiveAt": {
@@ -7648,8 +7722,15 @@
                                 ]
                               },
                               "quantityAfter": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               }
                             },
@@ -7674,8 +7755,15 @@
                                 "format": "uuid"
                               },
                               "amountEur": {
-                                "type": "string",
-                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
                                 "x-anonymize": "quantity"
                               },
                               "effectiveAt": {
@@ -9189,8 +9277,15 @@
                           "type": "object",
                           "properties": {
                             "quantity": {
-                              "type": "string",
-                              "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
                               "x-anonymize": "quantity"
                             },
                             "valueEur": {
@@ -10294,8 +10389,15 @@
                         "type": "object",
                         "properties": {
                           "quantity": {
-                            "type": "string",
-                            "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
                             "x-anonymize": "quantity"
                           },
                           "valueEur": {
@@ -10400,8 +10502,15 @@
                                   "format": "uuid"
                                 },
                                 "quantityDelta": {
-                                  "type": "string",
-                                  "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ],
                                   "x-anonymize": "quantity"
                                 },
                                 "effectiveAt": {
