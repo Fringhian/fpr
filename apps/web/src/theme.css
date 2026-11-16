@@ -201,6 +201,12 @@
   input[type="search"]::-webkit-search-cancel-button {
     appearance: none;
   }
+
+  /* A page's heading takes focus as its page arrives; it isn't a control,
+     so it draws no ring. */
+  h1[tabindex="-1"] {
+    outline: none;
+  }
 }
 
 /*

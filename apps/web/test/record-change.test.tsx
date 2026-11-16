@@ -76,6 +76,24 @@ describe("Record a change", () => {
     );
   });
 
+  it("names each step in the tab's title and focuses its heading, as a page load would", async () => {
+    const { page } = await visit("/portfolio/record", "member");
+    await vi.waitFor(() => expect(document.title).toBe("What changed? · FPR"));
+
+    await click(
+      () => named("radio", /^Bought shares/),
+      () =>
+        expect(
+          named("radio", /^Bought shares/)?.getAttribute("aria-checked"),
+        ).toBe("true"),
+    );
+    await submit(page, () =>
+      expect(document.activeElement?.textContent).toBe("Which share?"),
+    );
+    expect(document.activeElement?.tagName).toBe("H1");
+    expect(document.title).toBe("Which share? · FPR");
+  });
+
   it("reads an amount in English: a comma between thousands, never as the decimal mark", async () => {
     const { page, store } = await visit(
       `/portfolio/record?kind=cash&step=amount&start=when&day=${daysAgo(1)}`,
