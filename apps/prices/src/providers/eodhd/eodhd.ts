@@ -9,7 +9,12 @@ import type {
   ProviderQuote,
 } from "../provider.js";
 import { readRows, toListing, toQuotes } from "./mapping.js";
-import { eodRowSchema, quoteSchema, searchItemSchema } from "./schemas.js";
+import {
+  eodRowSchema,
+  positiveDecimalSchema,
+  quoteSchema,
+  searchItemSchema,
+} from "./schemas.js";
 
 export const eodhdBaseUrl = "https://eodhd.com/api";
 
@@ -58,6 +63,7 @@ export function createEodhdProvider(
     name: client.http.provider,
     latestBatchSize: eodhdLatestBatchSize,
     lookup: (query) => lookup(client, query),
+    listing: (symbol) => listing(client, symbol),
     latest: (symbols) => latest(client, symbols),
     closes: (symbol, from, to) => closes(client, symbol, from, to),
   };
@@ -78,6 +84,18 @@ async function lookup(
   });
   return readRows(client.http, "search", fields, body, searchItemSchema).map(
     toListing,
+  );
+}
+
+/** Searches the symbol's code, which finds every exchange's listing, and keeps the symbol's. */
+async function listing(
+  client: EodhdClient,
+  symbol: string,
+): Promise<ProviderListing | undefined> {
+  const code = symbol.slice(0, symbol.lastIndexOf(".")) || symbol;
+  const wanted = symbol.toUpperCase();
+  return (await lookup(client, code)).find(
+    (candidate) => candidate.symbol.toUpperCase() === wanted,
   );
 }
 
@@ -146,9 +164,18 @@ async function closes(
     calls: 1,
     fields,
   });
-  return readRows(client.http, "eod", fields, body, eodRowSchema).map(
-    (row): ProviderClose => ({ date: row.date, close: row.close }),
-  );
+  const kept: ProviderClose[] = [];
+  for (const row of readRows(client.http, "eod", fields, body, eodRowSchema)) {
+    if (positiveDecimalSchema.safeParse(row.close).success) {
+      kept.push({ date: row.date, close: row.close });
+    } else {
+      client.http.logger.warn(
+        { provider: "eodhd", endpoint: "eod", symbol, day: row.date },
+        "provider close not above zero, skipped",
+      );
+    }
+  }
+  return kept;
 }
 
 function endpointUrl(
