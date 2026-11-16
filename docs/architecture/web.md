@@ -117,7 +117,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 
 - Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`, never in a component. Translation keys are typed from `en.json`, so an unknown key fails the type check.
 - The page's `lang` attribute follows its language.
-- FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language.
+- FPR is in French until a person picks a language, on a step of a focused page or in Settings, whatever the browser's language. The device keeps the pick, before sign-in included; a signed-in person's pick is also kept on their account, and wins on every device.
 - The API sends codes and data, never sentences. The web app writes the words.
 - `test/locales.test.ts`, part of `pnpm test`, fails when a key exists in one file and not the other (plural forms count as their base key), and when a text breaks the typography rules below.
 

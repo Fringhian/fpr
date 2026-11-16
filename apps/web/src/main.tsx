@@ -6,7 +6,7 @@ import { I18nextProvider } from "react-i18next";
 import { api } from "./lib/api/api.ts";
 import { createQueryClient } from "./lib/api/query-client.ts";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
-import { DEFAULT_LANGUAGE } from "./lib/language.ts";
+import { languageOf } from "./lib/language-choice.ts";
 import { createAppRouter } from "./router.ts";
 import "./index.css";
 
@@ -17,12 +17,13 @@ if (import.meta.env.MODE === "mock") {
   await startMockApi();
 }
 
-const i18n = createI18n(DEFAULT_LANGUAGE);
+// The device's language until the session loads, which may switch it.
+const i18n = createI18n(languageOf(null));
 syncDocumentLanguage(i18n);
 
 const queryClient = createQueryClient();
 
-const router = createAppRouter({ queryClient, api });
+const router = createAppRouter({ queryClient, api, i18n });
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

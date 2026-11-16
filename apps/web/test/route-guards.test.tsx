@@ -115,7 +115,8 @@ describe("the route guards", () => {
     for (const path of ["/nowhere", "/admin/nowhere", `/members/${userId}/x`]) {
       const { location, text, page } = await visit(path, "admin");
       expect(location.pathname).toBe(path);
-      expect(text).toContain("Page not found");
+      // The admin's own language is French.
+      expect(text).toContain("Page introuvable");
       expect(page.querySelector("nav")).not.toBeNull();
     }
     const signedOut = await visit("/nowhere", "signedOut");
