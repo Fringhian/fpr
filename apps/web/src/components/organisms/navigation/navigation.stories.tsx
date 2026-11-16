@@ -1,4 +1,4 @@
-import type { Language, Role } from "@fpr/contracts";
+import type { Language } from "@fpr/contracts";
 import { roles } from "@fpr/contracts/values";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ArrowsClockwise";
 import { ChartLineIcon } from "@phosphor-icons/react/ChartLine";
@@ -11,15 +11,18 @@ import { UsersThreeIcon } from "@phosphor-icons/react/UsersThree";
 import { WalletIcon } from "@phosphor-icons/react/Wallet";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import { Card } from "../../atoms/card/card";
+import type { PeriodSetting } from "../../molecules/period-control/period-control";
+import * as AppLayout from "../../templates/app-layout/app-layout";
 import {
-  PeriodControl,
-  type PeriodSetting,
-} from "../../molecules/period-control/period-control";
+  ACCOUNTS,
+  StoryBarControls,
+  StoryBarStart,
+  StoryCards,
+  type StoryPage,
+  showsPeriod,
+} from "../../templates/app-layout/app-layout-story";
 import * as PageBar from "../page-bar/page-bar";
 import * as Navigation from "./navigation";
 
@@ -50,22 +53,14 @@ const ICON_PROPS = [
 
 type IconProp = (typeof ICON_PROPS)[number];
 
-/** The signed-in person each role's stories show: invented names, and a pseudonym for the anonymous viewer, who has no photo. */
-const ACCOUNTS = {
-  admin: { name: "Alex", color: "cobalt" },
-  member: { name: "Sam", color: "vermilion" },
-  guest: { name: "Lea", color: "green" },
-  anonymous: { name: "Quiet Otter", color: "lime" },
-} as const satisfies Record<Role, Navigation.Account>;
-
-/** The demo page's texts, in the toolbar’s language. They are the stories’ content, not the navigation’s. */
-const TEXTS = {
+/** The demo page's card, in the toolbar’s language. It is the stories’ content, not the navigation’s. */
+const CARD = {
   en: {
-    card: "A card of the page",
+    title: "A card of the page",
     body: "The page scrolls under the floating tab bar and leaves room for it at its end.",
   },
   fr: {
-    card: "Une carte de la page",
+    title: "Une carte de la page",
     body: "La page défile sous la barre d’onglets flottante et lui laisse de la place à la fin.",
   },
 } as const satisfies Record<Language, Record<string, string>>;
@@ -76,86 +71,16 @@ type NavigationArgs = Omit<
   IconProp | "account" | "current" | "children"
 > &
   Record<IconProp, IconName> & {
-    current: Navigation.Destination | "none";
+    current: StoryPage;
     side: boolean;
     accountMenu: boolean;
     tabBar: boolean;
   };
 
-/** The pages that show the period control. */
-const PERIOD_PAGES: readonly (Navigation.Destination | "none")[] = [
-  "home",
-  "members",
-  "portfolio",
-  "shares",
-];
-
 /**
- * The demo page's bar: its title, or with `back` a link to the current item's
- * page, then the period on the pages that show it, and the account menu.
- */
-function Bar({
-  current,
-  anonymous,
-  accountMenu,
-  back,
-}: {
-  current: Navigation.Destination | "none";
-  anonymous: boolean;
-  accountMenu: boolean;
-  back: boolean;
-}) {
-  const { t } = useTranslation();
-  const [setting, setSetting] = useState<PeriodSetting>({
-    period: "1M",
-    unit: "percent",
-  });
-
-  // How FPR works is a page without an item.
-  const title =
-    current === "none"
-      ? t("navigation.help")
-      : t(`navigation.items.${current}`);
-
-  return (
-    <PageBar.Root>
-      {back && current !== "none" ? (
-        <PageBar.Back href={Navigation.HREFS[current]}>{title}</PageBar.Back>
-      ) : (
-        <PageBar.Title render={(titleProps) => <h1 {...titleProps} />}>
-          {title}
-        </PageBar.Title>
-      )}
-      <PageBar.Controls>
-        {PERIOD_PAGES.includes(current) ? (
-          <PeriodControl
-            value={setting}
-            onChange={setSetting}
-            backdrop="snow"
-            anonymous={anonymous}
-          />
-        ) : null}
-        {accountMenu ? <Navigation.AccountMenu /> : null}
-      </PageBar.Controls>
-    </PageBar.Root>
-  );
-}
-
-function Cards() {
-  const text = TEXTS[useLanguage()];
-
-  return [1, 2, 3, 4, 5, 6, 7].map((card) => (
-    <Card key={card} render={<article />} className="grid gap-xs p-m">
-      <h2 className="text-m font-semibold">{text.card}</h2>
-      <p className="text-s text-secondary">{text.body}</p>
-    </Card>
-  ));
-}
-
-/**
- * A page laid out with the parts the controls switch on: the side navigation,
- * the account menu in the page bar, the tab bar. With `back`, the page sits
- * under the current one, and its bar leads with a back link to it.
+ * A page in the app layout, with the parts the controls switch on: the side
+ * navigation, the account menu in the page bar, the tab bar. With `back`, the
+ * page sits under the current one, and its bar leads with a back link to it.
  */
 function AppFrame({
   current,
@@ -165,6 +90,12 @@ function AppFrame({
   back = false,
   ...props
 }: NavigationArgs & { back?: boolean }) {
+  const card = CARD[useLanguage()];
+  const [setting, setSetting] = useState<PeriodSetting>({
+    period: "1M",
+    unit: "percent",
+  });
+
   return (
     <Navigation.Root
       {...props}
@@ -172,26 +103,26 @@ function AppFrame({
       current={current === "none" ? undefined : current}
       {...iconsOf(props)}
     >
-      <div className="flex font-sans text-primary">
+      <AppLayout.Root>
         {side ? <Navigation.Side /> : null}
-        <main
-          className={cn(
-            "grid min-w-0 flex-1 content-start gap-m",
-            "px-m pb-(--tab-bar-room)",
-            "tablet:px-l tablet:pb-l",
-            "desktop:px-l desktop:pb-l",
-          )}
-        >
-          <Bar
-            current={current}
-            anonymous={props.userRole === "anonymous"}
-            accountMenu={accountMenu}
-            back={back}
-          />
-          <Cards />
-        </main>
+        <AppLayout.Main>
+          <AppLayout.Content>
+            <PageBar.Root>
+              <StoryBarStart page={current} back={back} heading />
+              <StoryBarControls
+                period={showsPeriod(current)}
+                setting={setting}
+                onChange={setSetting}
+                backdrop="snow"
+                anonymous={props.userRole === "anonymous"}
+                accountMenu={accountMenu}
+              />
+            </PageBar.Root>
+            <StoryCards main={card} more={card} />
+          </AppLayout.Content>
+        </AppLayout.Main>
         {tabBar ? <Navigation.TabBar /> : null}
-      </div>
+      </AppLayout.Root>
     </Navigation.Root>
   );
 }
@@ -225,7 +156,7 @@ The app’s navigation: a sidebar on desktop, a rail on tablet, and on phone a f
 - **Account menu**: your picture, with your name on the desktop sidebar, opens Settings, How FPR works, and Sign out. It sits at the bottom of the sidebar and the rail, and at the end of the page bar on phone, so a page has one bar at every width.
 - **Icons**: each item’s icon is a prop of \`Navigation.Root\`, any Phosphor icon, with the design’s icon by default.
 
-Every story here renders in its own frame at the page’s own width. The **Tablet** and **Phone** stories in the sidebar show the narrower widths, and the viewport menu switches any story.
+Every story here places the parts in the app layout, Templates › App layout, in its own frame at the page’s own width. The **Tablet** and **Phone** stories in the sidebar show the narrower widths, and the viewport menu switches any story.
 `;
 
 const iconControl = (fallback: IconName, description: string) => ({
