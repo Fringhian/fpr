@@ -1,8 +1,11 @@
 // The holding card's parts, imported as a namespace: `import * as HoldingCard from "…/holding-card"`.
 import type { Decimal, LatestPrice, ShareKind } from "@fpr/contracts";
 import { type ComponentProps, type ReactNode, useId } from "react";
+import { useTranslation } from "react-i18next";
 import type { GainInput, GainUnit } from "../../../lib/gain";
+import type { Look } from "../../../lib/look";
 import { Badge } from "../../atoms/badge/badge";
+import { Picture } from "../../atoms/picture/picture";
 import type { IconProps } from "../../foundations/icon/icon";
 import type { ChartPoint } from "../chart/chart";
 import { Details, Pending, Value } from "./holding-card-figures";
@@ -47,6 +50,8 @@ export type BasicProps = {
   unit: GainUnit;
   /** The viewer is anonymous: the weight in percent replaces the quantity and the value, and the gain reads in percent. */
   anonymous?: boolean;
+  /** On someone else's card, the viewer when they hold the share too: their small picture in the card's corner. */
+  you?: Look | null | undefined;
   /** The items of the card's ⋯ menu, such as Buy more and Sell (`Menu.Item`, `Menu.LinkItem`). Without them, the card has no ⋯ button. */
   actions?: ReactNode;
   /** The icon of the button that opens `actions`, any Phosphor icon. Three dots by default. */
@@ -68,31 +73,38 @@ export type BasicProps = {
     | "anonymous"
     | "link"
     | "linkIcon"
+    | "you"
     | "actions"
     | "actionsIcon"
     | "timeZone"
     | "children"
   >;
 
-/** The name, linked or not, the Manual badge, and the ⋯ menu. */
+/** The name, linked or not, the Manual badge, the viewer's picture, and the ⋯ menu. */
 function BasicHeader({
   nameId,
   name,
   kind,
   link,
   linkIcon,
+  you,
   actions,
   actionsIcon,
 }: { nameId: string } & Pick<
   BasicProps,
-  "name" | "kind" | "link" | "linkIcon" | "actions" | "actionsIcon"
+  "name" | "kind" | "link" | "linkIcon" | "you" | "actions" | "actionsIcon"
 >) {
+  const { t } = useTranslation();
+
   return (
     <Header>
       <Name id={nameId} link={link} linkIcon={linkIcon}>
         {name}
       </Name>
       {kind === "manual" ? <Badge state="manual" /> : null}
+      {you ? (
+        <Picture {...you} size="xs" aria-label={t("holdingCard.youHoldIt")} />
+      ) : null}
       {actions === undefined ? null : (
         <Actions subject={name} icon={actionsIcon}>
           {actions}
@@ -122,6 +134,7 @@ export function Basic({
   anonymous = false,
   link,
   linkIcon,
+  you,
   actions,
   actionsIcon,
   timeZone,
@@ -133,7 +146,7 @@ export function Basic({
     <Root {...props} aria-labelledby={nameId}>
       <BasicHeader
         nameId={nameId}
-        {...{ name, kind, link, linkIcon, actions, actionsIcon }}
+        {...{ name, kind, link, linkIcon, you, actions, actionsIcon }}
       />
       <Details
         quantity={quantity}
