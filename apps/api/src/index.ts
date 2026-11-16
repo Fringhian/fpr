@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import { close, createDb, type Db } from "@fpr/db";
 import type { Logger } from "pino";
 import { createApp } from "./app.js";
-import { createAuth } from "./auth.js";
+import { createAuth } from "./auth/auth.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
 

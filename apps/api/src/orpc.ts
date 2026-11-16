@@ -9,7 +9,7 @@ import type { Db } from "@fpr/db";
 import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request, Response } from "express";
-import type { Auth } from "./auth.js";
+import type { Auth } from "./auth/auth.js";
 
 /** What the process gives every request: its pool, Better Auth, and its origin. */
 export interface ApiServices {

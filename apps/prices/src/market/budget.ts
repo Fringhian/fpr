@@ -45,10 +45,14 @@ export interface CallBudget {
   logFields(): { callsToday: number; callsLeft: number; callLimit: number };
 }
 
-function assertCalls(calls: number): void {
-  if (!Number.isInteger(calls) || calls < 0) {
-    throw new RangeError(`Expected a whole number of calls: ${calls}`);
-  }
+/** What a budget's methods share: its settings, its schedules, and the day's count. */
+interface BudgetState {
+  readonly limit: number;
+  readonly timeZone: string;
+  readonly now: () => Date;
+  readonly schedules: Set<ScheduledCalls>;
+  day: IsoDate;
+  spent: number;
 }
 
 export function createCallBudget(options: {
@@ -64,62 +68,86 @@ export function createCallBudget(options: {
   if (!Number.isInteger(limit) || limit < 1) {
     throw new RangeError(`Expected a daily call limit of 1 or more: ${limit}`);
   }
-  const schedules = new Set<ScheduledCalls>();
-  let day: IsoDate = dayIn(now(), timeZone);
-  let spent = 0;
-
-  /** The calls spent today, restarting the count on a new day. */
-  function spentToday(): number {
-    const today = dayIn(now(), timeZone);
-    if (today !== day) {
-      day = today;
-      spent = 0;
-    }
-    return spent;
-  }
-
-  const budget: CallBudget = {
+  const state: BudgetState = {
     limit,
-    spent: spentToday,
-    left: () => Math.max(0, limit - spentToday()),
-    canSpend(calls) {
-      assertCalls(calls);
-      return calls <= budget.left();
-    },
-    trySpend(calls) {
-      if (!budget.canSpend(calls)) {
-        return false;
-      }
-      spent += calls;
-      return true;
-    },
-    addScheduledCalls(scheduled) {
-      schedules.add(scheduled);
-      return () => {
-        schedules.delete(scheduled);
-      };
-    },
-    scheduledCallsLeft() {
-      const moment = now();
-      let total = 0;
-      for (const scheduled of schedules) {
-        const calls = scheduled(moment);
-        assertCalls(calls);
-        total += calls;
-      }
-      return total;
-    },
-    allowsLookup(calls = 1) {
-      assertCalls(calls);
-      return budget.left() - calls >= budget.scheduledCallsLeft();
-    },
-    logFields() {
-      return {
-        callsToday: spentToday(),
-        callsLeft: budget.left(),
-        callLimit: limit,
-      };
-    },
+    timeZone,
+    now,
+    schedules: new Set(),
+    day: dayIn(now(), timeZone),
+    spent: 0,
   };
-  return budget;
+  return {
+    limit,
+    spent: () => spentToday(state),
+    left: () => callsLeft(state),
+    canSpend: (calls) => canSpend(state, calls),
+    trySpend: (calls) => trySpend(state, calls),
+    addScheduledCalls: (scheduled) => addScheduledCalls(state, scheduled),
+    scheduledCallsLeft: () => scheduledCallsLeft(state),
+    allowsLookup: (calls = 1) => allowsLookup(state, calls),
+    logFields: () => ({
+      callsToday: spentToday(state),
+      callsLeft: callsLeft(state),
+      callLimit: limit,
+    }),
+  };
+}
+
+/** The calls spent today, restarting the count on a new day. */
+function spentToday(state: BudgetState): number {
+  const today = dayIn(state.now(), state.timeZone);
+  if (today !== state.day) {
+    state.day = today;
+    state.spent = 0;
+  }
+  return state.spent;
+}
+
+function callsLeft(state: BudgetState): number {
+  return Math.max(0, state.limit - spentToday(state));
+}
+
+function canSpend(state: BudgetState, calls: number): boolean {
+  assertCalls(calls);
+  return calls <= callsLeft(state);
+}
+
+function trySpend(state: BudgetState, calls: number): boolean {
+  if (!canSpend(state, calls)) {
+    return false;
+  }
+  state.spent += calls;
+  return true;
+}
+
+function addScheduledCalls(
+  state: BudgetState,
+  scheduled: ScheduledCalls,
+): () => void {
+  state.schedules.add(scheduled);
+  return () => {
+    state.schedules.delete(scheduled);
+  };
+}
+
+function scheduledCallsLeft(state: BudgetState): number {
+  const moment = state.now();
+  let total = 0;
+  for (const scheduled of state.schedules) {
+    const calls = scheduled(moment);
+    assertCalls(calls);
+    total += calls;
+  }
+  return total;
+}
+
+function allowsLookup(state: BudgetState, calls: number): boolean {
+  assertCalls(calls);
+  return callsLeft(state) - calls >= scheduledCallsLeft(state);
+}
+
+function assertCalls(calls: number): void {
+  if (!Number.isInteger(calls) || calls < 0) {
+    throw new RangeError(`Expected a whole number of calls: ${calls}`);
+  }
 }

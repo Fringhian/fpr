@@ -5,7 +5,7 @@ import { type CallBudget, createCallBudget } from "../src/market/budget.js";
 import {
   createEodhdProvider,
   eodhdLatestBatchSize,
-} from "../src/providers/eodhd.js";
+} from "../src/providers/eodhd/eodhd.js";
 import type { Fetch } from "../src/providers/http.js";
 
 /** A clock tests move by hand. */
