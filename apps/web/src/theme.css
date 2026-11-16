@@ -43,13 +43,13 @@
 
 /*
  * The fixed bars at the page's edges: the compact page bar at the top, below
- * the safe area, and on phone the floating tab bar with its gap at the bottom.
- * The page's scroll padding keeps a focused or scrolled-to element clear of
- * both (WCAG 2.4.11).
+ * the safe area, and on phone the floating tab bar, which the page's end clears
+ * by 92px above the bottom safe area. The page's scroll padding keeps a
+ * focused or scrolled-to element clear of both (WCAG 2.4.11).
  */
 :root {
   --compact-bar: 3.5rem;
-  --tab-bar-room: calc(6rem + env(safe-area-inset-bottom, 0px));
+  --tab-bar-room: calc(5.75rem + env(safe-area-inset-bottom, 0px));
   scroll-padding-top: calc(var(--compact-bar) + var(--safe-top));
   scroll-padding-bottom: var(--tab-bar-room);
 
@@ -57,6 +57,11 @@
     --compact-bar: 4rem;
     --tab-bar-room: 0px;
   }
+}
+
+/* The widest the page's content grows beside the sidebar: 1120px. */
+:root {
+  --content-width: 70rem;
 }
 
 @theme {

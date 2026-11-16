@@ -275,5 +275,8 @@
   "stepFlow": {
     "back": "Retour",
     "close": "Fermer"
+  },
+  "appLayout": {
+    "skip": "Aller au contenu"
   }
 }

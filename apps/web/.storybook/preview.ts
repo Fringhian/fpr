@@ -104,6 +104,11 @@ const preview: Preview = {
           styles: { width: "1280px", height: "800px" },
           type: "desktop",
         },
+        wide: {
+          name: "Wide",
+          styles: { width: "1600px", height: "900px" },
+          type: "desktop",
+        },
       },
     },
     // The canvas is the page ground, so a story shorter than the frame ends on
