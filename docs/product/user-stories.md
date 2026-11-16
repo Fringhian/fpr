@@ -56,6 +56,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A display name has 1 to 40 characters.
 - Every step has a default: the admin's name and the person's colour. No step can be skipped, and none blocks.
 - A colour taken by someone else meanwhile is refused, and the choices refresh.
+- A photo is uploaded as soon as it is picked. A picture too large or of another format says why; a failed upload offers Retry.
 - Closing onboarding midway starts it again at the first step next time, with what was already chosen kept.
 - An empty portfolio shows "Your portfolio is being prepared". For the first admin, who prepares their own, it says to add their shares in Portfolio.
 - Onboarding never mentions the race. The welcome step ends with Go to Home.
