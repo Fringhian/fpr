@@ -1,6 +1,6 @@
 import type { IsoDate } from "@fpr/contracts";
 import { CurrencyEurIcon } from "@phosphor-icons/react/CurrencyEur";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TextLink } from "../../../components/atoms/text-link/text-link";
 import { DayField } from "../../../components/molecules/day-field/day-field";
@@ -8,6 +8,36 @@ import * as Field from "../../../components/molecules/field/field";
 import { useLanguage } from "../../../lib/i18n";
 import { isinIn } from "../../../lib/isin";
 import { priceOf, type ShareDraft } from "./draft";
+
+/** One text field: its label, the control, its error, then `children`. It is valid when `ok` holds for the text, and says `error` otherwise. */
+function TextField({
+  name,
+  label,
+  ok,
+  error,
+  children,
+  ...control
+}: {
+  name: string;
+  label: string;
+  ok: (text: string) => boolean;
+  error: string;
+  children?: ReactNode;
+} & Field.ControlProps) {
+  return (
+    <Field.Root
+      name={name}
+      validate={(value) =>
+        typeof value === "string" && ok(value) ? null : error
+      }
+    >
+      <Field.Label>{label}</Field.Label>
+      <Field.Control autoComplete="off" {...control} />
+      <Field.Error />
+      {children}
+    </Field.Root>
+  );
+}
 
 /**
  * Create a manual share's fields: the ISIN, the name, then the value of one
@@ -29,67 +59,45 @@ export function ShareFields({
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const check =
-    (ok: (text: string) => boolean, error: string) => (value: unknown) =>
-      typeof value === "string" && ok(value) ? null : error;
-  const price = (text: string) => priceOf(text, language) !== null;
-
   return (
     <div className="grid gap-m">
-      <Field.Root
+      <TextField
         name="isin"
-        validate={check(
-          (text) => isinIn(text) !== null,
-          t("newShare.isin.invalid"),
-        )}
+        label={t("newShare.isin.label")}
+        ok={(text) => isinIn(text) !== null}
+        error={t("newShare.isin.invalid")}
+        spellCheck={false}
+        autoCapitalize="characters"
+        value={draft.isin}
+        onValueChange={(isin) => onChange({ isin: isin.toUpperCase() })}
       >
-        <Field.Label>{t("newShare.isin.label")}</Field.Label>
-        <Field.Control
-          autoComplete="off"
-          spellCheck={false}
-          autoCapitalize="characters"
-          value={draft.isin}
-          onValueChange={(isin) => onChange({ isin: isin.toUpperCase() })}
-        />
-        <Field.Error />
         {takenLink ? (
           <TextLink render={takenLink} toPage className="mt-xs w-fit text-s">
             {t("newShare.openTaken")}
           </TextLink>
         ) : null}
-      </Field.Root>
-      <Field.Root
+      </TextField>
+      <TextField
         name="name"
-        validate={check(
-          (text) => text.trim() !== "",
-          t("newShare.name.missing"),
-        )}
-      >
-        <Field.Label>{t("newShare.name.label")}</Field.Label>
-        <Field.Control
-          autoComplete="off"
-          maxLength={100}
-          placeholder={t("newShare.name.placeholder")}
-          value={draft.name}
-          onValueChange={(name) => onChange({ name })}
-        />
-        <Field.Error />
-      </Field.Root>
+        label={t("newShare.name.label")}
+        ok={(text) => text.trim() !== ""}
+        error={t("newShare.name.missing")}
+        maxLength={100}
+        placeholder={t("newShare.name.placeholder")}
+        value={draft.name}
+        onValueChange={(name) => onChange({ name })}
+      />
       <div className="grid grid-cols-2 items-start gap-m">
-        <Field.Root
+        <TextField
           name="price"
-          validate={check(price, t("newShare.price.invalid"))}
-        >
-          <Field.Label>{t("newShare.price.label")}</Field.Label>
-          <Field.Control
-            decimal
-            autoComplete="off"
-            icon={CurrencyEurIcon}
-            value={draft.price}
-            onValueChange={(text) => onChange({ price: text })}
-          />
-          <Field.Error />
-        </Field.Root>
+          label={t("newShare.price.label")}
+          ok={(text) => priceOf(text, language) !== null}
+          error={t("newShare.price.invalid")}
+          decimal
+          icon={CurrencyEurIcon}
+          value={draft.price}
+          onValueChange={(price) => onChange({ price })}
+        />
         <DayField
           label={t("newShare.day")}
           value={draft.day}
