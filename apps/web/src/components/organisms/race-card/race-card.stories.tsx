@@ -110,6 +110,35 @@ type RaceCardArgs = RaceCard.RaceProps & { header: boolean };
 
 const gutters = cn("", "px-m", "tablet:px-l", "desktop:px-l");
 
+/** Home's page bar and sentence, in the sky above the card. */
+function HomeHeader({ headline }: { headline: string }) {
+  return (
+    <Sky.Header>
+      <p
+        className={cn(
+          "flex items-center text-l font-semibold",
+          "h-[4.375rem]",
+          "tablet:h-[5rem]",
+          "desktop:h-[5rem]",
+        )}
+      >
+        Home
+      </p>
+      <p className="text-m text-on-sky">Good evening</p>
+      <h1
+        className={cn(
+          "font-semibold",
+          "text-xl",
+          "tablet:text-display",
+          "desktop:text-display",
+        )}
+      >
+        {headline}
+      </h1>
+    </Sky.Header>
+  );
+}
+
 /**
  * Home's top, with the race card resting on the horizon. Its sentence is the
  * story's demo content. It keeps the focus, as Home keeps it in the URL,
@@ -130,29 +159,7 @@ function HomeTop({
   return (
     <Sky.Root className={cn("pb-xl font-sans text-primary", gutters)}>
       <Sky.Band />
-      <Sky.Header>
-        <p
-          className={cn(
-            "flex items-center text-l font-semibold",
-            "h-[4.375rem]",
-            "tablet:h-[5rem]",
-            "desktop:h-[5rem]",
-          )}
-        >
-          Home
-        </p>
-        <p className="text-m text-on-sky">Good evening</p>
-        <h1
-          className={cn(
-            "font-semibold",
-            "text-xl",
-            "tablet:text-display",
-            "desktop:text-display",
-          )}
-        >
-          {headline}
-        </h1>
-      </Sky.Header>
+      <HomeHeader headline={headline} />
       <RaceCard.Root className="max-w-[50rem]">
         {header ? (
           <RaceCard.Header>
