@@ -337,7 +337,7 @@
     "check": "Choisir un nouveau mot de passe",
     "checking": "Vérification…",
     "newQuestion": "Choisissez un nouveau mot de passe",
-    "newDescription": "Toutes vos autres sessions sont déconnectées.",
+    "newDescription": "L’enregistrer vous déconnecte sur tous vos appareils.",
     "password": "Nouveau mot de passe",
     "save": "Enregistrer le mot de passe",
     "done": "Mot de passe modifié",

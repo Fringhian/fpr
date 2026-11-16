@@ -335,7 +335,7 @@
     "check": "Set a new password",
     "checking": "Checking…",
     "newQuestion": "Choose a new password",
-    "newDescription": "Every other session of yours is signed out.",
+    "newDescription": "Saving it signs you out on every device.",
     "password": "New password",
     "save": "Save new password",
     "done": "Password changed",
