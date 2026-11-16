@@ -16,6 +16,8 @@ export type Session = {
    * viewer read the same screens without those controls.
    */
   writer: boolean;
+  /** The admin, who also edits another member's portfolio and prepares their own in Portfolio. */
+  admin: boolean;
 };
 
 /**
@@ -37,5 +39,6 @@ export function useSession(): Session {
     role: person.role,
     readOnly: person.role === "anonymous",
     writer: mayEnter("portfolio", person.role),
+    admin: mayEnter("admin", person.role),
   };
 }

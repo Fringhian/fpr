@@ -1,7 +1,6 @@
-import type { Id, Role } from "@fpr/contracts";
+import type { Id } from "@fpr/contracts";
 import { Link, type SearchSchemaInput } from "@tanstack/react-router";
 import type { ReactElement } from "react";
-import { mayEnter } from "./session/access";
 
 /**
  * A member's page's search: `edit`, the admin's edit mode, written `?edit=true`
@@ -14,11 +13,6 @@ export function validateMemberSearch(
   return {
     edit: edit === true || edit === 1 || edit === "1" ? true : undefined,
   };
-}
-
-/** Whether `role` may edit another member's portfolio: the admin. */
-export function canEditPortfolios(role: Role): boolean {
-  return mayEnter("admin", role);
 }
 
 /**
