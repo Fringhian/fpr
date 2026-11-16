@@ -60,5 +60,12 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
       cashEur: "300",
     },
   ],
+  camille: [
+    {
+      daysAgo: 1,
+      changes: { world: "12", vineyard: "4.5", robotics: "30" },
+      cashEur: "750",
+    },
+  ],
   eden: [{ daysAgo: 340, changes: { world: "20" }, cashEur: "100" }],
 };

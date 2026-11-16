@@ -77,16 +77,15 @@ describe("the route guards", () => {
   });
 
   it("let a signed-out visitor reach every page that starts a session", async () => {
-    for (const page of [
-      "signIn",
-      "setup",
-      "access",
-      "resetPassword",
-    ] as const) {
+    for (const page of ["signIn", "setup", "resetPassword"] as const) {
       expect((await visit(routes[page], "signedOut")).location.href).toBe(
         routes[page],
       );
     }
+    // An access link's key leaves the address as the link opens.
+    expect((await visit(routes.access, "signedOut")).location.href).toBe(
+      "/access",
+    );
   });
 
   it("keep sign-in's redirect inside the app", async () => {

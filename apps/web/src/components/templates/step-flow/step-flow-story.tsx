@@ -1,10 +1,12 @@
+import type { Language } from "@fpr/contracts";
+import { useState } from "react";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
 import { Card } from "../../atoms/card/card";
-import * as Segment from "../../atoms/segment/segment";
 import { TextLink } from "../../atoms/text-link/text-link";
 import * as Field from "../../molecules/field/field";
+import { LanguageSwitch } from "../../molecules/language-switch/language-switch";
 import { HOLDINGS, LABELS } from "./step-flow-story-labels";
 
 /** The stories' demo content in the toolbar's language. */
@@ -47,19 +49,15 @@ export function ChangeSummary() {
 }
 
 /** The language switch at the right of the header, before sign-in. */
-export function LanguageSwitch() {
-  const { signIn } = useLabels();
+export function HeaderLanguageSwitch() {
+  const [language, setLanguage] = useState<Language>("en");
 
   return (
-    <Segment.Root
-      backdrop="snow"
-      defaultValue="en"
-      aria-label={signIn.language}
+    <LanguageSwitch
+      value={language}
+      onValueChange={setLanguage}
       className="ms-auto"
-    >
-      <Segment.Item value="fr">FR</Segment.Item>
-      <Segment.Item value="en">EN</Segment.Item>
-    </Segment.Root>
+    />
   );
 }
 

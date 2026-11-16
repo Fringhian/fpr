@@ -176,7 +176,6 @@
   },
   "navigation": {
     "label": "Principale",
-    "brand": "FPR",
     "admin": "Administration",
     "items": {
       "home": "Accueil",
@@ -287,8 +286,155 @@
     "back": "Retour",
     "close": "Fermer"
   },
+  "brand": "FPR",
+  "languageSwitch": {
+    "label": "Langue"
+  },
+  "madeUpRace": {
+    "caption": "Une course inventée",
+    "title": "Qui mène ce mois-ci ?"
+  },
+  "accessFields": {
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "passwordHelp": "Au moins {{min}} caractères."
+  },
+  "accessChecks": {
+    "emailMissing": "Saisissez votre e-mail.",
+    "emailInvalid": "Saisissez un e-mail comme nom@exemple.fr.",
+    "passwordMissing": "Saisissez votre mot de passe.",
+    "passwordShort": "Utilisez au moins {{min}} caractères.",
+    "passwordLong": "Utilisez {{max}} caractères au plus.",
+    "nameMissing": "Saisissez un nom.",
+    "nameLong": "Utilisez {{max}} caractères au plus.",
+    "keyMissing": "Collez la clé.",
+    "accessLinkInvalid": "Ce n’est pas un lien d’accès. Copiez le lien entier envoyé par l’admin."
+  },
+  "signIn": {
+    "question": "Bon retour",
+    "description": "Connectez-vous pour voir qui mène.",
+    "forgot": "Oublié ? Demandez une clé de réinitialisation à l’admin, puis <go>réinitialisez votre mot de passe</go>.",
+    "pasteLink": "Vous avez un lien d’accès ? <go>Collez-le</go>",
+    "action": "Se connecter",
+    "loading": "Connexion…",
+    "wrongPair": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez-les et réessayez."
+  },
+  "pasteLink": {
+    "question": "Collez votre lien d’accès",
+    "description": "Collez le lien envoyé par l’admin. Il ouvre FPR comme dans votre navigateur.",
+    "label": "Lien d’accès",
+    "action": "Ouvrir le lien"
+  },
+  "accessLink": {
+    "invited": {
+      "question": "Vous êtes invité, {{name}}",
+      "description": "Votre compte est prêt. Choisissez un mot de passe et c’est parti.",
+      "action": "Choisir un mot de passe"
+    },
+    "password": {
+      "question": "Choisissez un mot de passe",
+      "action": "Créer le compte",
+      "loading": "Création du compte…"
+    },
+    "claimed": {
+      "title": "Ce lien a déjà été utilisé",
+      "description": "Votre compte existe. Connectez-vous avec votre e-mail et votre mot de passe.",
+      "action": "Aller à la connexion"
+    },
+    "expired": {
+      "title": "Ce lien a expiré",
+      "description": "Un lien est valable 7 jours. Demandez-en un nouveau à l’admin."
+    },
+    "replaced": {
+      "title": "Ce lien a été remplacé",
+      "description": "L’admin vous a envoyé un lien plus récent. Utilisez le dernier."
+    },
+    "unknown": {
+      "title": "Ce lien ne fonctionne pas",
+      "description": "Vérifiez que vous avez ouvert le lien entier envoyé par l’admin, ou demandez-lui-en un nouveau."
+    },
+    "missing": {
+      "title": "Rouvrez votre lien",
+      "description": "Votre lien d’accès quitte la barre d’adresse une fois ouvert, pour rester privé. Rouvrez-le depuis le message de l’admin."
+    }
+  },
+  "resetPassword": {
+    "question": "Réinitialisez votre mot de passe",
+    "description": "Saisissez votre e-mail et la clé de réinitialisation donnée par l’admin.",
+    "key": "Clé de réinitialisation",
+    "keyPlaceholder": "Collez la clé donnée par l’admin…",
+    "check": "Choisir un nouveau mot de passe",
+    "checking": "Vérification…",
+    "newQuestion": "Choisissez un nouveau mot de passe",
+    "newDescription": "L’enregistrer vous déconnecte sur tous vos appareils.",
+    "password": "Nouveau mot de passe",
+    "save": "Enregistrer le mot de passe",
+    "done": "Mot de passe modifié",
+    "doneDescription": "Connectez-vous avec votre nouveau mot de passe."
+  },
+  "setup": {
+    "question": "Configurer FPR",
+    "description": "Créez le compte admin avec la clé d’installation de la configuration du serveur.",
+    "key": "Clé d’installation",
+    "name": "Votre nom",
+    "nameHelp": "Affiché à tous dans la course.",
+    "action": "Créer le compte admin",
+    "loading": "Configuration…",
+    "closedTitle": "FPR est déjà configuré",
+    "closedDescription": "Il a un admin. Connectez-vous avec votre e-mail et votre mot de passe.",
+    "closedAction": "Aller à la connexion"
+  },
   "appLayout": {
     "skip": "Aller au contenu"
+  },
+  "onboarding": {
+    "saving": "Enregistrement…",
+    "retry": "Réessayer",
+    "preview": "Ce que voient les autres",
+    "name": {
+      "question": "Comment les autres doivent-ils vous appeler ?",
+      "label": "Votre nom",
+      "help": "Affiché sur l’accueil, votre page et les graphiques.",
+      "action": "Choisir votre couleur"
+    },
+    "look": {
+      "question": "Choisissez votre couleur",
+      "description": "C’est votre courbe sur le graphique, votre barre dans le classement et votre avatar.",
+      "taken": "Les couleurs pâles sont prises : l’initiale montre qui l’a.",
+      "usePhoto": "Utiliser une photo",
+      "changePhoto": "Changer de photo",
+      "removePhoto": "Retirer la photo",
+      "uploading": "Envoi…",
+      "action": {
+        "portfolio": "Voir votre portefeuille",
+        "welcome": "Rencontrer les autres"
+      }
+    },
+    "portfolio": {
+      "question": "Voici votre portefeuille",
+      "description": "L’admin l’a préparé pour vous. Vous pourrez le modifier dans Portefeuille.",
+      "total": "Total",
+      "preparing": {
+        "question": "Votre portefeuille est en préparation",
+        "description": "L’admin saisit vos titres. Ils apparaîtront dans Portefeuille."
+      },
+      "empty": {
+        "question": "Votre portefeuille est vide",
+        "description": "Ajoutez vos titres et vos liquidités dans Portefeuille."
+      },
+      "action": "Rencontrer les autres"
+    },
+    "welcome": {
+      "question": "Bienvenue, {{name}}",
+      "others_one": "{{names}} est déjà là.",
+      "others_many": "{{names}} sont déjà là.",
+      "others_other": "{{names}} sont déjà là.",
+      "more_one": "{{count}} autre",
+      "more_many": "{{count}} autres",
+      "more_other": "{{count}} autres",
+      "first": "Vous êtes le premier arrivé.",
+      "action": "Aller à l’accueil"
+    }
   },
   "pages": {
     "home": "Accueil",
@@ -326,7 +472,8 @@
     },
     "accessEnded": {
       "title": "Votre accès a pris fin",
-      "description": "Demandez à l’admin si vous pensez que c’est une erreur."
+      "description": "Demandez à l’admin si vous pensez que c’est une erreur.",
+      "otherAccount": "Se connecter avec un autre compte"
     }
   },
   "errors": {

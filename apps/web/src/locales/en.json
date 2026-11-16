@@ -172,7 +172,6 @@
   },
   "navigation": {
     "label": "Main",
-    "brand": "FPR",
     "admin": "Admin",
     "items": {
       "home": "Home",
@@ -285,6 +284,151 @@
   "appLayout": {
     "skip": "Skip to content"
   },
+  "brand": "FPR",
+  "languageSwitch": {
+    "label": "Language"
+  },
+  "madeUpRace": {
+    "caption": "A made-up race",
+    "title": "Who’s ahead this month?"
+  },
+  "accessFields": {
+    "email": "Email",
+    "password": "Password",
+    "passwordHelp": "At least {{min}} characters."
+  },
+  "accessChecks": {
+    "emailMissing": "Enter your email.",
+    "emailInvalid": "Enter an email like name@example.com.",
+    "passwordMissing": "Enter your password.",
+    "passwordShort": "Use at least {{min}} characters.",
+    "passwordLong": "Use {{max}} characters or fewer.",
+    "nameMissing": "Enter a name.",
+    "nameLong": "Use {{max}} characters or fewer.",
+    "keyMissing": "Paste the key.",
+    "accessLinkInvalid": "This isn’t an access link. Copy the whole link the admin sent you."
+  },
+  "signIn": {
+    "question": "Welcome back",
+    "description": "Sign in to see who’s ahead.",
+    "forgot": "Forgot it? Ask the admin for a reset key, then <go>reset your password</go>.",
+    "pasteLink": "Have an access link? <go>Paste it</go>",
+    "action": "Sign in",
+    "loading": "Signing in…",
+    "wrongPair": "This email and password don’t match. Check them and try again."
+  },
+  "pasteLink": {
+    "question": "Paste your access link",
+    "description": "Paste the link the admin sent you. It opens FPR as it would in your browser.",
+    "label": "Access link",
+    "action": "Open the link"
+  },
+  "accessLink": {
+    "invited": {
+      "question": "You’re invited, {{name}}",
+      "description": "Your account is ready. Choose a password and you’re in.",
+      "action": "Choose a password"
+    },
+    "password": {
+      "question": "Choose a password",
+      "action": "Create account",
+      "loading": "Creating your account…"
+    },
+    "claimed": {
+      "title": "This link was already used",
+      "description": "Your account exists. Sign in with your email and password.",
+      "action": "Go to sign-in"
+    },
+    "expired": {
+      "title": "This link has expired",
+      "description": "Links work for 7 days. Ask the admin for a new one."
+    },
+    "replaced": {
+      "title": "This link was replaced",
+      "description": "The admin sent you a newer link. Use the latest one."
+    },
+    "unknown": {
+      "title": "This link doesn’t work",
+      "description": "Check that you opened the whole link the admin sent you, or ask them for a new one."
+    },
+    "missing": {
+      "title": "Open your link again",
+      "description": "Your access link leaves the address bar once opened, to keep it private. Open it again from the admin’s message."
+    }
+  },
+  "resetPassword": {
+    "question": "Reset your password",
+    "description": "Enter your email and the reset key the admin gave you.",
+    "key": "Reset key",
+    "keyPlaceholder": "Paste the key from the admin…",
+    "check": "Set a new password",
+    "checking": "Checking…",
+    "newQuestion": "Choose a new password",
+    "newDescription": "Saving it signs you out on every device.",
+    "password": "New password",
+    "save": "Save new password",
+    "done": "Password changed",
+    "doneDescription": "Sign in with your new password."
+  },
+  "setup": {
+    "question": "Set up FPR",
+    "description": "Create the admin account with the setup key from the server’s configuration.",
+    "key": "Setup key",
+    "name": "Your name",
+    "nameHelp": "Shown to everyone in the race.",
+    "action": "Create admin account",
+    "loading": "Setting up…",
+    "closedTitle": "FPR is already set up",
+    "closedDescription": "It has an admin. Sign in with your email and password.",
+    "closedAction": "Go to sign-in"
+  },
+  "onboarding": {
+    "saving": "Saving…",
+    "retry": "Retry",
+    "preview": "How the others see you",
+    "name": {
+      "question": "What should the others call you?",
+      "label": "Your name",
+      "help": "Shown on Home, your page, and the charts.",
+      "action": "Choose your colour"
+    },
+    "look": {
+      "question": "Pick your colour",
+      "description": "It’s your curve on the chart, your bar in the standings, and your picture.",
+      "taken": "Faded colours are taken: the initial shows who has it.",
+      "usePhoto": "Use a photo instead",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove photo",
+      "uploading": "Uploading…",
+      "action": {
+        "portfolio": "See your portfolio",
+        "welcome": "Meet everyone"
+      }
+    },
+    "portfolio": {
+      "question": "Here’s your portfolio",
+      "description": "The admin set it up for you. You can change it later in Portfolio.",
+      "total": "Total",
+      "preparing": {
+        "question": "Your portfolio is being prepared",
+        "description": "The admin is entering your shares. They’ll show up in Portfolio."
+      },
+      "empty": {
+        "question": "Your portfolio is empty",
+        "description": "Add your shares and cash in Portfolio."
+      },
+      "action": "Meet everyone"
+    },
+    "welcome": {
+      "question": "Welcome, {{name}}",
+      "others_one": "{{names}} is already here.",
+      "others_other": "{{names}} are already here.",
+      "more_one": "{{count}} other",
+      "more_other": "{{count}} others",
+      "first": "You’re the first one here.",
+      "action": "Go to Home"
+    }
+  },
   "pages": {
     "home": "Home",
     "members": "Members",
@@ -321,7 +465,8 @@
     },
     "accessEnded": {
       "title": "Your access has ended",
-      "description": "Ask the admin if you think this is a mistake."
+      "description": "Ask the admin if you think this is a mistake.",
+      "otherAccount": "Sign in with another account"
     }
   },
   "errors": {
