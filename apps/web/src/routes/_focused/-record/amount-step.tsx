@@ -9,7 +9,7 @@ import { formatDate } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { AmountForm } from "./amount-form";
 import { useFlow } from "./flow";
 import { ReadLine } from "./read-line";
@@ -126,7 +126,7 @@ function CashStep() {
               amount: formatMoney(cash.amountEur, language),
               date: formatDate(cash.effectiveAt, language, {
                 style: "long",
-                timeZone: RACE_TIME_ZONE,
+                timeZone: raceTimeZone(),
               }),
             })
       }

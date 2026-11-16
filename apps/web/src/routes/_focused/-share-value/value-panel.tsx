@@ -6,10 +6,8 @@ import { useDayText } from "../../../lib/day-text";
 import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { momentOf, type ValueDraft } from "./value-draft";
-
-const timeZone = RACE_TIME_ZONE;
 
 /**
  * The sky panel's card: the share, the value's day and time, or the moment
@@ -31,6 +29,7 @@ export function ValuePanel({
   const language = useLanguage();
   const dayText = useDayText(today);
 
+  const timeZone = raceTimeZone();
   const price = priceIn(draft.price, language);
   const moment = editing
     ? [

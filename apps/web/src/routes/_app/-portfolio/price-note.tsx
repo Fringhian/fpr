@@ -4,14 +4,14 @@ import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatList } from "../../../lib/format/text";
 import { HelpInfo } from "../../../lib/help-info";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE, raceDayOf, raceToday } from "../../../lib/race-day";
+import { raceDayOf, raceTimeZone, raceToday } from "../../../lib/race-day";
 
 /** “Prices as of 14:30” today, “Prices as of 3 Mar” on an older day. */
 function PricesAsOf({ at }: { at: Timestamp }) {
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const timeZone = RACE_TIME_ZONE;
+  const timeZone = raceTimeZone();
   const today = raceDayOf(at) === raceToday();
 
   return (

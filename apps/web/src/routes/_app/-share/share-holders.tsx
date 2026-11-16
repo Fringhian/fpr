@@ -12,7 +12,7 @@ import { formatPercent } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
-import { inThisYear, RACE_TIME_ZONE } from "../../../lib/race-day";
+import { inThisYear, raceTimeZone } from "../../../lib/race-day";
 import { useSession } from "../../../lib/session/use-session";
 import { useViewState } from "../../../lib/view-state/use-view-state";
 
@@ -40,7 +40,7 @@ function HolderLine({ holder }: { holder: ShareHolder }) {
     first === undefined
       ? null
       : t("sharePage.holders.since", {
-          date: formatDate(first, language, { timeZone: RACE_TIME_ZONE, year }),
+          date: formatDate(first, language, { timeZone: raceTimeZone(), year }),
         });
 
   return (

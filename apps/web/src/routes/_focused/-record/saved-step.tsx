@@ -6,7 +6,7 @@ import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 import { type SavedEntry, useEntryTitle } from "../../../lib/log-entry";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { useFlow } from "./flow";
 import { PortfolioNow } from "./portfolio-now";
 import { RecordPage } from "./record-page";
@@ -24,7 +24,7 @@ export function SavedStep() {
   const day = (entry: SavedEntry, style: "short" | "long") =>
     formatDate(entry.effectiveAt, language, {
       style,
-      timeZone: RACE_TIME_ZONE,
+      timeZone: raceTimeZone(),
     });
   const last = session.last;
   if (last === undefined) return null;

@@ -138,7 +138,7 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 - Every amount, quantity and percentage arrives as the decimal string the API sends, and is formatted exactly, with no floating-point rounding. A quantity keeps the fractional digits it was entered with.
 - A signed value has a sign unless it rounds to zero. An unsigned one has a minus only when negative, and never shows a negative zero. Every minus is `−` (U+2212).
-- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone, except on a chart, which puts each point on its day in `Europe/Paris`, the default `RACE_TIMEZONE`, where the API dates its closes.
+- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone, except on a chart, which puts each point on its day in the race's time zone, where the API dates its closes: `/me`'s `raceTimeZone`, and `Europe/Paris`, the default `RACE_TIMEZONE`, before sign-in.
 
 ### Typography
 

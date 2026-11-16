@@ -3,6 +3,7 @@ import { generateOperationKey } from "@orpc/tanstack-query";
 import { type QueryClient, queryOptions } from "@tanstack/react-query";
 import type { Api } from "../api/api.ts";
 import { isApiError } from "../api/errors.ts";
+import { setRaceTimeZone } from "../race-day.ts";
 
 /** An answer that nobody is signed in, or that the person's access has ended. */
 function endsSession(error: unknown): boolean {
@@ -33,7 +34,9 @@ export function sessionQuery(api: Api) {
     queryKey: [...api.me.get.queryKey()],
     queryFn: async ({ client }): Promise<Me | null> => {
       try {
-        return await api.me.get.call();
+        const me = await api.me.get.call();
+        setRaceTimeZone(me.raceTimeZone);
+        return me;
       } catch (error) {
         // A session held until now that ends mid-visit stays an error, so the
         // cache keeps the person while the page is replaced: the screens

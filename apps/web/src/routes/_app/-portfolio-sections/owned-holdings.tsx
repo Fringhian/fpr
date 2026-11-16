@@ -4,7 +4,7 @@ import * as HoldingCard from "../../../components/molecules/holding-card/holding
 import * as Menu from "../../../components/molecules/menu/menu";
 import * as Holdings from "../../../components/organisms/holdings/holdings";
 import { HelpInfo } from "../../../lib/help-info";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { useViewState } from "../../../lib/view-state/use-view-state";
 import { PortfolioHoldings } from "./portfolio-holdings";
 import { useRecord } from "./record-link";
@@ -56,7 +56,7 @@ export function OwnedHoldings({
             weight={portfolio.cashWeight}
             setOn={cashSetAt}
             anonymous={anonymous}
-            timeZone={RACE_TIME_ZONE}
+            timeZone={raceTimeZone()}
             onUpdateCash={() => record.open({ kind: "cash" })}
             info={
               <HelpInfo section="cash" title={t("helpInfo.cash.title")}>

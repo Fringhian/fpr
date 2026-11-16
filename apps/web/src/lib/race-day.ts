@@ -1,26 +1,39 @@
 import type { IsoDate, Timestamp } from "@fpr/contracts";
 
-/**
- * The race's time zone, where a day starts and a close is dated: the API's
- * `RACE_TIMEZONE` default, which no response carries.
- */
-export const RACE_TIME_ZONE = "Europe/Paris";
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// `en-CA` writes a date as `YYYY-MM-DD`.
-const dayFormat = new Intl.DateTimeFormat("en-CA", {
-  timeZone: RACE_TIME_ZONE,
-});
+function formatsIn(timeZone: string) {
+  return {
+    timeZone,
+    // `en-CA` writes a date as `YYYY-MM-DD`.
+    day: new Intl.DateTimeFormat("en-CA", { timeZone }),
+    offset: new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      timeZoneName: "longOffset",
+    }),
+  };
+}
 
-const offsetFormat = new Intl.DateTimeFormat("en-US", {
-  timeZone: RACE_TIME_ZONE,
-  timeZoneName: "longOffset",
-});
+// The API's `RACE_TIMEZONE` default holds until a session names the
+// instance's own: a signed-out page, such as setup or an access link, still
+// dates days.
+let zone = formatsIn("Europe/Paris");
+
+/** The race's time zone, where a day starts and a close is dated. */
+export function raceTimeZone(): string {
+  return zone.timeZone;
+}
+
+/** Takes the instance's time zone from the session, `GET /me`'s `raceTimeZone`. */
+export function setRaceTimeZone(timeZone: string): void {
+  if (timeZone !== zone.timeZone) {
+    zone = formatsIn(timeZone);
+  }
+}
 
 /** The race's day a moment falls on: a close, at 23:59:59 there, falls on its trading day. */
 export function raceDayOf(at: string | number): IsoDate {
-  return dayFormat.format(new Date(at));
+  return zone.day.format(new Date(at));
 }
 
 /** The race's day now, whatever the browser's time zone. */
@@ -42,7 +55,7 @@ export function addDays(day: IsoDate, days: number): IsoDate {
 
 function offsetMs(atMs: number): number {
   const name =
-    offsetFormat.formatToParts(atMs).find(({ type }) => type === "timeZoneName")
+    zone.offset.formatToParts(atMs).find(({ type }) => type === "timeZoneName")
       ?.value ?? "";
   const match = /GMT([+-])(\d{2}):(\d{2})/.exec(name);
   if (match === null) {

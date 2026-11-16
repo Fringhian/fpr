@@ -7,8 +7,10 @@ import { Button } from "../../components/atoms/button/button";
 import { Icon } from "../../components/foundations/icon/icon";
 import { FormError } from "../../components/molecules/form-error/form-error";
 import { cn } from "../../lib/cn";
+import { useSession } from "../../lib/session/use-session";
 import {
   CurrentPasswordField,
+  HiddenEmail,
   NewPasswordField,
 } from "../-account/access-fields";
 import { settingRow } from "./setting-row";
@@ -17,6 +19,7 @@ import { type Passwords, usePasswordChange } from "./use-password-change";
 /** The current password, the new one, and Change password. */
 function PasswordForm({ onChanged }: { onChanged: () => void }) {
   const { t } = useTranslation();
+  const { person } = useSession();
   const change = usePasswordChange(onChanged);
 
   return (
@@ -25,6 +28,7 @@ function PasswordForm({ onChanged }: { onChanged: () => void }) {
       onFormSubmit={change.submit}
       className="flex flex-col gap-m pb-m"
     >
+      {person.email === null ? null : <HiddenEmail email={person.email} />}
       <CurrentPasswordField
         name="currentPassword"
         label={t("settings.password.current")}

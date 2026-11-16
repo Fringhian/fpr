@@ -3,7 +3,7 @@ import { formatTime } from "../../../lib/format/date";
 import {
   localInstant,
   pastMomentOn,
-  RACE_TIME_ZONE,
+  raceTimeZone,
 } from "../../../lib/race-day";
 
 /** Add a value's fields as typed: the day, the time of day `HH:MM` in the race's zone, and the value of one unit. */
@@ -14,7 +14,7 @@ const TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 /** The time of day now in the race's zone, `HH:MM`. */
 export function timeNow(): string {
   return formatTime(new Date().toISOString(), "en", {
-    timeZone: RACE_TIME_ZONE,
+    timeZone: raceTimeZone(),
   });
 }
 

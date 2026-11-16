@@ -7,7 +7,7 @@ import * as Holdings from "../../../components/organisms/holdings/holdings";
 import { cn } from "../../../lib/cn";
 import type { GainUnit } from "../../../lib/gain";
 import { lookOf } from "../../../lib/look";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { pricePoints } from "../../../lib/series";
 
 function Card({
@@ -38,7 +38,7 @@ function Card({
       unit={unit}
       holders={holders}
       link={<Link to="/shares/$shareId" params={{ shareId: share.id }} />}
-      timeZone={RACE_TIME_ZONE}
+      timeZone={raceTimeZone()}
     />
   );
 }

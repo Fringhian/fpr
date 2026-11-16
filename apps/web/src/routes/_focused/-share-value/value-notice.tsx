@@ -5,7 +5,7 @@ import { TextLink } from "../../../components/atoms/text-link/text-link";
 import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 
 /**
  * Why the value isn't saved yet, in a polite live region: someone changed
@@ -26,7 +26,7 @@ export function ValueNotice({
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const timeZone = RACE_TIME_ZONE;
+  const timeZone = raceTimeZone();
   return (
     <div role="status">
       {changed !== null ? (

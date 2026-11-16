@@ -12,7 +12,7 @@ import { formatMoney } from "../../../../lib/format/money";
 import { useLanguage } from "../../../../lib/i18n";
 import { lookOf } from "../../../../lib/look";
 import { usePriceTime } from "../../../../lib/price-time";
-import { RACE_TIME_ZONE } from "../../../../lib/race-day";
+import { raceTimeZone } from "../../../../lib/race-day";
 import {
   actionOf,
   badgeOf,
@@ -48,7 +48,7 @@ function PriceDetail({ share }: { share: AdminShare }) {
   const { latestPrice } = share;
   return latestPrice === null
     ? t("adminShares.neverPriced")
-    : `${formatMoney(latestPrice.priceEur, language)} · ${priceTime(latestPrice, RACE_TIME_ZONE)}`;
+    : `${formatMoney(latestPrice.priceEur, language)} · ${priceTime(latestPrice, raceTimeZone())}`;
 }
 
 /** The ISIN and the symbol, then the price on a line under them on tablet, or in its own column on desktop. */

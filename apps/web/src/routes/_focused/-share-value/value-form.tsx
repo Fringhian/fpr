@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { LeaveGuard } from "../../../lib/leave-guard";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { useRaceToday } from "../../../lib/use-race-today";
 import { useSaveValue } from "./use-save-value";
 import { timeNow, type ValueDraft } from "./value-draft";
@@ -17,12 +17,12 @@ import { ValueFields } from "./value-fields";
 import { ValueNotice } from "./value-notice";
 import { ValuePanel } from "./value-panel";
 
-const timeZone = RACE_TIME_ZONE;
-
 /** “Last value: €40.10 on 3 Mar. Every holder's balance updates.” */
 function LastValue({ value }: { value: ShareValue | undefined }) {
   const { t } = useTranslation();
   const language = useLanguage();
+
+  const timeZone = raceTimeZone();
 
   return (
     <p className="text-xs text-secondary">
@@ -41,6 +41,8 @@ function LastValue({ value }: { value: ShareValue | undefined }) {
 function Question({ editing }: { editing: ShareValue | undefined }) {
   const { t } = useTranslation();
   const language = useLanguage();
+
+  const timeZone = raceTimeZone();
 
   return (
     <StepFlow.Question>

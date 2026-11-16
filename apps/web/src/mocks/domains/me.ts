@@ -4,7 +4,7 @@ import {
   colorCount,
   type Me,
 } from "@fpr/contracts";
-import { RACE_TIME_ZONE } from "../../lib/race-day.ts";
+import { raceTimeZone } from "../../lib/race-day.ts";
 import { mockError } from "../server/errors.ts";
 import { mock, viewerOf } from "../server/implementer.ts";
 import { peopleInOrder, personOf, toPerson } from "../store/people.ts";
@@ -15,7 +15,7 @@ function toMe(person: MockPerson): Me {
     ...toPerson(person),
     role: person.role,
     email: person.role === "anonymous" ? null : person.email,
-    raceTimeZone: RACE_TIME_ZONE,
+    raceTimeZone: raceTimeZone(),
     language: person.language,
     onboarded: person.onboarded,
   };

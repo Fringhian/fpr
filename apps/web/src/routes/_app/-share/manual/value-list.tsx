@@ -10,10 +10,8 @@ import { formatDate, formatTime } from "../../../../lib/format/date";
 import { formatMoney } from "../../../../lib/format/money";
 import { useLanguage } from "../../../../lib/i18n";
 import { lookOf } from "../../../../lib/look";
-import { inThisYear, RACE_TIME_ZONE } from "../../../../lib/race-day";
+import { inThisYear, raceTimeZone } from "../../../../lib/race-day";
 import { type ChangedValue, useDeleteValue } from "./use-delete-value";
-
-const timeZone = RACE_TIME_ZONE;
 
 /** “€40.10, 3 Mar”: a value as the toasts and the ⋯ button name it. */
 function useSubject() {
@@ -23,7 +21,7 @@ function useSubject() {
   return (value: ShareValue) =>
     t("timelineRow.subject", {
       title: formatMoney(value.priceEur, language),
-      date: formatDate(value.at, language, { timeZone }),
+      date: formatDate(value.at, language, { timeZone: raceTimeZone() }),
     });
 }
 
@@ -81,6 +79,7 @@ function ValueRow({
   const language = useLanguage();
   const subject = useSubject();
 
+  const timeZone = raceTimeZone();
   const price = formatMoney(value.priceEur, language);
   const by = value.enteredBy && lookOf(value.enteredBy).name;
   const time = formatTime(value.at, language, { timeZone });
