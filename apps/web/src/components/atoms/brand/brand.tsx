@@ -9,7 +9,10 @@ export function Brand({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
       {...props}
-      className={cn("text-m font-semibold tracking-[0.08em]", className)}
+      className={cn(
+        "text-m font-semibold tracking-[0.08em] text-primary",
+        className,
+      )}
     >
       {t("brand")}
     </p>

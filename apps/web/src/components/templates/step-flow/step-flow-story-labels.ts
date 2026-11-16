@@ -20,7 +20,6 @@ export const LABELS = {
       ],
     },
     signIn: {
-      language: "Language",
       question: "Welcome back",
       description: "Sign in to see who’s ahead.",
       email: "Email",
@@ -69,7 +68,6 @@ export const LABELS = {
       ],
     },
     signIn: {
-      language: "Langue",
       question: "Bon retour",
       description: "Connectez-vous pour voir qui mène.",
       email: "E-mail",

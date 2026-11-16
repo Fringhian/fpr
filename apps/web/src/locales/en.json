@@ -286,11 +286,7 @@
   },
   "brand": "FPR",
   "languageSwitch": {
-    "label": "Language",
-    "names": {
-      "fr": "Français",
-      "en": "English"
-    }
+    "label": "Language"
   },
   "madeUpRace": {
     "caption": "A made-up race",

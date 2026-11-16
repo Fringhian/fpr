@@ -288,11 +288,7 @@
   },
   "brand": "FPR",
   "languageSwitch": {
-    "label": "Langue",
-    "names": {
-      "fr": "Français",
-      "en": "English"
-    }
+    "label": "Langue"
   },
   "madeUpRace": {
     "caption": "Une course inventée",

@@ -39,7 +39,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "FR and EN as a segment on snow, at the right of a focused page’s header before sign-in and during onboarding. Each option is named in its own language for screen readers: Français, English. The screen switches FPR with `useChangeLanguage()` and passes the language it shows as `value`.",
+          "FR and EN as a segment on snow, at the right of a focused page’s header before sign-in and during onboarding. Each option is marked as written in its own language (`lang`). The screen switches FPR with `useChangeLanguage()` and passes the language it shows as `value`.",
       },
     },
   },
@@ -54,11 +54,12 @@ type Story = StoryObj<typeof meta>;
 export const French: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: "English" }));
+    await userEvent.click(canvas.getByRole("button", { name: "EN" }));
     await expect(args.onValueChange).toHaveBeenCalledWith("en");
-    await expect(
-      canvas.getByRole("button", { name: "English" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByRole("button", { name: "EN" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   },
 };
 

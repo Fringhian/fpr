@@ -15,8 +15,7 @@ export type LanguageSwitchProps = {
 
 /**
  * FR and EN as a segment on snow, for the steps before sign-in and
- * onboarding. Each option is named in its own language, so a person who
- * can't read the other one still finds theirs.
+ * onboarding. Each option is marked as written in its own language.
  */
 export function LanguageSwitch({
   value,
@@ -34,12 +33,7 @@ export function LanguageSwitch({
       onValueChange={onValueChange}
     >
       {languages.map((language) => (
-        <Segment.Item
-          key={language}
-          value={language}
-          lang={language}
-          aria-label={t(`languageSwitch.names.${language}`)}
-        >
+        <Segment.Item key={language} value={language} lang={language}>
           {language.toUpperCase()}
         </Segment.Item>
       ))}
