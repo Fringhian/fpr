@@ -2,7 +2,7 @@ import {
   createTanstackQueryUtils,
   type RouterUtils,
 } from "@orpc/tanstack-query";
-import { signOutOnAccessEnded } from "../session/access-ended.ts";
+import { signOutOnAccessEnded } from "../session/session-ended.ts";
 import { type ApiClient, createApiClient } from "./client.ts";
 
 /** TanStack Query's options for each route of an API client. */
