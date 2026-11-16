@@ -9,6 +9,13 @@ import { DEFAULT_LANGUAGE } from "./lib/language.ts";
 import { routeTree } from "./routeTree.gen.ts";
 import "./index.css";
 
+// `pnpm dev:mock` answers every API call with the mock API. Any other mode
+// drops this branch, and the mocks with it, from the build.
+if (import.meta.env.MODE === "mock") {
+  const { startMockApi } = await import("./mocks/browser.ts");
+  await startMockApi();
+}
+
 const i18n = createI18n(DEFAULT_LANGUAGE);
 syncDocumentLanguage(i18n);
 
