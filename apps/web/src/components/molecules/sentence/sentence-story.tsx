@@ -17,7 +17,6 @@ export interface SentenceLeader extends TrailSignPerson {
 
 /** The share that rose the most over the period among the shares held. */
 export interface StarShare {
-  /** The share's name. */
   name: string;
   /** Its gain over the period, in percent, as the API sends it (`12.4`). */
   gain: Decimal;
@@ -32,7 +31,7 @@ export type Standing =
       leader: SentenceLeader;
     }
   | {
-      /** You lead; with your gain down, everyone is down. */
+      /** The viewer leads; with their gain down, everyone is down. */
       standing: "youLead";
       gain: GainInput;
       leader?: undefined;
@@ -70,7 +69,7 @@ function TheyLead({
   );
 }
 
-/** “You lead the race”, on your own sign. */
+/** “You lead the race”, on the viewer's own sign. */
 function YouLead({ you }: { you: TrailSignPerson }) {
   return (
     <Trans
@@ -128,7 +127,7 @@ function StarShareLine({
 }
 
 type StoryLineProps = Pick<Standing, "standing" | "leader"> & {
-  /** You, drawn on your sign when you lead. */
+  /** The viewer, drawn on their sign when they lead. */
   you: TrailSignPerson;
   period: Period;
   unit: GainUnit;
@@ -139,7 +138,7 @@ type StoryLineProps = Pick<Standing, "standing" | "leader"> & {
 
 /**
  * The story line: “everyone is down” from tablet up, then who leads (the
- * leader's sign, yours, or that you're alone), then the star share from
+ * leader's sign, the viewer's, or that they're alone), then the star share from
  * tablet up. Nothing when none of them applies.
  */
 export function StoryLine({

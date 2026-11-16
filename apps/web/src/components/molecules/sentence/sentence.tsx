@@ -12,7 +12,7 @@ import type { TimeOfDay } from "./time-of-day";
 export { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 export type { SentenceLeader, Standing, StarShare } from "./sentence-story";
 
-interface RaceOwnProps {
+export type RaceProps = {
   /** The viewer's display name, greeted by it, or an anonymous viewer's pseudonym. */
   name: string;
   /** The viewer's colour, for their picture in “You lead the race”. */
@@ -27,21 +27,29 @@ interface RaceOwnProps {
   unit: GainUnit;
   /** The star share, after the leader from tablet up. The phone leaves it out. */
   starShare?: StarShare | null | undefined;
-}
-
-export type RaceProps = RaceOwnProps &
-  Standing &
-  Omit<ComponentProps<"div">, keyof RaceOwnProps | keyof Standing | "children">;
+} & Standing &
+  Omit<
+    ComponentProps<"div">,
+    | "name"
+    | "color"
+    | "photo"
+    | "timeOfDay"
+    | "period"
+    | "unit"
+    | "starShare"
+    | keyof Standing
+    | "children"
+  >;
 
 /**
- * Home's header sentence, written from the race: a greeting, your result for
- * the period, and a story line with who leads and the star share. It adapts
- * to where you stand: someone else leads, you lead, everyone is down (read
- * from the gain that leads, yours or the leader's), you're alone in the
- * race, or you watch as a guest or an anonymous viewer. On phone the story
- * line names the leader only: “everyone is down” and the star share show
- * from tablet up. Every other prop goes to the `<div>`, `className`
- * included.
+ * Home's header sentence, written from the race: a greeting, the viewer's
+ * result for the period, and a story line with who leads and the star share.
+ * It adapts to where the viewer stands: someone else leads, they lead,
+ * everyone is down (read from the gain that leads, theirs or the leader's),
+ * they're alone in the race, or they watch as a guest or an anonymous viewer.
+ * On phone the story line names the leader only: “everyone is down” and the
+ * star share show from tablet up. Every other prop goes to the `<div>`,
+ * `className` included.
  */
 export function Race({
   name,

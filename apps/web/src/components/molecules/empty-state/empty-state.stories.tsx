@@ -4,6 +4,7 @@ import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { QuestionIcon } from "@phosphor-icons/react/Question";
 import { TrayIcon } from "@phosphor-icons/react/Tray";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ComponentProps } from "react";
 import { useLanguage } from "../../../lib/i18n";
 import { Button } from "../../atoms/button/button";
 import * as EmptyState from "./empty-state";
@@ -72,7 +73,7 @@ interface EmptyStateParts {
 }
 
 /** The Docs page reads the root’s props; the controls are the parts. */
-type StoryArgs = EmptyState.RootProps & EmptyStateParts;
+type StoryArgs = ComponentProps<typeof EmptyState.Root> & EmptyStateParts;
 
 function Demo({
   use,

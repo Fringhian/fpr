@@ -26,15 +26,16 @@ const popup = cn(
   "motion-reduce:transition-opacity",
 );
 
-/** Every prop of Base UI’s `Dialog.Popup`, `className` included: a string, or a function of the popup’s state. */
-export type PopupProps = ComponentProps<typeof BaseDialog.Popup>;
-
 /**
  * The overlay: the page behind dims, and the popup opens over it. From tablet up, a dialog in the middle of the page; on phone, a sheet
  * rising from the bottom, with a grab handle on top, padded for the bottom safe area. Focus stays inside until it closes; Escape or a
- * press on the dimmed page closes it.
+ * press on the dimmed page closes it. Every prop of Base UI’s `Dialog.Popup`, `className` included: a string, or a function of its state.
  */
-export function Popup({ className, children, ...props }: PopupProps) {
+export function Popup({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof BaseDialog.Popup>) {
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop
@@ -63,11 +64,8 @@ export function Popup({ className, children, ...props }: PopupProps) {
   );
 }
 
-/** Every prop of a `<div>`. */
-export type HeaderProps = ComponentProps<"div">;
-
 /** The top row: the title, then the close button at its right end. */
-export function Header({ className, ...props }: HeaderProps) {
+export function Header({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       {...props}
@@ -76,11 +74,11 @@ export function Header({ className, ...props }: HeaderProps) {
   );
 }
 
-/** Every prop of Base UI’s `Dialog.Title`, `className` included: a string, or a function of its state. */
-export type TitleProps = ComponentProps<typeof BaseDialog.Title>;
-
 /** Names the dialog, as a question when it asks for a confirmation: “Make Nordic Wind AG manual?”. An `<h2>`, and the dialog’s accessible name. */
-export function Title({ className, ...props }: TitleProps) {
+export function Title({
+  className,
+  ...props
+}: ComponentProps<typeof BaseDialog.Title>) {
   return (
     <BaseDialog.Title
       {...props}
@@ -89,11 +87,11 @@ export function Title({ className, ...props }: TitleProps) {
   );
 }
 
-/** Every prop of Base UI’s `Dialog.Description`, `className` included: a string, or a function of its state. */
-export type DescriptionProps = ComponentProps<typeof BaseDialog.Description>;
-
 /** One or two sentences under the title: what happens next. A `<p>`, and the dialog’s accessible description. */
-export function Description({ className, ...props }: DescriptionProps) {
+export function Description({
+  className,
+  ...props
+}: ComponentProps<typeof BaseDialog.Description>) {
   return (
     <BaseDialog.Description
       {...props}
@@ -102,14 +100,11 @@ export function Description({ className, ...props }: DescriptionProps) {
   );
 }
 
-/** Every prop of a `<div>`. */
-export type FooterProps = ComponentProps<"div">;
-
 /**
  * The buttons, the main one last. From tablet up, a row at the bottom right; on phone, a full-width stack with the main
  * button on top.
  */
-export function Footer({ className, ...props }: FooterProps) {
+export function Footer({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       {...props}
@@ -124,20 +119,17 @@ export function Footer({ className, ...props }: FooterProps) {
   );
 }
 
-export interface CloseOwnProps {
-  /** The button’s icon, any Phosphor icon. A cross by default. */
-  icon?: IconProps["icon"] | undefined;
-}
-
 /**
  * The close button’s own props, then every prop of Base UI’s `Dialog.Close` but `children` and `render`: it draws its own icon
  * button. `className` is a string, or a function of its state, and wins over the icon button’s classes.
  */
-export type CloseProps = CloseOwnProps &
-  Omit<
-    ComponentProps<typeof BaseDialog.Close>,
-    keyof CloseOwnProps | "children" | "render"
-  >;
+export type CloseProps = {
+  /** The button’s icon, any Phosphor icon. A cross by default. */
+  icon?: IconProps["icon"] | undefined;
+} & Omit<
+  ComponentProps<typeof BaseDialog.Close>,
+  "icon" | "children" | "render"
+>;
 
 /** The icon button at the end of the header, a cross by default, named “Close” for screen readers. */
 export function Close({ icon = XIcon, ...props }: CloseProps) {
@@ -151,20 +143,14 @@ export function Close({ icon = XIcon, ...props }: CloseProps) {
   );
 }
 
-export interface CancelOwnProps {
-  /** The button’s label. Defaults to “Cancel”. */
-  children?: ReactNode;
-}
-
 /**
  * The cancel button’s own props, then every prop of Base UI’s `Dialog.Close` but `render`: it draws a secondary button.
  * `className` is a string, or a function of its state, and wins over the button’s classes.
  */
-export type CancelProps = CancelOwnProps &
-  Omit<
-    ComponentProps<typeof BaseDialog.Close>,
-    keyof CancelOwnProps | "render"
-  >;
+export type CancelProps = {
+  /** The button’s label. Defaults to “Cancel”. */
+  children?: ReactNode;
+} & Omit<ComponentProps<typeof BaseDialog.Close>, "children" | "render">;
 
 /** A secondary button in the footer that closes the dialog without acting. */
 export function Cancel({ children, ...props }: CancelProps) {

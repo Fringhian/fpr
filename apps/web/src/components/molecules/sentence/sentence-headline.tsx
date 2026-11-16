@@ -46,7 +46,7 @@ function headlineAmount(
 }
 
 /**
- * The headline: your result for the period, or, for a guest or an anonymous
+ * The headline: the viewer's result for the period, or, for a guest or an anonymous
  * viewer, the leader's, named. Nothing when the gain has no value.
  */
 export function RaceHeadline({
