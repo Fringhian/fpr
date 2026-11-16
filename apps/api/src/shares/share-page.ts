@@ -10,6 +10,7 @@ import { apiError } from "../errors.js";
 import { toPerson } from "../me/me.js";
 import type { ApiServices } from "../orpc.js";
 import type { Viewer } from "../pipeline/index.js";
+import { type LogContext, weighEntries } from "../portfolio/log.js";
 import { Big } from "../valuation/decimal.js";
 import { raceMembers, raceWindow } from "../valuation/race-window.js";
 import { positionOf, sharePositions } from "./positions.js";
@@ -75,7 +76,7 @@ export async function readSharePrices(
  * holds zero, with no value or gain.
  */
 export async function readShareHolders(
-  context: ReadServices,
+  context: ReadServices & LogContext,
   input: { id: string },
 ): Promise<ShareHolders> {
   const share = await findShare(context.db, input.id);
@@ -83,8 +84,15 @@ export async function readShareHolders(
     raceMembers(context.db),
     sharePositions(context.db, share.id, context.raceTimeZone),
   ]);
-  // TODO(anonymizer): put each change's weight in `context.quantityWeights`,
-  // by change id, once the anonymizer middleware reads it.
+  await Promise.all(
+    [...positions.changes].map(([userId, changes]) =>
+      weighEntries(
+        context,
+        userId,
+        changes.map(({ id }) => id),
+      ),
+    ),
+  );
   const holders = members.flatMap((member) => {
     const changes = positions.changes.get(member.id) ?? [];
     if (changes.length === 0) {

@@ -11,7 +11,7 @@ import { toLogEntry } from "./entries.js";
 import { findPortfolioOwner } from "./owner.js";
 
 /** What the log routes read with, and the anonymizer's weights they fill. */
-interface LogContext {
+export interface LogContext {
   db: Db;
   viewer: Viewer;
   quantityWeights: Map<string, string>;
@@ -22,7 +22,7 @@ interface LogContext {
  * which replaces its quantities and cash: a log entry has no weight beside
  * them.
  */
-async function weighEntries(
+export async function weighEntries(
   { db, viewer, quantityWeights }: LogContext,
   userId: string,
   ids: string[],

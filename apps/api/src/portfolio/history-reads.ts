@@ -15,6 +15,7 @@ import {
   windowPoints,
 } from "../valuation/race-window.js";
 import { toLogEntry } from "./entries.js";
+import { type LogContext, weighEntries } from "./log.js";
 import { findPortfolioOwner } from "./owner.js";
 
 type ReadServices = Pick<ApiServices, "db" | "series" | "raceTimeZone">;
@@ -24,7 +25,7 @@ type ReadServices = Pick<ApiServices, "db" | "series" | "raceTimeZone">;
  * the period, then at each refresh since, with the entries to mark.
  */
 export async function readBalanceHistory(
-  context: ReadServices,
+  context: ReadServices & LogContext,
   input: Required<PortfolioBalanceHistoryQuery>,
 ): Promise<PortfolioBalanceHistory> {
   await findPortfolioOwner(context.db, input.userId);
@@ -34,8 +35,11 @@ export async function readBalanceHistory(
     input.userId,
     window.startAt,
   );
-  // TODO(anonymizer): put each entry's weight in `context.quantityWeights`,
-  // by entry id, once the anonymizer middleware reads it.
+  await weighEntries(
+    context,
+    input.userId,
+    entries.map(({ id }) => id),
+  );
   return {
     points: toSeriesPoints(
       windowPoints(window, input.userId, { closesOnly: false }),
