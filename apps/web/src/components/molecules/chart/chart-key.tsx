@@ -1,6 +1,38 @@
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
+import type { ChartMark } from "./chart-types";
+
+/**
+ * A mark's arrow and what it stands for, “Purchase” or “Sale”, drawn as the
+ * chart draws it. Every prop goes to the `<span>`, `children` its words.
+ */
+export function MarkKey({
+  direction,
+  className,
+  children,
+  ...props
+}: Pick<ChartMark, "direction"> & ComponentProps<"span">) {
+  const up = direction === "up";
+
+  return (
+    <span
+      {...props}
+      className={cn("inline-flex items-center gap-xs", className)}
+    >
+      <svg
+        aria-hidden
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        className={up ? "fill-positive" : "fill-negative"}
+      >
+        <path d={up ? "M5 0 10 5H7v5H3V5H0Z" : "M5 10 0 5h3V0h4v5h3Z"} />
+      </svg>
+      {children}
+    </span>
+  );
+}
 
 /**
  * A short dashed stroke and its words, “Today, not final”: what the dashed

@@ -1,4 +1,5 @@
 import type { Gain } from "@fpr/contracts";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "../../../components/atoms/badge/badge";
 import { Picture } from "../../../components/atoms/picture/picture";
@@ -36,15 +37,19 @@ function InRace({ since, count }: { since: string; count: number }) {
 /**
  * A member's header on the sky: their picture and name, the page's heading;
  * once they have started, their result for the period compared with the
- * viewer's, and since when they are in the race with how many shares.
+ * viewer's, and since when they are in the race with how many shares; then
+ * the page's action, when there is one.
  */
 export function MemberHeader({
   row,
   yours,
+  action,
 }: {
   row: MemberRow;
   /** The viewer's gain over the period, when they are in the race too. */
   yours: Gain | undefined;
+  /** The admin's `HeaderAction`: Edit portfolio, or Record a change for them. */
+  action?: ReactNode;
 }) {
   const { setting } = useViewState();
 
@@ -63,7 +68,7 @@ export function MemberHeader({
           "desktop:size-[5.5rem] desktop:text-display",
         )}
       />
-      <div className="grid min-w-0 gap-xs">
+      <div className="grid min-w-0 grow gap-xs">
         <h1
           className={cn(
             "truncate font-semibold text-primary",
@@ -89,6 +94,7 @@ export function MemberHeader({
           </div>
         )}
       </div>
+      {action}
     </div>
   );
 }

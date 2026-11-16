@@ -2,11 +2,11 @@ import { Badge } from "../../atoms/badge/badge";
 import { Button } from "../../atoms/button/button";
 import * as StepFlow from "./step-flow";
 import {
-  ChangeSummary,
   HeaderLanguageSwitch,
   PanelFigure,
   PortfolioList,
   QuantityField,
+  RecordPanel,
   SessionList,
   SignInFields,
   SignInPanel,
@@ -42,7 +42,7 @@ export function RecordStep(args: FlowArgs) {
         next: args.next,
         loading: args.loading,
       }}
-      panel={args.panel ? <ChangeSummary /> : null}
+      panel={args.panel ? <RecordPanel /> : null}
     >
       <QuantityField />
     </StepFlow.Basic>

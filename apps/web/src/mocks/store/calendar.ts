@@ -1,31 +1,7 @@
 import type { IsoDate, Period, Timestamp } from "@fpr/contracts";
-import { RACE_TIME_ZONE, raceDayOf } from "../../lib/race-day.ts";
+import { addDays, localInstant, raceDayOf } from "../../lib/race-day.ts";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const offsetFormat = new Intl.DateTimeFormat("en-US", {
-  timeZone: RACE_TIME_ZONE,
-  timeZoneName: "longOffset",
-});
-
-function offsetMs(atMs: number): number {
-  const name =
-    offsetFormat.formatToParts(atMs).find(({ type }) => type === "timeZoneName")
-      ?.value ?? "";
-  const match = /GMT([+-])(\d{2}):(\d{2})/.exec(name);
-  if (match === null) {
-    return 0;
-  }
-  const minutes = Number(match[2]) * 60 + Number(match[3]);
-  return (match[1] === "-" ? -minutes : minutes) * 60 * 1000;
-}
-
-/** The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. */
-export function localInstant(day: IsoDate, time: string): number {
-  const asUtc = Date.parse(`${day}T${time}Z`);
-  const first = asUtc - offsetMs(asUtc);
-  return asUtc - offsetMs(first);
-}
+export { addDays, localInstant } from "../../lib/race-day.ts";
 
 /** The day an instant falls on in the race's zone. */
 export function dayOf(atMs: number): IsoDate {
@@ -34,12 +10,6 @@ export function dayOf(atMs: number): IsoDate {
 
 export function timestamp(atMs: number): Timestamp {
   return new Date(atMs).toISOString();
-}
-
-export function addDays(day: IsoDate, days: number): IsoDate {
-  return new Date(Date.parse(`${day}T12:00:00Z`) + days * DAY_MS)
-    .toISOString()
-    .slice(0, 10);
 }
 
 export function isTradingDay(day: IsoDate): boolean {

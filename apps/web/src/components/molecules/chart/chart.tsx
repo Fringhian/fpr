@@ -13,6 +13,7 @@ export type {
   ChartLayout,
   ChartLine,
   ChartLineEnd,
+  ChartMark,
   ChartVariant,
 } from "./chart-types";
 
@@ -63,9 +64,10 @@ function useChart(
  * A chart on TradingView Lightweight Charts, styled from the tokens, that
  * fills its container’s width and follows it as it resizes.
  *
- * The `line` variant shows its axes and a dashed grid; hovering draws a
- * crosshair and the readout of every line on that day, and the arrow keys
- * move it along the days with the same readout, read out to screen readers.
+ * The `line` variant shows its axes and a dashed grid, and each line's marks
+ * as arrows; hovering draws a crosshair and the readout of every line on that
+ * day, with what its marks say, and the arrow keys move it along the days
+ * with the same readout, read out to screen readers.
  * The `sparkline` variant is the line alone, for cards.
  *
  * Every other prop goes to the chart's outer `<div>`, `className` included:

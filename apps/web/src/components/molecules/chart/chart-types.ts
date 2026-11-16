@@ -10,6 +10,19 @@ export type ChartColor =
   | "muted"
   | MemberColor;
 
+/**
+ * Something that happened on a line's day, such as a purchase: an arrow on
+ * the line, up under it or down over it, in the positive or negative colour.
+ * A mark on a day the line has no point on moves to its next point, the day
+ * it first shows in the line, or to its last point.
+ */
+export interface ChartMark {
+  day: IsoDate;
+  direction: "up" | "down";
+  /** What happened, in the readout of its day and to screen readers: “Bought 10 World Index ETF”. */
+  label: string;
+}
+
 /** One line of the chart. Lines draw in their order: the last one on top. */
 export interface ChartLine {
   /** Tells the lines apart, such as the member's id. Unique within the chart. */
@@ -24,6 +37,8 @@ export interface ChartLine {
   dashedAfter?: IsoDate;
   /** `focus` (the default) draws a 2px line with a marker under the crosshair; `context` a 1px line behind the ones in focus. */
   emphasis?: "focus" | "context";
+  /** `line` only: arrows on the line's days, such as purchases up and sales down. */
+  marks?: readonly ChartMark[] | undefined;
 }
 
 export type ChartVariant = "line" | "sparkline";

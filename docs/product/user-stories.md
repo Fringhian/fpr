@@ -76,7 +76,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 **Cases to cover**
 
 - No portfolio yet: an empty state that explains recording a change with its date, and "Record a change".
-- The date is chosen before the quantity: what can be sold depends on what was held that day.
+- The date is chosen before the quantity: what can be sold depends on what was held that day. A change dated on a past day counts in that day's close; one dated today counts from the moment it is recorded.
 - A sale, edit, deletion, or undo that would take a holding below zero at any moment is refused, and the message names the entry it would break.
 - Two removals on the same holding at the same time: the second sees the first, and is refused if the holding no longer covers it.
 - A day in the future is refused, and so is a quantity or a share value of zero or below. Cash can't be below zero.

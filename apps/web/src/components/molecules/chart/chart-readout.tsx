@@ -5,6 +5,7 @@ import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 import { MEMBER_FILLS } from "../../../lib/member-color";
 import type { Active } from "./chart-active";
+import { markLabelsOn } from "./chart-marks";
 import { type ChartValueFormat, formatChartValue } from "./chart-model";
 import type { ChartColor, ChartLine } from "./chart-types";
 
@@ -30,10 +31,11 @@ const BOX = cn(
   "motion-safe:transition-transform motion-safe:duration-s motion-safe:ease-soft",
 );
 
-/** What the readout shows on a day: the date, marked when a value is not final, and each line's value that day. */
+/** What the readout shows on a day: the date, marked when a value is not final, each line's value that day, and what its marks say. */
 export interface Readout {
   date: string;
   values: { line: ChartLine; text: string }[];
+  marks: string[];
 }
 
 function readoutOn(
@@ -53,6 +55,7 @@ function readoutOn(
     date: formatDate(day, language, { style: "weekday" }),
     final: values.every((value) => value.final),
     values,
+    marks: markLabelsOn(lines, day),
   };
 }
 
@@ -71,7 +74,12 @@ export function useReadout(
   const language = useLanguage();
 
   if (day === undefined) return { readout: null, announcement: "" };
-  const { final, date, values } = readoutOn(day, lines, language, format);
+  const { final, date, values, marks } = readoutOn(
+    day,
+    lines,
+    language,
+    format,
+  );
   const shown = final ? date : t("chart.notFinal", { date });
   const said = values.map(({ line, text }) =>
     lines.length > 1
@@ -79,9 +87,9 @@ export function useReadout(
       : text,
   );
   const announcement = keyboard
-    ? t("chart.point", { date: shown, values: said.join(", ") })
+    ? t("chart.point", { date: shown, values: [...said, ...marks].join(", ") })
     : "";
-  return { readout: { date: shown, values }, announcement };
+  return { readout: { date: shown, values, marks }, announcement };
 }
 
 /** The readout beside the crosshair: the date, then each line's value, with its swatch and name when there are several. */
@@ -118,6 +126,11 @@ export function ReadoutBox({
             </>
           ) : null}
           <span className="font-semibold tabular-nums">{text}</span>
+        </span>
+      ))}
+      {readout.marks.map((mark) => (
+        <span key={mark} className="whitespace-nowrap text-primary">
+          {mark}
         </span>
       ))}
     </div>

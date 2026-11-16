@@ -4,13 +4,15 @@ import { type ReactNode, useId } from "react";
 import { cn, stateClassName } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
+export type GroupProps<Value> = RadioGroup.Props<Value>;
+
 /**
  * The answers to one question, on Base UI’s radio group: one tab stop, the
  * arrow keys move between the options and select the one they reach. Name it
  * after its question: `aria-labelledby` the step’s heading. Every prop of the
  * radio group, `className` included: a string, or a function of its state.
  */
-export function Group<Value>({ className, ...props }: RadioGroup.Props<Value>) {
+export function Group<Value>({ className, ...props }: GroupProps<Value>) {
   return (
     <RadioGroup<Value>
       {...props}
@@ -38,8 +40,8 @@ const item = cn(
 export type ItemProps<Value> = {
   /** The answer this option stands for, given to the group’s `onValueChange`. */
   value: Value;
-  /** The answer’s icon, any Phosphor icon: `icon={PlusIcon}`. */
-  icon: IconProps["icon"];
+  /** The answer’s icon, any Phosphor icon: `icon={PlusIcon}`. Left out, the title and its line start at the edge, as a share in a list does. */
+  icon?: IconProps["icon"] | undefined;
   /** The answer, short: “Bought shares”. It names the option for screen readers. */
   title: ReactNode;
   /** One line under the title that says what the answer covers: “Part or all of a holding”. */
@@ -55,7 +57,7 @@ export type ItemProps<Value> = {
   | "nativeButton"
 >;
 
-/** One answer: an icon, its title and one line, outlined in charcoal when selected. */
+/** One answer: an icon when it has one, its title and one line, outlined in charcoal when selected. */
 export function Item<Value>({
   icon,
   title,
@@ -75,7 +77,7 @@ export function Item<Value>({
       {...props}
       className={stateClassName(item, className)}
     >
-      <Icon icon={icon} size="l" className="text-secondary" />
+      {icon ? <Icon icon={icon} size="l" className="text-secondary" /> : null}
       <span className="flex min-w-0 flex-col">
         <span id={titleId} className="text-m font-semibold text-primary">
           {title}

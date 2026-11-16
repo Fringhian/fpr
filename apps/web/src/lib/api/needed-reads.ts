@@ -1,11 +1,15 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 
+type Read = Pick<UseQueryResult<unknown>, "isError" | "data"> & {
+  refetch: () => Promise<unknown>;
+};
+
 /**
  * The state of the reads a page needs: `failed` once one has failed with
  * nothing to show, and `retry`, which fetches the failed ones again and
  * leaves the others as they are.
  */
-export function neededReads(reads: readonly UseQueryResult<unknown>[]) {
+export function neededReads(reads: readonly Read[]) {
   return {
     failed: reads.some((read) => read.isError && read.data === undefined),
     retry: () => {

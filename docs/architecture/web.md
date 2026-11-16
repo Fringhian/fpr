@@ -82,10 +82,11 @@ The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a sno
 | `/onboarding` | Name, colour and optional photo, the prepared portfolio, then a welcome | ONB-1 to ONB-4 |
 | `/` | Home: the race, the focused member's panel, the standings | LDB-1 to LDB-3, LDB-7, CMP-1 to CMP-3 |
 | `/members` | Every member | CMP-4 |
-| `/members/$userId` | A member's page, read-only, or editable by the admin | CMP-5, ADM-7 |
+| `/members/$userId` | A member's page, read-only, or editable by the admin with `?edit=true` | CMP-5, ADM-7 |
 | `/portfolio` | My portfolio, its chart, and the latest changes | POR-1, POR-6 |
 | `/portfolio/record` | Record a change: bought, sold, or cash | POR-2 to POR-4, POR-7 |
 | `/members/$userId/record` | The admin records a change for a member, with the same flow | ADM-7 |
+| `/members/$userId/history` | Every change of a member's portfolio, for the admin in edit mode | ADM-7 |
 | `/portfolio/history` | Every share change and cash balance | POR-5 |
 | `/shares` | Every share, and the search | SHR-1, SHR-5, SHR-7 |
 | `/shares/$shareId` | A share's page | SHR-2 to SHR-6 |

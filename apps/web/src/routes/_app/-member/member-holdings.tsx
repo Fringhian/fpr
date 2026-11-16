@@ -1,12 +1,9 @@
 import type { Portfolio } from "@fpr/contracts";
-import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { LoadingPlaceholder } from "../../../components/atoms/loading-placeholder/loading-placeholder";
-import * as Holdings from "../../../components/organisms/holdings/holdings";
 import { lookOf } from "../../../lib/look";
 import { useSession } from "../../../lib/session/use-session";
-import { useViewState } from "../../../lib/view-state/use-view-state";
+import { PortfolioHoldings } from "../-portfolio-sections/portfolio-holdings";
 
 /**
  * Every share the member holds, each card opening the share's page, the
@@ -26,7 +23,6 @@ export function MemberHoldings({
 }) {
   const { t } = useTranslation();
   const { person } = useSession();
-  const { setting, anonymous } = useViewState();
   const heldByYou = useMemo(
     () =>
       yourPortfolio && {
@@ -36,18 +32,11 @@ export function MemberHoldings({
     [yourPortfolio, person],
   );
 
-  return portfolio === undefined ? (
-    <LoadingPlaceholder className="h-[10rem]" />
-  ) : (
-    <Holdings.Basic
+  return (
+    <PortfolioHoldings
       aria-label={t("memberPage.holdings", { name })}
-      holdings={portfolio.holdings}
-      unit={setting.unit}
-      anonymous={anonymous}
+      portfolio={portfolio}
       heldByYou={heldByYou}
-      shareLink={(share) => (
-        <Link to="/shares/$shareId" params={{ shareId: share.id }} />
-      )}
     />
   );
 }

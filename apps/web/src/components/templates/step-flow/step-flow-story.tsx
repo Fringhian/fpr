@@ -5,8 +5,10 @@ import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
 import { Card } from "../../atoms/card/card";
 import { TextLink } from "../../atoms/text-link/text-link";
+import { ChangeSummary } from "../../molecules/change-summary/change-summary";
 import * as Field from "../../molecules/field/field";
 import { LanguageSwitch } from "../../molecules/language-switch/language-switch";
+import { UndoList } from "../../molecules/undo-list/undo-list";
 import { HOLDINGS, LABELS } from "./step-flow-story-labels";
 
 /** The stories' demo content in the toolbar's language. */
@@ -30,21 +32,14 @@ export function QuantityField() {
 }
 
 /** The sky panel of Record a change: the change so far. */
-export function ChangeSummary() {
+export function RecordPanel() {
   const { record } = useLabels();
 
   return (
-    <Card elevation="rest" className="w-full max-w-[26.25rem] p-m">
-      <h2 className="text-s font-medium text-secondary">{record.summary}</h2>
-      <dl className="divide-y divide-divider">
-        {record.rows.map(([term, value]) => (
-          <div key={term} className={row}>
-            <dt className="text-s text-secondary">{term}</dt>
-            <dd className="text-m font-semibold">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </Card>
+    <ChangeSummary
+      title={record.summary}
+      rows={record.rows.map(([term, value]) => ({ term, value }))}
+    />
   );
 }
 
@@ -145,21 +140,10 @@ export function SessionList() {
   const { saved } = useLabels();
 
   return (
-    <section className="grid gap-s">
-      <h2 className="text-s font-medium text-secondary">{saved.session}</h2>
-      <Card render={<ul />} className="divide-y divide-divider px-m">
-        {saved.changes.map((change) => (
-          <li key={change} className={row}>
-            <span className="text-s">{change}</span>
-            <TextLink
-              render={<button type="button" />}
-              className="cursor-pointer text-s"
-            >
-              {saved.undo}
-            </TextLink>
-          </li>
-        ))}
-      </Card>
-    </section>
+    <UndoList
+      title={saved.session}
+      items={saved.changes.map((label) => ({ id: label, label }))}
+      onUndo={() => undefined}
+    />
   );
 }
