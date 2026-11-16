@@ -154,6 +154,67 @@ describe("Shares", () => {
     expect(value.priceEur).toBe("54");
   });
 
+  it("returns a new manual share to Record a change picked, without the last share's quantity", async () => {
+    const world = fixtureShareId("world");
+    const back = `/portfolio/record?kind=buy&step=share&share=${world}&amount=5`;
+    const { page, router, store } = await visit(
+      `/shares/new?isin=LU00FPRNEW01&pick=true&back=${encodeURIComponent(back)}`,
+      "member",
+    );
+
+    typeInto(field("name"), "Example Fund");
+    typeInto(field("price"), "40.10");
+    await submit(page, () =>
+      expect(router.state.location.pathname).toBe("/portfolio/record"),
+    );
+    const stored = store.shares.find((share) => share.isin === "LU00FPRNEW01");
+    expect(router.state.location.search).toMatchObject({
+      kind: "buy",
+      step: "share",
+      share: stored?.id,
+    });
+    expect(router.state.location.search).not.toHaveProperty("amount");
+  });
+
+  it("says a manual share's page can't load when its values fail", async () => {
+    const wind = fixtureShareId("wind");
+    await visit(`/shares/${wind}`, "member", {
+      failPath: `/shares/${wind}/values`,
+    });
+
+    await vi.waitFor(() => expect(text()).toContain("Can’t load this page"));
+    expect(button(/^Retry$/)).toBeTruthy();
+  });
+
+  it("shows a value's new price in the list when a deletion finds it changed", async () => {
+    const wind = fixtureShareId("wind");
+    const { store } = await visit(`/shares/${wind}`, "member");
+    const value = store.shares.find(({ id }) => id === wind)?.prices.at(-1);
+    if (value === undefined) throw new Error("No value to delete");
+
+    const firstRow = () =>
+      [...document.body.querySelectorAll("section")]
+        .find(
+          (section) => section.querySelector("h2")?.textContent === "Values",
+        )
+        ?.querySelector<HTMLElement>("ol > li");
+    await vi.waitFor(() => expect(firstRow()?.textContent).toContain("€53.10"));
+    value.priceEur = "60.00";
+    await click(
+      () => firstRow()?.querySelector("button"),
+      () => expect(text()).toContain("Delete"),
+    );
+    await click(
+      () =>
+        [
+          ...document.body.querySelectorAll<HTMLElement>("[role=menuitem]"),
+        ].find((item) => item.textContent?.startsWith("Delete")),
+      () => expect(text()).toContain("Someone changed it to €60.00"),
+    );
+    await vi.waitFor(() => expect(firstRow()?.textContent).toContain("€60.00"));
+    expect(value.priceEur).toBe("60.00");
+  });
+
   it("keeps a manual share's last value: its Delete is off and says why", async () => {
     const wind = fixtureShareId("wind");
     const { queryClient, store } = await visit(`/shares/${wind}`, "member");

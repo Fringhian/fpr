@@ -46,6 +46,8 @@ afterEach(() => {
  * English by default, or `null` for none; a signed-in person's own language
  * wins. `empty` starts an instance with nobody yet. A route call whose URL
  * `hold` matches waits for `release()`, to look at the page mid-load.
+ * `failPath` answers a server error to every route whose path starts with
+ * it, as `?mock-fail=` does.
  */
 export async function visit(
   path: string,
@@ -55,11 +57,13 @@ export async function visit(
     language = "en",
     empty = false,
     hold = () => false,
+    failPath,
   }: {
     failMe?: boolean;
     language?: Language | null;
     empty?: boolean;
     hold?: (url: URL) => boolean;
+    failPath?: string;
   } = {},
 ) {
   const { promise: released, resolve: release } = Promise.withResolvers();
@@ -68,7 +72,12 @@ export async function visit(
   } else {
     localStorage.setItem(LANGUAGE_KEY, language);
   }
-  const { handlers, store } = createMockHandlers({ origin, session, empty });
+  const { handlers, store } = createMockHandlers({
+    origin,
+    session,
+    empty,
+    faults: { failPath },
+  });
   vi.stubGlobal(
     "fetch",
     async (input: RequestInfo | URL, init?: RequestInit) =>
