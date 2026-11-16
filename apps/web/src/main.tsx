@@ -1,12 +1,13 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
+import { api } from "./lib/api/api.ts";
 import { createQueryClient } from "./lib/api/query-client.ts";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
 import { DEFAULT_LANGUAGE } from "./lib/language.ts";
-import { routeTree } from "./routeTree.gen.ts";
+import { createAppRouter } from "./router.ts";
 import "./index.css";
 
 // `pnpm dev:mock` answers every API call with the mock API. Any other mode
@@ -21,18 +22,7 @@ syncDocumentLanguage(i18n);
 
 const queryClient = createQueryClient();
 
-const router = createRouter({
-  routeTree,
-  context: { queryClient },
-  defaultPreload: "intent",
-  scrollRestoration: true,
-});
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+const router = createAppRouter({ queryClient, api });
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
