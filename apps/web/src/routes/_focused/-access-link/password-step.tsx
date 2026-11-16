@@ -16,7 +16,8 @@ const blame = { invalid_request: "password" } as const;
 /**
  * First use, step 2: the password. Only this step claims the link, so
  * leaving before it keeps the link valid. Claimed, the person is signed in
- * and starts onboarding. A link that stopped meanwhile shows its state.
+ * and starts onboarding. A link that stopped meanwhile is forgotten and
+ * shows its state.
  */
 export function PasswordStep({
   accessKey,
@@ -46,7 +47,12 @@ export function PasswordStep({
         },
         onError: (error) => {
           const state = refusedState(error);
-          return state === undefined ? refuseError(error) : onRefused(state);
+          if (state === undefined) {
+            refuseError(error);
+            return;
+          }
+          forgetAccessKey();
+          onRefused(state);
         },
       },
     );
