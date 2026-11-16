@@ -40,16 +40,26 @@ const meta = {
   },
   argTypes: {
     elevation: {
+      description:
+        "`outline`, a card resting on the page with its divider line; `rest`, lifted by a soft shadow, as the first card under the sky.",
       control: { type: "inline-radio" },
       options: ["outline", "rest"],
-      table: { defaultValue: { summary: "outline" } },
+      table: {
+        type: { summary: '"outline" | "rest"' },
+        defaultValue: { summary: "outline" },
+      },
     },
     className: {
       description:
         "Classes added to the card's, which win any conflict: its padding and layout.",
       control: false,
     },
-    render: { control: false },
+    render: {
+      description:
+        "Draws the card as another element, such as `<article />` or `<section />`.",
+      control: false,
+      table: { type: { summary: "ReactElement" } },
+    },
   },
   render: (args) => (
     <Card {...args}>

@@ -133,7 +133,7 @@ export function Password(props: PasswordProps) {
           aria-label={toggleName}
           disabled={toggleDisabled}
           onClick={() => setShown((value) => !value)}
-          className="me-[-0.625rem]"
+          className="-me-xs"
         >
           {toggleText}
         </Button>

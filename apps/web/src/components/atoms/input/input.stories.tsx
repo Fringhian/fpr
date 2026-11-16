@@ -7,10 +7,10 @@ import { Button } from "../button/button";
 import { IconButton } from "../icon-button/icon-button";
 import { Input, type InputProps } from "./input";
 
-/** A ghost button in the end slot, pulled towards the edge. */
+/** A ghost button in the end slot, nudged towards the edge with room for its focus ring. */
 function EndButton({ children }: { children: ReactNode }) {
   return (
-    <Button intent="ghost" size="s" className="me-[-0.625rem]">
+    <Button intent="ghost" size="s" className="-me-xs">
       {children}
     </Button>
   );
