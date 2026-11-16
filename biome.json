@@ -14,6 +14,7 @@
       "!!**/coverage",
       "!!**/storybook-static",
       "!**/routeTree.gen.ts",
+      "!**/contract.gen.json",
       "!packages/contracts/openapi.json",
       "!.claude"
     ]

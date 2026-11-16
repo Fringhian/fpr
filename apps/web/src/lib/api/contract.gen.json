@@ -1,0 +1,831 @@
+{
+  "access": {
+    "setupStatus": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "GET",
+          "path": "/setup",
+          "summary": "Whether an admin exists, closing the setup"
+        }
+      }
+    },
+    "setup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/setup",
+          "summary": "Create the first admin with the bootstrap key",
+          "successStatus": 201
+        }
+      }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/access/check",
+          "summary": "An access key's state, and who it is for while waiting"
+        }
+      }
+    },
+    "claim": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/access/claim",
+          "summary": "Claim an access link, setting the password on first use"
+        }
+      }
+    },
+    "signIn": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/access/sign-in",
+          "summary": "Sign an anonymous viewer in with their access link",
+          "successStatus": 204
+        }
+      }
+    },
+    "checkReset": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/password-reset/check",
+          "summary": "Check an email and reset key pair",
+          "successStatus": 204
+        }
+      }
+    },
+    "reset": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": "public"
+        },
+        "route": {
+          "method": "POST",
+          "path": "/password-reset",
+          "summary": "Set a new password with an email and reset key pair",
+          "successStatus": 204
+        }
+      }
+    }
+  },
+  "me": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/me",
+          "summary": "The signed-in person"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/me",
+          "summary": "Change the display name, colour, or language, or finish onboarding"
+        }
+      }
+    },
+    "setAvatar": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest"
+          ]
+        },
+        "route": {
+          "method": "PUT",
+          "path": "/me/avatar",
+          "summary": "Upload a picture"
+        }
+      }
+    },
+    "deleteAvatar": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/me/avatar",
+          "summary": "Go back to the initial on the person's colour"
+        }
+      }
+    },
+    "getAvatar": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/avatar",
+          "summary": "A person's uploaded picture"
+        }
+      }
+    }
+  },
+  "portfolio": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/portfolio",
+          "summary": "A member's holdings, cash and balance"
+        }
+      }
+    },
+    "holdingAt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/holdings/{shareId}",
+          "summary": "The quantity of a share a member held at a moment"
+        }
+      }
+    },
+    "log": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/log",
+          "summary": "A member's share changes and cash balances, newest first"
+        }
+      }
+    },
+    "addChange": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/users/{userId}/changes",
+          "summary": "Add or remove shares",
+          "successStatus": 201
+        }
+      }
+    },
+    "updateChange": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/changes/{id}",
+          "summary": "Edit a share change"
+        }
+      }
+    },
+    "deleteChange": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/changes/{id}",
+          "summary": "Delete a share change",
+          "successStatus": 204
+        }
+      }
+    },
+    "setCash": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/users/{userId}/cash-balances",
+          "summary": "Set cash from a moment",
+          "successStatus": 201
+        }
+      }
+    },
+    "updateCash": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/cash-balances/{id}",
+          "summary": "Edit a cash balance"
+        }
+      }
+    },
+    "deleteCash": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/cash-balances/{id}",
+          "summary": "Delete a cash balance",
+          "successStatus": 204
+        }
+      }
+    },
+    "balanceHistory": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/balance-history",
+          "summary": "A member's balance over the period"
+        }
+      }
+    }
+  },
+  "shares": {
+    "search": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares",
+          "summary": "Filter the stored shares"
+        }
+      }
+    },
+    "lookup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/shares/lookup",
+          "summary": "Look up a share at the price provider"
+        }
+      }
+    },
+    "createManual": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/shares/manual",
+          "summary": "Create a manual share",
+          "successStatus": 201
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares/{id}",
+          "summary": "A share's page"
+        }
+      }
+    },
+    "prices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares/{id}/prices",
+          "summary": "A share's chart points"
+        }
+      }
+    },
+    "holders": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares/{id}/holders",
+          "summary": "Each member's changes and result on a share"
+        }
+      }
+    },
+    "values": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares/{id}/values",
+          "summary": "A manual share's value points"
+        }
+      }
+    },
+    "valueEvents": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/shares/{id}/value-events",
+          "summary": "A manual share's value edits"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/shares/{id}",
+          "summary": "Edit a manual share's name or ISIN"
+        }
+      }
+    },
+    "addValue": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/shares/{id}/values",
+          "summary": "Add a value point to a manual share",
+          "successStatus": 201
+        }
+      }
+    },
+    "updateValue": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/shares/{id}/values/{at}",
+          "summary": "Edit a value point's price"
+        }
+      }
+    },
+    "deleteValue": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/shares/{id}/values/{at}",
+          "summary": "Delete a value point",
+          "successStatus": 204
+        }
+      }
+    },
+    "delete": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/shares/{id}",
+          "summary": "Delete a share no share change refers to",
+          "successStatus": 204
+        }
+      }
+    }
+  },
+  "race": {
+    "leaderboard": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/leaderboards/{board}",
+          "summary": "The standings by balance, or by gain over a period"
+        }
+      }
+    },
+    "shareLeaderboard": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/leaderboards/shares",
+          "summary": "The shares held in the race, ranked by their change"
+        }
+      }
+    },
+    "members": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/members",
+          "summary": "Every member with their curve, gain, balance and top holdings"
+        }
+      }
+    },
+    "race": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/race",
+          "summary": "Every member's gain at each close, then provisional points"
+        }
+      }
+    }
+  },
+  "admin": {
+    "people": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/admin/people",
+          "summary": "Every person, their role, and their access status"
+        }
+      }
+    },
+    "addPerson": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/people",
+          "summary": "Add a person, and return their access link once",
+          "successStatus": 201
+        }
+      }
+    },
+    "updatePerson": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "PATCH",
+          "path": "/admin/people/{id}",
+          "summary": "Change a person's display name, email, role, or access end date"
+        }
+      }
+    },
+    "revoke": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/people/{id}/revoke",
+          "summary": "Revoke a person's access, and end their sessions"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/people/{id}/restore",
+          "summary": "Restore a person's revoked access"
+        }
+      }
+    },
+    "replaceLink": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/people/{id}/replace-link",
+          "summary": "Replace a person's access link, and return the new one once"
+        }
+      }
+    },
+    "resetKey": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/people/{id}/reset-key",
+          "summary": "Generate a password reset key, and return it once"
+        }
+      }
+    },
+    "deletePerson": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "DELETE",
+          "path": "/admin/people/{id}",
+          "summary": "Delete a person and their data",
+          "successStatus": 204
+        }
+      }
+    },
+    "shares": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/admin/shares",
+          "summary": "Every stored share, grouped by what the price service does with it"
+        }
+      }
+    },
+    "makeManual": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/shares/{id}/make-manual",
+          "summary": "Turn a market share that needs attention into a manual share"
+        }
+      }
+    },
+    "refreshPrices": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/admin/prices/refresh",
+          "summary": "Run the price refresh now"
+        }
+      }
+    }
+  }
+}
