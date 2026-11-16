@@ -2,6 +2,7 @@ import { type AdminAccessStatus, type AdminPerson, Role } from "@fpr/contracts";
 import {
   type AccessKey,
   accessKeys,
+  accounts,
   type Db,
   type Trx,
   type User,
@@ -22,23 +23,6 @@ function accessStatus(key: AccessKey, now: Date): AdminAccessStatus {
   return state === "replaced" ? "revoked" : state;
 }
 
-function toAdminPerson(
-  user: User,
-  key: AccessKey,
-  hasPortfolioEntries: boolean,
-  now: Date,
-): AdminPerson {
-  return {
-    ...toPerson(user),
-    role: user.role,
-    email: shownEmail(user),
-    accessStatus: accessStatus(key, now),
-    claimBefore: key.claimBefore.toISOString(),
-    accessUntil: key.accessUntil?.toISOString() ?? null,
-    hasPortfolioEntries,
-  };
-}
-
 /** Every person has a key from the moment they are added. */
 function requireKey(key: AccessKey | undefined, userId: string): AccessKey {
   if (key === undefined) {
@@ -47,23 +31,46 @@ function requireKey(key: AccessKey | undefined, userId: string): AccessKey {
   return key;
 }
 
+/**
+ * People as the admin area lists them, from their current keys and who of
+ * them has portfolio entries or a password. Reads everyone's keys, or only
+ * the given people's when there are few.
+ */
+async function toAdminPeople(
+  db: Db,
+  people: User[],
+  onlyThese: boolean,
+): Promise<AdminPerson[]> {
+  const ids = onlyThese ? people.map((user) => user.id) : undefined;
+  const [keys, withEntries, withPassword] = await Promise.all([
+    ids === undefined
+      ? accessKeys.listCurrent(db)
+      : Promise.all(ids.map((id) => accessKeys.findCurrent(db, id))),
+    users.idsWithPortfolioEntries(db, ids),
+    accounts.idsWithPassword(db, ids),
+  ]);
+  const keyOf = new Map(
+    keys.flatMap((key) => (key ? [[key.userId, key]] : [])),
+  );
+  const now = new Date();
+  return people.map((user) => {
+    const key = requireKey(keyOf.get(user.id), user.id);
+    return {
+      ...toPerson(user),
+      role: user.role,
+      email: shownEmail(user),
+      accessStatus: accessStatus(key, now),
+      claimBefore: key.claimBefore.toISOString(),
+      accessUntil: key.accessUntil?.toISOString() ?? null,
+      hasPortfolioEntries: withEntries.has(user.id),
+      hasPassword: withPassword.has(user.id),
+    };
+  });
+}
+
 /** Every person as the admin area lists them, in the order they were added. */
 export async function listAdminPeople(db: Db): Promise<AdminPerson[]> {
-  const [people, keys, withEntries] = await Promise.all([
-    users.list(db),
-    accessKeys.listCurrent(db),
-    users.idsWithPortfolioEntries(db),
-  ]);
-  const keyOf = new Map(keys.map((key) => [key.userId, key]));
-  const now = new Date();
-  return people.map((user) =>
-    toAdminPerson(
-      user,
-      requireKey(keyOf.get(user.id), user.id),
-      withEntries.has(user.id),
-      now,
-    ),
-  );
+  return toAdminPeople(db, await users.list(db), false);
 }
 
 /** One person as the admin area lists them. */
@@ -71,16 +78,11 @@ export async function readAdminPerson(
   db: Db,
   user: User,
 ): Promise<AdminPerson> {
-  const [key, withEntries] = await Promise.all([
-    accessKeys.findCurrent(db, user.id),
-    users.idsWithPortfolioEntries(db, [user.id]),
-  ]);
-  return toAdminPerson(
-    user,
-    requireKey(key, user.id),
-    withEntries.has(user.id),
-    new Date(),
-  );
+  const [person] = await toAdminPeople(db, [user], true);
+  if (person === undefined) {
+    throw new Error(`Person ${user.id} could not be read`);
+  }
+  return person;
 }
 
 /** The person with this id, their row locked until the transaction ends, or `not_found`. */
