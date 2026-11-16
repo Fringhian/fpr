@@ -1,5 +1,6 @@
-import { sql, type Transaction } from "kysely";
+import { type ExpressionBuilder, sql, type Transaction } from "kysely";
 import type { Database, Db } from "../database.js";
+import type { PriceSource } from "../tables/price.js";
 import type { NewShare, Share, ShareUpdate } from "../tables/share.js";
 
 /** The columns a share's row can change after it is created. */
@@ -38,12 +39,50 @@ export async function lockById(
     .executeTakeFirst();
 }
 
+function isHeld(eb: ExpressionBuilder<Database, "shares">) {
+  return eb.exists(
+    eb
+      .selectFrom("currentPositions")
+      .select(sql.lit(1).as("one"))
+      .whereRef("currentPositions.shareId", "=", "shares.id"),
+  );
+}
+
+/**
+ * Whether a share needs attention: a market share someone holds with no
+ * close from the day `closesSince` onward in `timeZone`, either because it has
+ * no price yet or because its latest close is older.
+ */
+function needsAttentionOf(
+  eb: ExpressionBuilder<Database, "shares">,
+  closesSince: string,
+  timeZone: string,
+) {
+  return eb.and([
+    eb("shares.kind", "=", "market"),
+    isHeld(eb),
+    eb.not(
+      eb.exists(
+        eb
+          .selectFrom("prices")
+          .select(sql.lit(1).as("one"))
+          .whereRef("prices.shareId", "=", "shares.id")
+          .where("prices.source", "=", "close")
+          .where(
+            "prices.at",
+            ">=",
+            sql<Date>`(${closesSince}::date)::timestamp at time zone ${timeZone}`,
+          ),
+      ),
+    ),
+  ]);
+}
+
 /**
  * Whether a market share needs attention: someone holds it, and it has no
- * close from the day `closesSince` onward in `timeZone`, either because it
- * has no price yet or because its latest close is older. The price service
- * passes the first of the last five trading days. `false` for a manual share,
- * a share nobody holds, and an unknown id.
+ * close from the day `closesSince` onward in `timeZone`. Callers pass
+ * `attentionWindowStart`. `false` for a manual share, a share nobody holds,
+ * and an unknown id.
  */
 export async function needsAttention(
   db: Db,
@@ -54,35 +93,73 @@ export async function needsAttention(
   const row = await db
     .selectFrom("shares")
     .select((eb) =>
-      eb
-        .and([
-          eb.exists(
-            eb
-              .selectFrom("currentPositions")
-              .select(sql.lit(1).as("one"))
-              .whereRef("currentPositions.shareId", "=", "shares.id"),
-          ),
-          eb.not(
-            eb.exists(
-              eb
-                .selectFrom("prices")
-                .select(sql.lit(1).as("one"))
-                .whereRef("prices.shareId", "=", "shares.id")
-                .where("prices.source", "=", "close")
-                .where(
-                  "prices.at",
-                  ">=",
-                  sql<Date>`(${closesSince}::date)::timestamp at time zone ${timeZone}`,
-                ),
-            ),
-          ),
-        ])
-        .as("needsAttention"),
+      needsAttentionOf(eb, closesSince, timeZone).as("needsAttention"),
     )
     .where("id", "=", id)
-    .where("kind", "=", "market")
     .executeTakeFirst();
   return row?.needsAttention === true;
+}
+
+/** A stored share as the admin area lists it. */
+export interface AdminShareRow extends Share {
+  /** Its latest price, `null` with none. */
+  latestAt: Date | null;
+  latestPriceEur: string | null;
+  latestSource: PriceSource | null;
+  /** Someone holds it now. */
+  held: boolean;
+  /** See `needsAttention`. */
+  needsAttention: boolean;
+  /** A share change refers to it, so it can't be deleted. */
+  hasShareChanges: boolean;
+}
+
+/**
+ * Every stored share, by name, with its latest price, whether someone holds
+ * it, whether it needs attention from `closesSince` (see `needsAttention`),
+ * and whether a share change refers to it.
+ */
+export async function listForAdmin(
+  db: Db,
+  closesSince: string,
+  timeZone: string,
+): Promise<AdminShareRow[]> {
+  return (
+    db
+      .selectFrom("shares")
+      .leftJoinLateral(
+        (eb) =>
+          eb
+            .selectFrom("prices")
+            .select(["at", "priceEur", "source"])
+            .whereRef("prices.shareId", "=", "shares.id")
+            .orderBy("at", "desc")
+            .limit(1)
+            .as("latest"),
+        (join) => join.onTrue(),
+      )
+      .selectAll("shares")
+      .select((eb) => [
+        "latest.at as latestAt",
+        "latest.priceEur as latestPriceEur",
+        "latest.source as latestSource",
+        isHeld(eb).as("held"),
+        needsAttentionOf(eb, closesSince, timeZone).as("needsAttention"),
+        eb
+          .exists(
+            eb
+              .selectFrom("portfolioChanges")
+              .select(sql.lit(1).as("one"))
+              .whereRef("portfolioChanges.shareId", "=", "shares.id"),
+          )
+          .as("hasShareChanges"),
+      ])
+      .orderBy("shares.name")
+      .orderBy("shares.id")
+      // Postgres answers booleans, which Kysely types as `SqlBool`.
+      .$castTo<AdminShareRow>()
+      .execute()
+  );
 }
 
 export async function findByIsin(

@@ -40,6 +40,17 @@ export async function latestAt(
   return query.orderBy("at", "desc").limit(1).executeTakeFirst();
 }
 
+/** A manual share's value points, its `manual` prices, newest first. */
+export async function listManual(db: Db, shareId: string): Promise<Price[]> {
+  return db
+    .selectFrom("prices")
+    .selectAll()
+    .where("shareId", "=", shareId)
+    .where("source", "=", "manual")
+    .orderBy("at", "desc")
+    .execute();
+}
+
 /** How many prices from one source a share has. */
 export async function count(
   db: Db,
