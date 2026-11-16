@@ -271,5 +271,9 @@
   },
   "pageBar": {
     "back": "Retour vers"
+  },
+  "stepFlow": {
+    "back": "Retour",
+    "close": "Fermer"
   }
 }

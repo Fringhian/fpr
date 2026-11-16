@@ -266,5 +266,9 @@
   },
   "pageBar": {
     "back": "Back to"
+  },
+  "stepFlow": {
+    "back": "Back",
+    "close": "Close"
   }
 }
