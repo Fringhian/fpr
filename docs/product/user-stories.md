@@ -25,9 +25,11 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 - An access link must be used within 7 days of its creation. After that it says it has expired and to ask the admin for a new one. Leaving before the password is set keeps it valid until then.
 - A link already used leads to sign-in. A link the admin replaced says so, and to use the latest one.
+- A link the admin revoked, or opened after the access end date, says that access has ended, even before its first use.
+- The latest link of a person who already has a password, after a replacement, asks for no password: opening it leads to sign-in.
 - A password has at least 12 characters.
 - Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
-- Five sign-in attempts from one address within a minute pause sign-in from that address, and no other, for a minute.
+- Five sign-in attempts from one address within a minute pause sign-in from that address, and no other, for a minute. Link checks, claims, anonymous sign-ins, and password resets are paused the same way, each on its own.
 - A session that expires sends the person to sign-in, then back to the page they were on.
 - A wrong email or reset key gives one generic error that doesn't say which is wrong. A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
@@ -203,7 +205,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin. A share that gets a price while the admin types that first value is made manual with the price it got, and the typed value is not stored.
 - A refresh runs the scheduled job at once: missing histories, then the latest prices in one batch. It is refused while a run is going and once the day's call cap is reached.
 - The admin area works on tablet and desktop. On a phone it says so.
-- On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists.
+- On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists. Once an admin exists, the setup says so whatever key is typed, and two setups sent at once create one admin.
 
 ## Viewing without a portfolio
 

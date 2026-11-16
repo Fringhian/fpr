@@ -24,6 +24,7 @@ function main(): void {
     db,
     auth,
     publicUrl: env.PUBLIC_URL,
+    bootstrapKey: env.ADMIN_BOOTSTRAP_KEY,
     logger,
     docs: process.env.NODE_ENV === "development",
   });

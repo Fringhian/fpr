@@ -14,7 +14,11 @@ import { type Auth, authBasePath } from "./auth/auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
 import { mountRouter } from "./orpc.js";
-import { authAccessCheck } from "./pipeline/index.js";
+import {
+  authAccessCheck,
+  createRateLimiter,
+  publicWriteRateLimit,
+} from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
 
 export interface AppOptions {
@@ -25,6 +29,8 @@ export interface AppOptions {
   auth: Auth;
   /** `PUBLIC_URL`: the only origin a write is accepted from. */
   publicUrl: string;
+  /** `ADMIN_BOOTSTRAP_KEY`: the key that creates the first admin. */
+  bootstrapKey: string;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
   docs?: boolean;
@@ -41,6 +47,7 @@ export function createApp({
   db,
   auth,
   publicUrl,
+  bootstrapKey,
   logger,
   docs = false,
   router = apiRouter,
@@ -71,6 +78,8 @@ export function createApp({
     db,
     auth,
     publicOrigin: new URL(publicUrl).origin,
+    bootstrapKey,
+    rateLimits: createRateLimiter(publicWriteRateLimit),
   });
   routes?.(app);
 

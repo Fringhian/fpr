@@ -36,7 +36,7 @@ Each table has one writer. Every process can read any table.
 
 | Table | Written by |
 | --- | --- |
-| `user`, `account`, `session`, `verification` | API, through Better Auth |
+| `user`, `account`, `session`, `verification` | API, through Better Auth. Setup, claims, and password resets also write `account`, setup the first admin's `user`, and resets delete `session` rows, each in its own transaction |
 | `access_keys`, `reset_keys` | API |
 | `portfolio_changes`, `cash_balances` | API |
 | `shares`, `prices`, `manual_price_events` | Price service. A manual share or value a member enters reaches it through the API. |

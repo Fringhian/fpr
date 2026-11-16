@@ -34,7 +34,8 @@ The OpenAPI 3.1 document, `packages/contracts/openapi.json`, is generated from `
 ```mermaid
 flowchart LR
     Req["Request"] --> Origin["Origin check"]
-    Origin --> Session["Session<br/>(Better Auth)"]
+    Origin --> Limit["Rate limit<br/>(public writes)"]
+    Limit --> Session["Session<br/>(Better Auth)"]
     Session --> Access["Access check"]
     Access --> Role["Role guard"]
     Role --> Valid["Input validation"]
@@ -44,14 +45,15 @@ flowchart LR
 ```
 
 1. **Origin check**: a write, any method but `GET` and `HEAD`, whose `Origin` isn't `PUBLIC_URL`'s origin, or that has none, is `403 forbidden`, public routes included.
-2. **Session**: Better Auth reads the session cookie. Without a session, the answer is `401 unauthenticated`. A session extended on use sends its renewed cookie.
-3. **Access check**: when the person's access key no longer gives access, every session of the person is deleted and the answer is `401 access_ended`. See `auth.md`, Access keys.
-4. **Role guard**: a role the route doesn't list is `403 forbidden`, and so is every write by an anonymous viewer.
-5. **Input validation**: a failure is `400 invalid_request`.
-6. **Handler**: a write to one person's data is allowed to that person and the admin, and `403 forbidden` for anyone else. Validation runs first, so an invalid body to another person's data is `400`.
-7. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
+2. **Rate limit**: a public write past its client address's limit is `429 rate_limited`. See `auth.md`, Rate limits.
+3. **Session**: Better Auth reads the session cookie. Without a session, the answer is `401 unauthenticated`. A session extended on use sends its renewed cookie.
+4. **Access check**: when the person's access key no longer gives access, every session of the person is deleted and the answer is `401 access_ended`. See `auth.md`, Access keys.
+5. **Role guard**: a role the route doesn't list is `403 forbidden`, and so is every write by an anonymous viewer.
+6. **Input validation**: a failure is `400 invalid_request`.
+7. **Handler**: a write to one person's data is allowed to that person and the admin, and `403 forbidden` for anyone else. Validation runs first, so an invalid body to another person's data is `400`.
+8. **Anonymizer**: for an anonymous viewer, replaces personal data in the response. See Anonymization.
 
-Public routes skip the session, access check, and role guard, and their handlers have no signed-in person. The first four steps live in `apps/api/src/pipeline/`. The request log line carries the signed-in person's id.
+Public routes skip the session, access check, and role guard, and their handlers have no signed-in person. Signed-in routes skip the rate limit. The first five steps live in `apps/api/src/pipeline/`. The request log line carries the signed-in person's id.
 
 ## Errors
 
@@ -222,7 +224,7 @@ A pseudonym is an English adjective and animal, such as `Calm Otter`, picked fro
 | `DATABASE_URL` | Postgres |
 | `PUBLIC_URL` | The instance's origin, used for links and the origin check |
 | `BETTER_AUTH_SECRET` | Session signing. 32 characters or more |
-| `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key |
+| `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key. 32 characters or more |
 | `PSEUDONYM_SECRET` | Pseudonyms. 32 characters or more |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
 | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |

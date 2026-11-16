@@ -25,6 +25,23 @@ export async function findByCodeHash(
     .executeTakeFirst();
 }
 
+/**
+ * The key with this hash, whatever its state, locked until the transaction
+ * ends: a claim or a sign-in reads it, then writes it, without another
+ * request changing it in between.
+ */
+export async function lockByCodeHash(
+  db: Db,
+  codeHash: string,
+): Promise<AccessKey | undefined> {
+  return db
+    .selectFrom("accessKeys")
+    .selectAll()
+    .where("codeHash", "=", codeHash)
+    .forUpdate()
+    .executeTakeFirst();
+}
+
 /** The person's latest key, whatever its state. */
 export async function findCurrent(
   db: Db,

@@ -86,6 +86,7 @@ async function serve(
     db: {} as Db,
     auth,
     publicUrl: "https://fpr.example.test",
+    bootstrapKey: "a-test-bootstrap-key-of-at-least-32-characters",
     logger: createLogger({ destination }),
     docs,
     ...(router ? { router } : {}),
