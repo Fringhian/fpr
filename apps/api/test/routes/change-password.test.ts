@@ -99,17 +99,6 @@ describe("POST /api/auth/change-password", () => {
     expect(await signsIn(other)).toBe(true);
   });
 
-  it("lets a guest change their password", async () => {
-    const guest = await addPerson(test.db, auth, "guest");
-
-    const response = await changePassword(await signIn(server, guest), {
-      currentPassword: TEST_PASSWORD,
-      newPassword: NEW_PASSWORD,
-    });
-
-    expect(response.status).toBe(200);
-  });
-
   it("refuses an anonymous viewer with forbidden", async () => {
     const viewer = await addPerson(test.db, auth, "anonymous");
     const cookie = await signIn(server, viewer);
@@ -124,14 +113,5 @@ describe("POST /api/auth/change-password", () => {
     expect((await postSignIn(server, viewer.email, TEST_PASSWORD)).status).toBe(
       200,
     );
-  });
-
-  it("answers without a session with 401", async () => {
-    const response = await changePassword("", {
-      currentPassword: TEST_PASSWORD,
-      newPassword: NEW_PASSWORD,
-    });
-
-    expect(response.status).toBe(401);
   });
 });

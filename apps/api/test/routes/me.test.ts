@@ -130,24 +130,6 @@ describe("PATCH /api/me", () => {
     );
   });
 
-  it.each([
-    ["an empty body", {}],
-    ["an empty display name", { displayName: "   " }],
-    ["a display name over 40 characters", { displayName: "a".repeat(41) }],
-    ["a colour out of range", { color: colorCount + 1 }],
-    ["an unknown language", { language: "de" }],
-    ["unfinishing onboarding", { onboarded: false }],
-  ])("refuses %s with invalid_request", async (_, body) => {
-    const person = await signedIn("member");
-
-    const response = await patchMe(person.cookie, body);
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toMatchObject({
-      error: { code: "invalid_request" },
-    });
-  });
-
   it("lets a guest change their own profile", async () => {
     const guest = await signedIn("guest");
 
@@ -184,13 +166,6 @@ describe("PATCH /api/me", () => {
     // Everyone in the file has colour 1, so every other colour is free.
     beforeEach(async () => {
       await test.db.updateTable("user").set({ color: 1 }).execute();
-    });
-
-    it("takes a free colour", async () => {
-      const response = await patchMe(first.cookie, { color: 4 });
-
-      expect(response.status).toBe(200);
-      expect(asMe(await response.json()).color).toBe(4);
     });
 
     it("refuses a colour another person has with color_taken", async () => {

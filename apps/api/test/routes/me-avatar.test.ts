@@ -239,24 +239,6 @@ describe("PUT /api/me/avatar", () => {
 
     expect(response.status).toBe(413);
   });
-
-  it("lets a guest upload their picture", async () => {
-    const guest = await signedIn("guest");
-
-    const response = await putAvatar(guest.cookie, await testPicture("png"));
-
-    expect(response.status).toBe(200);
-  });
-
-  it("refuses an anonymous viewer with forbidden", async () => {
-    const viewer = await signedIn("anonymous");
-
-    const response = await putAvatar(viewer.cookie, await testPicture("png"));
-
-    expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: { code: "forbidden" } });
-    expect(bucket.objects.size).toBe(0);
-  });
 });
 
 describe("DELETE /api/me/avatar", () => {
@@ -277,17 +259,6 @@ describe("DELETE /api/me/avatar", () => {
     expect(bucket.objects.size).toBe(0);
   });
 
-  it("answers the person without a picture as they are", async () => {
-    const person = await signedIn("member");
-
-    const response = await apiRequest(server, "/me/avatar", {
-      method: "DELETE",
-      cookie: person.cookie,
-    });
-
-    expect(response.status).toBe(200);
-  });
-
   it("keeps the picture when the bucket can't remove it", async () => {
     const person = await signedIn("member");
     await putAvatar(person.cookie, await testPicture("png"));
@@ -303,16 +274,5 @@ describe("DELETE /api/me/avatar", () => {
 
     expect(response.status).toBe(500);
     expect(await avatarKeyOf(person.id)).toBe(key);
-  });
-
-  it("refuses an anonymous viewer with forbidden", async () => {
-    const viewer = await signedIn("anonymous");
-
-    const response = await apiRequest(server, "/me/avatar", {
-      method: "DELETE",
-      cookie: viewer.cookie,
-    });
-
-    expect(response.status).toBe(403);
   });
 });

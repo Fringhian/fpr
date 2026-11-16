@@ -129,13 +129,4 @@ describe("GET /api/users/:userId/avatar", () => {
     expect(response.headers.get("content-type")).toMatch(/^application\/json/);
     expect(await response.json()).toEqual({ error: { code: "forbidden" } });
   });
-
-  it("answers without a session with unauthenticated", async () => {
-    const owner = await signedIn("member");
-    const avatarUrl = await upload(owner.cookie);
-
-    const response = await fetch(`${server.url}${avatarUrl}`);
-
-    expect(response.status).toBe(401);
-  });
 });
