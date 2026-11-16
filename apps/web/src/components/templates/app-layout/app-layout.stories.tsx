@@ -13,6 +13,7 @@ The frame every everyday page sits in: Home, Members, a member, Portfolio, Share
 
 | Part | What it is |
 | --- | --- |
+| \`AppLayout.Frame\` | The whole frame from \`Navigation.Root\`’s props, in one place for \`Basic\` and the app shell: \`AppLayout.Root\` with \`Navigation.Side\`, \`AppLayout.Main\` holding its children, and \`Navigation.TabBar\`, then \`toasts\`, the toasts’ region. The app shell keeps it from page to page. |
 | \`AppLayout.Root\` | The frame, inside \`Navigation.Root\`: “Skip to content” first, then \`Navigation.Side\`, \`AppLayout.Main\` and \`Navigation.TabBar\` side by side. It pads the left and right safe areas of a phone held sideways. |
 | \`AppLayout.Main\` | The page’s column, its \`<main>\`, which “Skip to content” leads to, on the page ground of \`Sky.Root\`. Its end clears the tab bar by \`--tab-bar-room\` on phone, 92px above the bottom safe area, and leaves 40px from tablet up. |
 | \`AppLayout.CompactBar\` | \`PageBar.Compact\`, first in \`AppLayout.Main\`, outside the gutters, its title and controls lined up with the content. \`anchor\` is the same ref as the page’s \`PageBar.Root\`. |

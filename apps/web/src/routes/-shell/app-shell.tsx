@@ -9,10 +9,10 @@ import { useSession } from "../../lib/session/use-session";
 const renderLink = ({ href }: Navigation.NavigationLink) => <Link to={href} />;
 
 /**
- * The frame every everyday page shares, kept while the person moves between
- * them: the navigation for their role, its current item read from the
- * address, the page in the column, and the toasts' region. Each page renders
- * its own `Screen`.
+ * The template's frame around every everyday page, kept while the person
+ * moves between them: the navigation for their role, its current item read
+ * from the address, the page in the column, and the toasts' region. Each
+ * page renders its own `Screen`.
  */
 export function AppShell() {
   const { person, role } = useSession();
@@ -21,7 +21,7 @@ export function AppShell() {
   });
 
   return (
-    <Navigation.Root
+    <AppLayout.Frame
       userRole={role}
       current={current}
       account={{
@@ -31,15 +31,9 @@ export function AppShell() {
       }}
       renderLink={renderLink}
       onSignOut={() => void signOut()}
+      toasts={<Toast.Region />}
     >
-      <AppLayout.Root>
-        <Navigation.Side />
-        <AppLayout.Main>
-          <Outlet />
-        </AppLayout.Main>
-        <Navigation.TabBar />
-      </AppLayout.Root>
-      <Toast.Region />
-    </Navigation.Root>
+      <Outlet />
+    </AppLayout.Frame>
   );
 }

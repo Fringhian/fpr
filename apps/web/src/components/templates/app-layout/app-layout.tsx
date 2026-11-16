@@ -55,13 +55,37 @@ export function Page({ bar, compactBar, header, children }: PageProps) {
   );
 }
 
-export type BasicProps = PageProps & Omit<Navigation.RootProps, "children">;
+export type FrameProps = Omit<Navigation.RootProps, "children"> & {
+  /** What `Main` holds: a `Page`. */
+  children?: ReactNode;
+  /** The toasts' region, `Toast.Region`, over the frame. It needs a `Toast.Provider` above it. */
+  toasts?: ReactNode;
+};
 
 /**
- * An everyday page, ready-made: the navigation for `userRole`, then `Page`
- * with the page bar and the compact bar, the sky and its header sentence when
- * there is one, and the page's regions. A page with a special need composes
- * the parts.
+ * The frame every everyday page shares, from one place for the app shell and
+ * `Basic`: the navigation for `userRole`, then `Root` with the side
+ * navigation, `Main` holding the page, and the tab bar, then the toasts.
+ */
+export function Frame({ children, toasts, ...props }: FrameProps) {
+  return (
+    <Navigation.Root {...props}>
+      <Root>
+        <Navigation.Side />
+        <Main>{children}</Main>
+        <Navigation.TabBar />
+      </Root>
+      {toasts}
+    </Navigation.Root>
+  );
+}
+
+export type BasicProps = PageProps & Omit<FrameProps, "children">;
+
+/**
+ * An everyday page, ready-made: `Frame`, then `Page` with the page bar and
+ * the compact bar, the sky and its header sentence when there is one, and the
+ * page's regions. A page with a special need composes the parts.
  */
 export function Basic({
   bar,
@@ -71,16 +95,10 @@ export function Basic({
   ...props
 }: BasicProps) {
   return (
-    <Navigation.Root {...props}>
-      <Root>
-        <Navigation.Side />
-        <Main>
-          <Page bar={bar} compactBar={compactBar} header={header}>
-            {children}
-          </Page>
-        </Main>
-        <Navigation.TabBar />
-      </Root>
-    </Navigation.Root>
+    <Frame {...props}>
+      <Page bar={bar} compactBar={compactBar} header={header}>
+        {children}
+      </Page>
+    </Frame>
   );
 }
