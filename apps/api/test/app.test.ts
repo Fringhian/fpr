@@ -8,12 +8,13 @@ import {
   publicRoute,
 } from "@fpr/contracts";
 import { createOpenApiDocument } from "@fpr/contracts/openapi";
-import { type Db, ping } from "@fpr/db";
+import { createDb, type Db, ping } from "@fpr/db";
 import { type AnyRouter, implement } from "@orpc/server";
 import type { Express } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { createApp } from "../src/app.js";
+import { createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
 import type { ApiContext } from "../src/orpc.js";
 
@@ -49,6 +50,17 @@ vi.mock("@fpr/db", async (importOriginal) => {
 });
 
 const pingMock = vi.mocked(ping);
+
+/**
+ * Better Auth on a pool that never connects: these tests reach neither
+ * `/api/auth` nor a signed-in route. `auth.test.ts` and `pipeline.test.ts`
+ * cover them on Postgres.
+ */
+const auth = createAuth({
+  db: createDb({ url: "postgres://nobody@127.0.0.1:1/none" }),
+  secret: "a-test-secret-of-at-least-thirty-two-characters",
+  baseURL: "https://fpr.example.test",
+});
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 interface Running {
@@ -72,6 +84,8 @@ async function serve(
   });
   const app = createApp({
     db: {} as Db,
+    auth,
+    publicUrl: "https://fpr.example.test",
     logger: createLogger({ destination }),
     docs,
     ...(router ? { router } : {}),
@@ -204,18 +218,6 @@ describe("GET /health", () => {
 });
 
 describe("contract routes", () => {
-  it("answers GET /api/me with unauthenticated until sessions exist", async () => {
-    running = await serve();
-
-    const response = await fetch(`${running.url}/api/me`);
-
-    expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({
-      error: { code: "unauthenticated" },
-    });
-    expect(response.headers.get("x-request-id")).toMatch(UUID);
-  });
-
   it("validates the input and answers the handler's output", async () => {
     running = await serve(undefined, { router: testRouter });
 

@@ -1,16 +1,13 @@
 import { z } from "zod";
 
-/**
- * The variables this process reads now. Later tickets add the rest of the
- * list in `docs/architecture/api.md`.
- */
+/** The variables this process reads. `docs/architecture/api.md` lists them all. */
 export const envSchema = z.object({
-  /** The port it listens on. */
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-  /** Postgres. */
   DATABASE_URL: z.string().min(1),
   /** The instance's origin, used for links and the origin check. */
   PUBLIC_URL: z.url(),
+  /** Signs the session cookies: a long random string, 32 characters or more. */
+  BETTER_AUTH_SECRET: z.string().min(32),
   /** The race's time zone: days, closes, and schedules follow it. */
   RACE_TIMEZONE: z
     .string()

@@ -17,17 +17,14 @@ export const redactPaths = [
   '*.headers["set-cookie"]',
 ];
 
-export interface CreateLoggerOptions {
-  /** Where lines are written. Defaults to standard output. */
-  destination?: DestinationStream;
-}
-
 /**
  * The process's logger: one JSON line per event, with the time, the level,
- * the service, and the message. In development the lines go through
- * `pino-pretty`.
+ * the service, and the message, written to `destination` or else standard
+ * output. In development the lines go through `pino-pretty`.
  */
-export function createLogger(options: CreateLoggerOptions = {}): Logger {
+export function createLogger(
+  options: { destination?: DestinationStream } = {},
+): Logger {
   const config = {
     level: "info",
     base: { service: "api" },

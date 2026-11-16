@@ -39,7 +39,6 @@ export type PortfolioHoldingBelowZeroDetails = z.infer<
   typeof portfolioHoldingBelowZeroDetailsSchema
 >;
 
-/** `holding_below_zero`, with the entry it would break in `details`. */
 const holdingBelowZeroError = errorWithDetails(
   "holding_below_zero",
   portfolioHoldingBelowZeroDetailsSchema,

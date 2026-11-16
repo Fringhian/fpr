@@ -1,17 +1,11 @@
 import { z } from "zod";
-import { errorMap, errorWithDetails } from "../contract.js";
+import { errorMap } from "../contract.js";
 import { idSchema } from "../schemas/ids.js";
 import { priceEurSchema } from "../schemas/money.js";
-import { valueChangedDetailsSchema } from "../schemas/share.js";
+import { valueChangedError } from "../schemas/share.js";
 import { timestampSchema } from "../schemas/time.js";
 import { internalRoute } from "./base.js";
 import { pricesValuePointSchema } from "./schemas.js";
-
-/** `value_changed`, with the value point's stored price in `details`. */
-const valueChangedError = errorWithDetails(
-  "value_changed",
-  valueChangedDetailsSchema,
-);
 
 /**
  * A value point's path params. `at` is its moment, with its offset, as one

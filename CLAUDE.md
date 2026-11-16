@@ -46,10 +46,20 @@ How to create and fully wire up a ticket: `.claude/github-project-workflow.md`.
 - Before a multi-file edit batch, state the plan back and check for edge cases (for example, tables with two writers).
 - Challenge the docs and propose better user flows. Record every flow case in `docs/product/user-stories.md`.
 - Tailwind: registered tokens only, arbitrary value otherwise (`pt-[2.5rem]`). Propose a new token instead of inventing one. Full conventions: the `fpr-ui` skill.
-- Docs: affirmative, factual, and standalone. They state what the system is, not why or how it was decided. No decision records in the repository.
+- Docs: affirmative, factual, and standalone. They state what the system is, not why or how it was decided. No decision records in the repository. A doc says what a block is, how its parts fit, and the rules that span files; code-level detail (function names, per-field shapes, wiring) stays in the code and the contracts. Each topic lives in one doc, and the others link to it. A small change edits the sentence it affects rather than adding one.
 - Every ticket has a coverage checklist specific to its problem. It closes only when every item is checked.
 - Load `supabase-postgres-best-practices` before any schema, migration, index, or query work.
 - `.claude/hooks/require-skills.sh` blocks an edit until the session has loaded the skills its file needs: `react-best-practices`, `fpr-ui` and `typescript-advanced-types` for `apps/web` code, `fpr-ui` for its CSS, `typescript-advanced-types` for any other TypeScript, and `supabase-postgres-best-practices` for `packages/db`, SQL and migrations.
 - Change source files with the Edit and Write tools, never through shell commands, so the skill hook sees every edit.
-- Tests: essential ones only, high-value integration or E2E (API over HTTP, auth and access, database rules, contract-wide guards). No unit tests for trivial helpers, formatting, getters, or schema accept/refuse lists, and no test file per source file: add a case to an existing suite first. Components have no unit tests; their stories are their check. Tests live in the workspace's `test/` folder.
-- Split a folder into subfolders before it grows flat and crowded. Web components live in `src/components/<story group>/`.
+- Tests: essential ones only, high-value integration or E2E (API over HTTP, auth and access, database rules, contract-wide guards). No unit tests for trivial helpers, formatting, getters, or schema accept/refuse lists, and no test file per source file: add a case to an existing suite first. Components have no unit tests; their stories are their check. Tests live in the workspace's `test/` folder. Each API route is tested over HTTP in `test/routes/<route>.test.ts`, named after the route, with its essential cases only.
+- Split a folder into subfolders before it grows flat and crowded. Each web component has its own folder, `src/components/<story group>/<component>/`, with its stories and any `-model.ts`; components shown in one story share a folder. Imports name the file, with no barrel files.
+
+## Code style
+
+- Comments: JSDoc on an exported function, constant, type or prop only when it adds something the name and type don't. Comments on tricky code and on core blocks (auth, access, anonymization, valuation, the price refresh). No comment that restates a name, sits on a file-local helper, or banners a section. A comment is impersonal and present tense: no "we", "you", "note that", no history.
+- Types: a short, unshared parameter type is written inline. An exported component has one props type, in one declaration. A one-line alias used once is inlined. A type or list that exists once is imported, never redeclared: wire types come from `@fpr/contracts`.
+- Reuse before building: search `src/components` and `src/lib` (or the package) for a block that already does it. On the second copy of markup, a class map, a helper or a type, extract a shared one.
+- Size: a function or component reads on one screen, about 50 lines; a longer one is split into named steps or parts. A file that holds more than one job, or runs past about 200 lines, becomes a folder of files split by responsibility. These are signals, not quotas: a split exists when each piece reads on its own, never to land under a number.
+- Files: split by responsibility. A helper used by one file sits next to it; `lib/` holds what two or more places use.
+- Errors: one error class per failure family a caller handles differently.
+- A complex molecule or organism exposes its parts, imported as a namespace (`<HoldingCard.Root>`, `<HoldingCard.Value>`), and `Basic`, the ready-made composition driven by props. A special case composes the parts instead of adding a prop. Atoms and simple molecules keep plain props.

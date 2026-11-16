@@ -5,7 +5,7 @@ import { createCallBudget } from "../src/market/budget.js";
 import {
   createEodhdProvider,
   eodhdLatestBatchSize,
-} from "../src/providers/eodhd.js";
+} from "../src/providers/eodhd/eodhd.js";
 import type { Fetch } from "../src/providers/http.js";
 
 const API_KEY = "test-eodhd-key";

@@ -5,22 +5,28 @@ import {
   type InvalidRequestDetails,
   validationIssueCodeSchema,
 } from "@fpr/contracts";
+import type { Db } from "@fpr/db";
 import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, ORPCError, onError } from "@orpc/server";
-import type { Express, Request } from "express";
+import type { Express, Request, Response } from "express";
+import type { Auth } from "./auth/auth.js";
+
+/** What the process gives every request: its pool, Better Auth, and its origin. */
+export interface ApiServices {
+  db: Db;
+  auth: Auth;
+  /** `PUBLIC_URL`'s origin, such as `https://fpr.example.com`. */
+  publicOrigin: string;
+}
 
 /** What every handler receives. */
-export interface ApiContext {
+export interface ApiContext extends ApiServices {
   req: Request;
+  res: Response;
 }
 
 function isErrorCode(code: string): code is ErrorCode {
   return (errorCodes as readonly string[]).includes(code);
-}
-
-interface Issue {
-  path?: readonly PropertyKey[];
-  code?: string;
 }
 
 /**
@@ -30,14 +36,15 @@ interface Issue {
  */
 function toInvalidRequestDetails(issues: unknown): InvalidRequestDetails {
   return {
-    issues: (Array.isArray(issues) ? (issues as Issue[]) : []).map(
-      ({ path = [], code }) => ({
-        path: path.flatMap((key) =>
-          typeof key === "symbol" ? [] : [key as string | number],
-        ),
-        code: validationIssueCodeSchema.catch("custom").parse(code),
-      }),
-    ),
+    issues: (Array.isArray(issues)
+      ? (issues as { path?: readonly PropertyKey[]; code?: string }[])
+      : []
+    ).map(({ path = [], code }) => ({
+      path: path.flatMap((key) =>
+        typeof key === "symbol" ? [] : [key as string | number],
+      ),
+      code: validationIssueCodeSchema.catch("custom").parse(code),
+    })),
   };
 }
 
@@ -72,7 +79,11 @@ export function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
  * Mounts an oRPC router under `/api`. A request no route matches goes on to
  * the next Express handler, so the not-found answer stays Express's.
  */
-export function mountRouter(app: Express, router: AnyRouter): void {
+export function mountRouter(
+  app: Express,
+  router: AnyRouter,
+  services: ApiServices,
+): void {
   const handler = new OpenAPIHandler<ApiContext>(router, {
     // The status stays the error's own: a declared code carries FPR's, input
     // validation is 400, and an unexpected failure 500.
@@ -91,7 +102,7 @@ export function mountRouter(app: Express, router: AnyRouter): void {
   app.use("/api", async (req, res, next) => {
     const { matched } = await handler.handle(req, res, {
       prefix: "/api",
-      context: { req },
+      context: { ...services, req, res },
     });
     if (!matched) {
       next();

@@ -5,7 +5,6 @@ import { ProviderError, type ProviderName } from "./provider.js";
 /** The `fetch` a provider sends its requests with. Tests pass a mock. */
 export type Fetch = typeof fetch;
 
-/** A provider request takes at most this long before it counts as failed. */
 export const providerTimeoutMs = 15_000;
 
 /**
@@ -27,16 +26,6 @@ export interface ProviderCallFields {
   to?: string;
 }
 
-export interface ProviderCall {
-  /** The provider's endpoint, such as `eod`, logged with the call. */
-  endpoint: string;
-  /** The full request URL, with the key. It is never logged. */
-  url: URL;
-  /** The calls the provider bills for this request. */
-  calls: number;
-  fields: ProviderCallFields;
-}
-
 /**
  * Parses JSON keeping every number as the exact text the provider sent, so a
  * price such as `74.3280` stays the decimal string `"74.3280"` and never goes
@@ -50,6 +39,24 @@ export function parseJsonExact(text: string): unknown {
         ? context.source
         : value,
   );
+}
+
+interface ProviderCall {
+  /** The provider's endpoint, such as `eod`, logged with the call. */
+  endpoint: string;
+  /** The full request URL, with the key. It is never logged. */
+  url: URL;
+  /** The calls the provider bills for this request. */
+  calls: number;
+  fields: ProviderCallFields;
+}
+
+/** A sent call: what each of its log lines carries, and when it started. */
+interface SentCall {
+  http: ProviderHttp;
+  endpoint: string;
+  line: Record<string, unknown>;
+  started: number;
 }
 
 /**
@@ -71,68 +78,99 @@ export async function callProvider(
     ...call.fields,
     calls: call.calls,
   };
-  if (!http.budget.trySpend(call.calls)) {
-    http.logger.warn(
-      { ...fields, ...http.budget.logFields() },
-      "provider call refused: daily call cap reached",
-    );
-    throw new ProviderError(
-      "call_budget_used",
-      `${http.provider} ${call.endpoint}: daily call cap reached`,
-    );
-  }
-  const line = { ...fields, callsToday: http.budget.spent() };
-  const started = performance.now();
-  const duration = (): number => Math.round(performance.now() - started);
+  spendCalls(http, call, fields);
+  const sent: SentCall = {
+    http,
+    endpoint: call.endpoint,
+    line: { ...fields, callsToday: http.budget.spent() },
+    started: performance.now(),
+  };
+  const response = await send(sent, call.url);
+  await rejectFailedStatus(sent, response);
+  const body = await readBody(sent, response);
+  http.logger.info(
+    { ...sent.line, status: response.status, duration: elapsed(sent) },
+    "provider call",
+  );
+  return body;
+}
 
-  let response: Response;
+/** Counts the call against the day's budget, or refuses it unsent. */
+function spendCalls(
+  http: ProviderHttp,
+  call: ProviderCall,
+  fields: Record<string, unknown>,
+): void {
+  if (http.budget.trySpend(call.calls)) {
+    return;
+  }
+  http.logger.warn(
+    { ...fields, ...http.budget.logFields() },
+    "provider call refused: daily call cap reached",
+  );
+  throw new ProviderError(
+    "call_budget_used",
+    `${http.provider} ${call.endpoint}: daily call cap reached`,
+  );
+}
+
+async function send(sent: SentCall, url: URL): Promise<Response> {
   try {
-    response = await http.fetch(call.url, {
+    return await sent.http.fetch(url, {
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(providerTimeoutMs),
     });
   } catch (error) {
-    http.logger.error(
-      { ...line, duration: duration(), err: error },
+    sent.http.logger.error(
+      { ...sent.line, duration: elapsed(sent), err: error },
       "provider call failed: no response",
     );
     throw new ProviderError(
       "unavailable",
-      `${http.provider} ${call.endpoint}: no response`,
+      `${sent.http.provider} ${sent.endpoint}: no response`,
       { cause: error },
     );
   }
+}
 
+async function rejectFailedStatus(
+  sent: SentCall,
+  response: Response,
+): Promise<void> {
   const { status } = response;
-  if (!response.ok) {
-    await response.body?.cancel();
-    const reason = status === 404 ? "not_found" : "unavailable";
-    http.logger[reason === "not_found" ? "warn" : "error"](
-      { ...line, status, duration: duration() },
-      `provider call failed: ${status}`,
-    );
-    throw new ProviderError(
-      reason,
-      `${http.provider} ${call.endpoint}: HTTP ${status}`,
-      { status },
-    );
+  if (response.ok) {
+    return;
   }
+  await response.body?.cancel();
+  const reason = status === 404 ? "not_found" : "unavailable";
+  sent.http.logger[reason === "not_found" ? "warn" : "error"](
+    { ...sent.line, status, duration: elapsed(sent) },
+    `provider call failed: ${status}`,
+  );
+  throw new ProviderError(
+    reason,
+    `${sent.http.provider} ${sent.endpoint}: HTTP ${status}`,
+    { status },
+  );
+}
 
-  let body: unknown;
+async function readBody(sent: SentCall, response: Response): Promise<unknown> {
+  const { status } = response;
   try {
-    body = parseJsonExact(await response.text());
+    return parseJsonExact(await response.text());
   } catch (error) {
-    http.logger.error(
-      { ...line, status, duration: duration(), err: error },
+    sent.http.logger.error(
+      { ...sent.line, status, duration: elapsed(sent), err: error },
       "provider call failed: unreadable body",
     );
     throw new ProviderError(
       "unavailable",
-      `${http.provider} ${call.endpoint}: unreadable body`,
+      `${sent.http.provider} ${sent.endpoint}: unreadable body`,
       { status, cause: error },
     );
   }
+}
 
-  http.logger.info({ ...line, status, duration: duration() }, "provider call");
-  return body;
+function elapsed(sent: SentCall): number {
+  return Math.round(performance.now() - sent.started);
 }
