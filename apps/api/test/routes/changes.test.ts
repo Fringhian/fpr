@@ -158,6 +158,35 @@ describe("POST /api/users/:userId/changes", () => {
     expect(zero.status).toBe(400);
   });
 
+  it("refuses a moment before 2000 and a quantity with more digits than a person enters", async () => {
+    const member = await signedIn("member");
+    const share = await addShare(test.db);
+    const body = {
+      shareId: share.id,
+      quantityDelta: "1",
+      effectiveAt: "2026-03-02T10:00:00Z",
+    };
+
+    for (const sent of [
+      { effectiveAt: "1999-12-31T23:59:59Z" },
+      { quantityDelta: "1".repeat(13) },
+      { quantityDelta: "1.123456789" },
+    ]) {
+      await expectError(
+        addChange,
+        await post(member.cookie, member.id, { ...body, ...sent }),
+        "invalid_request",
+        { issues: [{ path: Object.keys(sent), code: "custom" }] },
+      );
+    }
+    await record(
+      member,
+      share,
+      "999999999999.12345678",
+      "2000-01-01T00:00:00Z",
+    );
+  });
+
   it("saves a change sent twice with its id once, and refuses another member's id", async () => {
     const [member, other] = [
       await signedIn("member"),

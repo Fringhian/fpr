@@ -1,3 +1,4 @@
+import http from "node:http";
 import { accessKeys, users } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -56,7 +57,7 @@ function authRequest(
     headers.Cookie = init.cookie;
   }
   return fetch(`${server.url}/api/auth${path}`, {
-    method: init.body === undefined && path === "/get-session" ? "GET" : "POST",
+    method: init.body === undefined ? "GET" : "POST",
     headers,
     ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
   });
@@ -211,6 +212,23 @@ describe("/api/auth", () => {
       displayName: "Test member",
       role: "member",
     });
+  });
+
+  it("has no session list or revoke endpoints, which would let people sharing an anonymous link see and end each other's sessions", async () => {
+    const person = await addPerson(test.db, auth, "member");
+    const cookie = await signIn(server, person);
+    await signIn(server, person);
+
+    for (const [path, body] of [
+      ["/list-sessions", undefined],
+      ["/revoke-session", { token: "any" }],
+      ["/revoke-sessions", {}],
+      ["/revoke-other-sessions", {}],
+    ] as const) {
+      const response = await authRequest(path, { body, cookie });
+      expect(response.status).toBe(404);
+    }
+    expect(await sessionCount(person.id)).toBe(2);
   });
 
   it("keeps the endpoint that starts access-link sessions off HTTP", async () => {
@@ -376,4 +394,49 @@ describe("access check on Better Auth's endpoints", () => {
       expect(await sessionCount(person.id)).toBe(0);
     },
   );
+
+  it("checks access on a path whose encoded dot segments lead out of sign-in", async () => {
+    const person = await addPerson(test.db, auth, "member");
+    const cookie = await signIn(server, person);
+    await accessKeys.revoke(test.db, person.keyId);
+
+    // fetch resolves dot segments before sending, so the path goes out raw.
+    const response = await rawGet(
+      "/api/auth/sign-in/%2e%2e/get-session",
+      cookie,
+    );
+
+    expect(response.status).toBe(401);
+    expect(JSON.parse(response.body)).toEqual({
+      error: { code: "access_ended" },
+    });
+  });
 });
+
+function rawGet(
+  path: string,
+  cookie: string,
+): Promise<{ status: number; body: string }> {
+  const { hostname, port } = new URL(server.url);
+  return new Promise((resolve, reject) => {
+    const request = http.get(
+      {
+        hostname,
+        port,
+        path,
+        headers: { Cookie: cookie, "X-Forwarded-For": newClientAddress() },
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk: string) => {
+          body += chunk;
+        });
+        response.on("end", () =>
+          resolve({ status: response.statusCode ?? 0, body }),
+        );
+      },
+    );
+    request.on("error", reject);
+  });
+}

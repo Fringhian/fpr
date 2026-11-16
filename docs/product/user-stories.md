@@ -79,7 +79,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - The date is chosen before the quantity: what can be sold depends on what was held that day. A change dated on a past day counts in that day's close; one dated today counts from the moment it is recorded.
 - A sale, edit, deletion, or undo that would take a holding below zero at any moment is refused, and the message names the entry it would break.
 - Two removals on the same holding at the same time: the second sees the first, and is refused if the holding no longer covers it.
-- A day in the future is refused, and so is a quantity or a share value of zero or below. Cash can't be below zero.
+- A day in the future or before 2000 is refused, and so is a quantity or a share value of zero or below. Cash can't be below zero.
 - Quantities keep their decimals as entered: 74.328 units.
 - The first holding of a market share, or an entry dated before its stored history, is saved at once, and its prices are fetched right after. Until they arrive, the share shows "price pending" and is left out of the member's balance, which is marked incomplete on every screen, never counted at €0. A failed fetch is retried every 30 minutes.
 - Removing shares doesn't change cash, and adding shares doesn't spend it.

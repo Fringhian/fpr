@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { quantity } from "../../anonymize.js";
 import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
-import { decimalSchema } from "../../decimal.js";
+import { decimalSchema, entered } from "../../decimal.js";
 import { writerRoles } from "../../roles.js";
 import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { madeBySchema } from "../../schemas/person.js";
 import { shareSummarySchema } from "../../schemas/share.js";
-import { timestampSchema } from "../../schemas/time.js";
+import { entryMomentSchema, timestampSchema } from "../../schemas/time.js";
 
 /** Shares added, above zero, or removed, below zero: never zero. */
 export const portfolioQuantityDeltaSchema = decimalSchema.refine(
@@ -51,8 +51,8 @@ export const portfolioChangeInputSchema = z.object({
   userId: idSchema,
   id: clientIdSchema,
   shareId: idSchema,
-  quantityDelta: portfolioQuantityDeltaSchema,
-  effectiveAt: timestampSchema,
+  quantityDelta: entered(portfolioQuantityDeltaSchema),
+  effectiveAt: entryMomentSchema,
 });
 
 export type PortfolioChangeInput = z.input<typeof portfolioChangeInputSchema>;
@@ -80,8 +80,8 @@ export const addPortfolioChange = signedInRoute(writerRoles)
 export const portfolioChangeUpdateSchema = z
   .object({
     id: idSchema,
-    quantityDelta: portfolioQuantityDeltaSchema.optional(),
-    effectiveAt: timestampSchema.optional(),
+    quantityDelta: entered(portfolioQuantityDeltaSchema).optional(),
+    effectiveAt: entryMomentSchema.optional(),
   })
   .refine(
     (body) =>

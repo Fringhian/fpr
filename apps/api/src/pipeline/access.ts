@@ -39,10 +39,19 @@ export const checkAccess = os
   });
 
 /** Better Auth's paths that skip the access check: sign-in checks access itself. */
-const pathsWithoutAccessCheck = [
-  `${authBasePath}/sign-in/`,
+const pathsWithoutAccessCheck: ReadonlySet<string> = new Set([
+  `${authBasePath}/sign-in/email`,
   `${authBasePath}/sign-out`,
-] as const;
+]);
+
+/**
+ * The path Better Auth routes the request to. The URL parser resolves dot
+ * segments, encoded ones included, as Better Auth's own parsing does, so
+ * `sign-in/%2e%2e/list-sessions` is `list-sessions` here too.
+ */
+function routedPath(originalUrl: string): string {
+  return new URL(originalUrl, "http://localhost").pathname;
+}
 
 /**
  * The access check in front of Better Auth's own endpoints. A request with
@@ -57,7 +66,7 @@ export function authAccessCheck(
   return async (req, _res, next) => {
     if (
       req.headers.cookie === undefined ||
-      pathsWithoutAccessCheck.some((path) => req.path.startsWith(path))
+      pathsWithoutAccessCheck.has(routedPath(req.originalUrl))
     ) {
       next();
       return;

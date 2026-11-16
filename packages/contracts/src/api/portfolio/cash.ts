@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
-import { decimalSchema } from "../../decimal.js";
+import { decimalSchema, entered } from "../../decimal.js";
 import { roles, writerRoles } from "../../roles.js";
 import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { madeBySchema } from "../../schemas/person.js";
-import { timestampSchema } from "../../schemas/time.js";
+import { entryMomentSchema, timestampSchema } from "../../schemas/time.js";
 
 /** Cash in euros: zero or more. */
 export const portfolioCashAmountSchema = decimalSchema.refine(
@@ -28,8 +28,8 @@ export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;
 export const portfolioCashInputSchema = z.object({
   userId: idSchema,
   id: clientIdSchema,
-  amountEur: portfolioCashAmountSchema,
-  effectiveAt: timestampSchema,
+  amountEur: entered(portfolioCashAmountSchema),
+  effectiveAt: entryMomentSchema,
 });
 
 export type PortfolioCashInput = z.input<typeof portfolioCashInputSchema>;
@@ -56,8 +56,8 @@ export const setPortfolioCash = signedInRoute(writerRoles)
 export const portfolioCashUpdateSchema = z
   .object({
     id: idSchema,
-    amountEur: portfolioCashAmountSchema.optional(),
-    effectiveAt: timestampSchema.optional(),
+    amountEur: entered(portfolioCashAmountSchema).optional(),
+    effectiveAt: entryMomentSchema.optional(),
   })
   .refine(
     (body) => body.amountEur !== undefined || body.effectiveAt !== undefined,

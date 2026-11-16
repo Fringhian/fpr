@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { entered } from "../../decimal.js";
 import { writerRoles } from "../../roles.js";
 import { priceEurSchema } from "../../schemas/money.js";
 import {
@@ -8,7 +9,7 @@ import {
   shareNameSchema,
   shareSummarySchema,
 } from "../../schemas/share.js";
-import { timestampSchema } from "../../schemas/time.js";
+import { entryMomentSchema } from "../../schemas/time.js";
 import { shareIdParamsSchema } from "./schemas.js";
 
 /** `POST /shares/manual`: a manual share and its first value point. */
@@ -16,8 +17,8 @@ export const shareManualBodySchema = z.object({
   isin: isinSchema,
   name: shareNameSchema,
   /** The value of one unit at `at`. */
-  priceEur: priceEurSchema,
-  at: timestampSchema,
+  priceEur: entered(priceEurSchema),
+  at: entryMomentSchema,
 });
 
 export type ShareManualBody = z.infer<typeof shareManualBodySchema>;
