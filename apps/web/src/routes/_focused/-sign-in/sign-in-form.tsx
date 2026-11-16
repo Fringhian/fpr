@@ -51,20 +51,20 @@ function OtherWays() {
 
 /**
  * Sign-in with an email and a password, on the made-up race. A wrong pair
- * says only that they don't match, under the password; too many attempts and
- * a failed call say so under the form.
+ * says only that they don't match, under the form, until either field
+ * changes; too many attempts and a failed call say so there too.
  */
 export function SignInForm() {
   const { t } = useTranslation();
   const { redirect } = route.useSearch();
   const checks = useAccessChecks();
-  const { errors, formError, refuse } = useRefusal<"password">();
+  const { formError, refuse, edited } = useRefusal();
   const signIn = usePasswordSignIn(redirect);
 
-  const refusals: Record<SignInOutcome, Refusal<"password"> | null> = {
+  const refusals: Record<SignInOutcome, Refusal<never> | null> = {
     signedIn: null,
     accessEnded: null,
-    wrongPair: { field: "password", text: t("signIn.wrongPair") },
+    wrongPair: { text: t("signIn.wrongPair"), untilEdit: true },
     rateLimited: { text: t("errors.rateLimited") },
     failed: { text: t("errors.internalError") },
     unreachable: { text: t("errors.unreachable") },
@@ -81,7 +81,7 @@ export function SignInForm() {
     <AccessPage teaser>
       <Form<Credentials>
         className="contents"
-        errors={errors}
+        onInput={edited}
         onFormSubmit={submit}
       >
         <StepFlow.Body>

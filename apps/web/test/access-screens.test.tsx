@@ -129,8 +129,14 @@ describe("the access screens", () => {
     fill(page, "email", "sam@example.com");
     fill(page, "password", "not the password");
     await submit(page, () =>
-      expect(page.textContent).toContain("email and password don’t match"),
+      expect(page.querySelector('[role="alert"]')?.textContent).toContain(
+        "email and password don’t match",
+      ),
     );
+    expect(page.querySelector('[aria-invalid="true"]')).toBeNull();
+
+    fill(page, "email", "sam@example.com ");
+    expect(page.textContent).not.toContain("email and password don’t match");
 
     fill(page, "password", mockPassword);
     await submit(page, () =>
