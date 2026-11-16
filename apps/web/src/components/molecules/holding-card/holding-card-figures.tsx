@@ -1,5 +1,5 @@
-import type { Decimal, LatestPrice, ShareKind } from "@fpr/contracts";
-import type { ReactElement, ReactNode } from "react";
+import type { Decimal, LatestPrice } from "@fpr/contracts";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
@@ -9,16 +9,13 @@ import { useLanguage } from "../../../lib/i18n";
 import { Badge } from "../../atoms/badge/badge";
 import { GainChip } from "../../atoms/gain-chip/gain-chip";
 import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
-import type { IconProps } from "../../foundations/icon/icon";
-import type { ChartColor, ChartPoint } from "../chart/chart";
-import * as Menu from "../menu/menu";
 import {
-  CardFigure,
-  Curve,
-  caption,
-  foot,
-  NameLink,
-} from "./holding-card-parts";
+  Chart,
+  type ChartColor,
+  type ChartLine,
+  type ChartPoint,
+} from "../chart/chart";
+import { Caption, caption, Figure, Foot } from "./holding-card-parts";
 
 const CURVE_COLORS = {
   positive: "positive",
@@ -26,51 +23,12 @@ const CURVE_COLORS = {
   flat: "muted",
 } as const satisfies Record<string, ChartColor>;
 
-/** The name, linked or not, the Manual badge, and the ⋯ menu. */
-export function HoldingHeader({
-  nameId,
-  name,
-  kind,
-  link,
-  linkIcon,
-  actions,
-  actionsIcon,
-}: {
-  nameId: string;
-  name: string;
-  kind: ShareKind;
-  link: ReactElement | undefined;
-  linkIcon: IconProps["icon"];
-  actions: ReactNode;
-  actionsIcon: IconProps["icon"] | undefined;
-}) {
-  return (
-    <div className="flex min-h-l items-center gap-s">
-      <p id={nameId} className="min-w-0 flex-1 text-s font-semibold">
-        {link === undefined ? (
-          <span className="block truncate">{name}</span>
-        ) : (
-          <NameLink name={name} link={link} icon={linkIcon} />
-        )}
-      </p>
-      {kind === "manual" ? <Badge state="manual" /> : null}
-      {actions === undefined ? null : (
-        <Menu.Root>
-          <Menu.MoreTrigger
-            subject={name}
-            icon={actionsIcon}
-            size="s"
-            className="relative"
-          />
-          <Menu.Popup>{actions}</Menu.Popup>
-        </Menu.Root>
-      )}
-    </div>
-  );
-}
-
-/** The quantity as entered, the latest price, and its time or day: “74.328 units · €40.10 · as of 14:30”. */
-export function HoldingDetails({
+/**
+ * The quantity as entered, the latest price, and its time or day:
+ * “74.328 units · €40.10 · as of 14:30”. An anonymous viewer reads no
+ * quantity. `timeZone` is the one a time and a day are read in.
+ */
+export function Details({
   quantity,
   latestPrice,
   anonymous,
@@ -108,28 +66,55 @@ export function HoldingDetails({
     priceTime,
   ].filter((part) => part !== null);
 
-  return details.length === 0 ? null : (
-    <p className={caption}>{details.join(" · ")}</p>
-  );
+  return details.length === 0 ? null : <Caption>{details.join(" · ")}</Caption>;
 }
 
 /** While the prices are pending: a loading line, and the holding said not counted yet. */
-export function PendingFoot() {
+export function Pending() {
   const { t } = useTranslation();
 
   return (
     <>
       <LoadingPlaceholder>{t("holdingCard.loadingPrices")}</LoadingPlaceholder>
-      <div className={foot}>
+      <Foot>
         <Badge state="pricePending" />
         <span className={caption}>{t("holdingCard.notCounted")}</span>
-      </div>
+      </Foot>
     </>
   );
 }
 
-/** Once priced: the curve in the colour of the gain, then the value and the gain. An anonymous viewer reads the weight, and the gain in percent. */
-export function PricedFoot({
+/** The share's price over the period, as a sparkline in the colour of the gain. */
+function Curve({
+  name,
+  points,
+  color,
+}: {
+  name: string;
+  points: readonly ChartPoint[];
+  color: ChartColor;
+}) {
+  const { t } = useTranslation();
+  const lines = useMemo<readonly ChartLine[]>(
+    () => [{ id: "price", label: name, color, points }],
+    [name, color, points],
+  );
+
+  return (
+    <Chart
+      variant="sparkline"
+      unit="money"
+      lines={lines}
+      label={t("holdingCard.curve", { name })}
+    />
+  );
+}
+
+/**
+ * Once priced: the curve in the colour of the gain, then the value and the
+ * gain. An anonymous viewer reads the weight, and the gain in percent.
+ */
+export function Value({
   name,
   curve,
   valueEur,
@@ -160,14 +145,10 @@ export function PricedFoot({
       {curve.length > 1 ? (
         <Curve name={name} points={curve} color={CURVE_COLORS[tone]} />
       ) : null}
-      <div className={foot}>
-        <CardFigure
-          anonymous={anonymous}
-          amountEur={valueEur}
-          weight={weight}
-        />
+      <Foot>
+        <Figure anonymous={anonymous} amountEur={valueEur} weight={weight} />
         {shownGain === null ? null : <GainChip gain={shownGain} unit={unit} />}
-      </div>
+      </Foot>
     </>
   );
 }

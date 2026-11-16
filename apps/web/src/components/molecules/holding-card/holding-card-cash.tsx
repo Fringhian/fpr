@@ -1,15 +1,20 @@
 import type { Decimal, IsoDate, Timestamp } from "@fpr/contracts";
 import { type ComponentProps, useId } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
-import { Card } from "../../atoms/card/card";
 import { TextLink } from "../../atoms/text-link/text-link";
 import type { IconProps } from "../../foundations/icon/icon";
-import { CardFigure, caption, card, foot } from "./holding-card-parts";
+import {
+  Caption,
+  Figure,
+  Foot,
+  Header,
+  Name,
+  Root,
+} from "./holding-card-parts";
 
-export type CashCardProps = {
+export type CashProps = {
   /** The cash held, in euros. An anonymous viewer has none. */
   amountEur?: Decimal | null | undefined;
   /** The cash's weight in percent of the balance, shown to an anonymous viewer in place of the amount. */
@@ -37,7 +42,7 @@ export type CashCardProps = {
 >;
 
 /** The cash someone holds, the last card after their holdings: its amount, the day it was set, and Update cash. */
-export function CashCard({
+export function Cash({
   amountEur,
   weight,
   setOn,
@@ -45,39 +50,26 @@ export function CashCard({
   onUpdateCash,
   updateCashIcon,
   timeZone,
-  className,
   ...props
-}: CashCardProps) {
+}: CashProps) {
   const { t } = useTranslation();
   const language = useLanguage();
   const titleId = useId();
 
   return (
-    <Card
-      {...props}
-      render={<article />}
-      aria-labelledby={titleId}
-      className={cn(card, className)}
-    >
-      <p
-        id={titleId}
-        className="flex min-h-l items-center text-s font-semibold"
-      >
-        {t("holdingCard.cash")}
-      </p>
+    <Root {...props} aria-labelledby={titleId}>
+      <Header>
+        <Name id={titleId}>{t("holdingCard.cash")}</Name>
+      </Header>
       {setOn === undefined ? null : (
-        <p className={caption}>
+        <Caption>
           {t("holdingCard.setOn", {
             date: formatDate(setOn, language, { timeZone }),
           })}
-        </p>
+        </Caption>
       )}
-      <div className={foot}>
-        <CardFigure
-          anonymous={anonymous}
-          amountEur={amountEur}
-          weight={weight}
-        />
+      <Foot>
+        <Figure anonymous={anonymous} amountEur={amountEur} weight={weight} />
         {onUpdateCash === undefined ? null : (
           <TextLink
             toPage
@@ -89,7 +81,7 @@ export function CashCard({
             {t("holdingCard.updateCash")}
           </TextLink>
         )}
-      </div>
-    </Card>
+      </Foot>
+    </Root>
   );
 }
