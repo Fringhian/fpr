@@ -27,11 +27,7 @@ function AccessLink() {
     return <LinkStatePage state={link.state} />;
   }
   return step === 1 ? (
-    <InvitedStep
-      email={link.email}
-      displayName={link.displayName}
-      onNext={() => setStep(2)}
-    />
+    <InvitedStep link={link} onNext={() => setStep(2)} />
   ) : (
     <PasswordStep
       accessKey={link.key}
