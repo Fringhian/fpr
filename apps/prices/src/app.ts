@@ -12,17 +12,15 @@ import type { Logger } from "pino";
 import { type HttpLogger, pinoHttp } from "pino-http";
 import { requireToken } from "./auth.js";
 import { mountRouter } from "./orpc.js";
+import type { Pricing } from "./pricing/pricing.js";
 import { pricesRouter } from "./router.js";
 
 export interface AppOptions {
-  db: Db;
   logger: Logger;
   /** The bearer token every route except `/health` requires. */
   token: string;
-  /** `RACE_TIMEZONE`. */
-  timeZone: string;
-  /** The current moment. Defaults to the clock; tests replace it. */
-  now?: () => Date;
+  /** Its pool, time zone, and clock serve every route. */
+  pricing: Pricing;
 }
 
 /**
@@ -30,13 +28,8 @@ export interface AppOptions {
  * token authentication for every other route, the `pricesContract` routes,
  * and error handling.
  */
-export function createApp({
-  db,
-  logger,
-  token,
-  timeZone,
-  now = () => new Date(),
-}: AppOptions): Express {
+export function createApp({ logger, token, pricing }: AppOptions): Express {
+  const { db, timeZone, now } = pricing.deps;
   const app = express();
 
   app.disable("x-powered-by");
@@ -49,7 +42,7 @@ export function createApp({
   // Every route mounted after this point requires the bearer token.
   app.use(requireToken(token));
 
-  mountRouter(app, pricesRouter, { db, timeZone, now });
+  mountRouter(app, pricesRouter, { db, timeZone, now, pricing });
 
   app.use(notFound);
   app.use(errorHandler);

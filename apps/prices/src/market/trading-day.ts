@@ -52,7 +52,7 @@ function weekdayBefore(ms: number): number {
  * hour. On Tuesday at 08:00 it is Monday; on Tuesday at 06:00, Saturday, or
  * Monday, it is the Friday before.
  */
-function lastTradingDay(now: Date, timeZone: string): IsoDate {
+export function lastTradingDay(now: Date, timeZone: string): IsoDate {
   const today = toMs(dayIn(now, timeZone));
   const reference =
     hourIn(now, timeZone) < DAILY_CLOSES_HOUR ? today - DAY_MS : today;

@@ -133,7 +133,8 @@ Every endpoint refuses a request without `Authorization: Bearer <PRICES_TOKEN>` 
 | `DELETE /shares/:id/manual-prices/:at` | Delete a value point, given the price the member saw | `not_found`; `value_changed`; `last_value_point` |
 | `DELETE /shares/:id` | Delete a share with its prices and value edits | `not_found`; `share_in_use` when a share change refers to it |
 | `POST /shares/:id/make-manual` | Turn a market share that needs attention into a manual share. Its prices stay, and its latest price becomes a value point entered by the admin; a share with no price takes one from the request | `not_found`; `share_not_needing_attention`; `future_moment` |
-| `POST /refresh` | Run the intraday refresh now: missing closes first, then latest prices. Returns once the run ends | `refresh_running` |
+| `POST /refresh` | Run the intraday refresh now: missing closes first, then latest prices. Returns the run once it ends | `refresh_running` |
+| `GET /refresh` | The intraday refresh's state since the service started: the last run and its result, the next scheduled run, the day's runs, and the day's calls against the cap | |
 
 `:at` is a value point's moment, percent-encoded as one path segment. Any offset names the same moment.
 
@@ -149,7 +150,7 @@ The service logs with pino (`overview.md`): a line for every run, with the share
 
 - Each provider call logs the provider, the endpoint, the symbols or query, the calls billed, `callsToday`, the HTTP status, and the duration. A failed call is logged at `error`, or `warn` for an unknown symbol; a call refused at the cap at `warn`.
 - Each rates request logs `source: "frankfurter"`, its date range, the days returned, the status, and the duration, at `error` when it fails.
-- Rows returned without a usable value, such as a listing without a currency, are dropped and counted in a `warn` line.
+- Rows returned without a usable value, such as a listing without a currency, are dropped and counted in a `warn` line. A close at or below zero is dropped with a `warn` line naming its symbol and day, so the last stored price stays.
 - The API key travels in the request URL, so the URL is never logged, and pino's `redact` removes the key from any other field.
 - Each daily-closes run logs the calls left on the EODHD account, from `GET /user`.
 

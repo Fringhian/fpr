@@ -5,6 +5,8 @@ import { createApp } from "./app.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
 import { createCallBudget } from "./market/budget.js";
+import { createRatesClient } from "./market/frankfurter.js";
+import { createPricing, startSchedules } from "./pricing/pricing.js";
 import { createProvider } from "./providers/index.js";
 
 function main(): void {
@@ -25,24 +27,33 @@ function main(): void {
     logger,
     budget,
   });
-  const app = createApp({
-    db,
-    logger,
-    token: env.PRICES_TOKEN,
-    timeZone: env.RACE_TIMEZONE,
-  });
+  const pricing = createPricing(
+    {
+      db,
+      logger,
+      provider,
+      rates: createRatesClient({ logger, baseUrl: env.RATES_URL }),
+      budget,
+      timeZone: env.RACE_TIMEZONE,
+      now: () => new Date(),
+    },
+    { refreshSchedule: env.REFRESH_SCHEDULE },
+  );
+  const app = createApp({ logger, token: env.PRICES_TOKEN, pricing });
   const server: Server = app.listen(env.PORT, () => {
     logger.info(
       {
         port: env.PORT,
         provider: provider.name,
         timeZone: env.RACE_TIMEZONE,
+        refreshSchedule: env.REFRESH_SCHEDULE,
         ...budget.logFields(),
       },
       "prices listening",
     );
   });
-  shutDownOnSignal({ server, db, logger });
+  const stopSchedules = startSchedules(pricing);
+  shutDownOnSignal({ server, db, logger, stopSchedules });
 }
 
 function loadEnvOrExit(): ReturnType<typeof loadEnv> {
@@ -59,10 +70,12 @@ function shutDownOnSignal({
   server,
   db,
   logger,
+  stopSchedules,
 }: {
   server: Server;
   db: Db;
   logger: Logger;
+  stopSchedules: () => void;
 }): void {
   let shuttingDown = false;
   const shutdown = (signal: NodeJS.Signals): void => {
@@ -71,6 +84,7 @@ function shutDownOnSignal({
     }
     shuttingDown = true;
     logger.info({ signal }, "shutting down");
+    stopSchedules();
 
     // Stops accepting connections and waits for requests in flight.
     server.close((serverError) => {
