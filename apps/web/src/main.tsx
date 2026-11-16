@@ -8,10 +8,13 @@ import { api } from "./lib/api/api.ts";
 import { createQueryClient } from "./lib/api/query-client.ts";
 import { offerUpdate } from "./lib/app-update.tsx";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
+import { watchInstall } from "./lib/install-app.ts";
 import { languageOf } from "./lib/language-choice.ts";
 import { signInAgain } from "./lib/session/session-ended.ts";
 import { createAppRouter } from "./router.ts";
 import "./index.css";
+
+watchInstall();
 
 // `pnpm dev:mock` answers every API call with the mock API. Any other mode
 // drops this branch, and the mocks with it, from the build, and registers

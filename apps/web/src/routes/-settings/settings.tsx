@@ -6,6 +6,7 @@ import { Icon } from "../../components/foundations/icon/icon";
 import * as Dialog from "../../components/molecules/dialog/dialog";
 import { signOut } from "../../lib/session/sign-out";
 import { useSession } from "../../lib/session/use-session";
+import { InstallSetting } from "./install-setting";
 import { LanguageSetting } from "./language-setting";
 import { LookSettings } from "./look-settings";
 import { NameSetting } from "./name-setting";
@@ -68,6 +69,7 @@ export function Settings({
         </div>
         <div className="flex flex-col pt-s">
           {readOnly ? null : <PasswordSetting />}
+          <InstallSetting />
           <HelpRow onOpen={() => onOpenChange(false)} />
         </div>
         <Foot />

@@ -157,7 +157,7 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 ## Installable app
 
-FPR is a Progressive Web App: it installs to a phone's home screen or a computer's dock and opens full screen.
+FPR is a Progressive Web App: it installs to a phone's home screen or a computer's dock, from the browser or from Settings, and opens full screen.
 
 - `vite-plugin-pwa` generates the manifest and the service worker at build time. The manifest opens on `/` in standalone mode, with the design system's colours and the app's icons (192 and 512 px, a maskable 512 px, and a 180 px Apple touch icon).
 - The icons, in `public/icons/`, are the wordmark's F, P and R in cobalt, vermilion and green on cream, with the F alone at favicon sizes, drawn from `theme.css` by `pnpm --filter @fpr/web icons`.

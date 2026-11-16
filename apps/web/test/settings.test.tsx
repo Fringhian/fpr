@@ -1,11 +1,15 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from "vitest";
+import { act } from "react";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
+import { watchInstall } from "../src/lib/install-app.ts";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { mockPassword } from "../src/mocks/magic.ts";
 import { buttonNamed, click, fill, screenText } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
 const samId = fixturePersonId("sam");
+const iPhone =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 
 /** Opens Settings from the account menu. */
 async function openSettings() {
@@ -81,5 +85,47 @@ describe("Settings", () => {
     );
     expect(sam?.color).toBe(5);
     expect(swatch(5)?.getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("offer no install in an app opened from the home screen", async () => {
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue(iPhone);
+    Object.defineProperty(navigator, "standalone", {
+      value: true,
+      configurable: true,
+    });
+    onTestFinished(() => {
+      Reflect.deleteProperty(navigator, "standalone");
+    });
+    await visit("/", "member");
+    await openSettings();
+
+    expect(screenText()).toContain("How FPR works");
+    expect(buttonNamed("Install the app")).toBeUndefined();
+  });
+
+  it("install the app: the Share menu's steps on an iPhone, the browser's prompt where it has one", async () => {
+    watchInstall();
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue(iPhone);
+    await visit("/", "member");
+    await openSettings();
+    await click(
+      () => buttonNamed("Install the app"),
+      () => expect(screenText()).toContain("Add to Home Screen"),
+    );
+
+    const prompt = vi.fn(() => Promise.resolve());
+    const offer = Object.assign(
+      new Event("beforeinstallprompt", { cancelable: true }),
+      { prompt, userChoice: Promise.resolve({ outcome: "accepted" }) },
+    );
+    act(() => window.dispatchEvent(offer));
+    expect(offer.defaultPrevented).toBe(true);
+    expect(screenText()).not.toContain("Add to Home Screen");
+
+    await click(
+      () => buttonNamed("Install the app"),
+      () => expect(buttonNamed("Install the app")).toBeUndefined(),
+    );
+    expect(prompt).toHaveBeenCalledOnce();
   });
 });
