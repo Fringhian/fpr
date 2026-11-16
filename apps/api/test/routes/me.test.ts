@@ -11,7 +11,7 @@ import {
   it,
   vi,
 } from "vitest";
-import type { Auth } from "../../src/auth.js";
+import type { Auth } from "../../src/auth/auth.js";
 import {
   addPerson,
   apiRequest,

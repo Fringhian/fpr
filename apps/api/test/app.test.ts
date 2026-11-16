@@ -14,7 +14,7 @@ import type { Express } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { createApp } from "../src/app.js";
-import { createAuth } from "../src/auth.js";
+import { createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
 import type { ApiContext } from "../src/orpc.js";
 import { createTestBucket } from "./test-support.js";

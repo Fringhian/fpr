@@ -23,17 +23,15 @@ import { type AwsClientStub, mockClient } from "aws-sdk-client-mock";
 import sharp from "sharp";
 import type { z } from "zod";
 import { createApp } from "../src/app.js";
-import { type Auth, createAuth } from "../src/auth.js";
+import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
 import {
   type AvatarStore,
   createAvatarStore,
 } from "../src/storage/avatar-store.js";
 
-/** The instance's origin in tests. */
 export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
-/** Every test person's password. */
 export const TEST_PASSWORD = "a long enough password";
 
 /** Better Auth on a test database, as `index.ts` builds it. */
@@ -140,7 +138,6 @@ export async function serveApp(options: {
 export interface TestPerson {
   id: string;
   email: string;
-  /** Their access key's id. */
   keyId: string;
 }
 

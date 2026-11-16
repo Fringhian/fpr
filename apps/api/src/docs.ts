@@ -2,7 +2,6 @@ import { createOpenApiDocument } from "@fpr/contracts/openapi";
 import { apiReference } from "@scalar/express-api-reference";
 import { Router } from "express";
 
-/** Where the docs are mounted. */
 export const docsPath = "/api/docs";
 
 /** The viewer's script, pinned like every dependency. */

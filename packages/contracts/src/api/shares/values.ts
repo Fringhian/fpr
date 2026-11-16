@@ -1,21 +1,12 @@
 import { z } from "zod";
-import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
+import { errorMap, signedInRoute } from "../../contract.js";
 import { roles, writerRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
 import { priceEurSchema } from "../../schemas/money.js";
 import { personSchema } from "../../schemas/person.js";
-import {
-  pricePointSchema,
-  valueChangedDetailsSchema,
-} from "../../schemas/share.js";
+import { pricePointSchema, valueChangedError } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
 import { shareIdParamsSchema } from "./schemas.js";
-
-/** `value_changed`, with the value point's stored price in `details`. */
-const valueChangedError = errorWithDetails(
-  "value_changed",
-  valueChangedDetailsSchema,
-);
 
 /**
  * A manual share's value point: what one unit was worth at a moment, and who
