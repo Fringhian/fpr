@@ -85,6 +85,8 @@
   },
   "toast": {
     "region": "Notifications",
+    "update": "Une nouvelle version de FPR est prête",
+    "reload": "Recharger",
     "dismiss": "Fermer",
     "undo": "Annuler"
   },
@@ -1122,6 +1124,10 @@
       "title": "Impossible de charger cette page",
       "description": "Vérifiez votre connexion et réessayez.",
       "action": "Réessayer"
+    },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "description": "FPR a besoin d’une connexion pour afficher cette page. Vérifiez la vôtre et réessayez."
     },
     "adminOnPhone": {
       "title": "L’administration s’utilise sur un plus grand écran",

@@ -13,7 +13,9 @@ import { invalidateAfter } from "./invalidation.ts";
  * The app's TanStack Query cache. Every successful write invalidates the
  * reads its row of `invalidations` names, and settles once they are fetched
  * again. A write refused with `value_changed` invalidates them too: someone
- * else's write changed what they show. A read the API refused isn't
+ * else's write changed what they show. With no network, a call fails at once
+ * instead of waiting for one, so each screen says it is offline, and a
+ * reconnection fetches again what failed. A read the API refused isn't
  * retried. A read or a write answered `401 unauthenticated` while the cache
  * holds a signed-in person means the session expired mid-visit, and runs
  * `onSessionExpired`.
@@ -42,8 +44,13 @@ export function createQueryClient({
     }),
     defaultOptions: {
       queries: {
-        retry: (failures, error) => failures < 3 && !isRefusal(error),
+        networkMode: "always",
+        // Off by default under "always".
+        refetchOnReconnect: true,
+        retry: (failures, error) =>
+          failures < 3 && !isRefusal(error) && navigator.onLine,
       },
+      mutations: { networkMode: "always" },
     },
   });
   return queryClient;

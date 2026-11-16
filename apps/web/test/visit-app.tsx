@@ -36,6 +36,7 @@ afterEach(() => {
   }
   document.body.replaceChildren();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 /**
@@ -67,6 +68,8 @@ export async function visit(
   } = {},
 ) {
   const { promise: released, resolve: release } = Promise.withResolvers();
+  let online = true;
+  const onLine = vi.spyOn(navigator, "onLine", "get");
   if (language === null) {
     localStorage.removeItem(LANGUAGE_KEY);
   } else {
@@ -91,6 +94,7 @@ export async function visit(
       url: `${origin}/api`,
       fetch: async (request) => {
         const url = new URL(request.url);
+        if (!online) throw new TypeError("Failed to fetch");
         if (hold(url)) await released;
         return failMe && url.pathname === "/api/me"
           ? new Response(null, { status: 502 })
@@ -100,7 +104,11 @@ export async function visit(
     }),
   );
   const queryClient = createQueryClient({ onSessionExpired });
-  queryClient.setDefaultOptions({ queries: { retry: false } });
+  const defaults = queryClient.getDefaultOptions();
+  queryClient.setDefaultOptions({
+    ...defaults,
+    queries: { ...defaults.queries, retry: false },
+  });
   const i18n = createI18n(languageOf(null));
   syncDocumentLanguage(i18n);
   const router = createAppRouter({
@@ -137,5 +145,12 @@ export async function visit(
     store,
     /** Lets the held calls through. */
     release: () => act(async () => release(undefined)),
+    /** Cuts the network or brings it back: offline, every call fails as `fetch` does, and the browser says so. */
+    setOnline: (value: boolean) =>
+      act(async () => {
+        online = value;
+        onLine.mockReturnValue(value);
+        window.dispatchEvent(new Event(value ? "online" : "offline"));
+      }),
   };
 }

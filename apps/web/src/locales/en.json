@@ -83,6 +83,8 @@
   },
   "toast": {
     "region": "Notifications",
+    "update": "A new version of FPR is ready",
+    "reload": "Reload",
     "dismiss": "Dismiss",
     "undo": "Undo"
   },
@@ -1106,6 +1108,10 @@
       "title": "Can’t load this page",
       "description": "Check your connection and try again.",
       "action": "Retry"
+    },
+    "offline": {
+      "title": "You’re offline",
+      "description": "FPR needs a connection to show this page. Check yours and try again."
     },
     "adminOnPhone": {
       "title": "Admin works on a larger screen",
