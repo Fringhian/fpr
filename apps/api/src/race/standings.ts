@@ -15,11 +15,11 @@ import {
 } from "../valuation/decimal.js";
 import { groupChanges, periodGain } from "../valuation/holding-gains.js";
 import {
-  balanceGain,
   type RaceWindow,
   raceMembers,
   raceWindow,
   windowPoints,
+  withGains,
 } from "../valuation/race-window.js";
 
 type ReadServices = Pick<ApiServices, "db" | "series" | "raceTimeZone">;
@@ -56,12 +56,11 @@ export async function standingsAt(
   const notStarted: User[] = [];
   for (const member of members) {
     const closes = windowPoints(window, member.id, { closesOnly: true });
-    const [start] = closes;
-    const end = closes.at(-1);
-    if (start === undefined || end === undefined) {
+    const last = withGains(closes).at(-1);
+    if (last === undefined) {
       notStarted.push(member);
     } else {
-      standings.push({ member, closes, end, gain: balanceGain(start, end) });
+      standings.push({ member, closes, end: last.point, gain: last.gain });
     }
   }
   return { window, standings, notStarted };

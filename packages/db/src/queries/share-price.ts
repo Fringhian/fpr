@@ -1,5 +1,11 @@
 import { type RawBuilder, sql } from "kysely";
 
+/** 23:59:59 of the day a moment falls on in the time zone, where that day's close is stored. */
+export function dayClose(at: RawBuilder<unknown>, timeZone: string) {
+  return sql`((${at} at time zone ${timeZone})::date + time '23:59:59')
+    at time zone ${timeZone}`;
+}
+
 /** A column of the price a share is valued at. */
 type ValueColumn = "at" | "price_eur" | "source";
 

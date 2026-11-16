@@ -68,7 +68,7 @@ async function addPrices(db: Db, share: Share, byDay: Record<string, string>) {
     .execute();
 }
 
-async function addChange(
+export async function addChange(
   db: Db,
   person: TestPerson,
   share: Share,
@@ -87,7 +87,7 @@ async function addChange(
     .execute();
 }
 
-async function addCash(
+export async function addCash(
   db: Db,
   person: TestPerson,
   amountEur: string,

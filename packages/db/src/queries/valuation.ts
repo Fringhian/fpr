@@ -125,7 +125,11 @@ export async function balanceSeries(
   clock: SeriesClock,
 ): Promise<BalanceSeries> {
   const lastClose = await lastCloseAt(db, clock);
-  const rows = await valueMoments(db, seriesMoments(lastClose, clock));
+  const rows = await valueMoments(
+    db,
+    seriesMoments(lastClose, clock),
+    clock.timeZone,
+  );
   const members = new Map<string, BalancePoint[]>();
   for (const { userId, ...point } of rows) {
     const points = members.get(userId) ?? [];
@@ -138,7 +142,7 @@ export async function balanceSeries(
 /** Each member with an entry at or before a moment, and their balance at it, by id. */
 export async function balancesAt(
   db: Db,
-  at: Date,
+  { at, timeZone }: { at: Date; timeZone: string },
 ): Promise<Map<string, Balance>> {
   const rows = await valueMoments(
     db,
@@ -148,11 +152,14 @@ export async function balancesAt(
       where effective_at <= ${at}::timestamptz
       group by user_id
     `,
+    timeZone,
   );
   return new Map(
-    rows.map(({ userId, balanceEur, sharesEur, cashEur, incomplete }) => [
-      userId,
-      { balanceEur, sharesEur, cashEur, incomplete },
-    ]),
+    rows.map(
+      ({ userId, balanceEur, sharesEur, cashEur, flowsEur, incomplete }) => [
+        userId,
+        { balanceEur, sharesEur, cashEur, flowsEur, incomplete },
+      ],
+    ),
   );
 }

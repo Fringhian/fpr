@@ -28,13 +28,17 @@ export interface GainAmount {
   base: Big;
 }
 
-export function toGain({ eur, base }: GainAmount): Gain {
-  return { eur: money(eur), percent: ratio(eur, base) };
+export function toGain(gain: GainAmount): Gain {
+  const percent = gainPercent(gain);
+  return {
+    eur: money(gain.eur),
+    percent: percent === null ? null : fixed(percent, 2),
+  };
 }
 
-/** The gain in percent, unrounded, or `null` while its base is zero. */
+/** The gain in percent, unrounded, or `null` while its base is zero or below. */
 export function gainPercent({ eur, base }: GainAmount): Big | null {
-  return base.eq(0) ? null : eur.div(base).times(100);
+  return base.gt(0) ? eur.div(base).times(100) : null;
 }
 
 export { Big };

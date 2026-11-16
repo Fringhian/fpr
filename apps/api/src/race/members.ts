@@ -37,7 +37,10 @@ export async function readMembers(
     await Promise.all([
       standingsAt(context, input.period),
       currentPositions.listAll(db),
-      valuation.balancesAt(db, new Date()),
+      valuation.balancesAt(db, {
+        at: new Date(),
+        timeZone: context.raceTimeZone,
+      }),
     ]);
   const holdings = holdingsByMember(await holdingsNow(db, positions));
   const rows = [

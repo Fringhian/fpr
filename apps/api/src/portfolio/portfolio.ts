@@ -1,16 +1,19 @@
 import type {
+  Gain,
   Period,
   Portfolio,
   PortfolioHolding,
   PricePoint,
 } from "@fpr/contracts";
 import {
+  type Balance,
   type CashBalance,
   type ChangeAtDayValue,
   cashBalances,
   currentPositions,
   type ShareValue,
   shareValues,
+  valuation,
 } from "@fpr/db";
 import type { ApiServices } from "../orpc.js";
 import { chartPoints } from "../shares/quotes.js";
@@ -19,12 +22,12 @@ import { Big, money, plain, ratio, toGain } from "../valuation/decimal.js";
 import { groupChanges, periodGain } from "../valuation/holding-gains.js";
 import { type HoldingNow, holdingsNow } from "../valuation/holdings-now.js";
 import {
-  balanceGain,
   dayIn,
   measuredFrom,
   type RaceWindow,
   raceWindow,
   windowPoints,
+  withGains,
 } from "../valuation/race-window.js";
 import { findPortfolioOwner } from "./owner.js";
 
@@ -96,6 +99,17 @@ function totals(
   return { sharesEur, cashEur, balanceEur: sharesEur.plus(cashEur) };
 }
 
+/** The balance's gain from the period's start to now, measured as the series' points are. */
+function gainNow(
+  window: RaceWindow,
+  userId: string,
+  now: (Balance & { at: Date }) | undefined,
+): Gain {
+  const points = windowPoints(window, userId, { closesOnly: false });
+  const last = withGains(now === undefined ? points : [...points, now]).at(-1);
+  return toGain(last?.gain ?? { eur: new Big(0), base: new Big(0) });
+}
+
 /**
  * `GET /users/{userId}/portfolio?period=`: the member's holdings and cash now,
  * and the balance's gain since the period's start.
@@ -107,11 +121,13 @@ export async function readPortfolio(
   const { db, raceTimeZone: timeZone } = context;
   const { userId } = input;
   await findPortfolioOwner(db, userId);
-  const [window, positions, cash, changes] = await Promise.all([
+  const at = new Date();
+  const [window, positions, cash, changes, balances] = await Promise.all([
     raceWindow(context, input.period),
     currentPositions.listByUser(db, userId),
-    cashBalances.latestAt(db, userId, new Date()),
+    cashBalances.latestAt(db, userId, at),
     shareValues.changesAtDayValue(db, { userId }, timeZone),
+    valuation.balancesAt(db, { at, timeZone }),
   ]);
   const ids = positions.map(({ shareId }) => shareId);
   const [holdings, starts, firsts, series] = await Promise.all([
@@ -125,8 +141,7 @@ export async function readPortfolio(
     }),
   ]);
   const { sharesEur, cashEur, balanceEur } = totals(holdings, cash);
-  const [baseline] = windowPoints(window, userId, { closesOnly: false });
-  const now = { balanceEur: balanceEur.toString() };
+  const now = balances.get(userId);
   const latest = holdings.flatMap(({ value }) => value?.at.getTime() ?? []);
   const holdingContext = {
     window,
@@ -146,7 +161,7 @@ export async function readPortfolio(
     cashEur: money(cashEur),
     cashWeight: ratio(cashEur, balanceEur),
     cashSetAt: cash?.effectiveAt.toISOString() ?? null,
-    gain: toGain(balanceGain(baseline ?? now, now)),
+    gain: gainNow(window, userId, now && { ...now, at }),
     firstEntryOn: window.firstEntries.get(userId)?.day ?? null,
     measuredFrom: measuredFrom(window, userId),
     incomplete: holdings.some(({ valueEur }) => valueEur === null),

@@ -24,9 +24,9 @@ export const firstEntryOnSchema = dateSchema.nullable();
 export const measuredFromSchema = dateSchema.nullable();
 
 /**
- * A gain in euros and in percent of the value at its start. The anonymizer
- * removes `eur` and keeps `percent`, which is `null` when the value at the
- * start is zero.
+ * A gain in euros and in percent of the money it was earned on: the value at
+ * its start plus what was added over its span. The anonymizer removes `eur`
+ * and keeps `percent`, which is `null` when that money is zero or below.
  */
 export const gainSchema = z.object({
   eur: euro(decimalSchema),

@@ -1,7 +1,7 @@
 import { sql } from "kysely";
 import type { Db } from "../database.js";
 import type { PriceSource } from "../tables/price.js";
-import { shareValue } from "./share-price.js";
+import { dayClose, shareValue } from "./share-price.js";
 
 /** The price a share is valued at, with that price's own moment and source. */
 export interface ShareValue {
@@ -70,11 +70,11 @@ export async function changesAtDayValue(
   { userId, shareId }: { userId?: string; shareId?: string },
   timeZone: string,
 ): Promise<ChangeAtDayValue[]> {
-  const dayClose = sql`
-    ((changes.effective_at at time zone ${timeZone})::date + time '23:59:59')
-      at time zone ${timeZone}
-  `;
-  const value = shareValue("shares", dayClose, { fallback: true });
+  const value = shareValue(
+    "shares",
+    dayClose(sql.ref("changes.effective_at"), timeZone),
+    { fallback: true },
+  );
   const { rows } = await sql<ChangeAtDayValue>`
     select
       changes.id,
