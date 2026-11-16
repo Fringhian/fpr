@@ -33,6 +33,14 @@
   --ridge-near: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='64' viewBox='0 0 600 64'><path d='M0 46 C75 46 110 30 180 30 C250 30 280 44 340 44 C400 44 440 34 500 34 C550 34 575 46 600 46 V64 H0Z'/></svg>");
 }
 
+/*
+ * The top safe area: the height of the notch or status bar an installed app
+ * draws under, 0 elsewhere. A story sets it to show a device's inset.
+ */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
 @theme {
   /* Tailwind's default scales are reset: only the tokens below generate classes. */
   --color-*: initial;

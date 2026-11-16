@@ -18,7 +18,7 @@ export const Trigger = BaseDialog.Trigger;
 
 const popup = cn(
   "fixed flex flex-col overflow-y-auto overscroll-contain bg-surface font-sans text-primary shadow-float outline-none transition-[translate,scale,opacity] duration-200 ease-out",
-  "inset-x-[0] top-auto bottom-[0] m-[0] h-auto max-h-[calc(100dvh-2.5rem)] w-auto gap-[0.75rem] rounded-t-xl rounded-b-none px-[1.125rem] pt-[0.625rem] pb-[calc(1.375rem+env(safe-area-inset-bottom))] translate-none scale-100 opacity-100",
+  "inset-x-[0] top-auto bottom-[0] m-[0] h-auto max-h-[calc(100dvh-2.5rem-var(--safe-top))] w-auto gap-[0.75rem] rounded-t-xl rounded-b-none px-[1.125rem] pt-[0.625rem] pb-[calc(1.375rem+env(safe-area-inset-bottom))] translate-none scale-100 opacity-100",
   "tablet:inset-[0] tablet:m-auto tablet:h-fit tablet:max-h-[calc(100dvh-5rem)] tablet:w-[min(30rem,calc(100vw-3rem))] tablet:gap-[0.875rem] tablet:rounded-xl tablet:p-[1.375rem] tablet:translate-none tablet:scale-100 tablet:opacity-100",
   "desktop:inset-[0] desktop:m-auto desktop:h-fit desktop:max-h-[calc(100dvh-5rem)] desktop:w-[min(30rem,calc(100vw-3rem))] desktop:gap-[0.875rem] desktop:rounded-xl desktop:p-[1.375rem] desktop:translate-none desktop:scale-100 desktop:opacity-100",
   "starting-style:translate-y-full tablet:starting-style:translate-none tablet:starting-style:scale-[0.96] tablet:starting-style:opacity-0 desktop:starting-style:translate-none desktop:starting-style:scale-[0.96] desktop:starting-style:opacity-0",

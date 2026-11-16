@@ -110,7 +110,7 @@ The page background is the `Sky` component in `src/components/foundations/sky/sk
 | `Sky.Ridge` | The ridge alone, for any sky panel that ends in it, such as the desktop step flow's |
 
 - The ridge is one 600 × 64 tile, repeated across and never stretched: 52 px high on phone, 64 px from tablet up. Its width follows its height, so the tile keeps its proportions at every width.
-- The ridge's top sits 206 px from the top of `Sky.Root` on phone, and 200 px from tablet up, on every page that has it.
+- The ridge's top sits 206 px below the top safe area on phone, and 200 px from tablet up, on every page that has it.
 - `Sky.Header` is 240 px high on phone and 236 px from tablet up. Its content flows from its top: the page bar, then the header sentence, which ends above the ridge. The first card after it starts just below the near ridge, so the whole ridge shows above it. Its height is fixed: a header sentence that doesn't fit means the page has no sky.
 - The tile is two layers of soft lobes: the far ridge in `ridge` and the near ridge in `page`. Each layer is a box filled with its colour role and masked by its shape. The two shapes are `--ridge-far` and `--ridge-near` in `theme.css`.
 - A page with a header sentence (Home, Portfolio, a member, a share) renders `Sky.Band` and `Sky.Header` inside `Sky.Root`. A page without one renders `Sky.Root` alone and starts on snow.

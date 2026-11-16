@@ -9,17 +9,18 @@ import { Icon, type IconProps } from "../../foundations/icon/icon";
  * The bar at the top of every page: the title or the back link on the left,
  * the period control on the right, and nothing else. On a page with a header
  * sentence it is the first thing in `Sky.Header`, on the sky; on a page
- * without one it starts the page, on snow. The page's gutters frame it.
+ * without one it starts the page, on snow. The page's gutters frame it, and
+ * it pads the top safe area, the notch or status bar of an installed app.
  */
 export function Root({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       {...props}
       className={cn(
-        "flex shrink-0 items-center gap-s",
-        "h-[4.375rem]",
-        "tablet:h-[5rem]",
-        "desktop:h-[5rem]",
+        "flex shrink-0 items-center gap-s pt-(--safe-top)",
+        "h-[calc(4.375rem+var(--safe-top))]",
+        "tablet:h-[calc(5rem+var(--safe-top))]",
+        "desktop:h-[calc(5rem+var(--safe-top))]",
         className,
       )}
     />

@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/House";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
@@ -151,7 +151,7 @@ Every page’s top: the page bar, then, on a page with a header sentence, the se
 
 | Part | What it is |
 | --- | --- |
-| \`PageBar.Root\` | The bar: 70px high on phone, 80px from tablet up. The page’s gutters frame it. |
+| \`PageBar.Root\` | The bar: 70px high on phone, 80px from tablet up, under the top safe area of an installed app. The page’s gutters frame it. |
 | \`PageBar.Title\` | The page’s name on the left, “Home”. A \`<p>\`; a page without a header sentence renders it as its heading, \`render={(props) => <h1 {...props} />}\`. |
 | \`PageBar.Back\` | The back link on the left, in place of the title: \`icon\`, a caret by default, then the parent page, “Members”. Screen readers hear “Back to Members”. \`render\` composes it with the router’s link. |
 | \`PageBar.Current\` | The page’s name after the back link, from tablet up: “Members / Sam”. The phone shows the back link alone. |
@@ -240,5 +240,41 @@ export const Phone: Story = {
     await expect(
       canvas.getByRole("button", { name: /This month · %/ }),
     ).toBeVisible();
+  },
+};
+
+/** A phone’s notch: 59px, the inset an installed app draws under. */
+const NOTCH = 59;
+
+/**
+ * Installed on a phone with a notch: the sky reaches under it, the bar pads
+ * below it, and the sentence, the ridge and the main card move down with it.
+ */
+export const PhoneInstalled: Story = {
+  name: "Phone, installed",
+  tags: ["!autodocs"],
+  globals: { viewport: { value: "phone" } },
+  decorators: [
+    (Story) => (
+      <div style={{ "--safe-top": `${NOTCH}px` } as CSSProperties}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const header = canvas.getByRole("banner");
+    const bar = header.firstElementChild;
+    const card = header.nextElementSibling;
+    if (!(bar instanceof HTMLElement) || !(card instanceof HTMLElement)) {
+      throw new Error("No page bar or main card");
+    }
+    const top = header.getBoundingClientRect().top;
+    const ridgeTop = top + NOTCH + 206;
+    await expect(getComputedStyle(bar).paddingTop).toBe(`${NOTCH}px`);
+    await expect(
+      canvas.getByRole("heading", { level: 1 }).getBoundingClientRect().bottom,
+    ).toBeLessThan(ridgeTop);
+    await expect(card.getBoundingClientRect().top - top).toBe(NOTCH + 240);
   },
 };
