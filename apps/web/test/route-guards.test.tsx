@@ -80,11 +80,14 @@ describe("the route guards", () => {
   });
 
   it("keep sign-in's redirect inside the app", async () => {
-    const { search } = await visit(
-      "/sign-in?redirect=//elsewhere.example",
-      "signedOut",
-    );
-    expect(search).toEqual({});
+    // `//`, `/\`, and a tab or a line feed the browser drops from `/\t/`.
+    for (const elsewhere of ["//", "/%5C", "/%09/", "/%0A/", "https://"]) {
+      const { search } = await visit(
+        `/sign-in?redirect=${elsewhere}elsewhere.example`,
+        "signedOut",
+      );
+      expect(search).toEqual({});
+    }
   });
 
   it("send a person whose onboarding isn't finished to it from every other page", async () => {

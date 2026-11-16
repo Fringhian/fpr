@@ -37,10 +37,26 @@ export type GuardTarget =
   | { to: "/" | "/onboarding" }
   | { to: "/sign-in"; search: { redirect?: string } };
 
-/** An address inside the app, never another site's: `/shares?q=x`, not `//x`. */
+/** Characters a browser drops or reads as `/` in an address: `/\t/x` and `/\x` both lead to `//x`. */
+const UNSAFE_IN_PATH = /[\\\p{Cc}]/u;
+
+/**
+ * An address inside the app, as its path, search and hash, never another
+ * site's: `/shares?q=x`, not `//x`. It resolves on this origin as the browser
+ * would, and anything with a control character or a backslash is refused.
+ */
 export function appPath(value: unknown): string | undefined {
-  return typeof value === "string" && /^\/(?![/\\])/.test(value)
-    ? value
+  if (
+    typeof value !== "string" ||
+    !value.startsWith("/") ||
+    UNSAFE_IN_PATH.test(value)
+  ) {
+    return undefined;
+  }
+  const { origin } = window.location;
+  const url = new URL(value, origin);
+  return url.origin === origin
+    ? `${url.pathname}${url.search}${url.hash}`
     : undefined;
 }
 
