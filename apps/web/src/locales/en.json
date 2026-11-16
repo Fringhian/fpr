@@ -1152,6 +1152,7 @@
     "callBudgetUsed": "Today’s price lookups are used up. Try again tomorrow.",
     "internalError": "Something went wrong on FPR’s side. Try again in a moment.",
     "providerUnavailable": "The price provider isn’t answering. Try again in a few minutes.",
-    "unreachable": "FPR can’t be reached. Check your connection and try again."
+    "unreachable": "FPR can’t be reached. Check your connection and try again.",
+    "offline": "You’re offline, so nothing was sent. Reconnect, then try again."
   }
 }

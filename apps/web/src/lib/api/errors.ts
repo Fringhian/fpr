@@ -6,6 +6,7 @@ import type {
   ValueChangedDetails,
 } from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
+import { onlineManager } from "@tanstack/react-query";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -105,12 +106,12 @@ export function changedPrice(error: unknown): Decimal | null {
 
 /**
  * The text key of any error a call throws: its code's text, the internal
- * error's for an answer with no FPR code, and "can't be reached" when no
- * answer came back.
+ * error's for an answer with no FPR code, and, when no answer came back,
+ * "you're offline" with no network or "can't be reached" otherwise.
  */
 export function errorTextKey(error: unknown): ParseKeys {
   if (!(error instanceof ORPCError)) {
-    return "errors.unreachable";
+    return onlineManager.isOnline() ? "errors.unreachable" : "errors.offline";
   }
   return isErrorCode(error.code)
     ? errorTexts[error.code]

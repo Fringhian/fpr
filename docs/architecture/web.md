@@ -162,7 +162,7 @@ FPR is a Progressive Web App: it installs to a phone's home screen or a computer
 - `vite-plugin-pwa` generates the manifest and the service worker at build time. The manifest opens on `/` in standalone mode, with the design system's colours and the app's icons (192 and 512 px, a maskable 512 px, and a 180 px Apple touch icon).
 - The icons, in `public/icons/`, are the wordmark on the sky and its ridge, drawn from `theme.css` by `pnpm --filter @fpr/web icons`.
 - The service worker precaches the app shell (HTML, scripts, styles, fonts, icons) and never caches `/api/*`. Data always comes from the API.
-- Offline, the app still opens, and each screen shows "You're offline" with Retry.
+- Offline, the app still opens, each screen shows "You're offline" with Retry and loads again once the network is back, and a change fails at once with "You're offline", never queued.
 - A new version installs in the background, then the app offers Reload. It never reloads by itself.
 - Installed, the top and bottom bars pad for the device's safe areas, and the `theme-color` meta tag matches the top bar: the sky on a page with one, snow otherwise.
 - An app installed on iOS keeps its own cookies, apart from Safari's, so its first launch shows sign-in. The sign-in page accepts a pasted access link, which signs an anonymous viewer in or opens the first-use steps of a waiting link.

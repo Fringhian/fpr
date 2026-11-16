@@ -1168,6 +1168,7 @@
     "callBudgetUsed": "Les recherches de cours du jour sont épuisées. Réessayez demain.",
     "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",
     "providerUnavailable": "Le fournisseur de cours ne répond pas. Réessayez dans quelques minutes.",
-    "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez."
+    "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez.",
+    "offline": "Vous êtes hors ligne, rien n’a été envoyé. Reconnectez-vous, puis réessayez."
   }
 }
