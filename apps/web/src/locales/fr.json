@@ -63,6 +63,17 @@
     "close": "Fermer",
     "cancel": "Annuler"
   },
+  "leaveGuard": {
+    "title": "Quitter sans enregistrer ?",
+    "description": "Ce que vous avez saisi n’est pas encore enregistré.",
+    "stay": "Rester",
+    "leave": "Quitter"
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Fermer",
+    "undo": "Annuler"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermillon",
@@ -278,5 +289,75 @@
   },
   "appLayout": {
     "skip": "Aller au contenu"
+  },
+  "pages": {
+    "home": "Accueil",
+    "members": "Membres",
+    "member": "Membre",
+    "memberRecord": "Enregistrer un mouvement pour un membre",
+    "portfolio": "Portefeuille",
+    "portfolioRecord": "Enregistrer un mouvement",
+    "portfolioHistory": "Historique",
+    "shares": "Titres",
+    "share": "Titre",
+    "help": "Comment fonctionne FPR",
+    "people": "Personnes",
+    "trackedShares": "Titres suivis",
+    "signIn": "Se connecter",
+    "setup": "Configurer FPR",
+    "access": "Lien d’accès",
+    "resetPassword": "Réinitialiser votre mot de passe",
+    "onboarding": "Bienvenue"
+  },
+  "pageStates": {
+    "notFound": {
+      "title": "Page introuvable",
+      "description": "Cette page n’existe pas ou a été déplacée.",
+      "action": "Aller à l’accueil"
+    },
+    "loadFailed": {
+      "title": "Impossible de charger cette page",
+      "description": "Vérifiez votre connexion et réessayez.",
+      "action": "Réessayer"
+    },
+    "adminOnPhone": {
+      "title": "L’administration s’utilise sur un plus grand écran",
+      "description": "Ouvrez FPR sur une tablette ou un ordinateur pour l’utiliser."
+    },
+    "accessEnded": {
+      "title": "Votre accès a pris fin",
+      "description": "Demandez à l’admin si vous pensez que c’est une erreur."
+    }
+  },
+  "errors": {
+    "invalidRequest": "Une saisie n’est pas valide. Vérifiez-la et réessayez.",
+    "unauthenticated": "Vous êtes déconnecté. Reconnectez-vous pour continuer.",
+    "accessEnded": "Votre accès a pris fin. Demandez à l’admin si vous pensez que c’est une erreur.",
+    "forbidden": "Vous ne pouvez pas faire cela. Demandez à l’admin si besoin.",
+    "notFound": "Cet élément n’existe plus. Il a peut-être été supprimé.",
+    "adminExists": "FPR a déjà un admin. Connectez-vous plutôt.",
+    "colorTaken": "Quelqu’un vient de prendre cette couleur. Choisissez-en une autre.",
+    "emailTaken": "Quelqu’un d’autre utilise déjà cet e-mail. Saisissez-en un autre.",
+    "isinTaken": "Une autre action a déjà cet ISIN. Ouvrez plutôt cette action.",
+    "shareInUse": "Quelqu’un détient ou a détenu cette action, elle ne peut donc pas être supprimée.",
+    "shareNotNeedingAttention": "Les cours de cette action arrivent de nouveau, elle reste donc une action de marché.",
+    "valueChanged": "Quelqu’un a modifié cette valeur entre-temps. Vérifiez la nouvelle valeur, puis confirmez de nouveau.",
+    "refreshRunning": "Les cours sont déjà en cours d’actualisation. Réessayez dans une minute.",
+    "avatarTooLarge": "Cette photo est trop lourde. Choisissez-en une de moins de 2 Mo.",
+    "avatarTypeUnsupported": "Ce format de photo n’est pas pris en charge. Choisissez un JPEG, un PNG ou un WebP.",
+    "invalidAccessKey": "Ce lien d’accès ne fonctionne pas. Demandez-en un nouveau à l’admin.",
+    "invalidResetKey": "Cet e-mail et cette clé ne correspondent pas, ou la clé a expiré. Demandez une nouvelle clé à l’admin.",
+    "invalidBootstrapKey": "Cette clé d’installation est incorrecte. Vérifiez la clé dans la configuration du serveur.",
+    "holdingBelowZero": "Une position passerait sous zéro. Vérifiez la quantité et la date.",
+    "futureMoment": "Cette date est dans le futur. Choisissez aujourd’hui ou un jour passé.",
+    "lastAdmin": "FPR a besoin d’au moins un admin. Nommez d’abord quelqu’un d’autre admin.",
+    "hasPortfolioEntries": "Cette personne a un portefeuille et ne peut pas devenir invitée. Supprimez d’abord ses entrées.",
+    "anonymousRoleFixed": "Un lecteur anonyme reste anonyme. Ajoutez une nouvelle personne avec le rôle voulu.",
+    "lastValuePoint": "Une action manuelle garde au moins une valeur. Ajoutez-en une autre avant de supprimer celle-ci.",
+    "rateLimited": "Trop de tentatives. Attendez une minute et réessayez.",
+    "callBudgetUsed": "Les recherches de cours du jour sont épuisées. Réessayez demain.",
+    "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",
+    "providerUnavailable": "Le fournisseur de cours ne répond pas. Réessayez dans quelques minutes.",
+    "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez."
   }
 }

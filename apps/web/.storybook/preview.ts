@@ -9,6 +9,7 @@ import {
 } from "@storybook/addon-docs/blocks";
 import type { Preview } from "@storybook/react-vite";
 import type { i18n as I18n } from "i18next";
+import { mswLoader } from "msw-storybook-addon/csf3";
 import { createElement, Fragment } from "react";
 import { I18nextProvider } from "react-i18next";
 import { createI18n } from "../src/lib/i18n";
@@ -54,6 +55,12 @@ const preview: Preview = {
     },
   },
   initialGlobals: { locale: "en", backgrounds: { value: "page" } },
+  // A story whose `parameters.msw` holds handlers, such as `mockApi()`'s,
+  // runs on MSW's worker with them. The others never start it.
+  loaders: [
+    (context) =>
+      context.parameters.msw === undefined ? {} : mswLoader()(context),
+  ],
   decorators: [
     (Story, { globals }) => {
       const language = pickLanguage([String(globals.locale)]);

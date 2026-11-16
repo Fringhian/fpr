@@ -35,7 +35,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB), kept upright, at most 512 pixels a side, without the location, camera, or other details the file carried. Removing the photo goes back to the initial.
 - Each person has one of ten colours, given when they are added: the first nobody has. A colour someone else has can't be chosen, unless all ten are taken.
 - Settings has no Save button: each setting is saved as soon as it changes, the name when the field is left.
-- FPR is in French until a person picks a language, whatever their browser's language. Pages before sign-in are in French.
+- FPR is in French until a person picks a language, whatever their browser's language. The device keeps the pick, so pages before sign-in follow it; a signed-in person's pick follows them to every device.
 - A page that doesn't exist offers Go to Home. A failed load offers Retry, and a form keeps what was typed.
 - Installed FPR opens without a connection and says it is offline, with Retry. It never shows data it doesn't have.
 - A new version of FPR offers Reload, and never reloads by itself.

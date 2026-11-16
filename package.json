@@ -15,6 +15,7 @@
     "contracts:openapi": "pnpm --filter @fpr/contracts run openapi",
     "db:migrate": "pnpm --filter @fpr/api run db:migrate",
     "storybook": "pnpm --filter @fpr/web run storybook",
+    "dev:mock": "pnpm --filter @fpr/web run dev:mock",
     "db:seed": "pnpm --filter @fpr/api run db:seed"
   },
   "engines": {

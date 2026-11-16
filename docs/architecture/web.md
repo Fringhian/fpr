@@ -102,7 +102,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - Phone: the account menu at the end of the page bar, and a floating tab bar with the four items, which the content scrolls under. Nothing floats beside it.
 - Guests and anonymous viewers have no Portfolio item.
 - Every page starts with a page bar: the title or back link, then the period and unit. Once it scrolls past the top, a compact bar with the title, period and unit takes its place there, pinned on tablet and desktop, and on a phone hidden on scroll down and back on the first scroll up. On a phone, the period and unit are one button in the page bar that opens a sheet.
-- The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL.
+- The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL. An address without them opens on the kept setting, else this month in percent.
 - Every view's state is in the URL, so a shared link opens on the same view: `period` and `unit` everywhere, `focus` (the kept member) and `standings` (`gain` or `balance`) on Home, `q` on Shares.
 
 ## Interface
@@ -110,14 +110,14 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - A "Skip to content" link comes first. Every control shows a visible focus ring, and every icon-only button has an accessible label.
 - Every chart is `Chart`, in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts, with its colours read from `theme.css` at runtime. Charts follow the hover with a crosshair and give the same values on keyboard focus.
 - The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts with a link to tradingview.com, as the library's licence asks.
-- Leaving a form with unsaved input asks first. Deleting asks to confirm, or offers Undo.
+- Leaving a form with unsaved input asks first, and so does the browser before the tab closes. Deleting asks to confirm, or offers Undo in a toast, which shows in one polite live region per layout.
 - Motion respects `prefers-reduced-motion`.
 
 ## Languages
 
 - Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`, never in a component. Translation keys are typed from `en.json`, so an unknown key fails the type check.
 - The page's `lang` attribute follows its language.
-- FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language.
+- FPR is in French until a person picks a language, on a step of a focused page or in Settings, whatever the browser's language. The device keeps the pick, before sign-in included; a signed-in person's pick is also kept on their account, and wins on every device.
 - The API sends codes and data, never sentences. The web app writes the words.
 - `test/locales.test.ts`, part of `pnpm test`, fails when a key exists in one file and not the other (plural forms count as their base key), and when a text breaks the typography rules below.
 
@@ -146,13 +146,13 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 ## Data
 
-- Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query.
-- In development and in Storybook, MSW can answer every route with mock responses built from invented fixtures, validated against the contracts.
-- A write invalidates the queries it affects. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
+- Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query. The client finds each route's method and path in `src/lib/api/contract.gen.json`, generated from the contracts without their schemas: a web test fails when it is out of date, and `pnpm test --project @fpr/web -u` rewrites it.
+- The mock API in `src/mocks/` answers every route of the contracts through MSW, from an in-memory store seeded with invented fixtures, validated against the contracts and anonymized for an anonymous viewer as the API does. `pnpm dev:mock` runs the app on it, with a role switch in that mode only, and a story runs on it with `parameters: { msw: mockApi({ session }) }`. Production builds hold none of it.
+- A write invalidates the queries it affects, from one table that names every write route. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
 - Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Each refetch reads Postgres only.
 - Every price shows its time: "as of 14:30", or "close of 5 March".
 - The race chart draws the points after the last close dashed, labelled "today, not final".
-- An "access ended" answer to any call signs the person out and shows "Your access has ended".
+- An "access ended" answer to any call signs the person out and shows "Your access has ended". An "unauthenticated" answer mid-visit, once the session has expired, leads to sign-in, then back to the page.
 
 ## Installable app
 

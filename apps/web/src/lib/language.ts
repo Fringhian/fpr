@@ -2,8 +2,8 @@ import type { Language } from "@fpr/contracts";
 import { languages } from "@fpr/contracts/values";
 
 /**
- * The language FPR starts in, until a person picks one in Settings, and the
- * one `pickLanguage` falls back to.
+ * The language FPR starts in, until a person picks one, and the one
+ * `pickLanguage` falls back to.
  */
 export const DEFAULT_LANGUAGE: Language = "fr";
 

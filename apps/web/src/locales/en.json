@@ -62,6 +62,17 @@
     "close": "Close",
     "cancel": "Cancel"
   },
+  "leaveGuard": {
+    "title": "Leave without saving?",
+    "description": "What you entered isn’t saved yet.",
+    "stay": "Stay",
+    "leave": "Leave"
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Dismiss",
+    "undo": "Undo"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
@@ -273,5 +284,75 @@
   },
   "appLayout": {
     "skip": "Skip to content"
+  },
+  "pages": {
+    "home": "Home",
+    "members": "Members",
+    "member": "Member",
+    "memberRecord": "Record a change for a member",
+    "portfolio": "Portfolio",
+    "portfolioRecord": "Record a change",
+    "portfolioHistory": "History",
+    "shares": "Shares",
+    "share": "Share",
+    "help": "How FPR works",
+    "people": "People",
+    "trackedShares": "Tracked shares",
+    "signIn": "Sign in",
+    "setup": "Set up FPR",
+    "access": "Access link",
+    "resetPassword": "Reset your password",
+    "onboarding": "Welcome"
+  },
+  "pageStates": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "This page doesn’t exist or was moved.",
+      "action": "Go to Home"
+    },
+    "loadFailed": {
+      "title": "Can’t load this page",
+      "description": "Check your connection and try again.",
+      "action": "Retry"
+    },
+    "adminOnPhone": {
+      "title": "Admin works on a larger screen",
+      "description": "Open FPR on a tablet or a computer to use it."
+    },
+    "accessEnded": {
+      "title": "Your access has ended",
+      "description": "Ask the admin if you think this is a mistake."
+    }
+  },
+  "errors": {
+    "invalidRequest": "Something you entered isn’t right. Check it and try again.",
+    "unauthenticated": "You’re signed out. Sign in to carry on.",
+    "accessEnded": "Your access has ended. Ask the admin if you think this is a mistake.",
+    "forbidden": "You can’t do this. Ask the admin if you need to.",
+    "notFound": "This no longer exists. It may have been deleted.",
+    "adminExists": "FPR already has an admin. Sign in instead.",
+    "colorTaken": "Someone has just taken this colour. Pick another one.",
+    "emailTaken": "Someone else already uses this email. Enter another one.",
+    "isinTaken": "Another share already has this ISIN. Open that share instead.",
+    "shareInUse": "Someone holds or held this share, so it can’t be deleted.",
+    "shareNotNeedingAttention": "This share’s prices are coming in again, so it stays a market share.",
+    "valueChanged": "Someone changed this value in the meantime. Check the new value, then confirm again.",
+    "refreshRunning": "Prices are already refreshing. Try again in a minute.",
+    "avatarTooLarge": "This picture is too large. Pick one under 2 MB.",
+    "avatarTypeUnsupported": "This picture’s format isn’t supported. Pick a JPEG, PNG or WebP.",
+    "invalidAccessKey": "This access link doesn’t work. Ask the admin for a new one.",
+    "invalidResetKey": "This email and reset key don’t match, or the key has expired. Ask the admin for a new key.",
+    "invalidBootstrapKey": "This setup key is wrong. Check the key in the server’s configuration.",
+    "holdingBelowZero": "This would take a holding below zero. Check the quantity and the date.",
+    "futureMoment": "This date is in the future. Pick today or an earlier day.",
+    "lastAdmin": "FPR needs at least one admin. Make someone else admin first.",
+    "hasPortfolioEntries": "This person has a portfolio, so they can’t become a guest. Delete their entries first.",
+    "anonymousRoleFixed": "An anonymous viewer stays anonymous. Add a new person with the role you need.",
+    "lastValuePoint": "A manual share keeps at least one value. Add another value before deleting this one.",
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "callBudgetUsed": "Today’s price lookups are used up. Try again tomorrow.",
+    "internalError": "Something went wrong on FPR’s side. Try again in a moment.",
+    "providerUnavailable": "The price provider isn’t answering. Try again in a few minutes.",
+    "unreachable": "FPR can’t be reached. Check your connection and try again."
   }
 }

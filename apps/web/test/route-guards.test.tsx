@@ -1,0 +1,167 @@
+// @vitest-environment happy-dom
+import { act } from "react";
+import { describe, expect, it } from "vitest";
+import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
+import type { Persona } from "../src/mocks/personas.ts";
+import { setSession } from "../src/mocks/store/session.ts";
+import { visit } from "./visit-app.tsx";
+
+const userId = fixturePersonId("sam");
+
+/** Every route, by the address a visit asks for. */
+const routes = {
+  home: "/",
+  members: "/members",
+  member: `/members/${userId}`,
+  memberRecord: `/members/${userId}/record`,
+  portfolio: "/portfolio",
+  portfolioRecord: "/portfolio/record",
+  portfolioHistory: "/portfolio/history",
+  shares: "/shares",
+  share: "/shares/0b8a4c62-5d1e-4f0a-9c3e-2a7f6b1d9e40",
+  help: "/help",
+  people: "/admin/people",
+  trackedShares: "/admin/shares",
+  // Addresses no page answers, inside a guarded area.
+  adminNowhere: "/admin/nowhere",
+  portfolioNowhere: "/portfolio/nowhere",
+  signIn: "/sign-in",
+  setup: "/setup",
+  access: "/access/some-key",
+  resetPassword: "/reset-password",
+  onboarding: "/onboarding",
+} as const;
+
+type Page = keyof typeof routes;
+
+const pages = Object.keys(routes) as Page[];
+const everyday = ["home", "members", "member", "shares", "share", "help"];
+const portfolio = [
+  "portfolio",
+  "portfolioRecord",
+  "portfolioHistory",
+  "portfolioNowhere",
+];
+const adminArea = ["people", "trackedShares", "adminNowhere"];
+
+/** The pages each onboarded persona enters; every other page leads Home. */
+const enters = {
+  admin: [...everyday, ...portfolio, ...adminArea, "memberRecord"],
+  member: [...everyday, ...portfolio],
+  guest: everyday,
+  anonymous: [...everyday, ...adminArea],
+} satisfies Partial<Record<Persona, readonly string[]>>;
+
+describe("the route guards", () => {
+  describe.each(Object.keys(enters) as (keyof typeof enters)[])(
+    "for the %s",
+    (persona) => {
+      it.each(pages)("lead from %s where the role may go", async (page) => {
+        const allowed: readonly string[] = enters[persona];
+        const { location } = await visit(routes[page], persona);
+        expect(location.pathname).toBe(
+          allowed.includes(page) ? routes[page] : "/",
+        );
+      });
+    },
+  );
+
+  it("send a signed-out visitor to sign-in, which leads back to the page asked for", async () => {
+    const { location, search } = await visit("/shares?q=world", "signedOut");
+    expect(location.pathname).toBe("/sign-in");
+    expect(search).toEqual({ redirect: "/shares?q=world" });
+    expect((await visit("/", "signedOut")).location.href).toBe("/sign-in");
+    expect((await visit("/onboarding", "signedOut")).location.pathname).toBe(
+      "/sign-in",
+    );
+  });
+
+  it("let a signed-out visitor reach every page that starts a session", async () => {
+    for (const page of [
+      "signIn",
+      "setup",
+      "access",
+      "resetPassword",
+    ] as const) {
+      expect((await visit(routes[page], "signedOut")).location.href).toBe(
+        routes[page],
+      );
+    }
+  });
+
+  it("keep sign-in's redirect inside the app", async () => {
+    // `//`, `/\`, and a tab or a line feed the browser drops from `/\t/`.
+    for (const elsewhere of ["//", "/%5C", "/%09/", "/%0A/", "https://"]) {
+      const { search } = await visit(
+        `/sign-in?redirect=${elsewhere}elsewhere.example`,
+        "signedOut",
+      );
+      expect(search).toEqual({});
+    }
+  });
+
+  it("send a person whose onboarding isn't finished to it from every other page", async () => {
+    for (const page of pages) {
+      expect((await visit(routes[page], "newcomer")).location.href).toBe(
+        "/onboarding",
+      );
+    }
+  });
+
+  it("sign out a person whose access has ended, and tell them on sign-in", async () => {
+    const ended = await visit("/portfolio", fixturePersonId("sacha"));
+    expect(ended.onAccessEnded).toHaveBeenCalled();
+    expect(ended.location.pathname).toBe("/sign-in");
+
+    const { text } = await visit("/sign-in?access=ended", "signedOut");
+    expect(text).toContain("Your access has ended");
+    expect(text).toContain("Ask the admin if you think this is a mistake.");
+  });
+
+  it("send a person whose session expires mid-visit to sign-in, keeping the shell until then", async () => {
+    const { router, page, queryClient, store, onSessionExpired } = await visit(
+      "/shares?q=world",
+      "member",
+    );
+    setSession(store, null);
+    await act(() => queryClient.invalidateQueries());
+    expect(onSessionExpired).toHaveBeenCalled();
+    expect(page.querySelector("nav")).not.toBeNull();
+    expect(page.textContent).not.toContain("Can’t load this page");
+
+    await act(() => router.navigate({ to: "/members" }));
+    expect(router.state.location.pathname).toBe("/sign-in");
+    expect(router.state.location.search).toEqual({
+      redirect: "/members?period=1M&unit=percent",
+    });
+  });
+
+  it("leave a signed-out visitor's session alone", async () => {
+    const { onSessionExpired } = await visit("/shares", "signedOut");
+    expect(onSessionExpired).not.toHaveBeenCalled();
+  });
+
+  it("open the admin area on People", async () => {
+    expect((await visit("/admin", "admin")).location.pathname).toBe(
+      "/admin/people",
+    );
+  });
+
+  it("show Page not found at an address no route answers, inside the app shell", async () => {
+    for (const path of ["/nowhere", "/admin/nowhere", `/members/${userId}/x`]) {
+      const { location, text, page } = await visit(path, "admin");
+      expect(location.pathname).toBe(path);
+      // The admin's own language is French.
+      expect(text).toContain("Page introuvable");
+      expect(page.querySelector("nav")).not.toBeNull();
+    }
+    const signedOut = await visit("/nowhere", "signedOut");
+    expect(signedOut.location.pathname).toBe("/sign-in");
+  });
+
+  it("show Retry when the session can't load", async () => {
+    const { text } = await visit("/", "member", { failMe: true });
+    expect(text).toContain("Can’t load this page");
+    expect(text).toContain("Retry");
+  });
+});

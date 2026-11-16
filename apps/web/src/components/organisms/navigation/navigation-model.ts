@@ -24,6 +24,23 @@ export const HREFS = {
   help: "/help",
 } as const satisfies Record<LinkTarget, string>;
 
+/**
+ * The item a page's path falls under: Home at `/` alone, every other item at
+ * its path and the pages below it, such as a member's page under Members.
+ * None for a page without an item, such as How FPR works.
+ */
+export function destinationAt(pathname: string): Destination | undefined {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (path === "/") return "home";
+  const items = Object.keys(HREFS) as LinkTarget[];
+  const found = items.find(
+    (item) =>
+      item !== "home" &&
+      (path === HREFS[item] || path.startsWith(`${HREFS[item]}/`)),
+  );
+  return found === "help" ? undefined : found;
+}
+
 /** What `renderLink` receives for each link. */
 export interface NavigationLink {
   target: LinkTarget;
