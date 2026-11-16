@@ -11,13 +11,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
+import { Badge } from "../../atoms/badge/badge";
+import { Card } from "../../atoms/card/card";
 import * as Menu from "../menu/menu";
-import {
-  type TimelineEntry,
-  TimelineList,
-  TimelineRow,
-  type TimelineRowKind,
-} from "./timeline-row";
+import * as TimelineRow from "./timeline-row";
 
 /** The icons the Controls panel offers, by name. `default` keeps the kind's own. */
 const ICONS = {
@@ -43,12 +40,16 @@ const TEXTS = {
     delete: "Delete",
     history: "History",
     values: "Values",
+    edited: "Value changed to €40.10",
+    was: "was €41.00",
   },
   fr: {
     edit: "Modifier",
     delete: "Supprimer",
     history: "Historique",
     values: "Valeurs",
+    edited: "Valeur corrigée à 40,10 €",
+    was: "au lieu de 41,00 €",
   },
 } as const satisfies Record<Language, Record<string, string>>;
 
@@ -57,7 +58,7 @@ const TEXTS = {
  * stories of the kinds that have it. `before` is empty for a first cash entry.
  */
 interface TimelineRowArgs {
-  kind: TimelineRowKind;
+  kind: TimelineRow.TimelineRowKind;
   date: string;
   share: string;
   quantity: string;
@@ -73,7 +74,7 @@ interface TimelineRowArgs {
 }
 
 /** The kind's own fields, from the args. */
-function entryOf(args: TimelineRowArgs): TimelineEntry {
+function entryOf(args: TimelineRowArgs): TimelineRow.TimelineEntry {
   switch (args.kind) {
     case "bought":
     case "sold":
@@ -113,17 +114,13 @@ function Actions() {
 const actions = <Actions />;
 
 /** The white card a page puts the list in. */
-function Card({ children }: { children: ReactNode }) {
-  return (
-    <div className="max-w-[35rem] rounded-l bg-surface px-m py-xs font-sans shadow-outline">
-      {children}
-    </div>
-  );
+function ListCard({ children }: { children: ReactNode }) {
+  return <Card className="max-w-[35rem] px-m py-xs font-sans">{children}</Card>;
 }
 
 function Row(args: TimelineRowArgs) {
   return (
-    <TimelineRow
+    <TimelineRow.Basic
       {...entryOf(args)}
       date={args.date}
       year={args.year}
@@ -136,7 +133,7 @@ function Row(args: TimelineRowArgs) {
 }
 
 /** A row of a sample list: its entry, its day, who made it, and a key. */
-type HistoryEntry = TimelineEntry & {
+type HistoryEntry = TimelineRow.TimelineEntry & {
   id: string;
   date: string;
   madeBy?: string;
@@ -238,28 +235,63 @@ function List({
   const text = TEXTS[useLanguage()];
 
   return (
-    <Card>
-      <TimelineList aria-label={text[label]}>
+    <ListCard>
+      <TimelineRow.List aria-label={text[label]}>
         {entries.map(({ id, ...entry }) => (
-          <TimelineRow
+          <TimelineRow.Basic
             key={id}
             {...entry}
             actions={withActions ? actions : undefined}
             actionsIcon={ACTIONS_ICONS[actionsIcon]}
           />
         ))}
-      </TimelineList>
-    </Card>
+      </TimelineRow.List>
+    </ListCard>
+  );
+}
+
+/** A row built from the parts, its detail closed by a badge: what a screen with its own need composes. */
+function ComposedRow() {
+  const text = TEXTS[useLanguage()];
+
+  return (
+    <ListCard>
+      <TimelineRow.List>
+        <TimelineRow.Root>
+          <TimelineRow.Day date="2026-03-03" />
+          <TimelineRow.Marker icon={PencilSimpleIcon} />
+          <TimelineRow.Text>
+            <TimelineRow.Title>{text.edited}</TimelineRow.Title>
+            <TimelineRow.Detail className="flex items-center gap-s">
+              {text.was}
+              <Badge state="saved" />
+            </TimelineRow.Detail>
+          </TimelineRow.Text>
+          <TimelineRow.Actions subject={text.edited}>
+            {actions}
+          </TimelineRow.Actions>
+        </TimelineRow.Root>
+      </TimelineRow.List>
+    </ListCard>
   );
 }
 
 const DESCRIPTION = `
 One recorded change or value, in a list: the History page's share changes and cash balances, and a manual share's values. Each row has the date, the kind's icon in a soft circle, what happened, the before → after under it, and the ⋯ menu.
 
+Import it as a namespace: \`import * as TimelineRow from "…/timeline-row"\`.
+
 | Part | What it is |
 | --- | --- |
-| \`TimelineList\` | The \`<ol>\` the rows go in, newest first, each row ruled off from the next. |
-| \`TimelineRow\` | One \`<li>\`. \`kind\` picks what it records, and the fields that kind needs. |
+| \`List\` | The \`<ol>\` the rows go in, newest first, each row ruled off from the next. |
+| \`Basic\` | One ready-made row, an \`<li>\`. \`kind\` picks what it records, and the fields that kind needs. |
+| \`Root\` | The row's \`<li>\`, in four columns: \`Day\`, \`Marker\`, \`Text\`, then \`Actions\`. |
+| \`Day\` | The \`<time>\` of \`date\`, written \`3 Mar\`, with \`year\` and \`timeZone\`. |
+| \`Marker\` | The \`icon\` in a soft circle. |
+| \`Text\` | The column holding \`Title\`, what happened, and \`Detail\`, the line under it. |
+| \`Actions\` | The ⋯ menu: \`subject\` names its button, its \`Menu.Item\`s are its children. |
+
+A screen with a need \`Basic\` doesn't cover composes the parts with its own child, as **Composed** does.
 
 | \`kind\` | Fields | Reads |
 | --- | --- | --- |
@@ -366,11 +398,11 @@ const meta = {
     },
   },
   render: (args) => (
-    <Card>
-      <TimelineList>
+    <ListCard>
+      <TimelineRow.List>
         <Row {...args} />
-      </TimelineList>
-    </Card>
+      </TimelineRow.List>
+    </ListCard>
   ),
 } satisfies Meta<TimelineRowArgs>;
 
@@ -480,6 +512,12 @@ export const Values: Story = {
       actionsIcon={args.actionsIcon}
     />
   ),
+};
+
+/** The parts composed by hand: a row whose detail ends with a badge, which `Basic` has no prop for. */
+export const Composed: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <ComposedRow />,
 };
 
 /** ⋯ opens the actions passed in, and is named after its row. */
