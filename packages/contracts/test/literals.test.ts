@@ -26,7 +26,7 @@ const lists: [values: readonly string[], definedIn: string][] = [
   [shareKinds, "values.ts"],
   [priceSources, "values.ts"],
   [shareValueActions, "api/shares/values.ts"],
-  [accessKeyStates, "api/access/access-keys.ts"],
+  [accessKeyStates, "values.ts"],
   [accessSignInMethods, "api/access/access-keys.ts"],
   [adminAccessStatuses, "api/admin/people.ts"],
   [languages, "values.ts"],

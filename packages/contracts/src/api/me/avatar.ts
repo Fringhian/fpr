@@ -3,17 +3,10 @@ import { personal } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { profileRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
+import { avatarMaxBytes, avatarMediaTypes } from "../../values.js";
 import { meSchema } from "./profile.js";
 
-/** The largest picture `PUT /me/avatar` stores: 2 MB. */
-export const avatarMaxBytes = 2 * 1024 * 1024;
-
-/** The picture formats `PUT /me/avatar` stores. */
-export const avatarMediaTypes = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-] as const;
+export { avatarMaxBytes, avatarMediaTypes };
 
 export type AvatarMediaType = (typeof avatarMediaTypes)[number];
 

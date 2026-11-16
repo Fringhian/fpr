@@ -3,26 +3,9 @@ import { personal } from "../../anonymize.js";
 import { errorMap, errorWithDetails, publicRoute } from "../../contract.js";
 import { accessKeySchema, passwordSchema } from "../../schemas/access.js";
 import { displayNameSchema, emailSchema } from "../../schemas/person.js";
+import { accessKeyStates } from "../../values.js";
 
-/**
- * What an access key is now:
- * - `waiting`: never used, before its first-use deadline;
- * - `claimed`: used, and giving access;
- * - `expired`: never used, past its first-use deadline;
- * - `replaced`: revoked by a newer link for the same person;
- * - `revoked`: revoked by the admin;
- * - `ended`: past the person's access end date;
- * - `unknown`: no such key.
- */
-export const accessKeyStates = [
-  "waiting",
-  "claimed",
-  "expired",
-  "replaced",
-  "revoked",
-  "ended",
-  "unknown",
-] as const;
+export { accessKeyStates };
 
 export const accessKeyStateSchema = z.enum(accessKeyStates);
 

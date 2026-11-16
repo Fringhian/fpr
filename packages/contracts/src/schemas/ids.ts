@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { idPattern } from "../values.js";
 
 /** A row's id: a Postgres `uuid`. */
-export const idSchema = z.uuid();
+export const idSchema = z.stringFormat("uuid", idPattern);
 
 export type Id = z.infer<typeof idSchema>;
 
