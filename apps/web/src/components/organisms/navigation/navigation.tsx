@@ -7,7 +7,6 @@ export {
   HREFS,
   type LinkTarget,
   type NavigationLink,
-  type Role,
 } from "./navigation-model";
 export { Root, type RootProps } from "./navigation-root";
 export { Side, type SideProps } from "./navigation-side";

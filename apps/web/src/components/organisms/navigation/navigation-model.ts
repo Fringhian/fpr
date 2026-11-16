@@ -1,7 +1,5 @@
+import type { Role } from "@fpr/contracts";
 import type { PictureProps } from "../../atoms/picture/picture";
-
-/** Who is signed in: it decides which items the navigation shows. */
-export type Role = "admin" | "member" | "guest" | "anonymous";
 
 /** A page the navigation has an item for. */
 export type Destination =

@@ -1,3 +1,4 @@
+import type { Role } from "@fpr/contracts";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ArrowsClockwise";
 import { ChartLineIcon } from "@phosphor-icons/react/ChartLine";
 import { CompassIcon } from "@phosphor-icons/react/Compass";
@@ -54,7 +55,7 @@ const ACCOUNTS = {
   member: { name: "Sam", color: "vermilion" },
   guest: { name: "Lea", color: "green" },
   anonymous: { name: "Quiet Otter", color: "lime" },
-} as const satisfies Record<Navigation.Role, Navigation.Account>;
+} as const satisfies Record<Role, Navigation.Account>;
 
 /** The demo page's texts, in the toolbar’s language. They are the stories’ content, not the navigation’s. */
 const TEXTS = {

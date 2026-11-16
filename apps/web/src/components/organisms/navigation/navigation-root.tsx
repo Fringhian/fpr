@@ -1,3 +1,4 @@
+import type { Role } from "@fpr/contracts";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ArrowsClockwise";
 import { ChartLineIcon } from "@phosphor-icons/react/ChartLine";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
@@ -18,7 +19,6 @@ import {
   HREFS,
   type LinkTarget,
   type NavigationLink,
-  type Role,
 } from "./navigation-model";
 
 /** Each item's icon, any Phosphor icon. The current item draws its fill weight. */
