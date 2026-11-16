@@ -1,5 +1,4 @@
 import type { AdminShare, AdminShareGroups } from "@fpr/contracts";
-import { refreshCap, refreshMs } from "../../magic.ts";
 import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import {
@@ -8,32 +7,22 @@ import {
   timestamp,
   tradingDayOnOrBefore,
 } from "../../store/calendar.ts";
-import { hasPortfolio, toPerson } from "../../store/people.ts";
+import { toPerson } from "../../store/people.ts";
 import {
+  holdersNow,
   latestPrice,
   requireShare,
   toShareSummary,
 } from "../../store/shares.ts";
 import type { MockStore, StoredShare } from "../../store/types.ts";
-import { valuationAt } from "../../store/valuation.ts";
-
-function holdersOf(store: MockStore, share: StoredShare) {
-  return store.people.filter(
-    (person) =>
-      hasPortfolio(person) &&
-      valuationAt(store, person.id, store.calendar.nowMs).holdings.some(
-        (holding) => holding.share.id === share.id,
-      ),
-  );
-}
 
 function toAdminShare(store: MockStore, share: StoredShare): AdminShare {
   return {
     ...toShareSummary(share),
     exchange: share.exchange,
-    addedAt: timestamp(share.prices[0]?.atMs ?? store.calendar.nowMs),
+    addedAt: timestamp(share.addedAtMs),
     latestPrice: latestPrice(share, store.calendar.nowMs),
-    holders: holdersOf(store, share).map(toPerson),
+    holders: holdersNow(store, share).map(toPerson),
     hasShareChanges: store.entries.some(
       (entry) => entry.type === "change" && entry.shareId === share.id,
     ),
@@ -41,9 +30,8 @@ function toAdminShare(store: MockStore, share: StoredShare): AdminShare {
 }
 
 /** A held market share with no price, or no close in the last 5 trading days. */
-function needsAttention(store: MockStore, share: StoredShare): boolean {
-  const { lastCloseOn } = store.calendar;
-  let since = lastCloseOn;
+export function needsAttention(store: MockStore, share: StoredShare): boolean {
+  let since = store.calendar.closesThrough;
   for (let day = 0; day < 4; day += 1) {
     since = tradingDayOnOrBefore(addDays(since, -1));
   }
@@ -73,10 +61,7 @@ function groups(store: MockStore): AdminShareGroups {
   return result;
 }
 
-/**
- * The tracked shares: their groups, making one manual, and a refresh now,
- * refused while one runs or past `refreshCap`.
- */
+/** The tracked shares: their groups, and making one manual. */
 export const adminShareRoutes = {
   shares: mock.admin.shares.handler(({ context }) => groups(context.store)),
 
@@ -86,7 +71,7 @@ export const adminShareRoutes = {
     const share = requireShare(store, input.id, () => mockError("not_found"));
     if (
       share.kind !== "market" ||
-      holdersOf(store, share).length === 0 ||
+      holdersNow(store, share).length === 0 ||
       !needsAttention(store, share)
     ) {
       throw mockError("share_not_needing_attention");
@@ -121,37 +106,4 @@ export const adminShareRoutes = {
     });
     return toAdminShare(store, share);
   }),
-
-  refreshPrices: mock.admin.refreshPrices.handler(async ({ context }) => {
-    const { store } = context;
-    const { refreshes } = store;
-    if (refreshes.running) {
-      throw mockError("refresh_running");
-    }
-    if (refreshes.count >= refreshCap) {
-      throw mockError("call_budget_used");
-    }
-    refreshes.running = true;
-    await new Promise((resolve) => setTimeout(resolve, refreshMs));
-    refreshes.running = false;
-    refreshes.count += 1;
-    const priced = store.shares.filter(
-      (share) =>
-        share.kind === "market" &&
-        share.prices.length > 0 &&
-        holdersOf(store, share).length > 0,
-    );
-    return {
-      sharesPriced: priced.length,
-      finishedAt: timestamp(store.calendar.nowMs),
-    };
-  }),
-
-  refreshState: mock.admin.refreshState.handler(({ context }) => ({
-    lastRunAt: timestamp(context.store.calendar.nowMs),
-    lastResult: null,
-    nextRunAt: null,
-    runsToday: 0,
-    cap: { callLimit: 1000, callsToday: 0, callsLeft: 1000 },
-  })),
 };

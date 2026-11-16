@@ -8,6 +8,7 @@ import {
   hasAccess,
   isAdmin,
   newPerson,
+  peopleInOrder,
   personOf,
   toPerson,
 } from "../../store/people.ts";
@@ -29,6 +30,7 @@ export function toAdminPerson(
     hasPortfolioEntries: store.entries.some(
       (entry) => entry.userId === person.id,
     ),
+    hasPassword: person.password !== null,
   };
 }
 
@@ -78,9 +80,7 @@ function untilMs(
 export const peopleRoutes = {
   people: mock.admin.people.handler(({ context }) => {
     const { store } = context;
-    return store.people
-      .toSorted((a, b) => a.addedAtMs - b.addedAtMs)
-      .map((person) => toAdminPerson(store, person));
+    return peopleInOrder(store).map((person) => toAdminPerson(store, person));
   }),
 
   addPerson: mock.admin.addPerson.handler(({ context, input }) => {
@@ -157,7 +157,11 @@ export const peopleRoutes = {
     refuseLastAdmin(store, person);
     endSessionsOf(store, person.id);
     store.people = store.people.filter((candidate) => candidate !== person);
-    store.entries = store.entries.filter((entry) => entry.userId !== person.id);
+    store.entries = store.entries
+      .filter((entry) => entry.userId !== person.id)
+      .map((entry) =>
+        entry.madeBy === person.id ? { ...entry, madeBy: null } : entry,
+      );
     for (const share of store.shares) {
       share.prices = share.prices.map((price) =>
         price.enteredBy === person.id ? { ...price, enteredBy: null } : price,

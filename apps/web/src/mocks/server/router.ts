@@ -3,6 +3,7 @@ import { ORPCError, onError } from "@orpc/server";
 import { accessRoutes } from "../domains/access.ts";
 import { accessControlRoutes } from "../domains/admin/access.ts";
 import { peopleRoutes } from "../domains/admin/people.ts";
+import { refreshRoutes } from "../domains/admin/refresh.ts";
 import { adminShareRoutes } from "../domains/admin/shares.ts";
 import { meRoutes } from "../domains/me.ts";
 import { cashWrites } from "../domains/portfolio/cash.ts";
@@ -23,7 +24,12 @@ const mockRouter = mock.router({
   portfolio: { ...portfolioReads, ...changeWrites, ...cashWrites },
   shares: { ...shareReads, ...manualShareWrites, ...valueWrites },
   race: raceRoutes,
-  admin: { ...peopleRoutes, ...accessControlRoutes, ...adminShareRoutes },
+  admin: {
+    ...peopleRoutes,
+    ...accessControlRoutes,
+    ...adminShareRoutes,
+    ...refreshRoutes,
+  },
 });
 
 /**

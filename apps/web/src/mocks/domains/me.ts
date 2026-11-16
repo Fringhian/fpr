@@ -4,17 +4,18 @@ import {
   colorCount,
   type Me,
 } from "@fpr/contracts";
+import { RACE_TIME_ZONE } from "../../lib/race-day.ts";
 import { mockError } from "../server/errors.ts";
 import { mock, viewerOf } from "../server/implementer.ts";
-import { personOf, toPerson } from "../store/people.ts";
+import { peopleInOrder, personOf, toPerson } from "../store/people.ts";
 import type { MockPerson } from "../store/types.ts";
 
 function toMe(person: MockPerson): Me {
   return {
     ...toPerson(person),
     role: person.role,
-    email: person.email,
-    raceTimeZone: "Europe/Paris",
+    email: person.role === "anonymous" ? null : person.email,
+    raceTimeZone: RACE_TIME_ZONE,
     language: person.language,
     onboarded: person.onboarded,
   };
@@ -64,7 +65,7 @@ export const meRoutes = {
   }),
 
   people: mock.me.people.handler(({ context }) =>
-    context.store.people.map((person) => ({
+    peopleInOrder(context.store).map((person) => ({
       ...toPerson(person),
       role: person.role,
     })),
