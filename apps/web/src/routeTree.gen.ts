@@ -21,10 +21,12 @@ import { Route as FocusedResetPasswordRouteImport } from './routes/_focused/rese
 import { Route as FocusedSetupRouteImport } from './routes/_focused/setup'
 import { Route as FocusedSignInRouteImport } from './routes/_focused/sign-in'
 import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
+import { Route as AppAdminSplatRouteImport } from './routes/_app/admin/$'
 import { Route as AppAdminPeopleRouteImport } from './routes/_app/admin/people'
 import { Route as AppAdminSharesRouteImport } from './routes/_app/admin/shares'
 import { Route as AppMembersIndexRouteImport } from './routes/_app/members/index'
 import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
+import { Route as AppPortfolioSplatRouteImport } from './routes/_app/portfolio/$'
 import { Route as AppPortfolioHistoryRouteImport } from './routes/_app/portfolio/history'
 import { Route as AppSharesIndexRouteImport } from './routes/_app/shares/index'
 import { Route as AppSharesShareIdRouteImport } from './routes/_app/shares/$shareId'
@@ -91,6 +93,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminRouteRoute,
 } as any)
+const AppAdminSplatRoute = AppAdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AppAdminRouteRoute,
+} as any)
 const AppAdminPeopleRoute = AppAdminPeopleRouteImport.update({
   id: '/people',
   path: '/people',
@@ -109,6 +116,11 @@ const AppMembersIndexRoute = AppMembersIndexRouteImport.update({
 const AppPortfolioIndexRoute = AppPortfolioIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppPortfolioRouteRoute,
+} as any)
+const AppPortfolioSplatRoute = AppPortfolioSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => AppPortfolioRouteRoute,
 } as any)
 const AppPortfolioHistoryRoute = AppPortfolioHistoryRouteImport.update({
@@ -158,8 +170,10 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof FocusedResetPasswordRoute
   '/setup': typeof FocusedSetupRoute
   '/sign-in': typeof FocusedSignInRoute
+  '/admin/$': typeof AppAdminSplatRoute
   '/admin/people': typeof AppAdminPeopleRoute
   '/admin/shares': typeof AppAdminSharesRoute
+  '/portfolio/$': typeof AppPortfolioSplatRoute
   '/portfolio/history': typeof AppPortfolioHistoryRoute
   '/shares/$shareId': typeof AppSharesShareIdRoute
   '/access/$key': typeof FocusedAccessKeyRoute
@@ -179,8 +193,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof FocusedResetPasswordRoute
   '/setup': typeof FocusedSetupRoute
   '/sign-in': typeof FocusedSignInRoute
+  '/admin/$': typeof AppAdminSplatRoute
   '/admin/people': typeof AppAdminPeopleRoute
   '/admin/shares': typeof AppAdminSharesRoute
+  '/portfolio/$': typeof AppPortfolioSplatRoute
   '/portfolio/history': typeof AppPortfolioHistoryRoute
   '/shares/$shareId': typeof AppSharesShareIdRoute
   '/access/$key': typeof FocusedAccessKeyRoute
@@ -205,8 +221,10 @@ export interface FileRoutesById {
   '/_focused/setup': typeof FocusedSetupRoute
   '/_focused/sign-in': typeof FocusedSignInRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/$': typeof AppAdminSplatRoute
   '/_app/admin/people': typeof AppAdminPeopleRoute
   '/_app/admin/shares': typeof AppAdminSharesRoute
+  '/_app/portfolio/$': typeof AppPortfolioSplatRoute
   '/_app/portfolio/history': typeof AppPortfolioHistoryRoute
   '/_app/shares/$shareId': typeof AppSharesShareIdRoute
   '/_focused/access/$key': typeof FocusedAccessKeyRoute
@@ -230,8 +248,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/setup'
     | '/sign-in'
+    | '/admin/$'
     | '/admin/people'
     | '/admin/shares'
+    | '/portfolio/$'
     | '/portfolio/history'
     | '/shares/$shareId'
     | '/access/$key'
@@ -251,8 +271,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/setup'
     | '/sign-in'
+    | '/admin/$'
     | '/admin/people'
     | '/admin/shares'
+    | '/portfolio/$'
     | '/portfolio/history'
     | '/shares/$shareId'
     | '/access/$key'
@@ -276,8 +298,10 @@ export interface FileRouteTypes {
     | '/_focused/setup'
     | '/_focused/sign-in'
     | '/_app/'
+    | '/_app/admin/$'
     | '/_app/admin/people'
     | '/_app/admin/shares'
+    | '/_app/portfolio/$'
     | '/_app/portfolio/history'
     | '/_app/shares/$shareId'
     | '/_focused/access/$key'
@@ -381,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRouteRoute
     }
+    '/_app/admin/$': {
+      id: '/_app/admin/$'
+      path: '/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof AppAdminSplatRouteImport
+      parentRoute: typeof AppAdminRouteRoute
+    }
     '/_app/admin/people': {
       id: '/_app/admin/people'
       path: '/people'
@@ -407,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/portfolio/'
       preLoaderRoute: typeof AppPortfolioIndexRouteImport
+      parentRoute: typeof AppPortfolioRouteRoute
+    }
+    '/_app/portfolio/$': {
+      id: '/_app/portfolio/$'
+      path: '/$'
+      fullPath: '/portfolio/$'
+      preLoaderRoute: typeof AppPortfolioSplatRouteImport
       parentRoute: typeof AppPortfolioRouteRoute
     }
     '/_app/portfolio/history': {
@@ -462,12 +500,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAdminRouteRouteChildren {
+  AppAdminSplatRoute: typeof AppAdminSplatRoute
   AppAdminPeopleRoute: typeof AppAdminPeopleRoute
   AppAdminSharesRoute: typeof AppAdminSharesRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
 const AppAdminRouteRouteChildren: AppAdminRouteRouteChildren = {
+  AppAdminSplatRoute: AppAdminSplatRoute,
   AppAdminPeopleRoute: AppAdminPeopleRoute,
   AppAdminSharesRoute: AppAdminSharesRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
@@ -478,11 +518,13 @@ const AppAdminRouteRouteWithChildren = AppAdminRouteRoute._addFileChildren(
 )
 
 interface AppPortfolioRouteRouteChildren {
+  AppPortfolioSplatRoute: typeof AppPortfolioSplatRoute
   AppPortfolioHistoryRoute: typeof AppPortfolioHistoryRoute
   AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
 }
 
 const AppPortfolioRouteRouteChildren: AppPortfolioRouteRouteChildren = {
+  AppPortfolioSplatRoute: AppPortfolioSplatRoute,
   AppPortfolioHistoryRoute: AppPortfolioHistoryRoute,
   AppPortfolioIndexRoute: AppPortfolioIndexRoute,
 }

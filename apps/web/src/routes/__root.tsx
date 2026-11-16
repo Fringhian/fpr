@@ -17,7 +17,8 @@ import { LoadFailed } from "./-states/load-failed.tsx";
  * `GET /me`, then the access the deepest matched route names in its
  * `staticData`, decide whether the visitor enters or where they go instead.
  * The session also sets the page's language. An address no route answers
- * falls to the everyday pages' Page not found, behind the same guard.
+ * falls to Page not found inside the deepest area that holds it, behind that
+ * area's guard.
  */
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;

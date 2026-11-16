@@ -7,8 +7,9 @@ import { routeTree } from "./routeTree.gen.ts";
 
 /**
  * The app's router, on the browser's address unless given another `history`.
- * A missing page shows inside the deepest layout that matched, such as the
- * admin area's.
+ * An address no page answers falls to the splat of the deepest area that
+ * holds it, behind that area's guard: `/admin/x` to the admin area's, any
+ * other to the everyday pages'.
  */
 export function createAppRouter({
   queryClient,

@@ -22,6 +22,9 @@ const routes = {
   help: "/help",
   people: "/admin/people",
   trackedShares: "/admin/shares",
+  // Addresses no page answers, inside a guarded area.
+  adminNowhere: "/admin/nowhere",
+  portfolioNowhere: "/portfolio/nowhere",
   signIn: "/sign-in",
   setup: "/setup",
   access: "/access/some-key",
@@ -33,8 +36,13 @@ type Page = keyof typeof routes;
 
 const pages = Object.keys(routes) as Page[];
 const everyday = ["home", "members", "member", "shares", "share", "help"];
-const portfolio = ["portfolio", "portfolioRecord", "portfolioHistory"];
-const adminArea = ["people", "trackedShares"];
+const portfolio = [
+  "portfolio",
+  "portfolioRecord",
+  "portfolioHistory",
+  "portfolioNowhere",
+];
+const adminArea = ["people", "trackedShares", "adminNowhere"];
 
 /** The pages each onboarded persona enters; every other page leads Home. */
 const enters = {
