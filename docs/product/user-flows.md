@@ -1,12 +1,12 @@
 # User flows
 
-Every path through FPR, with its edge cases. Each flow links to its stories in `user-stories.md` and its screens in the wireframes (`design/wireframes.html`, kept outside git).
+Every path through FPR, drawn. Each flow names its stories in `user-stories.md`, which records every case.
 
-In the diagrams, a rounded box is where a flow starts or ends, a rectangle is a screen or a step, a diamond is a check, and a red box is a refusal or an error.
+A rounded box is where a flow starts or ends, a rectangle a screen or a step, a diamond a check, and a red box a refusal or an error.
 
 ## Access link, password user
 
-Stories: ACC-1. The person opens the link the admin sent them.
+Stories: ACC-1.
 
 ```mermaid
 flowchart TD
@@ -60,7 +60,7 @@ flowchart TD
   F --> K{"Check"}
   K -->|"wrong pair"| E1["One generic error"]:::err
   E1 --> F
-  K -->|"too many tries"| E2["Wait a few minutes and try again"]:::err
+  K -->|"too many tries"| E2["Wait a minute and try again"]:::err
   K -->|"access revoked or ended"| E3["Your access has ended"]:::err
   K -->|"ok"| OB{"Onboarding finished?"}
   OB -->|"no"| O(["Onboarding"])
@@ -72,7 +72,7 @@ flowchart TD
 
 ## Password reset
 
-Stories: ACC-3, ADM-6. The admin gave the person a reset key.
+Stories: ACC-3, ADM-6.
 
 ```mermaid
 flowchart TD
@@ -143,7 +143,7 @@ flowchart TD
 
 ## During a visit
 
-Stories: access cases. Any request can meet these.
+Stories: Access cases. Any request can meet these.
 
 ```mermaid
 flowchart TD
@@ -159,7 +159,7 @@ flowchart TD
 
 ## Record a purchase or a sale
 
-Stories: POR-2, POR-3, POR-7, ADM-7. The same flow serves a member on `/portfolio/record` and the admin on `/members/$userId/record`.
+Stories: POR-2, POR-3, POR-7, ADM-7. The same flow serves a member and the admin recording for a member.
 
 ```mermaid
 flowchart TD
@@ -398,7 +398,7 @@ flowchart TD
 
 ## A share's life
 
-Stories: SHR-3, ADM-9 to ADM-11. What the price service does with a market share.
+Stories: SHR-3, ADM-9 to ADM-11.
 
 ```mermaid
 stateDiagram-v2
