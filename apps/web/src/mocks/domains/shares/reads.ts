@@ -4,13 +4,13 @@ import { mock, viewerOf } from "../../server/implementer.ts";
 import { timestamp } from "../../store/calendar.ts";
 import { weighEntries } from "../../store/log.ts";
 import { personOf, toPerson } from "../../store/people.ts";
-import { priceSeries, requireShare } from "../../store/shares.ts";
+import { priceSeries, requireShare, shareWindow } from "../../store/shares.ts";
 import type {
   MockStore,
   StoredShare,
   StoredValueEvent,
 } from "../../store/types.ts";
-import { holdersOf, listItem, shareDetail, shareWindow } from "./views.ts";
+import { holdersOf, listItem, shareDetail } from "./views.ts";
 
 function shareById(store: MockStore, id: string): StoredShare {
   return requireShare(store, id, () => mockError("not_found"));

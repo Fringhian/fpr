@@ -16,7 +16,7 @@ import {
   toSeriesPoints,
   windowPoints,
 } from "./series.ts";
-import { earliestPrice, priceChange, toShareSummary } from "./shares.ts";
+import { periodPriceChange, toShareSummary } from "./shares.ts";
 import { type BestHolding, standingsAt } from "./standings.ts";
 import type { MockStore } from "./types.ts";
 import { changesOf, holdingsNow, quantitiesAt } from "./valuation.ts";
@@ -147,12 +147,9 @@ export function shareLeaderboardView(
     ]),
   );
   const rows = store.shares.flatMap((share) => {
-    const startMs =
-      period === "all" ? earliestPrice(share)?.atMs : window.startMs;
-    const change =
-      held.has(share.id) && startMs !== undefined
-        ? priceChange(share, startMs, window.lastCloseMs)
-        : null;
+    const change = held.has(share.id)
+      ? periodPriceChange(share, period, { window, endMs: window.lastCloseMs })
+      : null;
     return change === null ? [] : [{ share: toShareSummary(share), change }];
   });
   const percent = (row: (typeof rows)[number]) => new Big(row.change.percent);

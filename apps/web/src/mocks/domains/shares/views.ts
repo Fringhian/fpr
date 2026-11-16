@@ -7,58 +7,36 @@ import type {
   ShareListItem,
   ShareQuote,
 } from "@fpr/contracts";
-import { addDays, dayOf, tradingDayOnOrBefore } from "../../store/calendar.ts";
+import { dayOf } from "../../store/calendar.ts";
 import { Big, money, plain, ratio } from "../../store/decimal.ts";
 import { gainSinceBought, toGain } from "../../store/gain.ts";
 import { hasPortfolio, racers, toPerson } from "../../store/people.ts";
+import { raceWindow, windowInstants } from "../../store/series.ts";
 import {
-  type PeriodWindow,
-  raceWindow,
-  windowFrom,
-  windowInstants,
-} from "../../store/series.ts";
-import {
-  earliestPrice,
   firstPriceDay,
   holdersNow,
   latestPrice,
-  priceChange,
+  periodPriceChange,
   priceSeries,
+  shareWindow,
   toShareSummary,
 } from "../../store/shares.ts";
 import type { MockPerson, MockStore, StoredShare } from "../../store/types.ts";
 import { changesOf, holdingsNow, priceAt } from "../../store/valuation.ts";
 
-/** A share's chart window: the race's, but `all` starts at the share's first price. */
-export function shareWindow(
-  store: MockStore,
-  share: StoredShare,
-  period: Period,
-): PeriodWindow {
-  const first = firstPriceDay(share);
-  return period === "all" && first !== null
-    ? windowFrom(store, tradingDayOnOrBefore(addDays(first, -1)))
-    : raceWindow(store, period);
-}
-
-/**
- * A share's latest price, and one unit's change from the period's start to
- * it, or for `all` from its first price.
- */
 function quote(
   store: MockStore,
   share: StoredShare,
   period: Period,
 ): ShareQuote {
   const now = store.calendar.nowMs;
-  const startMs =
-    period === "all"
-      ? earliestPrice(share)?.atMs
-      : raceWindow(store, period).startMs;
   return {
     ...toShareSummary(share),
     latestPrice: latestPrice(share, now),
-    change: startMs === undefined ? null : priceChange(share, startMs, now),
+    change: periodPriceChange(share, period, {
+      window: raceWindow(store, period),
+      endMs: now,
+    }),
   };
 }
 

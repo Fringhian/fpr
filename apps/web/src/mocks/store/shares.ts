@@ -1,13 +1,15 @@
 import type {
   IsoDate,
   LatestPrice,
+  Period,
   PriceChange,
   PricePoint,
   ShareSummary,
 } from "@fpr/contracts";
-import { dayOf, timestamp } from "./calendar.ts";
+import { addDays, dayOf, timestamp, tradingDayOnOrBefore } from "./calendar.ts";
 import { Big, money, percent } from "./decimal.ts";
 import { racers } from "./people.ts";
+import { type PeriodWindow, raceWindow, windowFrom } from "./series.ts";
 import type { MockPerson, MockStore, StoredShare } from "./types.ts";
 import { holdingsNow, pricePointAt } from "./valuation.ts";
 
@@ -80,6 +82,32 @@ export function priceChange(
     eur: money(change),
     percent: percent(change.div(start.priceEur).times(100)),
   };
+}
+
+/** A share's chart window: the race's, but `all` starts at the share's first price. */
+export function shareWindow(
+  store: MockStore,
+  share: StoredShare,
+  period: Period,
+): PeriodWindow {
+  const first = firstPriceDay(share);
+  return period === "all" && first !== null
+    ? windowFrom(store, tradingDayOnOrBefore(addDays(first, -1)))
+    : raceWindow(store, period);
+}
+
+/**
+ * One unit's change over a period to `endMs`: from the race window's start,
+ * or for `all` from the share's first price. `null` without a price at both.
+ */
+export function periodPriceChange(
+  share: StoredShare,
+  period: Period,
+  { window, endMs }: { window: PeriodWindow; endMs: number },
+): PriceChange | null {
+  const startMs =
+    period === "all" ? earliestPrice(share)?.atMs : window.startMs;
+  return startMs === undefined ? null : priceChange(share, startMs, endMs);
 }
 
 /** The day a share's prices start, or `null` with none. */
