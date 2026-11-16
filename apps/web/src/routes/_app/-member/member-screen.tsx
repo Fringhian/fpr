@@ -1,5 +1,4 @@
 import type { Id } from "@fpr/contracts";
-import { writerRoles } from "@fpr/contracts/values";
 import { Navigate, useParams, useSearch } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -169,10 +168,9 @@ function MemberPage({ userId, editing }: { userId: Id; editing: boolean }) {
 export function MemberScreen() {
   const { userId } = useParams({ from: "/_app/members/$userId/" });
   const { edit } = useSearch({ from: "/_app/members/$userId/" });
-  const { person, role } = useSession();
+  const { person, role, writer } = useSession();
 
-  const own =
-    userId === person.id && writerRoles.some((writer) => writer === role);
+  const own = userId === person.id && writer;
 
   return own ? (
     <Navigate to="/portfolio" replace />

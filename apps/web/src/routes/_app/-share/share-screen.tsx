@@ -1,5 +1,4 @@
 import type { ShareDetail } from "@fpr/contracts";
-import { writerRoles } from "@fpr/contracts/values";
 import { useParams } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,9 +22,8 @@ import { type ShareData, useShareData } from "./use-share-data";
  * share's values and their edits; then who holds it.
  */
 function ShareView({ share, data }: { share: ShareDetail; data: ShareData }) {
-  const { role } = useSession();
+  const { writer } = useSession();
 
-  const writer = writerRoles.some((writerRole) => writerRole === role);
   const manual = share.kind === "manual";
 
   return (
