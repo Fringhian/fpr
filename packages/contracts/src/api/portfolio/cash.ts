@@ -4,8 +4,8 @@ import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
 import { roles, writerRoles } from "../../roles.js";
 import { clientIdSchema, idSchema } from "../../schemas/ids.js";
+import { madeBySchema } from "../../schemas/person.js";
 import { timestampSchema } from "../../schemas/time.js";
-import { portfolioMadeBySchema } from "./made-by.js";
 
 /** Cash in euros: zero or more. */
 export const portfolioCashAmountSchema = decimalSchema.refine(
@@ -19,7 +19,7 @@ export const portfolioCashBalanceSchema = z.object({
   id: idSchema,
   amountEur: quantity(portfolioCashAmountSchema),
   effectiveAt: timestampSchema,
-  madeBy: portfolioMadeBySchema,
+  madeBy: madeBySchema,
 });
 
 export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;

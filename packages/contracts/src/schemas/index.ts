@@ -25,6 +25,8 @@ export {
   colorSchema,
   displayNameSchema,
   emailSchema,
+  type MadeBy,
+  madeBySchema,
   type Person,
   personSchema,
 } from "./person.js";
