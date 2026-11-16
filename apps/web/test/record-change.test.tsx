@@ -110,6 +110,23 @@ describe("Record a change", () => {
     expect(store.entries.at(-1)).toMatchObject({ amountEur: "1200.50" });
   });
 
+  it("asks again for a day after today or an amount the change can't take, from the address", async () => {
+    const world = fixtureShareId("world");
+    const review = `/portfolio/record?step=review&start=when&kind=`;
+
+    const opens = async (search: string, question: string) => {
+      const { page } = await visit(`${review}${search}`, "member");
+      await vi.waitFor(() => expect(page.textContent).toContain(question));
+    };
+
+    await opens(`buy&share=${world}&day=${daysAgo(-2)}&amount=3`, "When?");
+    await opens(
+      `buy&share=${world}&day=${daysAgo(1)}&amount=0`,
+      "How many did you buy?",
+    );
+    await opens(`cash&day=${daysAgo(1)}&amount=0`, "Check and save");
+  });
+
   it("refuses a sale that breaks a later one, naming it, and saves nothing", async () => {
     const energy = fixtureShareId("energy");
     const { page, store } = await visit(

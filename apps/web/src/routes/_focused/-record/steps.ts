@@ -31,13 +31,16 @@ export function startOf(search: RecordSearch): RecordStep {
  */
 export function shownStep(
   search: RecordSearch,
-  draft: Pick<Draft, "kind" | "shareId" | "amount">,
+  draft: Pick<Draft, "kind" | "shareId" | "dayChosen" | "amount">,
 ): RecordStep {
   const step = search.step ?? startOf(search);
   if (step === "saved" || step === "what") return step;
   if (!draft.kind) return "what";
   if (draft.kind === "cash" && step === "share") return "when";
   if (draft.kind !== "cash" && !draft.shareId) return "share";
+  if ((step === "amount" || step === "review") && !draft.dayChosen) {
+    return "when";
+  }
   if (step === "review" && !draft.amount) return "amount";
   return step;
 }

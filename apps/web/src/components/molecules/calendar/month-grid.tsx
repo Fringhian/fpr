@@ -33,7 +33,7 @@ function useFocusedDay(value: IsoDate, max: IsoDate, month: IsoDate) {
       ?.focus();
   }, [focused]);
 
-  const tabStop =
+  const day =
     monthOf(focused) === month
       ? focused
       : monthOf(value) === month
@@ -41,7 +41,8 @@ function useFocusedDay(value: IsoDate, max: IsoDate, month: IsoDate) {
         : month;
   return {
     table,
-    tabStop,
+    // A disabled day can't take focus: past `max`, the tab stop is `max`.
+    tabStop: day > max ? max : day,
     setFocused,
     moveTo: (day: IsoDate) => {
       moved.current = true;

@@ -89,3 +89,18 @@ export const Keyboard: Story = {
     await expect(ninth).toHaveAttribute("aria-pressed", "true");
   },
 };
+
+/** A day after `max` picked from outside: `max`'s month shows, and `max` keeps the tab stop. */
+export const PickedAfterMax: Story = {
+  name: "Picked after max",
+  tags: ["!autodocs"],
+  args: { value: "2026-04-02" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: /^9 (March|mars) 2026$/ }),
+    ).toHaveFocus();
+  },
+};

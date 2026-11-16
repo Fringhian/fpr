@@ -8,6 +8,7 @@ import type {
 import Big from "big.js";
 import { localInstant, raceDayEnd, raceDayOf } from "../../../lib/race-day";
 import type { RecordKind, RecordSearch } from "../../../lib/record-search";
+import { isPositive } from "./amount";
 
 /**
  * The change being recorded, from the address, else from the entry it
@@ -37,18 +38,30 @@ function amountOf(entry: PortfolioLogEntry): Decimal {
     : entry.quantityDelta.replace(/^-/, "");
 }
 
+/**
+ * The draft from the address and the edited entry. A day after today, or an
+ * amount the kind can't take (zero or less for shares, below zero for cash),
+ * is dropped, so the flow asks for it again.
+ */
 export function draftOf(
   search: RecordSearch,
   entry: PortfolioLogEntry | undefined,
   today: IsoDate,
 ): Draft {
+  const kind = search.kind ?? (entry && kindOf(entry));
+  const day =
+    search.day !== undefined && search.day <= today ? search.day : undefined;
+  const amount =
+    search.amount !== undefined && isPositive(search.amount, kind === "cash")
+      ? search.amount
+      : undefined;
   return {
-    kind: search.kind ?? (entry && kindOf(entry)),
+    kind,
     shareId:
       search.share ?? (entry?.type === "change" ? entry.share.id : undefined),
-    day: search.day ?? (entry ? raceDayOf(entry.effectiveAt) : today),
-    dayChosen: search.day !== undefined || entry !== undefined,
-    amount: search.amount ?? (entry && amountOf(entry)),
+    day: day ?? (entry ? raceDayOf(entry.effectiveAt) : today),
+    dayChosen: day !== undefined || entry !== undefined,
+    amount: amount ?? (entry && amountOf(entry)),
     entry,
   };
 }
