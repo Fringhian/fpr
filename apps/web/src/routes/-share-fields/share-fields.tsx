@@ -23,9 +23,9 @@ export function IsinField({
   return (
     <Field.Basic
       name="isin"
-      label={t("newShare.isin.label")}
+      label={t("shareFields.isin.label")}
       check={(text) => isinIn(text) !== null}
-      error={t("newShare.isin.invalid")}
+      error={t("shareFields.isin.invalid")}
       spellCheck={false}
       autoCapitalize="characters"
       value={value}
@@ -33,7 +33,7 @@ export function IsinField({
     >
       {takenLink ? (
         <TextLink render={takenLink} toPage className="mt-xs w-fit text-s">
-          {t("newShare.openTaken")}
+          {t("shareFields.isin.openTaken")}
         </TextLink>
       ) : null}
     </Field.Basic>
@@ -47,11 +47,11 @@ export function NameField({ value, onValueChange }: TextProps) {
   return (
     <Field.Basic
       name="name"
-      label={t("newShare.name.label")}
+      label={t("shareFields.name.label")}
       check={(text) => text.trim() !== ""}
-      error={t("newShare.name.missing")}
+      error={t("shareFields.name.missing")}
       maxLength={100}
-      placeholder={t("newShare.name.placeholder")}
+      placeholder={t("shareFields.name.placeholder")}
       value={value}
       onValueChange={onValueChange}
     />
@@ -66,9 +66,9 @@ export function PriceField({ value, onValueChange }: TextProps) {
   return (
     <Field.Basic
       name="price"
-      label={t("newShare.price.label")}
+      label={t("shareFields.price.label")}
       check={(text) => priceIn(text, language) !== null}
-      error={t("newShare.price.invalid")}
+      error={t("shareFields.price.invalid")}
       decimal
       icon={CurrencyEurIcon}
       value={value}

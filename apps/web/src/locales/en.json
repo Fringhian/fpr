@@ -682,11 +682,10 @@
     "today": "Today",
     "pick": "Pick a day"
   },
-  "newShare": {
-    "question": "Create a manual share",
-    "description": "For a share the price provider doesn’t track: members enter its value.",
+  "shareFields": {
     "isin": {
       "label": "ISIN",
+      "openTaken": "Open that share",
       "invalid": "Enter the ISIN as on your statement: two letters, nine letters or digits, then a check digit."
     },
     "name": {
@@ -698,9 +697,15 @@
       "label": "Value of one unit",
       "invalid": "Enter a value above zero, such as 40.10."
     },
-    "day": "On",
+    "day": {
+      "label": "On",
+      "invalid": "Pick today or an earlier day."
+    }
+  },
+  "newShare": {
+    "question": "Create a manual share",
+    "description": "For a share the price provider doesn’t track: members enter its value.",
     "help": "Everyone can update its value later.",
-    "openTaken": "Open that share",
     "summary": "The new share",
     "create": "Create share",
     "creating": "Creating…",
@@ -1080,7 +1085,6 @@
       "fromPrice": "Its latest price, {{price}} {{when}}, becomes its first value.",
       "noPrice_one": "It has no price yet, so it needs a first value. {{holders}} holds it.",
       "noPrice_other": "It has no price yet, so it needs a first value. {{holders}} hold it.",
-      "dayInvalid": "Pick today or an earlier day.",
       "done": "Made manual"
     },
     "delete": {

@@ -58,7 +58,7 @@ export function ValuePanel({
     { term: t("valueForm.share"), value: shareName },
     ...moment,
     {
-      term: t("newShare.price.label"),
+      term: t("shareFields.price.label"),
       value: price === null ? null : formatMoney(price, language),
     },
   ];

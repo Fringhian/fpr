@@ -18,13 +18,13 @@ export function FirstValueFields() {
   const checkDay = (value: unknown) =>
     typeof value === "string" && value !== "" && value <= today
       ? null
-      : t("adminShares.makeManual.dayInvalid");
+      : t("shareFields.day.invalid");
 
   return (
     <div className="grid grid-cols-2 items-start gap-m">
       <PriceField value={price} onValueChange={setPrice} />
       <Field.Root name="on" validate={checkDay}>
-        <Field.Label>{t("newShare.day")}</Field.Label>
+        <Field.Label>{t("shareFields.day.label")}</Field.Label>
         <Field.Control type="date" defaultValue={today} max={today} />
         <Field.Error />
       </Field.Root>

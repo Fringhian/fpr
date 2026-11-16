@@ -699,8 +699,16 @@
   "newShare": {
     "question": "Créer une action manuelle",
     "description": "Pour une action que le fournisseur de cours ne suit pas : les membres saisissent sa valeur.",
+    "help": "Tout le monde peut mettre à jour sa valeur ensuite.",
+    "summary": "La nouvelle action",
+    "create": "Créer l’action",
+    "creating": "Création…",
+    "created": "{{name}} créée"
+  },
+  "shareFields": {
     "isin": {
       "label": "ISIN",
+      "openTaken": "Ouvrir cette action",
       "invalid": "Saisissez l’ISIN de votre relevé : deux lettres, neuf lettres ou chiffres, puis un chiffre de contrôle."
     },
     "name": {
@@ -712,13 +720,10 @@
       "label": "Valeur d’une part",
       "invalid": "Saisissez une valeur supérieure à zéro, comme 40,10."
     },
-    "day": "Le",
-    "help": "Tout le monde peut mettre à jour sa valeur ensuite.",
-    "openTaken": "Ouvrir cette action",
-    "summary": "La nouvelle action",
-    "create": "Créer l’action",
-    "creating": "Création…",
-    "created": "{{name}} créée"
+    "day": {
+      "label": "Le",
+      "invalid": "Choisissez aujourd’hui ou un jour précédent."
+    }
   },
   "recordChange": {
     "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
@@ -1096,7 +1101,6 @@
       "noPrice_one": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détient.",
       "noPrice_many": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
       "noPrice_other": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
-      "dayInvalid": "Choisissez aujourd’hui ou un jour précédent.",
       "done": "Passé en manuel"
     },
     "delete": {
