@@ -11,6 +11,7 @@ import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request, Response } from "express";
 import type { Auth } from "./auth/auth.js";
 import type { RateLimiter } from "./pipeline/index.js";
+import type { PricesClient } from "./prices/prices-client.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
 import type { SeriesCache } from "./valuation/series-cache.js";
 
@@ -35,6 +36,8 @@ export interface ApiServices {
   rateLimits: RateLimiter;
   /** Every member's balance series. A write to portfolios, shares or prices clears it. */
   series: SeriesCache;
+  /** The price service. */
+  prices: PricesClient;
 }
 
 /** What every handler receives. */

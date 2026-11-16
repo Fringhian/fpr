@@ -15,6 +15,10 @@ export const envSchema = z.object({
     .string()
     .refine(isTimeZone, "Expected an IANA time zone, such as Europe/Paris")
     .default("Europe/Paris"),
+  /** The price service, on the private network, such as `http://prices:3000`. */
+  PRICES_URL: z.url(),
+  /** The bearer token the price service expects. */
+  PRICES_TOKEN: z.string().min(1),
   /** The key pseudonyms are derived with. Changing it changes every pseudonym. */
   PSEUDONYM_SECRET: z.string().min(32),
   /** Picture storage: an S3-compatible endpoint, such as `http://rustfs:9000`. */

@@ -20,6 +20,7 @@ import {
   createRateLimiter,
   publicWriteRateLimit,
 } from "./pipeline/index.js";
+import type { PricesClient } from "./prices/prices-client.js";
 import { apiRouter } from "./router.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
 import {
@@ -45,6 +46,8 @@ export interface AppOptions {
   raceTimeZone: string;
   /** Every member's balance series. Defaults to one on `db`. */
   series?: SeriesCache;
+  /** The price service. */
+  prices: PricesClient;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
   docs?: boolean;
@@ -66,6 +69,7 @@ export function createApp({
   pseudonymSecret,
   raceTimeZone,
   series = createSeriesCache({ db, timeZone: raceTimeZone }),
+  prices,
   logger,
   docs = false,
   router = apiRouter,
@@ -104,6 +108,7 @@ export function createApp({
     raceTimeZone,
     rateLimits: createRateLimiter(publicWriteRateLimit),
     series,
+    prices,
   });
   routes?.(app);
 

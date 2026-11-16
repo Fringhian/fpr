@@ -16,7 +16,7 @@ import {
   type PutObjectRequest,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { accessKeys, type Db, type Role, users } from "@fpr/db";
+import { accessKeys, type Db, type Role, type Share, users } from "@fpr/db";
 import type { AnyRouter } from "@orpc/server";
 import { sdkStreamMixin } from "@smithy/util-stream";
 import { type AwsClientStub, mockClient } from "aws-sdk-client-mock";
@@ -25,6 +25,10 @@ import type { z } from "zod";
 import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
+import {
+  createPricesClient,
+  type PricesClient,
+} from "../src/prices/prices-client.js";
 import { pseudonyms } from "../src/pseudonyms/pseudonyms.js";
 import {
   type AvatarStore,
@@ -110,6 +114,32 @@ export function createTestBucket(): TestBucket {
   return { objects, client, avatars: createAvatarStore(s3, "test-bucket") };
 }
 
+/** A price service in memory, answering every request with `200 {}`. */
+export interface TestPrices {
+  prices: PricesClient;
+  /** Each request it got: method, path, and JSON body. */
+  requests: { method: string; path: string; body: unknown }[];
+}
+
+export function createTestPrices(): TestPrices {
+  const requests: TestPrices["requests"] = [];
+  const prices = createPricesClient({
+    url: "http://prices.test",
+    token: "a-test-prices-token",
+    fetch: async (input) => {
+      const request = input instanceof Request ? input : new Request(input);
+      const text = await request.text();
+      requests.push({
+        method: request.method,
+        path: new URL(request.url).pathname,
+        body: text === "" ? undefined : JSON.parse(text),
+      });
+      return Response.json({});
+    },
+  });
+  return { prices, requests };
+}
+
 /** Starts the app on a random local port and captures its log lines. */
 export async function serveApp(options: {
   db: Db;
@@ -119,6 +149,8 @@ export async function serveApp(options: {
   avatars?: AvatarStore;
   /** The balance series. Defaults to one on `db`. */
   series?: SeriesCache;
+  /** The price service. Defaults to one that records the requests it gets. */
+  prices?: PricesClient;
 }): Promise<TestServer> {
   const chunks: string[] = [];
   const destination = new Writable({
@@ -130,6 +162,7 @@ export async function serveApp(options: {
   const app = createApp({
     ...options,
     avatars: options.avatars ?? createTestBucket().avatars,
+    prices: options.prices ?? createTestPrices().prices,
     publicUrl: TEST_PUBLIC_URL,
     bootstrapKey: TEST_BOOTSTRAP_KEY,
     pseudonymSecret: TEST_PSEUDONYM_SECRET,
@@ -334,4 +367,29 @@ export async function signIn(
     throw new Error(`Sign-in answered ${response.status}`);
   }
   return cookieFrom(response);
+}
+
+let isinCount = 0;
+
+/** Adds a share, a market one unless told otherwise, with a made-up ISIN. */
+export async function addShare(
+  db: Db,
+  kind: "market" | "manual" = "market",
+): Promise<Share> {
+  isinCount += 1;
+  const code = String(isinCount).padStart(9, "0");
+  return db
+    .insertInto("shares")
+    .values({
+      isin: `FR${code}0`,
+      name: `Example share ${isinCount}`,
+      kind,
+      tradingCurrency: kind === "market" ? "EUR" : null,
+      providerSymbol: kind === "market" ? `EX${isinCount}.PA` : null,
+      exchange: kind === "market" ? "PA" : null,
+      historyStartsOn: null,
+      createdBy: null,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 }
