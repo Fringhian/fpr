@@ -1,4 +1,4 @@
-import type { ShareQuote } from "@fpr/contracts";
+import type { Id, ShareQuote } from "@fpr/contracts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,6 +41,7 @@ type SearchArgs = { state: "results" | "loading" | "failed" };
 function Demo({ state }: SearchArgs) {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
+  const [picked, setPicked] = useState<Id | null>(null);
 
   const needle = q.trim().toLowerCase();
   const found = SHARES.filter((share) =>
@@ -57,7 +58,8 @@ function Demo({ state }: SearchArgs) {
       shares={state === "loading" ? undefined : found}
       error={state === "failed" ? t("errors.unreachable") : null}
       onRetry={() => undefined}
-      onValueChange={() => undefined}
+      value={picked}
+      onValueChange={setPicked}
     />
   );
 }
@@ -72,7 +74,7 @@ The Shares search, to pick one of FPR’s shares: the search box, then the share
 | \`ShareSearch.Results\` | The shares found, as options to pick one. |
 | \`ShareSearch.Status\` | What stands in for the results: the first load, a failed search with Try again, or nothing found. |
 | \`ShareSearch.Message\` | One line under the search. |
-| \`ShareSearch.Basic\` | The search ready-made: \`q\`, \`shares\`, \`error\`, the share picked at first, and what follows the results as \`children\`. |
+| \`ShareSearch.Basic\` | The search ready-made: \`q\`, \`shares\`, \`error\`, the share picked, kept listed first when the text typed leaves it out, and what follows the results as \`children\`. |
 
 Record a change’s Which share step renders \`Basic\`; the Shares page composes the parts with its own cards.
 `;
@@ -123,5 +125,20 @@ export const Typing: Story = {
     await expect(canvas.queryAllByRole("radio")).toHaveLength(0);
     await userEvent.click(canvas.getByRole("button"));
     await expect(canvas.getAllByRole("radio")).toHaveLength(4);
+  },
+};
+
+/** The share picked stays listed, selected, above the line saying nothing else matches. */
+export const KeptPick: Story = {
+  name: "Kept pick",
+  tags: ["!autodocs"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("radio", { name: /Nordic Wind/ }));
+    await userEvent.type(canvas.getByRole("searchbox"), "xyz");
+    const radios = canvas.getAllByRole("radio");
+    await expect(radios).toHaveLength(1);
+    await expect(radios[0]).toHaveAttribute("aria-checked", "true");
+    await expect(canvas.getByRole("status")).toBeVisible();
   },
 };

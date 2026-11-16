@@ -11,6 +11,7 @@ import { IconButton } from "../../atoms/icon-button/icon-button";
 import { Input as TextInput } from "../../atoms/input/input";
 import * as Option from "../../molecules/option/option";
 import { Status } from "./share-search-status";
+import { useKeptPick } from "./use-kept-pick";
 
 export { Message, Status } from "./share-search-status";
 
@@ -79,22 +80,23 @@ function useShareLine(): (share: ShareQuote) => string {
 
 /**
  * The shares found, one option each, to pick one: its name, then its symbol
- * and latest price. Every prop of `Option.Group` but its children; name it
- * with `aria-label` or `aria-labelledby`.
+ * and latest price. Every prop of `Option.Group` but its children, its value
+ * a share's id, or `null` for none picked yet; name it with `aria-label` or
+ * `aria-labelledby`.
  */
 export function Results({
   shares,
   ...props
 }: { shares: readonly ShareQuote[] } & Omit<
-  Option.GroupProps<Id>,
+  Option.GroupProps<Id | null>,
   "children"
 >) {
   const line = useShareLine();
 
   return (
-    <Option.Group<Id> {...props}>
+    <Option.Group<Id | null> {...props}>
       {shares.map((share) => (
-        <Option.Item<Id>
+        <Option.Item<Id | null>
           key={share.id}
           value={share.id}
           title={share.name}
@@ -115,8 +117,8 @@ export type BasicProps = {
   error?: string | null | undefined;
   /** Searches again after `error`. */
   onRetry?: (() => void) | undefined;
-  /** The share picked at first, by id, such as the one picked before going back. */
-  defaultValue?: Id | undefined;
+  /** The share picked, by id, or `null` for none. It stays listed first when a later search leaves it out. */
+  value: Id | null;
   onValueChange: (id: Id) => void;
   /** Names the search box and the results for screen readers. */
   label: string;
@@ -127,8 +129,9 @@ export type BasicProps = {
 /**
  * The Shares search, to pick one of FPR's shares: the search box, then the
  * shares matching it, held ones first, or a line that says nothing matches;
- * a failed search says why, with Try again. The Shares page composes the
- * parts with its own cards.
+ * a failed search says why, with Try again. The share picked stays listed,
+ * selected, when the text typed no longer matches it. The Shares page
+ * composes the parts with its own cards.
  */
 export function Basic({
   q,
@@ -136,15 +139,27 @@ export function Basic({
   shares,
   error,
   onRetry,
-  defaultValue,
+  value,
   onValueChange,
   label,
   children,
   ...props
 }: BasicProps) {
+  const listed = useKeptPick(value, shares);
+
   return (
     <Root {...props}>
       <Input value={q} onValueChange={onQChange} label={label} />
+      {listed !== undefined && listed.length > 0 && !error ? (
+        <Results
+          shares={listed}
+          aria-label={label}
+          value={value}
+          onValueChange={(id) => {
+            if (id !== null) onValueChange(id);
+          }}
+        />
+      ) : null}
       {shares === undefined || shares.length === 0 || error ? (
         <Status
           q={q}
@@ -152,14 +167,7 @@ export function Basic({
           error={error}
           onRetry={onRetry}
         />
-      ) : (
-        <Results
-          shares={shares}
-          aria-label={label}
-          defaultValue={defaultValue}
-          onValueChange={onValueChange}
-        />
-      )}
+      ) : null}
       {children}
     </Root>
   );

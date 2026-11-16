@@ -53,7 +53,7 @@ export function ShareStep() {
             shares={search.data?.shares}
             error={search.isError ? errorText(search.error) : null}
             onRetry={() => void search.refetch()}
-            defaultValue={draft.shareId}
+            value={picked}
             onValueChange={(id) => {
               setPicked(id);
               setMissing(false);
