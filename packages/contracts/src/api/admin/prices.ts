@@ -37,7 +37,8 @@ export const adminRefreshPrices = signedInRoute(adminRoles)
 /**
  * The intraday refresh's state since the price service started: its last run
  * and result, the next scheduled run, the day's runs, and the day's provider
- * calls against the cap.
+ * calls against the cap. Refused with `provider_unavailable` while the price
+ * service doesn't answer.
  */
 export const adminRefreshState = signedInRoute(adminAreaRoles)
   .route({
@@ -46,4 +47,4 @@ export const adminRefreshState = signedInRoute(adminAreaRoles)
     summary: "The price refresh's state",
   })
   .output(refreshStateSchema)
-  .errors(errorMap("forbidden"));
+  .errors(errorMap("forbidden", "provider_unavailable"));
