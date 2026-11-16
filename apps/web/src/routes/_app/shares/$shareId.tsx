@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ScreenPlaceholder } from "../../-shell/screen-placeholder";
+import { ShareScreen } from "../-share/share-screen";
 
 export const Route = createFileRoute("/_app/shares/$shareId")({
-  component: () => <ScreenPlaceholder page="share" back="shares" period />,
+  component: ShareScreen,
 });

@@ -1,7 +1,7 @@
 import type { Decimal, Language } from "@fpr/contracts";
 import { decimalPattern } from "@fpr/contracts/values";
 import Big from "big.js";
-import { INTL_LOCALE } from "../../../lib/language";
+import { INTL_LOCALE } from "./language";
 
 // The language's decimal mark, from Intl, and the marks accepted between
 // thousands: Intl's own group mark, any space, and the other of `,` and `.`,
@@ -59,6 +59,12 @@ export function parseAmount(text: string, language: Language): Decimal | null {
 export function isPositive(amount: Decimal, orZero = false): boolean {
   const value = new Big(amount);
   return orZero ? value.gte(0) : value.gt(0);
+}
+
+/** The value of one unit typed, read in the person's language, or `null` unless it is above zero. */
+export function priceIn(text: string, language: Language): Decimal | null {
+  const price = parseAmount(text, language);
+  return price !== null && isPositive(price) ? price : null;
 }
 
 /** A decimal as the person types it in their language: `74.328`, `74,328`. */

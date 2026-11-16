@@ -33,9 +33,11 @@ import { Route as AppSharesShareIdRouteImport } from './routes/_app/shares/$shar
 import { Route as FocusedAccessIndexRouteImport } from './routes/_focused/access.index'
 import { Route as FocusedAccessKeyRouteImport } from './routes/_focused/access.$key'
 import { Route as FocusedPortfolioRecordRouteImport } from './routes/_focused/portfolio/record'
+import { Route as FocusedSharesNewRouteImport } from './routes/_focused/shares/new'
 import { Route as AppMembersUserIdIndexRouteImport } from './routes/_app/members/$userId/index'
 import { Route as AppMembersUserIdHistoryRouteImport } from './routes/_app/members/$userId/history'
 import { Route as FocusedMembersUserIdRecordRouteImport } from './routes/_focused/members/$userId/record'
+import { Route as FocusedSharesShareIdValueRouteImport } from './routes/_focused/shares/$shareId/value'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -155,6 +157,11 @@ const FocusedPortfolioRecordRoute = FocusedPortfolioRecordRouteImport.update({
   path: '/portfolio/record',
   getParentRoute: () => FocusedRoute,
 } as any)
+const FocusedSharesNewRoute = FocusedSharesNewRouteImport.update({
+  id: '/shares/new',
+  path: '/shares/new',
+  getParentRoute: () => FocusedRoute,
+} as any)
 const AppMembersUserIdIndexRoute = AppMembersUserIdIndexRouteImport.update({
   id: '/members/$userId/',
   path: '/members/$userId/',
@@ -169,6 +176,12 @@ const FocusedMembersUserIdRecordRoute =
   FocusedMembersUserIdRecordRouteImport.update({
     id: '/members/$userId/record',
     path: '/members/$userId/record',
+    getParentRoute: () => FocusedRoute,
+  } as any)
+const FocusedSharesShareIdValueRoute =
+  FocusedSharesShareIdValueRouteImport.update({
+    id: '/shares/$shareId/value',
+    path: '/shares/$shareId/value',
     getParentRoute: () => FocusedRoute,
   } as any)
 
@@ -190,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/shares/$shareId': typeof AppSharesShareIdRoute
   '/access/$key': typeof FocusedAccessKeyRoute
   '/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/shares/new': typeof FocusedSharesNewRoute
   '/admin/': typeof AppAdminIndexRoute
   '/members/': typeof AppMembersIndexRoute
   '/portfolio/': typeof AppPortfolioIndexRoute
@@ -197,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/access/': typeof FocusedAccessIndexRoute
   '/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/shares/$shareId/value': typeof FocusedSharesShareIdValueRoute
   '/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -215,6 +230,7 @@ export interface FileRoutesByTo {
   '/shares/$shareId': typeof AppSharesShareIdRoute
   '/access/$key': typeof FocusedAccessKeyRoute
   '/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/shares/new': typeof FocusedSharesNewRoute
   '/admin': typeof AppAdminIndexRoute
   '/members': typeof AppMembersIndexRoute
   '/portfolio': typeof AppPortfolioIndexRoute
@@ -222,6 +238,7 @@ export interface FileRoutesByTo {
   '/access': typeof FocusedAccessIndexRoute
   '/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/shares/$shareId/value': typeof FocusedSharesShareIdValueRoute
   '/members/$userId': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRoutesById {
@@ -245,6 +262,7 @@ export interface FileRoutesById {
   '/_app/shares/$shareId': typeof AppSharesShareIdRoute
   '/_focused/access/$key': typeof FocusedAccessKeyRoute
   '/_focused/portfolio/record': typeof FocusedPortfolioRecordRoute
+  '/_focused/shares/new': typeof FocusedSharesNewRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/members/': typeof AppMembersIndexRoute
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
@@ -252,6 +270,7 @@ export interface FileRoutesById {
   '/_focused/access/': typeof FocusedAccessIndexRoute
   '/_app/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/_focused/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
+  '/_focused/shares/$shareId/value': typeof FocusedSharesShareIdValueRoute
   '/_app/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -274,6 +293,7 @@ export interface FileRouteTypes {
     | '/shares/$shareId'
     | '/access/$key'
     | '/portfolio/record'
+    | '/shares/new'
     | '/admin/'
     | '/members/'
     | '/portfolio/'
@@ -281,6 +301,7 @@ export interface FileRouteTypes {
     | '/access/'
     | '/members/$userId/history'
     | '/members/$userId/record'
+    | '/shares/$shareId/value'
     | '/members/$userId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -299,6 +320,7 @@ export interface FileRouteTypes {
     | '/shares/$shareId'
     | '/access/$key'
     | '/portfolio/record'
+    | '/shares/new'
     | '/admin'
     | '/members'
     | '/portfolio'
@@ -306,6 +328,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/members/$userId/history'
     | '/members/$userId/record'
+    | '/shares/$shareId/value'
     | '/members/$userId'
   id:
     | '__root__'
@@ -328,6 +351,7 @@ export interface FileRouteTypes {
     | '/_app/shares/$shareId'
     | '/_focused/access/$key'
     | '/_focused/portfolio/record'
+    | '/_focused/shares/new'
     | '/_app/admin/'
     | '/_app/members/'
     | '/_app/portfolio/'
@@ -335,6 +359,7 @@ export interface FileRouteTypes {
     | '/_focused/access/'
     | '/_app/members/$userId/history'
     | '/_focused/members/$userId/record'
+    | '/_focused/shares/$shareId/value'
     | '/_app/members/$userId/'
   fileRoutesById: FileRoutesById
 }
@@ -513,6 +538,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FocusedPortfolioRecordRouteImport
       parentRoute: typeof FocusedRoute
     }
+    '/_focused/shares/new': {
+      id: '/_focused/shares/new'
+      path: '/shares/new'
+      fullPath: '/shares/new'
+      preLoaderRoute: typeof FocusedSharesNewRouteImport
+      parentRoute: typeof FocusedRoute
+    }
     '/_app/members/$userId/': {
       id: '/_app/members/$userId/'
       path: '/members/$userId'
@@ -532,6 +564,13 @@ declare module '@tanstack/react-router' {
       path: '/members/$userId/record'
       fullPath: '/members/$userId/record'
       preLoaderRoute: typeof FocusedMembersUserIdRecordRouteImport
+      parentRoute: typeof FocusedRoute
+    }
+    '/_focused/shares/$shareId/value': {
+      id: '/_focused/shares/$shareId/value'
+      path: '/shares/$shareId/value'
+      fullPath: '/shares/$shareId/value'
+      preLoaderRoute: typeof FocusedSharesShareIdValueRouteImport
       parentRoute: typeof FocusedRoute
     }
   }
@@ -605,8 +644,10 @@ interface FocusedRouteChildren {
   FocusedSignInRoute: typeof FocusedSignInRoute
   FocusedAccessKeyRoute: typeof FocusedAccessKeyRoute
   FocusedPortfolioRecordRoute: typeof FocusedPortfolioRecordRoute
+  FocusedSharesNewRoute: typeof FocusedSharesNewRoute
   FocusedAccessIndexRoute: typeof FocusedAccessIndexRoute
   FocusedMembersUserIdRecordRoute: typeof FocusedMembersUserIdRecordRoute
+  FocusedSharesShareIdValueRoute: typeof FocusedSharesShareIdValueRoute
 }
 
 const FocusedRouteChildren: FocusedRouteChildren = {
@@ -616,8 +657,10 @@ const FocusedRouteChildren: FocusedRouteChildren = {
   FocusedSignInRoute: FocusedSignInRoute,
   FocusedAccessKeyRoute: FocusedAccessKeyRoute,
   FocusedPortfolioRecordRoute: FocusedPortfolioRecordRoute,
+  FocusedSharesNewRoute: FocusedSharesNewRoute,
   FocusedAccessIndexRoute: FocusedAccessIndexRoute,
   FocusedMembersUserIdRecordRoute: FocusedMembersUserIdRecordRoute,
+  FocusedSharesShareIdValueRoute: FocusedSharesShareIdValueRoute,
 }
 
 const FocusedRouteWithChildren =

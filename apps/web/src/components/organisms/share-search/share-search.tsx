@@ -5,8 +5,7 @@ import { XIcon } from "@phosphor-icons/react/X";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatMoney } from "../../../lib/format/money";
-import { useLanguage } from "../../../lib/i18n";
+import { useShareLine } from "../../../lib/share-line";
 import { IconButton } from "../../atoms/icon-button/icon-button";
 import { Input as TextInput } from "../../atoms/input/input";
 import * as Option from "../../molecules/option/option";
@@ -62,19 +61,6 @@ export function Input({
       }
     />
   );
-}
-
-function useShareLine(): (share: ShareQuote) => string {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  return (share) =>
-    [
-      share.symbol ?? t("badge.manual"),
-      share.latestPrice === null
-        ? t("badge.pricePending")
-        : formatMoney(share.latestPrice.priceEur, language),
-    ].join(" · ");
 }
 
 /**

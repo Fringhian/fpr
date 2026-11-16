@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import type { IconProps } from "../../../components/foundations/icon/icon";
 import * as Field from "../../../components/molecules/field/field";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
+import { isPositive, parseAmount } from "../../../lib/amount";
 import { useLanguage } from "../../../lib/i18n";
-import { isPositive, parseAmount } from "./amount";
 import { useFlow } from "./flow";
 
 export type AmountFormProps = {

@@ -15,7 +15,7 @@ export const providerCatalogue: {
     {
       key: "water",
       id: fixtureId(212),
-      isin: "IE00FPRWTR10",
+      isin: "IE00FPRWTR13",
       name: "Water Utilities ETF",
       symbol: "WATR.AS",
       exchange: "AS",

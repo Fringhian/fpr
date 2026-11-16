@@ -1,4 +1,10 @@
-import type { ErrorCode } from "@fpr/contracts";
+import type {
+  Decimal,
+  ErrorCode,
+  Id,
+  IsinTakenDetails,
+  ValueChangedDetails,
+} from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
@@ -77,6 +83,24 @@ export function isApiError<const Code extends ErrorCode>(
   code: Code,
 ): error is ORPCError<Code, unknown> {
   return error instanceof ORPCError && error.code === code;
+}
+
+/** The share that already has the ISIN a write sent, when the API refused it with `isin_taken`. */
+export function isinTakenBy(error: unknown): Id | null {
+  if (!isApiError(error, "isin_taken")) {
+    return null;
+  }
+  const details = error.data as Partial<IsinTakenDetails> | undefined;
+  return details?.shareId ?? null;
+}
+
+/** The value point's stored price, when the API refused a value write with `value_changed`. */
+export function changedPrice(error: unknown): Decimal | null {
+  if (!isApiError(error, "value_changed")) {
+    return null;
+  }
+  const details = error.data as Partial<ValueChangedDetails> | undefined;
+  return details?.priceEur ?? null;
 }
 
 /**

@@ -32,13 +32,16 @@ export const lookupErrors = {
  * in as a persona, `?mock-empty` starts with nobody yet, `?mock-slow` (or
  * `?mock-slow=<ms>`) delays every answer, and `?mock-fail=<path>` answers
  * `500 internal_error` to every route whose path starts with it, such as
- * `?mock-fail=/race` or `?mock-fail=/leaderboards`.
+ * `?mock-fail=/race` or `?mock-fail=/leaderboards`, and `?mock-conflict`
+ * has another member change each manual value just before its first edit or
+ * deletion, as two people editing it at once.
  */
 export const urlSwitches = {
   persona: "mock-as",
   empty: "mock-empty",
   slow: "mock-slow",
   fail: "mock-fail",
+  conflict: "mock-conflict",
 } as const;
 
 /** How long `?mock-slow` delays every answer when it names no time, in milliseconds. */

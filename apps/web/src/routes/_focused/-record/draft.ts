@@ -6,10 +6,10 @@ import type {
   Timestamp,
 } from "@fpr/contracts";
 import Big from "big.js";
+import { isPositive } from "../../../lib/amount";
 import { type EntrySummary, entrySummaryOf } from "../../../lib/log-entry";
-import { localInstant, raceDayEnd, raceDayOf } from "../../../lib/race-day";
+import { momentOfDay, raceDayOf } from "../../../lib/race-day";
 import type { RecordKind, RecordSearch } from "../../../lib/record-search";
-import { isPositive } from "./amount";
 
 /**
  * The change being recorded, from the address, else from the entry it
@@ -71,25 +71,16 @@ export function draftOf(
   };
 }
 
-// How far before the device's clock a change made today is dated, so a clock
-// a little ahead of the API's never makes it a future moment.
-const CLOCK_MARGIN_MS = 60_000;
-
 /**
- * The moment a change on `day` is saved at: a minute ago for today, but
- * never before the day starts; a past day's last second for another, so it
- * counts in that day's close and every holding read on it. An edit kept on
- * its day keeps its own moment.
+ * The moment a change on `day` is saved at, `momentOfDay`'s, so it counts
+ * in that day's close and every holding read on it. An edit kept on its day
+ * keeps its own moment.
  */
 export function momentOf(draft: Draft, today: IsoDate): Timestamp {
   if (draft.entry && raceDayOf(draft.entry.effectiveAt) === draft.day) {
     return draft.entry.effectiveAt;
   }
-  if (draft.day !== today) return raceDayEnd(draft.day);
-  const dayStart = localInstant(today, "00:00:00");
-  return new Date(
-    Math.max(Date.now() - CLOCK_MARGIN_MS, dayStart),
-  ).toISOString();
+  return momentOfDay(draft.day, today);
 }
 
 /**

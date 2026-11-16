@@ -94,7 +94,8 @@ The one chart every chart in FPR is built on, on TradingView Lightweight Charts.
 - **line**: the left axis and the days in \`secondary\` text, a dashed \`divider\` grid, and a dashed crosshair. Hovering shows the crosshair and a readout of every line on that day. The chart takes focus: the left and right arrow keys move the crosshair from day to day with the same readout, Home and End go to the ends, Escape leaves, and each step is read out to screen readers.
 - **sparkline**: the line alone, for cards. No axes, no grid, no interaction; its \`label\` names it to screen readers.
 - **lines**: each line has its colour token, a label, its points (a day and the decimal string the API sends), and optionally the last final day: the points after it are dashed and read “not final”. \`emphasis: "context"\` draws a thin line behind the ones in focus, as the race draws the other members in grey. Lines draw in order, the last on top.
-- **marks**, on a line chart: arrows on a line’s days, up under it in \`positive\` or down over it in \`negative\`, such as Portfolio’s purchases and sales. One arrow per day and direction; a mark on a day with no point moves to the line’s next point. The readout of that day says what each mark stands for, and \`MarkKey\` draws an arrow with its words for the chart’s key.
+- **marks**, on a line chart: arrows on a line’s days, up under it in \`positive\` or down over it in \`negative\`, such as Portfolio’s purchases and sales, or in a member’s colour, such as each holder’s on a share’s page. One arrow per day, direction and colour; a mark on a day with no point moves to the line’s next point. The readout of that day says what each mark stands for, and \`MarkKey\` draws an arrow with its words for the chart’s key.
+- **steps**: the line holds each value until the next, as a manual share’s values do.
 - **unit**, **precision** and **signed** format every value of the axis and the readout with \`lib/format\`, in the reader’s language.
 - **overlay** and **onSelectLine**, on a line chart: the overlay is drawn over the chart from where each line ends, and redrawn as it resizes; a click or a tap on a line, or close to it, calls \`onSelectLine\` with its \`id\`. The race card draws its pictures and signs with them.
 
@@ -236,6 +237,73 @@ export const Marks: Story = {
     await waitFor(() =>
       expect(live).toHaveTextContent("Bought 10 World Index ETF"),
     );
+  },
+};
+
+/** A share’s price with each holder’s purchases and sales in their colour, as a share’s page draws them. */
+const HOLDERS_MARKS: readonly ChartLine[] = [
+  {
+    ...(PRICE[0] as ChartLine),
+    marks: [
+      {
+        day: DAYS[3] ?? "",
+        direction: "up",
+        label: "Sam bought 40",
+        color: "vermilion",
+      },
+      {
+        day: DAYS[11] ?? "",
+        direction: "up",
+        label: "Alex bought 60",
+        color: "cobalt",
+      },
+      {
+        day: DAYS[20] ?? "",
+        direction: "down",
+        label: "Sam sold 10",
+        color: "vermilion",
+      },
+    ],
+  },
+];
+
+/** Marks in each holder’s colour: the arrow’s shape says bought or sold, its colour who. */
+export const HolderMarks: Story = {
+  args: { lines: HOLDERS_MARKS },
+  render: (args) => (
+    <div className={cn(card, "grid max-w-[45rem] gap-m")}>
+      <Chart {...args} />
+      <p className="flex gap-m text-xs text-secondary">
+        <MarkKey direction="up" color="vermilion">
+          Sam
+        </MarkKey>
+        <MarkKey direction="up" color="cobalt">
+          Alex
+        </MarkKey>
+        <MarkKey direction="down" color="muted">
+          Sale
+        </MarkKey>
+      </p>
+    </div>
+  ),
+};
+
+/** A manual share’s values: each holds until the next. */
+export const Steps: Story = {
+  args: {
+    lines: [
+      {
+        id: "vineyard",
+        label: "Vineyard Estate Shares",
+        color: "primary",
+        steps: true,
+        points: DAYS.map((day, index) => ({
+          day,
+          value: index < 12 ? "120.00" : index < 25 ? "124.50" : "129.00",
+        })),
+      },
+    ],
+    label: "Vineyard Estate Shares, value since 2 March",
   },
 };
 

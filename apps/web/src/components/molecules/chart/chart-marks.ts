@@ -49,7 +49,7 @@ function arrows(
   const seen = new Set<string>();
   const byDay = marks.toSorted((a, b) => a.day.localeCompare(b.day));
   return byDay.flatMap((mark): SeriesMarker<Time>[] => {
-    const key = `${mark.day} ${mark.direction}`;
+    const key = `${mark.day} ${mark.direction} ${mark.color}`;
     if (seen.has(key)) return [];
     seen.add(key);
     const up = mark.direction === "up";
@@ -58,7 +58,7 @@ function arrows(
         time: dayToTime(mark.day),
         position: up ? "belowBar" : "aboveBar",
         shape: up ? "arrowUp" : "arrowDown",
-        color: token(element, up ? "positive" : "negative"),
+        color: token(element, mark.color ?? (up ? "positive" : "negative")),
         size: MARK_SIZE,
       },
     ];

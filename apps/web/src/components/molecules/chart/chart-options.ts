@@ -5,6 +5,7 @@ import {
   type DeepPartial,
   type LineSeriesPartialOptions,
   LineStyle,
+  LineType,
 } from "lightweight-charts";
 import { cssVariable } from "../../../lib/css-variable";
 import type { ChartLine, ChartVariant } from "./chart-types";
@@ -112,6 +113,7 @@ export function seriesOptions(
     color: token(element, line.color),
     lineWidth: LINE_WIDTH[emphasis],
     lineStyle: dashed ? LineStyle.Dashed : LineStyle.Solid,
+    lineType: line.steps ? LineType.WithSteps : LineType.Simple,
     priceScaleId: interactive ? "left" : "right",
     lastValueVisible: false,
     priceLineVisible: false,

@@ -1,12 +1,14 @@
 import type { Id } from "@fpr/contracts";
+import { useLocation } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as ShareSearch from "../../../components/organisms/share-search/share-search";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useErrorText } from "../../../lib/api/errors";
-import { useShareSearch } from "../../../lib/share-search";
 import { DEFAULT_SETTING } from "../../../lib/view-state/view-search";
+import { ShareLookupSection } from "../../-share-lookup/share-lookup-section";
+import { useListedShares } from "../../-share-lookup/use-listed-shares";
 import { useFlow } from "./flow";
 import { RecordPage } from "./record-page";
 import { useDraftText } from "./use-draft-text";
@@ -24,7 +26,8 @@ export function ShareStep() {
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<Id | null>(draft.shareId ?? null);
   const [missing, setMissing] = useState(false);
-  const search = useShareSearch(q, DEFAULT_SETTING.period);
+  const { href } = useLocation();
+  const { search, listed, lookup } = useListedShares(q, DEFAULT_SETTING.period);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -50,7 +53,7 @@ export function ShareStep() {
             label={t("shareSearch.label")}
             q={q}
             onQChange={setQ}
-            shares={search.data?.shares}
+            shares={listed}
             error={search.isError ? errorText(search.error) : null}
             onRetry={() => void search.refetch()}
             value={picked}
@@ -58,7 +61,17 @@ export function ShareStep() {
               setPicked(id);
               setMissing(false);
             }}
-          />
+          >
+            <ShareLookupSection
+              lookup={lookup}
+              query={q.trim()}
+              back={href}
+              pick
+              onAdd={(share) =>
+                goTo("when", { share: share.id, amount: undefined })
+              }
+            />
+          </ShareSearch.Basic>
           <FormError>
             {missing ? t("recordChange.share.missing") : null}
           </FormError>
