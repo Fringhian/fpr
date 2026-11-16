@@ -500,6 +500,62 @@
     "holdings": "Les positions de {{name}}",
     "loading": "Chargement de la page…"
   },
+  "portfolioPage": {
+    "headline": {
+      "up": "Votre portefeuille vaut {{balance}}, en hausse de <gain>{{amount}}</gain> {{period}}",
+      "down": "Votre portefeuille vaut {{balance}}, en baisse de <gain>{{amount}}</gain> {{period}}",
+      "flat": "Votre portefeuille vaut {{balance}}, stable à <gain>{{amount}}</gain> {{period}}",
+      "worth": "Votre portefeuille vaut {{balance}}"
+    },
+    "pricesAsOfTime": "Cours de {{time}}",
+    "pricesAsOfDate": "Cours du {{date}}",
+    "incomplete": {
+      "title": "Incomplet",
+      "note_one": "Incomplet : {{count}} cours en attente",
+      "note_many": "Incomplet : {{count}} de cours en attente",
+      "note_other": "Incomplet : {{count}} cours en attente",
+      "description_one": "Les cours de {{names}} sont en chargement. D’ici là, ce titre n’est pas compté, jamais à 0 €.",
+      "description_many": "Les cours de {{names}} sont en chargement. D’ici là, ces titres ne sont pas comptés, jamais à 0 €.",
+      "description_other": "Les cours de {{names}} sont en chargement. D’ici là, ces titres ne sont pas comptés, jamais à 0 €."
+    },
+    "record": "Enregistrer un mouvement",
+    "balance": "Votre solde",
+    "chart": "Votre solde sur la période, avec vos achats et vos ventes",
+    "purchase": "Achat",
+    "sale": "Vente",
+    "holdings": "Vos positions",
+    "empty": {
+      "title": "Votre portefeuille est vide",
+      "description": "Enregistrez chaque titre que vous détenez avec le jour de son achat. Une semaine de retard ne gêne pas : FPR rejoue tout depuis ce jour."
+    },
+    "loading": "Chargement de votre portefeuille…",
+    "loadFailed": "Impossible de charger votre portefeuille"
+  },
+  "ownedHoldings": {
+    "buyMore": "Acheter encore",
+    "sell": "Vendre"
+  },
+  "latestChanges": {
+    "title": "Derniers mouvements",
+    "seeAll": "Voir tous les mouvements"
+  },
+  "entryActions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleted": {
+      "change": "Mouvement supprimé",
+      "cash": "Liquidités supprimées"
+    },
+    "deleteRefused": "Impossible de supprimer cette entrée",
+    "undoRefused": "Impossible d’annuler la suppression",
+    "breaks": "Une position passerait sous zéro à {{change}} le {{date}}. Modifiez ou supprimez d’abord ce mouvement."
+  },
+  "historyPage": {
+    "loading": "Chargement de votre historique…",
+    "loadingMore": "Chargement d’autres mouvements…",
+    "moreFailed": "Impossible de charger plus de mouvements.",
+    "none": "Vous n’avez encore rien enregistré."
+  },
   "pageStates": {
     "notFound": {
       "title": "Page introuvable",

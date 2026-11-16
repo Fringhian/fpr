@@ -27,8 +27,8 @@ interface CashSet {
   kind: "cashSet";
   /** The cash from that moment, in euros. */
   amount: Decimal;
-  /** The cash just before, or `null` for the first cash entry. */
-  before: Decimal | null;
+  /** The cash just before, `null` for the first cash entry, or `undefined` when it isn't known yet, such as an older page of a log not loaded: no line then. */
+  before?: Decimal | null | undefined;
 }
 
 /** A value point added to a manual share: what one unit was worth. */
@@ -122,9 +122,11 @@ export function describe(
       return {
         title: t("timelineRow.cashSet", { amount: money(entry.amount) }),
         change:
-          entry.before === null
-            ? t("timelineRow.firstCash")
-            : t("timelineRow.was", { before: money(entry.before) }),
+          entry.before === undefined
+            ? null
+            : entry.before === null
+              ? t("timelineRow.firstCash")
+              : t("timelineRow.was", { before: money(entry.before) }),
       };
     case "valueAdded":
       return {

@@ -1,0 +1,60 @@
+import type { PortfolioChange } from "@fpr/contracts";
+import { useTranslation } from "react-i18next";
+import { useToast } from "../../../components/molecules/toast/use-toast";
+import { isApiError, useErrorText } from "../../../lib/api/errors";
+import { formatDate } from "../../../lib/format/date";
+import { formatQuantity } from "../../../lib/format/number";
+import { quote } from "../../../lib/format/text";
+import { useLanguage } from "../../../lib/i18n";
+import { RACE_TIME_ZONE } from "../../../lib/race-day";
+
+/** The stored change a `holding_below_zero` refusal names, from its details. */
+function brokenChange(error: unknown): PortfolioChange | null {
+  if (!isApiError(error, "holding_below_zero")) return null;
+  const details: unknown = error.data;
+  if (typeof details !== "object" || details === null) return null;
+  const change: unknown = "change" in details ? details.change : null;
+  return typeof change === "object" &&
+    change !== null &&
+    "share" in change &&
+    "quantityDelta" in change &&
+    "effectiveAt" in change
+    ? (change as PortfolioChange)
+    : null;
+}
+
+/**
+ * Shows why a write to a log entry was refused, in a toast that stays until
+ * dismissed. A refusal for a holding going below zero names the change it
+ * would break and its day: “Sold 5 Swiss Pharma AG” on 24 Feb.
+ */
+export function useEntryRefusal() {
+  const { t } = useTranslation();
+  const language = useLanguage();
+  const toast = useToast();
+  const errorText = useErrorText();
+
+  return (title: string, error: unknown) => {
+    const change = brokenChange(error);
+    const kind = change?.quantityDelta.startsWith("-") ? "sold" : "bought";
+    const description =
+      change === null
+        ? errorText(error)
+        : t("entryActions.breaks", {
+            change: quote(
+              t(`timelineRow.${kind}`, {
+                quantity: formatQuantity(
+                  change.quantityDelta.replace(/^-/, ""),
+                  language,
+                ),
+                share: change.share.name,
+              }),
+              language,
+            ),
+            date: formatDate(change.effectiveAt, language, {
+              timeZone: RACE_TIME_ZONE,
+            }),
+          });
+    toast.show({ title, description, timeout: 0 });
+  };
+}

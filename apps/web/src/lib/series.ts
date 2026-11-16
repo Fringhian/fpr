@@ -36,6 +36,13 @@ export function gainPoints(
   }));
 }
 
+/** A member's balance in euros as a chart draws it, the latest of each race day. */
+export function balancePoints(
+  points: readonly MemberSeriesPoint[],
+): ChartPoint[] {
+  return byDay(points, ({ at, balanceEur }) => ({ at, value: balanceEur }));
+}
+
 /** A share's price as a chart draws it, the latest of each race day. */
 export function pricePoints(points: readonly PricePoint[]): ChartPoint[] {
   return byDay(points, ({ at, priceEur }) => ({ at, value: priceEur }));

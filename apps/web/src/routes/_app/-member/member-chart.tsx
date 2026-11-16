@@ -1,23 +1,17 @@
 import type { Portfolio, PortfolioBalanceHistory } from "@fpr/contracts";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Card } from "../../../components/atoms/card/card";
-import { LoadingPlaceholder } from "../../../components/atoms/loading-placeholder/loading-placeholder";
 import { Picture } from "../../../components/atoms/picture/picture";
-import { AllocationBar } from "../../../components/molecules/allocation-bar/allocation-bar";
-import { allocationHoldings } from "../../../components/molecules/allocation-bar/allocation-bar-model";
 import {
   Chart,
   type ChartLine,
 } from "../../../components/molecules/chart/chart";
 import { NotFinalKey } from "../../../components/molecules/chart/chart-key";
 import { gainFormat } from "../../../components/molecules/chart/chart-model";
-import { cn } from "../../../lib/cn";
 import type { GainUnit } from "../../../lib/gain";
 import type { Look } from "../../../lib/look";
 import { gainPoints, lastCloseOf } from "../../../lib/series";
-
-const CHART = cn("", "h-[13rem]", "tablet:h-[15rem]", "desktop:h-[15rem]");
+import * as ChartCard from "../-portfolio-sections/chart-card";
 
 type History = PortfolioBalanceHistory["points"];
 
@@ -69,7 +63,7 @@ function Legend({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap items-center gap-x-m gap-y-xs text-xs text-secondary">
+    <ChartCard.Key>
       <span className="inline-flex items-center gap-xs">
         <Picture aria-hidden {...member} size="xs" />
         {member.name}
@@ -84,7 +78,7 @@ function Legend({
         </span>
       ) : null}
       {today ? <NotFinalKey /> : null}
-    </div>
+    </ChartCard.Key>
   );
 }
 
@@ -120,7 +114,7 @@ function Curves({
         lines={lines}
         label={t(label, { name: member.name })}
         {...gainFormat(unit)}
-        className={CHART}
+        className={ChartCard.PLOT}
       />
       <Legend
         member={member}
@@ -138,22 +132,13 @@ function Curves({
  */
 export function MemberChart({ portfolio, ...props }: MemberChartProps) {
   return (
-    <Card
-      elevation="rest"
-      className={cn("grid min-w-0 gap-m", "p-m", "tablet:p-l", "desktop:p-l")}
-    >
+    <ChartCard.Root>
       {props.history === undefined ? (
-        <LoadingPlaceholder className={CHART} />
+        <ChartCard.Loading />
       ) : (
         <Curves {...props} history={props.history} />
       )}
-      {portfolio === undefined ? null : (
-        <AllocationBar
-          color={props.member.color}
-          holdings={allocationHoldings(portfolio.holdings)}
-          cashWeight={portfolio.cashWeight}
-        />
-      )}
-    </Card>
+      <ChartCard.Split portfolio={portfolio} color={props.member.color} />
+    </ChartCard.Root>
   );
 }

@@ -1,30 +1,12 @@
 import type { Id, Members } from "@fpr/contracts";
-import { useQuery } from "@tanstack/react-query";
 import { neededReads } from "../../../lib/api/needed-reads";
-import { liveViewFor } from "../../../lib/api/query-client";
-import { useApi } from "../../../lib/api/use-api";
 import { useMembers } from "../../../lib/members";
 import { useSession } from "../../../lib/session/use-session";
 import { useViewState } from "../../../lib/view-state/use-view-state";
+import { usePortfolioReads } from "../-portfolio-sections/use-portfolio-reads";
 
 /** A member as the members list has them: who, gain, balance, first entry. */
 export type MemberRow = Members["members"][number];
-
-function usePortfolioReads(userId: Id, enabled: boolean) {
-  const api = useApi();
-  const { setting } = useViewState();
-
-  const input = { userId, period: setting.period };
-  const view = liveViewFor(input, "userId");
-  return {
-    portfolio: useQuery(
-      api.portfolio.get.queryOptions({ input, ...view, enabled }),
-    ),
-    history: useQuery(
-      api.portfolio.balanceHistory.queryOptions({ input, ...view, enabled }),
-    ),
-  };
-}
 
 /**
  * A member's page's reads for the period: who they are and how they did, from

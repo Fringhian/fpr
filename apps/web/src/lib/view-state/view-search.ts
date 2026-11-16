@@ -11,6 +11,13 @@ export const DEFAULT_SETTING: PeriodSetting = { period: "1M", unit: "percent" };
 const ID_SHAPE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** An id from the address, in lower case, or nothing when it isn't one. */
+export function idIn(value: unknown): Id | undefined {
+  return typeof value === "string" && ID_SHAPE.test(value)
+    ? value.toLowerCase()
+    : undefined;
+}
+
 /**
  * The search every everyday page shares: `period` and `unit`, each from the
  * address when it names a valid one, else the setting kept in
@@ -38,11 +45,10 @@ export function validateHomeSearch(
     standings?: LeaderboardBoard | undefined;
   } & SearchSchemaInput,
 ): { focus?: Id | undefined; standings?: LeaderboardBoard | undefined } {
-  const focus =
-    typeof search.focus === "string" && ID_SHAPE.test(search.focus)
-      ? search.focus.toLowerCase()
-      : undefined;
-  return { focus, standings: oneOf(leaderboardBoards, search.standings) };
+  return {
+    focus: idIn(search.focus),
+    standings: oneOf(leaderboardBoards, search.standings),
+  };
 }
 
 /**

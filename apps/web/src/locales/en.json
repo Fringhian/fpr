@@ -490,6 +490,60 @@
     "holdings": "{{name}}’s holdings",
     "loading": "Loading the page…"
   },
+  "portfolioPage": {
+    "headline": {
+      "up": "Your portfolio is worth {{balance}}, up <gain>{{amount}}</gain> {{period}}",
+      "down": "Your portfolio is worth {{balance}}, down <gain>{{amount}}</gain> {{period}}",
+      "flat": "Your portfolio is worth {{balance}}, flat at <gain>{{amount}}</gain> {{period}}",
+      "worth": "Your portfolio is worth {{balance}}"
+    },
+    "pricesAsOfTime": "Prices as of {{time}}",
+    "pricesAsOfDate": "Prices as of {{date}}",
+    "incomplete": {
+      "title": "Incomplete",
+      "note_one": "Incomplete: {{count}} price pending",
+      "note_other": "Incomplete: {{count}} prices pending",
+      "description_one": "{{names}}’s prices are still loading. Until they arrive, it isn’t counted, never at €0.",
+      "description_other": "The prices of {{names}} are still loading. Until they arrive, they aren’t counted, never at €0."
+    },
+    "record": "Record a change",
+    "balance": "Your balance",
+    "chart": "Your balance over the period, with your purchases and sales",
+    "purchase": "Purchase",
+    "sale": "Sale",
+    "holdings": "Your holdings",
+    "empty": {
+      "title": "Your portfolio is empty",
+      "description": "Record each share you hold with the day you bought it. A week late is fine: FPR replays it from that day."
+    },
+    "loading": "Loading your portfolio…",
+    "loadFailed": "Can’t load your portfolio"
+  },
+  "ownedHoldings": {
+    "buyMore": "Buy more",
+    "sell": "Sell"
+  },
+  "latestChanges": {
+    "title": "Latest changes",
+    "seeAll": "See all changes"
+  },
+  "entryActions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleted": {
+      "change": "Change deleted",
+      "cash": "Cash balance deleted"
+    },
+    "deleteRefused": "Can’t delete this entry",
+    "undoRefused": "Can’t undo the deletion",
+    "breaks": "A holding would go below zero at {{change}} on {{date}}. Edit or delete that change first."
+  },
+  "historyPage": {
+    "loading": "Loading your history…",
+    "loadingMore": "Loading more changes…",
+    "moreFailed": "Can’t load more changes.",
+    "none": "You haven’t recorded anything yet."
+  },
   "pageStates": {
     "notFound": {
       "title": "Page not found",
