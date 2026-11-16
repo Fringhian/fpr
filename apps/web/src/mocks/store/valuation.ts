@@ -1,4 +1,5 @@
 import type { Id } from "@fpr/contracts";
+import { closeAt, dayOf } from "./calendar.ts";
 import { Big, zero } from "./decimal.ts";
 import type {
   MockStore,
@@ -35,6 +36,11 @@ export function pricePointAt(
 export function priceAt(share: StoredShare, atMs: number): Big | null {
   const point = pricePointAt(share, atMs);
   return point === null ? null : new Big(point.priceEur);
+}
+
+/** One unit's value at the close of a change's day: the latest price so far for today's. */
+export function dayPrice(share: StoredShare, atMs: number): Big | null {
+  return priceAt(share, closeAt(dayOf(atMs)));
 }
 
 export function shareOf(
@@ -129,6 +135,25 @@ export function valuationAt(store: MockStore, userId: Id, atMs: number) {
 }
 
 export type Valuation = ReturnType<typeof valuationAt>;
+
+/**
+ * The money a person added, minus the money taken out, up to a moment: each
+ * share change at its share's value at its day's close, with no price
+ * counting as zero, plus the cash then, which is the sum of every change of
+ * cash balance.
+ */
+export function flowsAt(store: MockStore, userId: Id, atMs: number): Big {
+  let flows = cashAt(cashOf(store, userId), atMs);
+  for (const change of changesOf(store, userId)) {
+    if (change.atMs > atMs) {
+      break;
+    }
+    const share = shareOf(store, change.shareId);
+    const price = share === undefined ? null : dayPrice(share, change.atMs);
+    flows = flows.plus(price?.times(change.quantityDelta) ?? zero);
+  }
+  return flows;
+}
 
 /** A person's holdings now, at their latest prices, largest first, unpriced last. */
 export function holdingsNow(store: MockStore, userId: Id) {

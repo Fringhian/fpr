@@ -1,7 +1,7 @@
 import type { Id, Period, Portfolio, PortfolioHolding } from "@fpr/contracts";
 import { dayOf } from "./calendar.ts";
-import { type Big, money, plain, ratio } from "./decimal.ts";
-import { balanceGain, periodGain, toGain } from "./gain.ts";
+import { type Big, money, plain, ratio, zero } from "./decimal.ts";
+import { type GainAmount, periodGain, toGain, withGains } from "./gain.ts";
 import {
   firstEntryMs,
   measuredFrom,
@@ -17,7 +17,13 @@ import {
   toShareSummary,
 } from "./shares.ts";
 import type { MockStore, StoredChange } from "./types.ts";
-import { cashOf, changesOf, type Holding, holdingsNow } from "./valuation.ts";
+import {
+  cashOf,
+  changesOf,
+  flowsAt,
+  type Holding,
+  holdingsNow,
+} from "./valuation.ts";
 
 function holdingView(
   store: MockStore,
@@ -49,6 +55,24 @@ function holdingView(
   };
 }
 
+/** The balance's gain from the period's start to now, measured as the series' points are. */
+function gainNow(
+  store: MockStore,
+  userId: Id,
+  { window, balanceEur }: { window: PeriodWindow; balanceEur: Big },
+): GainAmount {
+  const atMs = store.calendar.nowMs;
+  const points = windowPoints(store, userId, window, { closesOnly: false });
+  const first = firstEntryMs(store, userId);
+  const now =
+    first === null || first > atMs
+      ? []
+      : [{ atMs, balanceEur, flowsEur: flowsAt(store, userId, atMs) }];
+  return (
+    withGains([...points, ...now]).at(-1)?.gain ?? { eur: zero, base: zero }
+  );
+}
+
 /**
  * A member's holdings and cash now, at the latest prices, and the balance's
  * gain since the period's start: since their first point when they started
@@ -70,7 +94,6 @@ export function portfolioView(
       changes,
     }),
   );
-  const [baseline] = windowPoints(store, userId, window, { closesOnly: false });
   const pricedAt = holdings
     .flatMap((holding) => holding.latestPrice?.at ?? [])
     .sort();
@@ -86,10 +109,7 @@ export function portfolioView(
       cashOf(store, userId).findLast(({ atMs }) => atMs <= now)?.effectiveAt ??
       null,
     gain: toGain(
-      balanceGain(
-        baseline?.balanceEur ?? valuation.balanceEur,
-        valuation.balanceEur,
-      ),
+      gainNow(store, userId, { window, balanceEur: valuation.balanceEur }),
     ),
     firstEntryOn: first === null ? null : dayOf(first),
     measuredFrom: measuredFrom(store, userId, window),

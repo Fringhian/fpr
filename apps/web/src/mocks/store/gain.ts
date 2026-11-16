@@ -1,29 +1,53 @@
 import type { Gain } from "@fpr/contracts";
-import { closeAt, dayOf } from "./calendar.ts";
-import { Big, money, ratio, zero } from "./decimal.ts";
+import { Big, money, percent, zero } from "./decimal.ts";
 import type { StoredChange, StoredShare } from "./types.ts";
-import { priceAt } from "./valuation.ts";
+import { dayPrice, priceAt } from "./valuation.ts";
 
 /** A gain in euros, and the amount its percentage is measured against. */
 export type GainAmount = { eur: Big; base: Big };
 
-export function toGain({ eur, base }: GainAmount): Gain {
-  return { eur: money(eur), percent: ratio(eur, base) };
+export function toGain(gain: GainAmount): Gain {
+  const inPercent = gainPercent(gain);
+  return {
+    eur: money(gain.eur),
+    percent: inPercent === null ? null : percent(inPercent),
+  };
 }
 
-/** The gain in percent, unrounded, or `null` while its base is zero. */
+/** The gain in percent, unrounded, or `null` while its base is zero or below. */
 export function gainPercent({ eur, base }: GainAmount): Big | null {
-  return base.eq(0) ? null : eur.div(base).times(100);
+  return base.gt(0) ? eur.div(base).times(100) : null;
 }
 
-/** A balance's gain since the one it is measured from. */
-export function balanceGain(from: Big, to: Big): GainAmount {
-  return { eur: to.minus(from), base: from };
-}
-
-/** One unit's value at the close of a change's day: the latest price so far for today's. */
-function dayPrice(share: StoredShare, atMs: number): Big | null {
-  return priceAt(share, closeAt(dayOf(atMs)));
+/**
+ * Each point's gain since the first, which it is measured from: the balance's
+ * change minus the flows between them, so money added or taken out is no
+ * gain. The percentage is Modified Dietz: the gain over the first balance plus
+ * each flow weighted by the fraction of the span left after it. A flow is
+ * dated at the first point it shows in.
+ */
+export function withGains<
+  P extends { atMs: number; balanceEur: Big; flowsEur: Big },
+>(points: readonly P[]): { point: P; gain: GainAmount }[] {
+  const [first] = points;
+  if (first === undefined) {
+    return [];
+  }
+  // Σ Fᵢ·(tᵢ − t₀), so that Σ Fᵢ·(t − tᵢ)/(t − t₀) = added − timed/(t − t₀).
+  let timed = zero;
+  let previous = first.flowsEur;
+  return points.map((point) => {
+    const elapsed = point.atMs - first.atMs;
+    timed = timed.plus(point.flowsEur.minus(previous).times(elapsed));
+    previous = point.flowsEur;
+    const added = point.flowsEur.minus(first.flowsEur);
+    const weighted = elapsed === 0 ? added : added.minus(timed.div(elapsed));
+    const gain = {
+      eur: point.balanceEur.minus(first.balanceEur).minus(added),
+      base: first.balanceEur.plus(weighted),
+    };
+    return { point, gain };
+  });
 }
 
 function quantityAt(changes: readonly StoredChange[], atMs: number): Big {

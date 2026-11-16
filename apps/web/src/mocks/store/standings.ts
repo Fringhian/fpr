@@ -1,11 +1,6 @@
 import type { Id, Period } from "@fpr/contracts";
 import type { Big } from "./decimal.ts";
-import {
-  balanceGain,
-  type GainAmount,
-  gainPercent,
-  periodGain,
-} from "./gain.ts";
+import { type GainAmount, gainPercent, periodGain, withGains } from "./gain.ts";
 import { racers } from "./people.ts";
 import {
   type BalancePoint,
@@ -27,7 +22,8 @@ export type Standing = {
 
 /**
  * Every member's balance and gain at the last close, measured from their
- * first close in the period. A member with no close yet hasn't started.
+ * first close in the period, without the money added or taken out since. A
+ * member with no close yet hasn't started.
  */
 export function standingsAt(store: MockStore, period: Period) {
   const window = raceWindow(store, period);
@@ -35,13 +31,11 @@ export function standingsAt(store: MockStore, period: Period) {
   const notStarted: MockPerson[] = [];
   for (const person of racers(store)) {
     const closes = windowPoints(store, person.id, window, { closesOnly: true });
-    const [start] = closes;
-    const end = closes.at(-1);
-    if (start === undefined || end === undefined) {
+    const last = withGains(closes).at(-1);
+    if (last === undefined) {
       notStarted.push(person);
     } else {
-      const gain = balanceGain(start.balanceEur, end.balanceEur);
-      standings.push({ person, closes, end, gain });
+      standings.push({ person, closes, end: last.point, gain: last.gain });
     }
   }
   return { window, standings, notStarted };

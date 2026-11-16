@@ -8,9 +8,9 @@ import {
   tradingDays,
 } from "./calendar.ts";
 import { type Big, money } from "./decimal.ts";
-import { balanceGain, toGain } from "./gain.ts";
+import { toGain, withGains } from "./gain.ts";
 import type { MockStore } from "./types.ts";
-import { valuationAt } from "./valuation.ts";
+import { flowsAt, valuationAt } from "./valuation.ts";
 
 /** A period as of the last close: the close it starts from, and every close in it. */
 export type PeriodWindow = {
@@ -102,6 +102,8 @@ export function measuredFrom(
 export type BalancePoint = {
   atMs: number;
   balanceEur: Big;
+  /** The money added, minus the money taken out, up to the point: `flowsAt`. */
+  flowsEur: Big;
   incomplete: boolean;
   /** A refresh after the last close: today's point, not final. */
   provisional: boolean;
@@ -134,6 +136,7 @@ export function windowPoints(
       return {
         atMs,
         balanceEur: valuation.balanceEur,
+        flowsEur: flowsAt(store, userId, atMs),
         incomplete: valuation.incomplete,
         provisional: atMs > window.lastCloseMs,
       };
@@ -144,16 +147,13 @@ export function windowPoints(
 export function toSeriesPoints(
   points: readonly BalancePoint[],
 ): MemberSeriesPoint[] {
-  const [first] = points;
-  return first === undefined
-    ? []
-    : points.map((point) => ({
-        at: timestamp(point.atMs),
-        balanceEur: money(point.balanceEur),
-        gain: toGain(balanceGain(first.balanceEur, point.balanceEur)),
-        provisional: point.provisional,
-        incomplete: point.incomplete,
-      }));
+  return withGains(points).map(({ point, gain }) => ({
+    at: timestamp(point.atMs),
+    balanceEur: money(point.balanceEur),
+    gain: toGain(gain),
+    provisional: point.provisional,
+    incomplete: point.incomplete,
+  }));
 }
 
 /** The period's start, then each close, then today's refreshes. */
