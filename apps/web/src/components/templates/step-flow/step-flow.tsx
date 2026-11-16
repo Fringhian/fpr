@@ -45,17 +45,7 @@ export type BasicProps = {
   panel?: ReactNode;
   /** What answers the question, under it: a field, options, a list. */
   children?: ReactNode;
-} & Omit<
-  ComponentProps<"div">,
-  | "back"
-  | "close"
-  | "progress"
-  | "caption"
-  | "question"
-  | "description"
-  | "action"
-  | "panel"
->;
+} & ComponentProps<"div">;
 
 /**
  * A focused page with one question, ready-made: the header with `back` and
