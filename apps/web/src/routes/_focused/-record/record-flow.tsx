@@ -5,6 +5,7 @@ import { editPortfolioLink } from "../../../lib/edit-portfolio";
 import { LeaveGuard } from "../../../lib/leave-guard";
 import { raceDayOf } from "../../../lib/race-day";
 import type { RecordSearch, RecordStep } from "../../../lib/record-search";
+import { useRaceToday } from "../../../lib/use-race-today";
 import { useRecord } from "../../_app/-portfolio-sections/record-link";
 import { draftOf } from "./draft";
 import { type Flow, FlowContext, type Owner } from "./flow";
@@ -46,7 +47,7 @@ export function RecordFlow({
   search: RecordSearch;
 }) {
   const { t } = useTranslation();
-  const [today] = useState(() => raceDayOf(Date.now()));
+  const today = useRaceToday();
   const [firstDraftId] = useState(() => crypto.randomUUID());
   const [refusal, setRefusal] = useState<string | null>(null);
   const session = useSessionChanges();
