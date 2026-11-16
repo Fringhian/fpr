@@ -8,6 +8,7 @@ import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
+import { entryTitle } from "../../../lib/log-entry";
 import type { IconProps } from "../../foundations/icon/icon";
 
 /** Shares added to a holding, or removed from it. */
@@ -27,8 +28,8 @@ interface CashSet {
   kind: "cashSet";
   /** The cash from that moment, in euros. */
   amount: Decimal;
-  /** The cash just before, or `null` for the first cash entry. */
-  before: Decimal | null;
+  /** The cash just before, `null` for the first cash entry, or `undefined` when it isn't known yet, such as an older page of a log not loaded: no line then. */
+  before?: Decimal | null | undefined;
 }
 
 /** A value point added to a manual share: what one unit was worth. */
@@ -85,10 +86,7 @@ function describeHolding(
 ): Description {
   const before = formatQuantity(entry.before, language);
   const after = formatQuantity(entry.after, language);
-  const title = t(`timelineRow.${entry.kind}`, {
-    quantity: formatQuantity(entry.quantity, language),
-    share: entry.share,
-  });
+  const title = entryTitle(entry, t, language);
   if (entry.kind === "bought" && ZERO.test(entry.before)) {
     return { title, change: t("timelineRow.newHolding") };
   }
@@ -120,11 +118,13 @@ export function describe(
       return describeHolding(entry, t, language);
     case "cashSet":
       return {
-        title: t("timelineRow.cashSet", { amount: money(entry.amount) }),
+        title: entryTitle(entry, t, language),
         change:
-          entry.before === null
-            ? t("timelineRow.firstCash")
-            : t("timelineRow.was", { before: money(entry.before) }),
+          entry.before === undefined
+            ? null
+            : entry.before === null
+              ? t("timelineRow.firstCash")
+              : t("timelineRow.was", { before: money(entry.before) }),
       };
     case "valueAdded":
       return {

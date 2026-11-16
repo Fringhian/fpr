@@ -48,10 +48,9 @@ export function notInFuture(
   store: MockStore,
   effectiveAt: string | undefined,
 ): void {
-  if (
-    effectiveAt !== undefined &&
-    Date.parse(effectiveAt) > store.calendar.nowMs
-  ) {
+  // The store's clock stops when it is made; a page left open keeps going.
+  const nowMs = Math.max(store.calendar.nowMs, Date.now());
+  if (effectiveAt !== undefined && Date.parse(effectiveAt) > nowMs) {
     throw mockError("future_moment");
   }
 }

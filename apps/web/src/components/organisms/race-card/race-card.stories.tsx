@@ -9,6 +9,7 @@ import { MarketStatus } from "../../atoms/market-status/market-status";
 import * as Sky from "../../foundations/sky/sky";
 import type { ChartPoint } from "../../molecules/chart/chart";
 import { toDecimal } from "../../molecules/chart/chart-model";
+import { madeUpCurve } from "../made-up-race/made-up-race-model";
 import * as RaceCard from "./race-card";
 
 /** The weekdays of March 2026 up to the 27th: the last one is today, after the last close. */
@@ -31,22 +32,11 @@ interface Runner {
   balance: number;
 }
 
-/** An invented, repeatable curve from zero to `gain`, wandering on the way: the same on every load. */
-function curve(seed: number, gain: number): number[] {
-  let state = seed;
-  return DAYS.map((_, index) => {
-    state = (state * 16_807) % 2_147_483_647;
-    const progress = index / (DAYS.length - 1);
-    const wander = (state / 2_147_483_647 - 0.5) * 2.4;
-    return gain * progress + wander * Math.sin(Math.PI * progress);
-  });
-}
-
 /** The same runners, in percent and in euros, as the API sends either unit. */
 function race(runners: readonly Runner[]) {
   const curves = runners.map((runner, index) => ({
     runner,
-    values: curve(31 + index * 97, runner.gain),
+    values: madeUpCurve(31 + index * 97, runner.gain, DAYS.length),
   }));
   const member = (
     { id, name, color }: Runner,
@@ -202,6 +192,7 @@ The hero of Home: every member’s gain over the period on one chart, in the one
 | \`RaceCard.Root\` | The card, resting on the horizon right under the sky’s ridge. |
 | \`RaceCard.Header\` | “The race”, then its children on the right, such as the market status. |
 | \`RaceCard.Race\` | The chart, its line ends, and the key to today’s dashed points. |
+| \`RaceCard.Loading\` | The race’s place, at the chart’s height, while its members load. |
 
 - Only you and the focused member are in colour, each named by a trail sign with their latest value. Everyone else is a thin grey line. Colour never has to tell ten people apart.
 - On tablet and desktop each line ends with its owner’s picture, or for the two in colour, their sign. Marks that would overlap are nudged apart and tied to their line. On phone the lines end bare: the two signs sit under the chart, and the standings under the card are its legend.
@@ -309,6 +300,22 @@ export const AnonymousViewer: Story = {
   },
   parameters: { headline: "Quiet Otter leads the month" },
   globals: { viewport: { value: "desktop" } },
+};
+
+/** While the race loads: the header, then `RaceCard.Loading` at the chart’s height. */
+export const Loading: Story = {
+  parameters: { controls: { disable: true } },
+  globals: { viewport: { value: "desktop" } },
+  render: (_args, { parameters }) => (
+    <Sky.Root className={cn("pb-xl font-sans text-primary", gutters)}>
+      <Sky.Band />
+      <HomeHeader headline={String(parameters.headline)} />
+      <RaceCard.Root className="max-w-[50rem]">
+        <RaceCard.Header />
+        <RaceCard.Loading />
+      </RaceCard.Root>
+    </Sky.Root>
+  ),
 };
 
 /** Selecting your sign, with the keyboard, focuses you: Sam’s sign goes, and yours is marked current. */

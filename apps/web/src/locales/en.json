@@ -19,9 +19,19 @@
     "notStarted_one": "{{names}} hasn’t started yet.",
     "notStarted_other": "{{names}} haven’t started yet."
   },
+  "memberStrip": {
+    "noShares": "No shares yet",
+    "noGain": "No gain yet",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more",
+    "topHoldings": "Top holdings",
+    "curve": "{{name}}’s gain over the period",
+    "curveVsYou": "{{name}}’s gain over the period, against yours"
+  },
   "standings": {
     "title": "Standings",
     "titleOver": "Standings · {{period}}",
+    "loading": "Loading the standings…",
     "empty": {
       "title": "Nobody’s in the race yet",
       "body": "The standings fill in as soon as someone records their first share."
@@ -139,7 +149,8 @@
     "helpLink": "More in How FPR works"
   },
   "moverRow": {
-    "empty": "Nothing has moved over the period yet."
+    "empty": "Nothing has moved over the period yet.",
+    "loading": "Loading the holdings…"
   },
   "focusPanel": {
     "period": {
@@ -172,7 +183,6 @@
   },
   "navigation": {
     "label": "Main",
-    "brand": "FPR",
     "admin": "Admin",
     "items": {
       "home": "Home",
@@ -223,7 +233,8 @@
     "ofPortfolio": "of the portfolio",
     "cash": "Cash",
     "setOn": "Set on {{date}}",
-    "updateCash": "Update cash"
+    "updateCash": "Update cash",
+    "youHoldIt": "You hold it too"
   },
   "controls": {
     "period": {
@@ -256,7 +267,8 @@
     "label": "The race: each member’s gain since the start of the period",
     "you": "You",
     "focusOn": "Focus on {{name}}",
-    "notFinal": "Today, not final"
+    "notFinal": "Today, not final",
+    "loading": "Loading the race…"
   },
   "periodControl": {
     "title": "Period",
@@ -285,6 +297,151 @@
   "appLayout": {
     "skip": "Skip to content"
   },
+  "brand": "FPR",
+  "languageSwitch": {
+    "label": "Language"
+  },
+  "madeUpRace": {
+    "caption": "A made-up race",
+    "title": "Who’s ahead this month?"
+  },
+  "accessFields": {
+    "email": "Email",
+    "password": "Password",
+    "passwordHelp": "At least {{min}} characters."
+  },
+  "accessChecks": {
+    "emailMissing": "Enter your email.",
+    "emailInvalid": "Enter an email like name@example.com.",
+    "passwordMissing": "Enter your password.",
+    "passwordShort": "Use at least {{min}} characters.",
+    "passwordLong": "Use {{max}} characters or fewer.",
+    "nameMissing": "Enter a name.",
+    "nameLong": "Use {{max}} characters or fewer.",
+    "keyMissing": "Paste the key.",
+    "accessLinkInvalid": "This isn’t an access link. Copy the whole link the admin sent you."
+  },
+  "signIn": {
+    "question": "Welcome back",
+    "description": "Sign in to see who’s ahead.",
+    "forgot": "Forgot it? Ask the admin for a reset key, then <go>reset your password</go>.",
+    "pasteLink": "Have an access link? <go>Paste it</go>",
+    "action": "Sign in",
+    "loading": "Signing in…",
+    "wrongPair": "This email and password don’t match. Check them and try again."
+  },
+  "pasteLink": {
+    "question": "Paste your access link",
+    "description": "Paste the link the admin sent you. It opens FPR as it would in your browser.",
+    "label": "Access link",
+    "action": "Open the link"
+  },
+  "accessLink": {
+    "invited": {
+      "question": "You’re invited, {{name}}",
+      "description": "Your account is ready. Choose a password and you’re in.",
+      "action": "Choose a password"
+    },
+    "password": {
+      "question": "Choose a password",
+      "action": "Create account",
+      "loading": "Creating your account…"
+    },
+    "claimed": {
+      "title": "This link was already used",
+      "description": "Your account exists. Sign in with your email and password.",
+      "action": "Go to sign-in"
+    },
+    "expired": {
+      "title": "This link has expired",
+      "description": "Links work for 7 days. Ask the admin for a new one."
+    },
+    "replaced": {
+      "title": "This link was replaced",
+      "description": "The admin sent you a newer link. Use the latest one."
+    },
+    "unknown": {
+      "title": "This link doesn’t work",
+      "description": "Check that you opened the whole link the admin sent you, or ask them for a new one."
+    },
+    "missing": {
+      "title": "Open your link again",
+      "description": "Your access link leaves the address bar once opened, to keep it private. Open it again from the admin’s message."
+    }
+  },
+  "resetPassword": {
+    "question": "Reset your password",
+    "description": "Enter your email and the reset key the admin gave you.",
+    "key": "Reset key",
+    "keyPlaceholder": "Paste the key from the admin…",
+    "check": "Set a new password",
+    "checking": "Checking…",
+    "newQuestion": "Choose a new password",
+    "newDescription": "Saving it signs you out on every device.",
+    "password": "New password",
+    "save": "Save new password",
+    "done": "Password changed",
+    "doneDescription": "Sign in with your new password."
+  },
+  "setup": {
+    "question": "Set up FPR",
+    "description": "Create the admin account with the setup key from the server’s configuration.",
+    "key": "Setup key",
+    "name": "Your name",
+    "nameHelp": "Shown to everyone in the race.",
+    "action": "Create admin account",
+    "loading": "Setting up…",
+    "closedTitle": "FPR is already set up",
+    "closedDescription": "It has an admin. Sign in with your email and password.",
+    "closedAction": "Go to sign-in"
+  },
+  "onboarding": {
+    "saving": "Saving…",
+    "retry": "Retry",
+    "preview": "How the others see you",
+    "name": {
+      "question": "What should the others call you?",
+      "label": "Your name",
+      "help": "Shown on Home, your page, and the charts.",
+      "action": "Choose your colour"
+    },
+    "look": {
+      "question": "Pick your colour",
+      "description": "It’s your curve on the chart, your bar in the standings, and your picture.",
+      "taken": "Faded colours are taken: the initial shows who has it.",
+      "usePhoto": "Use a photo instead",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove photo",
+      "uploading": "Uploading…",
+      "action": {
+        "portfolio": "See your portfolio",
+        "welcome": "Meet everyone"
+      }
+    },
+    "portfolio": {
+      "question": "Here’s your portfolio",
+      "description": "The admin set it up for you. You can change it later in Portfolio.",
+      "total": "Total",
+      "preparing": {
+        "question": "Your portfolio is being prepared",
+        "description": "The admin is entering your shares. They’ll show up in Portfolio."
+      },
+      "empty": {
+        "question": "Your portfolio is empty",
+        "description": "Add your shares and cash in Portfolio."
+      },
+      "action": "Meet everyone"
+    },
+    "welcome": {
+      "question": "Welcome, {{name}}",
+      "others_one": "{{names}} is already here.",
+      "others_other": "{{names}} are already here.",
+      "more_one": "{{count}} other",
+      "more_other": "{{count}} others",
+      "first": "You’re the first one here.",
+      "action": "Go to Home"
+    }
+  },
   "pages": {
     "home": "Home",
     "members": "Members",
@@ -304,6 +461,246 @@
     "resetPassword": "Reset your password",
     "onboarding": "Welcome"
   },
+  "membersPage": {
+    "loading": "Loading the members…",
+    "empty": {
+      "title": "Nobody’s here yet",
+      "body": "Members show here once the admin adds them."
+    }
+  },
+  "editPortfolio": {
+    "start": "Edit portfolio",
+    "record": "Record a change for {{name}}",
+    "banner": "<strong>You’re editing {{name}}’s portfolio.</strong> Each change is saved when you record it.",
+    "done": "Done editing"
+  },
+  "memberPage": {
+    "headline": {
+      "up": "{{period}}, {{name}} is up <gain>{{amount}}</gain>.",
+      "down": "{{period}}, {{name}} is down <gain>{{amount}}</gain>.",
+      "flat": "{{period}}, {{name}} is flat at <gain>{{amount}}</gain>."
+    },
+    "compare": {
+      "ahead": "That’s {{difference}} ahead of you.",
+      "behind": "That’s {{difference}} behind you.",
+      "level": "That’s level with you."
+    },
+    "points_one": "{{points}} point",
+    "points_other": "{{points}} points",
+    "inRace": "In the race since {{date}}",
+    "shares_one": "{{count}} share",
+    "shares_other": "{{count}} shares",
+    "notStarted": "{{name}} hasn’t recorded any shares yet.",
+    "chart": "{{name}}’s gain over the period",
+    "chartVsYou": "{{name}}’s gain over the period, against yours",
+    "holdings": "{{name}}’s holdings",
+    "loading": "Loading the page…"
+  },
+  "portfolioPage": {
+    "headline": {
+      "up": "Your portfolio is worth {{balance}}, up <gain>{{amount}}</gain> {{period}}",
+      "down": "Your portfolio is worth {{balance}}, down <gain>{{amount}}</gain> {{period}}",
+      "flat": "Your portfolio is worth {{balance}}, flat at <gain>{{amount}}</gain> {{period}}",
+      "worth": "Your portfolio is worth {{balance}}"
+    },
+    "pricesAsOfTime": "Prices as of {{time}}",
+    "pricesAsOfDate": "Prices as of {{date}}",
+    "incomplete": {
+      "title": "Incomplete",
+      "note_one": "Incomplete: {{count}} price pending",
+      "note_other": "Incomplete: {{count}} prices pending",
+      "description_one": "{{names}}’s prices are still loading. Until they arrive, it isn’t counted, never at €0.",
+      "description_other": "The prices of {{names}} are still loading. Until they arrive, they aren’t counted, never at €0."
+    },
+    "record": "Record a change",
+    "balance": "Your balance",
+    "chart": "Your balance over the period, with your purchases and sales",
+    "purchase": "Purchase",
+    "sale": "Sale",
+    "holdings": "Your holdings",
+    "empty": {
+      "title": "Your portfolio is empty",
+      "description": "Record each share you hold with the day you bought it. A week late is fine: FPR replays it from that day."
+    },
+    "loading": "Loading your portfolio…",
+    "loadFailed": "Can’t load your portfolio"
+  },
+  "ownedHoldings": {
+    "buyMore": "Buy more",
+    "sell": "Sell"
+  },
+  "latestChanges": {
+    "title": "Latest changes",
+    "seeAll": "See all changes"
+  },
+  "entryActions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleted": {
+      "change": "Change deleted",
+      "cash": "Cash balance deleted"
+    },
+    "deleteRefused": "Can’t delete this entry",
+    "undoRefused": "Can’t undo the deletion",
+    "breaks": "A holding would go below zero at {{change}} on {{date}}. Edit or delete that change first."
+  },
+  "changeSummary": {
+    "notYet": "not chosen yet"
+  },
+  "undoList": {
+    "undo": "Undo",
+    "undone": "Undone"
+  },
+  "calendar": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
+  "shareSearch": {
+    "label": "Search by name, ISIN or ticker",
+    "clear": "Clear the search",
+    "retry": "Try again",
+    "loading": "Loading the shares…",
+    "empty": "FPR has no shares yet.",
+    "none": "No share in FPR matches {{q}}."
+  },
+  "recordChange": {
+    "leave": "This change isn’t saved yet. The changes saved before it stay.",
+    "kinds": {
+      "buy": {
+        "done": "Bought",
+        "option": "Bought shares",
+        "line": "Added to a holding or a new one"
+      },
+      "sell": {
+        "done": "Sold",
+        "option": "Sold shares",
+        "line": "Part or all of a holding"
+      },
+      "cash": {
+        "done": "Cash",
+        "option": "Cash",
+        "line": "What you hold in cash"
+      }
+    },
+    "actions": {
+      "share": "Choose the share",
+      "date": "Choose the date",
+      "quantity": "Enter how many",
+      "amount": "Enter the amount",
+      "review": "Review change",
+      "save": "Save change"
+    },
+    "what": {
+      "question": "What changed?",
+      "missing": "Pick what changed."
+    },
+    "share": {
+      "question": "Which share?",
+      "missing": "Pick a share in the list."
+    },
+    "when": {
+      "question": "When?",
+      "quick": "Today or yesterday",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "calendar": "Pick a day"
+    },
+    "amount": {
+      "aboveZero": "Enter a number above zero, such as 10 or 74.328.",
+      "zeroOrMore": "Enter an amount of zero or more, such as 1,500 or 250.50."
+    },
+    "quantity": {
+      "question": {
+        "buy": {
+          "you": "How many did you buy?",
+          "member": "How many did {{name}} buy?"
+        },
+        "sell": {
+          "you": "How many did you sell?",
+          "member": "How many did {{name}} sell?"
+        }
+      },
+      "label": "Quantity",
+      "help": "Decimals are fine: 74.328.",
+      "loadingHeld": "Checking how many were held that day…",
+      "heldFailed": "Can’t check how many were held that day.",
+      "held": {
+        "you": "You held {{quantity}} on {{date}}.",
+        "member": "{{name}} held {{quantity}} on {{date}}."
+      },
+      "tooMany": "{{held}} Enter {{quantity}} or less.",
+      "all": "All"
+    },
+    "cash": {
+      "question": {
+        "you": "Your cash on {{date}}",
+        "member": "{{name}}’s cash on {{date}}"
+      },
+      "label": "Cash in euros",
+      "loadingBefore": "Checking the cash set before…",
+      "beforeFailed": "Can’t check the cash set before.",
+      "noneBefore": "No cash set before this day.",
+      "before": "Before: {{amount}}, set on {{date}}."
+    },
+    "review": {
+      "question": "Check and save",
+      "units": "{{quantity}} {{share}}",
+      "on": "on {{date}}",
+      "holding": {
+        "you": "Your holding goes from {{before}} to {{after}}.",
+        "member": "{{name}}’s holding goes from {{before}} to {{after}}."
+      },
+      "cashWas": {
+        "you": "Your cash was {{amount}} before.",
+        "member": "{{name}}’s cash was {{amount}} before."
+      },
+      "firstCash": {
+        "you": "Your first cash entry.",
+        "member": "{{name}}’s first cash entry."
+      },
+      "saving": "Saving…"
+    },
+    "saved": {
+      "question": "{{change}} on {{date}}",
+      "session": "This session",
+      "another": "Record another change",
+      "done": "Done",
+      "undoRefused": "Can’t undo this change",
+      "now": {
+        "you": "Your portfolio now",
+        "member": "{{name}}’s portfolio now"
+      }
+    },
+    "summary": {
+      "title": "This change",
+      "what": "What",
+      "share": "Share",
+      "when": "When",
+      "quantity": "How many",
+      "amount": "Amount"
+    },
+    "load": {
+      "entry": {
+        "loading": "Loading the change…",
+        "failed": "Can’t load this change",
+        "missing": "This change no longer exists"
+      },
+      "member": {
+        "loading": "Loading the member…",
+        "failed": "Can’t load this member",
+        "missing": "This member isn’t in the race"
+      },
+      "failedLine": "Check your connection and try again.",
+      "missingLine": "It may have been deleted. Close this page to go back.",
+      "retry": "Try again"
+    }
+  },
+  "historyPage": {
+    "loading": "Loading the history…",
+    "loadingMore": "Loading more changes…",
+    "moreFailed": "Can’t load more changes.",
+    "none": "You haven’t recorded anything yet."
+  },
   "pageStates": {
     "notFound": {
       "title": "Page not found",
@@ -321,7 +718,8 @@
     },
     "accessEnded": {
       "title": "Your access has ended",
-      "description": "Ask the admin if you think this is a mistake."
+      "description": "Ask the admin if you think this is a mistake.",
+      "otherAccount": "Sign in with another account"
     }
   },
   "errors": {

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type * as Segment from "../../components/atoms/segment/segment";
 import { PeriodControl } from "../../components/molecules/period-control/period-control";
@@ -8,8 +8,11 @@ import * as PageBar from "../../components/organisms/page-bar/page-bar";
 import * as AppLayout from "../../components/templates/app-layout/app-layout";
 import { useViewState } from "../../lib/view-state/use-view-state";
 
-/** The item a page leads back to from below it. */
-type Parent = "members" | "portfolio" | "shares";
+type Parent =
+  | "members"
+  | "portfolio"
+  | "shares"
+  | { label: string; link: ReactElement };
 
 /**
  * The bar's controls: the shared period and unit on a page that shows them,
@@ -54,11 +57,17 @@ function Start({
 }) {
   const { t } = useTranslation();
 
-  return back ? (
+  const to =
+    typeof back === "string"
+      ? {
+          label: t(`navigation.items.${back}`),
+          link: <Link to={Navigation.HREFS[back]} />,
+        }
+      : back;
+
+  return to ? (
     <>
-      <PageBar.Back render={<Link to={Navigation.HREFS[back]} />}>
-        {t(`navigation.items.${back}`)}
-      </PageBar.Back>
+      <PageBar.Back render={to.link}>{to.label}</PageBar.Back>
       <PageBar.Current>{title}</PageBar.Current>
     </>
   ) : (
@@ -71,7 +80,7 @@ function Start({
 export type ScreenProps = {
   /** The page's name, in the bar and the compact bar. None leaves the bar's start empty and the compact bar out, for a page that is only a message. */
   title?: string | undefined;
-  /** The item the page sits below, which the bar links back to in place of the title. */
+  /** What the page sits below, which the bar links back to in place of the title. */
   back?: Parent | undefined;
   /** Shows the shared period and unit in both bars. */
   period?: boolean | undefined;

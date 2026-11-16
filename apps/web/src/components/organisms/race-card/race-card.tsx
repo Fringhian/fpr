@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import type { GainUnit } from "../../../lib/gain";
 import { Card } from "../../atoms/card/card";
+import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
 import { Chart } from "../../molecules/chart/chart";
-import type { ChartValueFormat } from "../../molecules/chart/chart-model";
+import { gainFormat } from "../../molecules/chart/chart-model";
 import { LineEnds } from "./race-card-ends";
 import { Legend } from "./race-card-legend";
 import { type RaceCast, type RaceMember, raceLines } from "./race-card-model";
@@ -14,7 +15,8 @@ export type { RaceMember } from "./race-card-model";
 
 /**
  * The card the race rests in: the one card of Home on the horizon, with the
- * resting shadow. It holds the `Header` and the `Race`.
+ * resting shadow. It holds the `Header`, then the `Race` or, while it loads,
+ * `Loading`.
  */
 export function Root({ className, ...props }: ComponentProps<"section">) {
   return (
@@ -58,15 +60,6 @@ export function Header({
   );
 }
 
-/** The race's values, on the chart's axis and on the signs alike: signed gains, in whole euros or in percent. */
-function raceFormat(unit: GainUnit): ChartValueFormat {
-  return {
-    unit: unit === "eur" ? "money" : "percent",
-    precision: "euros",
-    signed: true,
-  };
-}
-
 /** You and the focused member, once each, in that order, among the members in the race. */
 function castMembers(
   byId: ReadonlyMap<string, RaceMember>,
@@ -92,6 +85,20 @@ function hasToday(
 /** Room on the right, from tablet up, for the signs and pictures at the lines' ends. */
 const PLOT = cn("min-w-0", "pr-0", "tablet:pr-[10rem]", "desktop:pr-[10rem]");
 const CHART = cn("", "h-[13rem]", "tablet:h-[16rem]", "desktop:h-[16rem]");
+
+/** Holds the race's place, at the chart's height, while its members load. */
+export function Loading({
+  className,
+  ...props
+}: Omit<ComponentProps<"div">, "children">) {
+  const { t } = useTranslation();
+
+  return (
+    <LoadingPlaceholder {...props} className={cn(CHART, className)}>
+      {t("raceCard.loading")}
+    </LoadingPlaceholder>
+  );
+}
 
 export type RaceProps = {
   /** Every member in the race, each with their gain at each day of the period. Pass a stable array: a new one redraws every line. */
@@ -137,7 +144,7 @@ export function Race({
   );
 
   const cast = { youId, focusId };
-  const format = raceFormat(unit);
+  const format = gainFormat(unit);
   const ends = { members: byId, format, onFocusMember, ...cast };
 
   return (

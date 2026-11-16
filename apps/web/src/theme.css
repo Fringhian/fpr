@@ -194,6 +194,11 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* A search box draws its own clear button. */
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
 }
 
 /*
@@ -221,6 +226,12 @@
    out to it; still under reduced motion. */
 @utility popup-motion {
   @apply transition-[opacity,scale] duration-s ease-soft motion-reduce:transition-none starting-style:scale-[0.96] starting-style:opacity-0 ending-style:scale-[0.96] ending-style:opacity-0;
+}
+
+/* A link that opens its whole card: its hit area covers the card, which is
+   `relative`, and `focus-visible:after:focus-ring` draws its focus round it. */
+@utility card-link {
+  @apply outline-none after:absolute after:inset-0 after:rounded-l after:content-[''];
 }
 
 /* A bar floating over the page, which scrolls under it: 80% white over a

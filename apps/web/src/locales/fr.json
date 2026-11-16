@@ -20,9 +20,20 @@
     "notStarted_many": "{{names}} n’ont pas encore commencé.",
     "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
+  "memberStrip": {
+    "noShares": "Pas encore d’actions",
+    "noGain": "Pas encore de gain",
+    "more_one": "+{{count}} autre",
+    "more_many": "+{{count}} autres",
+    "more_other": "+{{count}} autres",
+    "topHoldings": "Principales positions",
+    "curve": "Le gain de {{name}} sur la période",
+    "curveVsYou": "Le gain de {{name}} sur la période, face au vôtre"
+  },
   "standings": {
     "title": "Classement",
     "titleOver": "Classement · {{period}}",
+    "loading": "Chargement du classement…",
     "empty": {
       "title": "Personne n’est encore dans la course",
       "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
@@ -143,7 +154,8 @@
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
   "moverRow": {
-    "empty": "Rien n’a encore bougé sur la période."
+    "empty": "Rien n’a encore bougé sur la période.",
+    "loading": "Chargement des titres…"
   },
   "focusPanel": {
     "period": {
@@ -176,7 +188,6 @@
   },
   "navigation": {
     "label": "Principale",
-    "brand": "FPR",
     "admin": "Administration",
     "items": {
       "home": "Accueil",
@@ -228,7 +239,8 @@
     "ofPortfolio": "du portefeuille",
     "cash": "Liquidités",
     "setOn": "Définies le {{date}}",
-    "updateCash": "Modifier les liquidités"
+    "updateCash": "Modifier les liquidités",
+    "youHoldIt": "Vous l’avez aussi"
   },
   "controls": {
     "period": {
@@ -261,7 +273,8 @@
     "label": "La course : le gain de chaque membre depuis le début de la période",
     "you": "Vous",
     "focusOn": "Mettre {{name}} en avant",
-    "notFinal": "Aujourd’hui, provisoire"
+    "notFinal": "Aujourd’hui, provisoire",
+    "loading": "Chargement de la course…"
   },
   "periodControl": {
     "title": "Période",
@@ -287,8 +300,155 @@
     "back": "Retour",
     "close": "Fermer"
   },
+  "brand": "FPR",
+  "languageSwitch": {
+    "label": "Langue"
+  },
+  "madeUpRace": {
+    "caption": "Une course inventée",
+    "title": "Qui mène ce mois-ci ?"
+  },
+  "accessFields": {
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "passwordHelp": "Au moins {{min}} caractères."
+  },
+  "accessChecks": {
+    "emailMissing": "Saisissez votre e-mail.",
+    "emailInvalid": "Saisissez un e-mail comme nom@exemple.fr.",
+    "passwordMissing": "Saisissez votre mot de passe.",
+    "passwordShort": "Utilisez au moins {{min}} caractères.",
+    "passwordLong": "Utilisez {{max}} caractères au plus.",
+    "nameMissing": "Saisissez un nom.",
+    "nameLong": "Utilisez {{max}} caractères au plus.",
+    "keyMissing": "Collez la clé.",
+    "accessLinkInvalid": "Ce n’est pas un lien d’accès. Copiez le lien entier envoyé par l’admin."
+  },
+  "signIn": {
+    "question": "Bon retour",
+    "description": "Connectez-vous pour voir qui mène.",
+    "forgot": "Oublié ? Demandez une clé de réinitialisation à l’admin, puis <go>réinitialisez votre mot de passe</go>.",
+    "pasteLink": "Vous avez un lien d’accès ? <go>Collez-le</go>",
+    "action": "Se connecter",
+    "loading": "Connexion…",
+    "wrongPair": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez-les et réessayez."
+  },
+  "pasteLink": {
+    "question": "Collez votre lien d’accès",
+    "description": "Collez le lien envoyé par l’admin. Il ouvre FPR comme dans votre navigateur.",
+    "label": "Lien d’accès",
+    "action": "Ouvrir le lien"
+  },
+  "accessLink": {
+    "invited": {
+      "question": "Vous êtes invité, {{name}}",
+      "description": "Votre compte est prêt. Choisissez un mot de passe et c’est parti.",
+      "action": "Choisir un mot de passe"
+    },
+    "password": {
+      "question": "Choisissez un mot de passe",
+      "action": "Créer le compte",
+      "loading": "Création du compte…"
+    },
+    "claimed": {
+      "title": "Ce lien a déjà été utilisé",
+      "description": "Votre compte existe. Connectez-vous avec votre e-mail et votre mot de passe.",
+      "action": "Aller à la connexion"
+    },
+    "expired": {
+      "title": "Ce lien a expiré",
+      "description": "Un lien est valable 7 jours. Demandez-en un nouveau à l’admin."
+    },
+    "replaced": {
+      "title": "Ce lien a été remplacé",
+      "description": "L’admin vous a envoyé un lien plus récent. Utilisez le dernier."
+    },
+    "unknown": {
+      "title": "Ce lien ne fonctionne pas",
+      "description": "Vérifiez que vous avez ouvert le lien entier envoyé par l’admin, ou demandez-lui-en un nouveau."
+    },
+    "missing": {
+      "title": "Rouvrez votre lien",
+      "description": "Votre lien d’accès quitte la barre d’adresse une fois ouvert, pour rester privé. Rouvrez-le depuis le message de l’admin."
+    }
+  },
+  "resetPassword": {
+    "question": "Réinitialisez votre mot de passe",
+    "description": "Saisissez votre e-mail et la clé de réinitialisation donnée par l’admin.",
+    "key": "Clé de réinitialisation",
+    "keyPlaceholder": "Collez la clé donnée par l’admin…",
+    "check": "Choisir un nouveau mot de passe",
+    "checking": "Vérification…",
+    "newQuestion": "Choisissez un nouveau mot de passe",
+    "newDescription": "L’enregistrer vous déconnecte sur tous vos appareils.",
+    "password": "Nouveau mot de passe",
+    "save": "Enregistrer le mot de passe",
+    "done": "Mot de passe modifié",
+    "doneDescription": "Connectez-vous avec votre nouveau mot de passe."
+  },
+  "setup": {
+    "question": "Configurer FPR",
+    "description": "Créez le compte admin avec la clé d’installation de la configuration du serveur.",
+    "key": "Clé d’installation",
+    "name": "Votre nom",
+    "nameHelp": "Affiché à tous dans la course.",
+    "action": "Créer le compte admin",
+    "loading": "Configuration…",
+    "closedTitle": "FPR est déjà configuré",
+    "closedDescription": "Il a un admin. Connectez-vous avec votre e-mail et votre mot de passe.",
+    "closedAction": "Aller à la connexion"
+  },
   "appLayout": {
     "skip": "Aller au contenu"
+  },
+  "onboarding": {
+    "saving": "Enregistrement…",
+    "retry": "Réessayer",
+    "preview": "Ce que voient les autres",
+    "name": {
+      "question": "Comment les autres doivent-ils vous appeler ?",
+      "label": "Votre nom",
+      "help": "Affiché sur l’accueil, votre page et les graphiques.",
+      "action": "Choisir votre couleur"
+    },
+    "look": {
+      "question": "Choisissez votre couleur",
+      "description": "C’est votre courbe sur le graphique, votre barre dans le classement et votre avatar.",
+      "taken": "Les couleurs pâles sont prises : l’initiale montre qui l’a.",
+      "usePhoto": "Utiliser une photo",
+      "changePhoto": "Changer de photo",
+      "removePhoto": "Retirer la photo",
+      "uploading": "Envoi…",
+      "action": {
+        "portfolio": "Voir votre portefeuille",
+        "welcome": "Rencontrer les autres"
+      }
+    },
+    "portfolio": {
+      "question": "Voici votre portefeuille",
+      "description": "L’admin l’a préparé pour vous. Vous pourrez le modifier dans Portefeuille.",
+      "total": "Total",
+      "preparing": {
+        "question": "Votre portefeuille est en préparation",
+        "description": "L’admin saisit vos titres. Ils apparaîtront dans Portefeuille."
+      },
+      "empty": {
+        "question": "Votre portefeuille est vide",
+        "description": "Ajoutez vos titres et vos liquidités dans Portefeuille."
+      },
+      "action": "Rencontrer les autres"
+    },
+    "welcome": {
+      "question": "Bienvenue, {{name}}",
+      "others_one": "{{names}} est déjà là.",
+      "others_many": "{{names}} sont déjà là.",
+      "others_other": "{{names}} sont déjà là.",
+      "more_one": "{{count}} autre",
+      "more_many": "{{count}} autres",
+      "more_other": "{{count}} autres",
+      "first": "Vous êtes le premier arrivé.",
+      "action": "Aller à l’accueil"
+    }
   },
   "pages": {
     "home": "Accueil",
@@ -309,6 +469,250 @@
     "resetPassword": "Réinitialiser votre mot de passe",
     "onboarding": "Bienvenue"
   },
+  "membersPage": {
+    "loading": "Chargement des membres…",
+    "empty": {
+      "title": "Personne n’est encore là",
+      "body": "Les membres apparaissent ici dès que l’admin les ajoute."
+    }
+  },
+  "editPortfolio": {
+    "start": "Modifier le portefeuille",
+    "record": "Enregistrer un mouvement pour {{name}}",
+    "banner": "<strong>Vous modifiez le portefeuille de {{name}}.</strong> Chaque mouvement est enregistré dès que vous le validez.",
+    "done": "Terminer les modifications"
+  },
+  "memberPage": {
+    "headline": {
+      "up": "{{period}}, {{name}} gagne <gain>{{amount}}</gain>.",
+      "down": "{{period}}, {{name}} perd <gain>{{amount}}</gain>.",
+      "flat": "{{period}}, {{name}} est stable à <gain>{{amount}}</gain>."
+    },
+    "compare": {
+      "ahead": "Soit {{difference}} d’avance sur vous.",
+      "behind": "Soit {{difference}} de retard sur vous.",
+      "level": "Soit autant que vous."
+    },
+    "points_one": "{{points}} point",
+    "points_many": "{{points}} de points",
+    "points_other": "{{points}} points",
+    "inRace": "Dans la course depuis le {{date}}",
+    "shares_one": "{{count}} action",
+    "shares_many": "{{count}} d’actions",
+    "shares_other": "{{count}} actions",
+    "notStarted": "{{name}} n’a encore enregistré aucune action.",
+    "chart": "Le gain de {{name}} sur la période",
+    "chartVsYou": "Le gain de {{name}} sur la période, face au vôtre",
+    "holdings": "Les positions de {{name}}",
+    "loading": "Chargement de la page…"
+  },
+  "portfolioPage": {
+    "headline": {
+      "up": "Votre portefeuille vaut {{balance}}, en hausse de <gain>{{amount}}</gain> {{period}}",
+      "down": "Votre portefeuille vaut {{balance}}, en baisse de <gain>{{amount}}</gain> {{period}}",
+      "flat": "Votre portefeuille vaut {{balance}}, stable à <gain>{{amount}}</gain> {{period}}",
+      "worth": "Votre portefeuille vaut {{balance}}"
+    },
+    "pricesAsOfTime": "Cours de {{time}}",
+    "pricesAsOfDate": "Cours du {{date}}",
+    "incomplete": {
+      "title": "Incomplet",
+      "note_one": "Incomplet : {{count}} cours en attente",
+      "note_many": "Incomplet : {{count}} de cours en attente",
+      "note_other": "Incomplet : {{count}} cours en attente",
+      "description_one": "Les cours de {{names}} sont en chargement. D’ici là, ce titre n’est pas compté, jamais à 0 €.",
+      "description_many": "Les cours de {{names}} sont en chargement. D’ici là, ces titres ne sont pas comptés, jamais à 0 €.",
+      "description_other": "Les cours de {{names}} sont en chargement. D’ici là, ces titres ne sont pas comptés, jamais à 0 €."
+    },
+    "record": "Enregistrer un mouvement",
+    "balance": "Votre solde",
+    "chart": "Votre solde sur la période, avec vos achats et vos ventes",
+    "purchase": "Achat",
+    "sale": "Vente",
+    "holdings": "Vos positions",
+    "empty": {
+      "title": "Votre portefeuille est vide",
+      "description": "Enregistrez chaque titre que vous détenez avec le jour de son achat. Une semaine de retard ne gêne pas : FPR rejoue tout depuis ce jour."
+    },
+    "loading": "Chargement de votre portefeuille…",
+    "loadFailed": "Impossible de charger votre portefeuille"
+  },
+  "ownedHoldings": {
+    "buyMore": "Acheter encore",
+    "sell": "Vendre"
+  },
+  "latestChanges": {
+    "title": "Derniers mouvements",
+    "seeAll": "Voir tous les mouvements"
+  },
+  "entryActions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleted": {
+      "change": "Mouvement supprimé",
+      "cash": "Liquidités supprimées"
+    },
+    "deleteRefused": "Impossible de supprimer cette entrée",
+    "undoRefused": "Impossible d’annuler la suppression",
+    "breaks": "Une position passerait sous zéro à {{change}} le {{date}}. Modifiez ou supprimez d’abord ce mouvement."
+  },
+  "changeSummary": {
+    "notYet": "pas encore choisi"
+  },
+  "undoList": {
+    "undo": "Annuler",
+    "undone": "Annulé"
+  },
+  "calendar": {
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant"
+  },
+  "shareSearch": {
+    "label": "Rechercher par nom, ISIN ou symbole",
+    "clear": "Effacer la recherche",
+    "retry": "Réessayer",
+    "loading": "Chargement des actions…",
+    "empty": "FPR n’a encore aucune action.",
+    "none": "Aucune action de FPR ne correspond à {{q}}."
+  },
+  "recordChange": {
+    "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
+    "kinds": {
+      "buy": {
+        "done": "Acheté",
+        "option": "Parts achetées",
+        "line": "Ajoutées à une position ou à une nouvelle"
+      },
+      "sell": {
+        "done": "Vendu",
+        "option": "Parts vendues",
+        "line": "Une partie ou toute une position"
+      },
+      "cash": {
+        "done": "Liquidités",
+        "option": "Liquidités",
+        "line": "Ce que vous détenez en liquidités"
+      }
+    },
+    "actions": {
+      "share": "Choisir l’action",
+      "date": "Choisir la date",
+      "quantity": "Saisir la quantité",
+      "amount": "Saisir le montant",
+      "review": "Vérifier le mouvement",
+      "save": "Enregistrer le mouvement"
+    },
+    "what": {
+      "question": "Qu’est-ce qui a changé ?",
+      "missing": "Choisissez ce qui a changé."
+    },
+    "share": {
+      "question": "Quelle action ?",
+      "missing": "Choisissez une action dans la liste."
+    },
+    "when": {
+      "question": "Quand ?",
+      "quick": "Aujourd’hui ou hier",
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "calendar": "Choisir un jour"
+    },
+    "amount": {
+      "aboveZero": "Saisissez un nombre supérieur à zéro, comme 10 ou 74,328.",
+      "zeroOrMore": "Saisissez un montant de zéro ou plus, comme 1 500 ou 250,50."
+    },
+    "quantity": {
+      "question": {
+        "buy": {
+          "you": "Combien en avez-vous acheté ?",
+          "member": "Combien de parts {{name}} a achetées ?"
+        },
+        "sell": {
+          "you": "Combien en avez-vous vendu ?",
+          "member": "Combien de parts {{name}} a vendues ?"
+        }
+      },
+      "label": "Quantité",
+      "help": "Les décimales sont acceptées : 74,328.",
+      "loadingHeld": "Vérification de la quantité détenue ce jour-là…",
+      "heldFailed": "Impossible de vérifier la quantité détenue ce jour-là.",
+      "held": {
+        "you": "Vous en déteniez {{quantity}} le {{date}}.",
+        "member": "{{name}} en détenait {{quantity}} le {{date}}."
+      },
+      "tooMany": "{{held}} Saisissez {{quantity}} ou moins.",
+      "all": "Tout"
+    },
+    "cash": {
+      "question": {
+        "you": "Vos liquidités le {{date}}",
+        "member": "Les liquidités de {{name}} le {{date}}"
+      },
+      "label": "Liquidités en euros",
+      "loadingBefore": "Vérification des liquidités fixées avant…",
+      "beforeFailed": "Impossible de vérifier les liquidités fixées avant.",
+      "noneBefore": "Aucune liquidité fixée avant ce jour.",
+      "before": "Avant : {{amount}}, fixé le {{date}}."
+    },
+    "review": {
+      "question": "Vérifier et enregistrer",
+      "units": "{{quantity}} {{share}}",
+      "on": "le {{date}}",
+      "holding": {
+        "you": "Votre position passe de {{before}} à {{after}}.",
+        "member": "La position de {{name}} passe de {{before}} à {{after}}."
+      },
+      "cashWas": {
+        "you": "Vos liquidités étaient de {{amount}} avant.",
+        "member": "Les liquidités de {{name}} étaient de {{amount}} avant."
+      },
+      "firstCash": {
+        "you": "Votre première saisie de liquidités.",
+        "member": "La première saisie de liquidités de {{name}}."
+      },
+      "saving": "Enregistrement…"
+    },
+    "saved": {
+      "question": "{{change}} le {{date}}",
+      "session": "Cette session",
+      "another": "Enregistrer un autre mouvement",
+      "done": "Terminé",
+      "undoRefused": "Impossible d’annuler ce mouvement",
+      "now": {
+        "you": "Votre portefeuille maintenant",
+        "member": "Le portefeuille de {{name}} maintenant"
+      }
+    },
+    "summary": {
+      "title": "Ce mouvement",
+      "what": "Quoi",
+      "share": "Action",
+      "when": "Quand",
+      "quantity": "Combien",
+      "amount": "Montant"
+    },
+    "load": {
+      "entry": {
+        "loading": "Chargement du mouvement…",
+        "failed": "Impossible de charger ce mouvement",
+        "missing": "Ce mouvement n’existe plus"
+      },
+      "member": {
+        "loading": "Chargement du membre…",
+        "failed": "Impossible de charger ce membre",
+        "missing": "Ce membre ne fait pas partie de la course"
+      },
+      "failedLine": "Vérifiez votre connexion et réessayez.",
+      "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",
+      "retry": "Réessayer"
+    }
+  },
+  "historyPage": {
+    "loading": "Chargement de l’historique…",
+    "loadingMore": "Chargement d’autres mouvements…",
+    "moreFailed": "Impossible de charger plus de mouvements.",
+    "none": "Vous n’avez encore rien enregistré."
+  },
   "pageStates": {
     "notFound": {
       "title": "Page introuvable",
@@ -326,7 +730,8 @@
     },
     "accessEnded": {
       "title": "Votre accès a pris fin",
-      "description": "Demandez à l’admin si vous pensez que c’est une erreur."
+      "description": "Demandez à l’admin si vous pensez que c’est une erreur.",
+      "otherAccount": "Se connecter avec un autre compte"
     }
   },
   "errors": {

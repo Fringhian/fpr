@@ -16,10 +16,18 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
   alex: [
     { daysAgo: 420, changes: { world: "60", tech: "10" }, cashEur: "1500" },
     { daysAgo: 380, changes: { vineyard: "20" } },
+    { daysAgo: 340, changes: { tech: "4" }, cashEur: "900" },
     { daysAgo: 300, changes: { dividend: "100" }, cashEur: "400" },
+    { daysAgo: 270, changes: { vineyard: "5" } },
+    { daysAgo: 240, changes: { world: "5" }, cashEur: "1200" },
     { daysAgo: 200, changes: { tech: "-3" }, cashEur: "1900" },
+    { daysAgo: 160, changes: { dividend: "-30" } },
     { daysAgo: 120, changes: { emerging: "80" }, cashEur: "700" },
+    { daysAgo: 90, changes: { emerging: "-20" }, cashEur: "1100" },
+    { daysAgo: 45, changes: { tech: "2" } },
     { daysAgo: 20, changes: { world: "10" }, cashEur: "300" },
+    { daysAgo: 12, changes: { emerging: "-15" }, cashEur: "650" },
+    { daysAgo: 5, changes: { world: "4" } },
   ],
   sam: [
     { daysAgo: 410, changes: { world: "40", energy: "150" }, cashEur: "800" },
@@ -58,6 +66,13 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
       daysAgo: 10,
       changes: { robotics: "20", world: "15" },
       cashEur: "300",
+    },
+  ],
+  camille: [
+    {
+      daysAgo: 1,
+      changes: { world: "12", vineyard: "4.5", robotics: "30" },
+      cashEur: "750",
     },
   ],
   eden: [{ daysAgo: 340, changes: { world: "20" }, cashEur: "100" }],

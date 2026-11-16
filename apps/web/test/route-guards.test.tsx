@@ -12,7 +12,8 @@ const userId = fixturePersonId("sam");
 const routes = {
   home: "/",
   members: "/members",
-  member: `/members/${userId}`,
+  // Someone else's page: the member persona's own is their Portfolio.
+  member: `/members/${fixturePersonId("robin")}`,
   memberRecord: `/members/${userId}/record`,
   portfolio: "/portfolio",
   portfolioRecord: "/portfolio/record",
@@ -77,16 +78,15 @@ describe("the route guards", () => {
   });
 
   it("let a signed-out visitor reach every page that starts a session", async () => {
-    for (const page of [
-      "signIn",
-      "setup",
-      "access",
-      "resetPassword",
-    ] as const) {
+    for (const page of ["signIn", "setup", "resetPassword"] as const) {
       expect((await visit(routes[page], "signedOut")).location.href).toBe(
         routes[page],
       );
     }
+    // An access link's key leaves the address as the link opens.
+    expect((await visit(routes.access, "signedOut")).location.href).toBe(
+      "/access",
+    );
   });
 
   it("keep sign-in's redirect inside the app", async () => {
@@ -98,6 +98,11 @@ describe("the route guards", () => {
       );
       expect(search).toEqual({});
     }
+  });
+
+  it("open a member's own page on their Portfolio", async () => {
+    const { location } = await visit(`/members/${userId}`, "member");
+    expect(location.pathname).toBe("/portfolio");
   });
 
   it("send a person whose onboarding isn't finished to it from every other page", async () => {
