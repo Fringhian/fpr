@@ -567,7 +567,7 @@
     "marks": {
       "bought": "{{name}} a acheté {{quantity}}",
       "sold": "{{name}} a vendu {{quantity}}",
-      "changed": "{{name}} a modifié sa position"
+      "weight": "{{weight}} de son portefeuille"
     },
     "chart": "{{name}}, cours {{period}}",
     "pricesFrom": "Cours depuis le {{date}}",

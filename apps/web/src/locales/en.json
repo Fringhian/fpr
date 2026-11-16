@@ -555,7 +555,7 @@
     "marks": {
       "bought": "{{name}} bought {{quantity}}",
       "sold": "{{name}} sold {{quantity}}",
-      "changed": "{{name}} changed their holding"
+      "weight": "{{weight}} of their portfolio"
     },
     "chart": "{{name}}, price {{period}}",
     "pricesFrom": "Prices from {{date}}",
