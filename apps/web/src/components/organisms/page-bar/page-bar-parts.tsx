@@ -2,9 +2,8 @@ import { useRender } from "@base-ui/react/use-render";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { backLink } from "../../../lib/back-link";
 import { cn } from "../../../lib/cn";
-import { Icon, type IconProps } from "../../foundations/icon/icon";
+import { IconLink, type IconLinkProps } from "../../../lib/icon-link";
 
 /**
  * The bar at the top of every page: the title or the back link on the left,
@@ -54,42 +53,24 @@ export function Title({
   });
 }
 
-export type BackProps = {
-  /** The icon leading the link, any Phosphor icon. A caret pointing left by default. */
-  icon?: IconProps["icon"] | undefined;
-} & Omit<useRender.ComponentProps<"a">, "icon">;
-
 /**
- * The back link, on the left in place of the title: the caret, then the
- * parent page's name, “Members”. Screen readers hear “Back to Members”.
- * Renders an `<a>`; `render` composes it with the router's link:
- * `render={<Link to="/members" />}`.
+ * The back link, on the left in place of the title: `icon`, a caret pointing
+ * left by default, then the parent page's name, “Members”. Screen readers
+ * hear “Back to Members”. Renders an `<a>`; `render` composes it with the
+ * router's link: `render={<Link to="/members" />}`.
  */
 export function Back({
-  render,
-  ref,
   icon = CaretLeftIcon,
-  className,
   children,
   ...props
-}: BackProps) {
+}: IconLinkProps) {
   const { t } = useTranslation();
 
-  return useRender({
-    render,
-    ref,
-    defaultTagName: "a",
-    props: {
-      ...props,
-      className: cn(backLink, className),
-      children: (
-        <>
-          <Icon icon={icon} size="m" />
-          <span className="sr-only">{t("pageBar.back")}</span> {children}
-        </>
-      ),
-    },
-  });
+  return (
+    <IconLink {...props} icon={icon}>
+      <span className="sr-only">{t("pageBar.back")}</span> {children}
+    </IconLink>
+  );
 }
 
 /**

@@ -1,5 +1,6 @@
 // The step flow's parts, imported as a namespace: `import * as StepFlow from "…/step-flow"`.
 import type { ComponentProps, ReactNode } from "react";
+import type { IconLinkProps } from "../../../lib/icon-link";
 import type { StepProgressProps } from "../../atoms/step-progress/step-progress";
 import {
   Actions,
@@ -11,14 +12,7 @@ import {
   Question,
 } from "./step-flow-content";
 import { Column, Panel, Root } from "./step-flow-frame";
-import {
-  Back,
-  type BackProps,
-  Close,
-  type CloseProps,
-  Header,
-  Progress,
-} from "./step-flow-header";
+import { Back, Close, Header, Progress } from "./step-flow-header";
 
 export {
   Actions,
@@ -30,20 +24,13 @@ export {
   Question,
 } from "./step-flow-content";
 export { Column, Panel, Root } from "./step-flow-frame";
-export {
-  Back,
-  type BackProps,
-  Close,
-  type CloseProps,
-  Header,
-  Progress,
-} from "./step-flow-header";
+export { Back, Close, Header, Progress } from "./step-flow-header";
 
 export type BasicProps = {
   /** `Back`'s props, top left: `{ href }`, or `{ render }` for the router's link. Leave it out on a flow's first step. */
-  back?: BackProps | null | undefined;
+  back?: IconLinkProps | null | undefined;
   /** `Close`'s props, top right, for a flow opened from another page, such as Record a change. */
-  close?: CloseProps | null | undefined;
+  close?: IconLinkProps | null | undefined;
   /** The step and the flow's step count. Leave it out for a single step, such as sign-in. */
   progress?: Pick<StepProgressProps, "step" | "count"> | null | undefined;
   /** What the flow knows so far, above the question: “Bought · World Index ETF”. */

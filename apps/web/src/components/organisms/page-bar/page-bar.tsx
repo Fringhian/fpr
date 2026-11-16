@@ -2,7 +2,6 @@
 export { Compact, type CompactProps } from "./page-bar-compact";
 export {
   Back,
-  type BackProps,
   Controls,
   Current,
   Root,

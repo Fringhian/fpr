@@ -1,15 +1,13 @@
-import { useRender } from "@base-ui/react/use-render";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import { XIcon } from "@phosphor-icons/react/X";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { backLink } from "../../../lib/back-link";
 import { cn, stateClassName } from "../../../lib/cn";
+import { IconLink, type IconLinkProps } from "../../../lib/icon-link";
 import {
   StepProgress,
   type StepProgressProps,
 } from "../../atoms/step-progress/step-progress";
-import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 /**
  * The column's top row, under the top safe area: `Back` on the left, and on
@@ -30,97 +28,66 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
   );
 }
 
-export type BackProps = {
-  /** The icon leading the link, any Phosphor icon. A caret pointing left by default. */
-  icon?: IconProps["icon"] | undefined;
-} & Omit<useRender.ComponentProps<"a">, "icon">;
-
 /**
- * Back to the previous step, top left: the caret, then “Back”, or the
- * `children` given. Renders an `<a>`; `render` composes it with the router's
- * link, or draws a button: `render={<button type="button" />}`.
+ * Back to the previous step, top left: `icon`, a caret pointing left by
+ * default, then “Back”, or the `children` given. Renders an `<a>`; `render`
+ * composes it with the router's link, or draws a button:
+ * `render={<button type="button" />}`.
  */
 export function Back({
-  render,
-  ref,
   icon = CaretLeftIcon,
-  className,
   children,
   ...props
-}: BackProps) {
+}: IconLinkProps) {
   const { t } = useTranslation();
 
-  return useRender({
-    render,
-    ref,
-    defaultTagName: "a",
-    props: {
-      ...props,
-      className: cn(backLink, className),
-      children: (
-        <>
-          <Icon icon={icon} size="m" />
-          {children ?? t("stepFlow.back")}
-        </>
-      ),
-    },
-  });
+  return (
+    <IconLink {...props} icon={icon}>
+      {children ?? t("stepFlow.back")}
+    </IconLink>
+  );
 }
 
-export type CloseProps = {
-  /** The icon leading the label, any Phosphor icon. A cross by default. */
-  icon?: IconProps["icon"] | undefined;
-} & Omit<useRender.ComponentProps<"a">, "icon">;
-
 /**
- * Leaves the flow for the page it opened from, top right, in grey: the cross
- * alone on phone, then “Close”, or the `children` given, from tablet up.
- * Screen readers hear the label at every width. Renders an `<a>`; `render`
- * composes it with the router's link, or draws a button that asks first when
- * the step holds unsaved input.
+ * Leaves the flow for the page it opened from, top right, in grey: `icon`, a
+ * cross by default, alone on phone, then “Close”, or the `children` given,
+ * from tablet up. Screen readers hear the label at every width. Renders an
+ * `<a>`; `render` composes it with the router's link, or draws a button that
+ * asks first when the step holds unsaved input.
  */
 export function Close({
-  render,
-  ref,
   icon = XIcon,
   className,
   children,
   ...props
-}: CloseProps) {
+}: IconLinkProps) {
   const { t } = useTranslation();
 
-  return useRender({
-    render,
-    ref,
-    defaultTagName: "a",
-    props: {
-      ...props,
-      className: cn(
-        backLink,
+  return (
+    <IconLink
+      {...props}
+      icon={icon}
+      className={cn(
         "ms-auto justify-end text-secondary",
         "",
         "",
         "",
         "hover:text-primary",
         className,
-      ),
-      children: (
-        <>
-          <Icon icon={icon} size="m" />
-          <span
-            className={cn(
-              "",
-              "sr-only",
-              "tablet:not-sr-only",
-              "desktop:not-sr-only",
-            )}
-          >
-            {children ?? t("stepFlow.close")}
-          </span>
-        </>
-      ),
-    },
-  });
+      )}
+    >
+      <span
+        className={cn(
+          "",
+          "sr-only",
+          "tablet:not-sr-only",
+          "desktop:not-sr-only",
+        )}
+      >
+        {children ?? t("stepFlow.close")}
+      </span>
+    </IconLink>
+  );
 }
 
 /** The flow's progress under the header, across the column: one segment per step, filled up to this one. */
