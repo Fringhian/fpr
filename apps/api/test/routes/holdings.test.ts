@@ -50,7 +50,7 @@ const quantityOf = async (
   shareId: string,
   at: string,
   cookie = guest,
-): Promise<string> =>
+): Promise<string | null> =>
   parseOutput(
     holdingAt,
     await (await holdingOf(race.blake.id, shareId, at, cookie)).json(),

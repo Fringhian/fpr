@@ -200,4 +200,32 @@ describe("GET /api/users/:userId/log/:entryId", () => {
       "not_found",
     );
   });
+
+  it("answers an anonymous viewer null for a change with no price at its moment, and others its quantities", async () => {
+    const { member } = await memberWithLog();
+    const viewer = await signedIn("anonymous");
+    const purchase = (await readLog(member.cookie, member.id, "")).entries.at(
+      -1,
+    );
+    const entryAs = async (cookie: string) =>
+      parseOutput(
+        logEntry,
+        await (
+          await apiRequest(server, `/users/${member.id}/log/${purchase?.id}`, {
+            cookie,
+          })
+        ).json(),
+      );
+
+    expect(await entryAs(viewer.cookie)).toMatchObject({
+      type: "change",
+      quantityDelta: null,
+      quantityAfter: null,
+    });
+    expect(await entryAs(member.cookie)).toMatchObject({
+      type: "change",
+      quantityDelta: "5",
+      quantityAfter: "5",
+    });
+  });
 });
