@@ -2,41 +2,25 @@ import type { RefreshRun, RefreshState } from "@fpr/contracts";
 import { refreshCap, refreshMs } from "../../magic.ts";
 import { mockError } from "../../server/errors.ts";
 import { mock } from "../../server/implementer.ts";
-import {
-  addDays,
-  isTradingDay,
-  localInstant,
-  timestamp,
-} from "../../store/calendar.ts";
+import { addDays, refreshInstants, timestamp } from "../../store/calendar.ts";
 import { holdersNow } from "../../store/shares.ts";
 import type { MockStore } from "../../store/types.ts";
 import { needsAttention } from "./shares.ts";
 
-/** The price service's default schedule on a day: every 30 minutes, 09:00 to 22:30, Monday to Friday. */
-function scheduledRuns(day: string): number[] {
-  if (!isTradingDay(day)) {
-    return [];
-  }
-  return Array.from({ length: 28 }, (_, step) => {
-    const minutes = 9 * 60 + step * 30;
-    const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}:00`;
-    return localInstant(day, time);
-  });
-}
+// The price service's default schedule: every 30 minutes, 09:00 to 22:30,
+// Monday to Friday.
+const SCHEDULED_RUNS = 28;
 
-/** The scheduled runs within a week of today, oldest first. */
+type RunOutcome = { calls: number; priced: number; failures: number };
+
 function scheduleAround(store: MockStore): number[] {
   const { today } = store.calendar;
   return Array.from({ length: 15 }, (_, index) =>
-    scheduledRuns(addDays(today, index - 7)),
+    refreshInstants(addDays(today, index - 7), SCHEDULED_RUNS),
   ).flat();
 }
 
-/**
- * What a run does with the held market shares: one provider call each, and a
- * price for those whose closes are current; the others fail.
- */
-function runOutcome(store: MockStore) {
+function runOutcome(store: MockStore): RunOutcome {
   const held = store.shares.filter(
     (share) => share.kind === "market" && holdersNow(store, share).length > 0,
   );
@@ -45,11 +29,10 @@ function runOutcome(store: MockStore) {
 }
 
 function toRun(
-  store: MockStore,
+  { priced, failures }: RunOutcome,
   trigger: RefreshRun["trigger"],
   finishedMs: number,
 ): RefreshRun {
-  const { priced, failures } = runOutcome(store);
   return {
     trigger,
     status: failures === 0 ? "succeeded" : priced === 0 ? "failed" : "partial",
@@ -61,20 +44,20 @@ function toRun(
   };
 }
 
-/**
- * The refresh's state from the schedule and the admin's runs. The day's cap
- * leaves room for `refreshCap` runs by the admin, so the cap reads as the
- * refusal does.
- */
 function refreshState(store: MockStore): RefreshState {
   const { nowMs, today } = store.calendar;
   const { count, lastRunMs } = store.refreshes;
+  const outcome = runOutcome(store);
   const schedule = scheduleAround(store);
   const lastScheduled = schedule.findLast((atMs) => atMs <= nowMs);
-  const scheduledToday = scheduledRuns(today).filter((atMs) => atMs <= nowMs);
+  const scheduledToday = refreshInstants(today, SCHEDULED_RUNS).filter(
+    (atMs) => atMs <= nowMs,
+  );
   const byAdmin = lastRunMs !== null && lastRunMs >= (lastScheduled ?? 0);
   const lastMs = byAdmin ? lastRunMs : lastScheduled;
-  const calls = Math.max(runOutcome(store).calls, 1);
+  // The day's cap leaves room for `refreshCap` runs by the admin, so the cap
+  // reads as the refusal does.
+  const calls = Math.max(outcome.calls, 1);
   const callsToday = (scheduledToday.length + count) * calls;
   const callsLeft = (refreshCap - count) * calls;
   return {
@@ -82,7 +65,7 @@ function refreshState(store: MockStore): RefreshState {
     lastResult:
       lastMs === undefined
         ? null
-        : toRun(store, byAdmin ? "request" : "schedule", lastMs),
+        : toRun(outcome, byAdmin ? "request" : "schedule", lastMs),
     nextRunAt: timestamp(schedule.find((atMs) => atMs > nowMs) ?? nowMs),
     runsToday: scheduledToday.length + count,
     cap: { callLimit: callsToday + callsLeft, callsToday, callsLeft },

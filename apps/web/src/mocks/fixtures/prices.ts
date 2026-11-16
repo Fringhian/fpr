@@ -4,6 +4,7 @@ import {
   type Calendar,
   closeAt,
   localInstant,
+  PRICING_RUNS,
   refreshInstants,
   tradingDays,
 } from "../store/calendar.ts";
@@ -26,7 +27,7 @@ function dayRefreshes(
   model: MarketModel,
   random: () => number,
 ): StoredPrice[] {
-  const instants = refreshInstants(day);
+  const instants = refreshInstants(day, PRICING_RUNS);
   return instants.map((atMs, step) => {
     const share = (step + 1) / (instants.length + 1);
     const wander =

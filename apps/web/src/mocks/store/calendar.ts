@@ -55,9 +55,15 @@ export function closeAt(day: IsoDate): number {
   return localInstant(day, "23:59:59");
 }
 
-/** The refreshes that store new prices on a trading day: every 30 minutes, 09:00 to 17:30. */
-export function refreshInstants(day: IsoDate): number[] {
-  return Array.from({ length: 18 }, (_, step) => {
+/** How many of a trading day's runs store new prices: 09:00 to 17:30. */
+export const PRICING_RUNS = 18;
+
+/** The price service's runs on a day, every 30 minutes from 09:00: `runs` of them on a trading day, none on another. */
+export function refreshInstants(day: IsoDate, runs: number): number[] {
+  if (!isTradingDay(day)) {
+    return [];
+  }
+  return Array.from({ length: runs }, (_, step) => {
     const minutes = 9 * 60 + step * 30;
     const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}:00`;
     return localInstant(day, time);
@@ -94,9 +100,9 @@ export function createCalendar(now: Date): Calendar {
     closeAt(today) <= nowMs ? today : addDays(today, -1),
   );
   const fetched = localInstant(today, DAILY_CLOSES_HOUR) <= nowMs;
-  const provisional = isTradingDay(today)
-    ? refreshInstants(today).filter((atMs) => atMs <= nowMs)
-    : [];
+  const provisional = refreshInstants(today, PRICING_RUNS).filter(
+    (atMs) => atMs <= nowMs,
+  );
   return {
     nowMs,
     today,
