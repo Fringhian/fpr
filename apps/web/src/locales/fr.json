@@ -212,6 +212,7 @@
     "cashSet": "Liquidités fixées à {{amount}}",
     "valueAdded": "Valeur de {{price}} ajoutée",
     "valueEdited": "Valeur corrigée à {{price}}",
+    "valueDeleted": "Valeur de {{price}} supprimée",
     "held": "{{before}} → {{after}}",
     "heldSpoken": "de {{before}} à {{after}} parts détenues",
     "newHolding": "Nouvelle ligne",
@@ -545,6 +546,79 @@
     "title": "Derniers mouvements",
     "seeAll": "Voir tous les mouvements"
   },
+  "sharePage": {
+    "loading": "Chargement de l’action…",
+    "enteredBy": "le {{date}}, saisie par <person/>",
+    "enteredOn": "le {{date}}",
+    "position": {
+      "title": "Votre position",
+      "sinceBought": "depuis votre achat",
+      "none": "Vous ne la détenez pas",
+      "sell": "Vendre",
+      "buy": "Acheter"
+    },
+    "addValue": "Ajouter une valeur",
+    "marks": {
+      "bought": "{{name}} a acheté {{quantity}}",
+      "sold": "{{name}} a vendu {{quantity}}",
+      "changed": "{{name}} a modifié sa position"
+    },
+    "chart": "{{name}}, cours {{period}}",
+    "pricesFrom": "Cours depuis le {{date}}",
+    "nobody": "Personne ne détient encore cette action. Son graphique commence avec la première position.",
+    "loadingHistory": "Chargement de l’historique de cette action…",
+    "holders": {
+      "title": "Qui la détient · {{count}}",
+      "weight": "{{weight}} de son portefeuille",
+      "since": "depuis le {{date}}"
+    },
+    "values": {
+      "title": "Valeurs"
+    },
+    "events": {
+      "title": "Modifications",
+      "of": "pour le {{date}}, {{time}}"
+    }
+  },
+  "valueActions": {
+    "keepOne": "Une action manuelle garde au moins une valeur",
+    "deleted": "Valeur supprimée",
+    "deleteRefused": "Impossible de supprimer cette valeur",
+    "undoRefused": "Impossible de rétablir cette valeur",
+    "changed": {
+      "title": "Supprimer cette valeur ?",
+      "description": "Quelqu’un l’a modifiée à {{price}} entre-temps.",
+      "confirm": "Supprimer {{price}}",
+      "keep": "La garder"
+    }
+  },
+  "editShare": {
+    "open": "Modifier le nom ou l’ISIN",
+    "title": "Modifier le nom ou l’ISIN",
+    "description": "Tous les détenteurs voient la modification.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Modifications enregistrées"
+  },
+  "valueForm": {
+    "addTitle": "Ajouter une valeur",
+    "summary": "Cette valeur",
+    "share": "Titre",
+    "before": "Valeur avant",
+    "editTitle": "Modifier la valeur du {{date}}, {{time}}",
+    "day": "Date",
+    "time": "Heure",
+    "future": "Saisissez une heure passée, par exemple 09:30.",
+    "last": "Dernière valeur : {{price}} le {{date}}.",
+    "updates": "Le solde de chaque détenteur est mis à jour.",
+    "changed": "Quelqu’un a modifié cette valeur à {{price}} pendant votre saisie. Enregistrez de nouveau pour la remplacer par la vôtre, ou fermez pour garder la sienne.",
+    "taken": "Il y a déjà une valeur de {{price}} le {{date}} à {{time}}.",
+    "editTaken": "Modifier cette valeur",
+    "save": "Enregistrer la valeur",
+    "confirm": "Enregistrer ma valeur",
+    "saving": "Enregistrement…",
+    "saved": "Valeur enregistrée"
+  },
   "entryActions": {
     "edit": "Modifier",
     "delete": "Supprimer",
@@ -770,6 +844,11 @@
         "loading": "Chargement du membre…",
         "failed": "Impossible de charger ce membre",
         "missing": "Ce membre ne fait pas partie de la course"
+      },
+      "value": {
+        "loading": "Chargement de la valeur…",
+        "failed": "Impossible de charger cette valeur",
+        "missing": "Cette valeur n’existe plus"
       },
       "failedLine": "Vérifiez votre connexion et réessayez.",
       "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",

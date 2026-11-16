@@ -207,6 +207,7 @@
     "cashSet": "Cash set to {{amount}}",
     "valueAdded": "Value of {{price}} added",
     "valueEdited": "Value changed to {{price}}",
+    "valueDeleted": "Value of {{price}} deleted",
     "held": "{{before}} → {{after}}",
     "heldSpoken": "from {{before}} to {{after}} units held",
     "newHolding": "New holding",
@@ -533,6 +534,79 @@
     "title": "Latest changes",
     "seeAll": "See all changes"
   },
+  "sharePage": {
+    "loading": "Loading the share…",
+    "enteredBy": "on {{date}}, entered by <person/>",
+    "enteredOn": "on {{date}}",
+    "position": {
+      "title": "Your position",
+      "sinceBought": "since you bought",
+      "none": "You don’t hold it",
+      "sell": "Sell",
+      "buy": "Buy"
+    },
+    "addValue": "Add a value",
+    "marks": {
+      "bought": "{{name}} bought {{quantity}}",
+      "sold": "{{name}} sold {{quantity}}",
+      "changed": "{{name}} changed their holding"
+    },
+    "chart": "{{name}}, price {{period}}",
+    "pricesFrom": "Prices from {{date}}",
+    "nobody": "Nobody holds this share yet. Its chart starts with the first holding.",
+    "loadingHistory": "Loading this share’s history…",
+    "holders": {
+      "title": "Who holds it · {{count}}",
+      "weight": "{{weight}} of their portfolio",
+      "since": "since {{date}}"
+    },
+    "values": {
+      "title": "Values"
+    },
+    "events": {
+      "title": "Changes",
+      "of": "for {{date}}, {{time}}"
+    }
+  },
+  "valueActions": {
+    "keepOne": "A manual share keeps at least one value",
+    "deleted": "Value deleted",
+    "deleteRefused": "Can’t delete this value",
+    "undoRefused": "Can’t restore this value",
+    "changed": {
+      "title": "Delete this value?",
+      "description": "Someone changed it to {{price}} in the meantime.",
+      "confirm": "Delete {{price}}",
+      "keep": "Keep it"
+    }
+  },
+  "editShare": {
+    "open": "Edit name or ISIN",
+    "title": "Edit name or ISIN",
+    "description": "Every holder sees the change.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Changes saved"
+  },
+  "valueForm": {
+    "addTitle": "Add a value",
+    "summary": "This value",
+    "share": "Share",
+    "before": "Value before",
+    "editTitle": "Edit the value of {{date}}, {{time}}",
+    "day": "Date",
+    "time": "Time",
+    "future": "Enter a time that has passed, such as 09:30.",
+    "last": "Last value: {{price}} on {{date}}.",
+    "updates": "Every holder’s balance updates.",
+    "changed": "Someone changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
+    "taken": "There’s already a value of {{price}} on {{date}} at {{time}}.",
+    "editTaken": "Edit that value",
+    "save": "Save value",
+    "confirm": "Save my value",
+    "saving": "Saving…",
+    "saved": "Value saved"
+  },
   "entryActions": {
     "edit": "Edit",
     "delete": "Delete",
@@ -756,6 +830,11 @@
         "loading": "Loading the member…",
         "failed": "Can’t load this member",
         "missing": "This member isn’t in the race"
+      },
+      "value": {
+        "loading": "Loading the value…",
+        "failed": "Can’t load this value",
+        "missing": "This value no longer exists"
       },
       "failedLine": "Check your connection and try again.",
       "missingLine": "It may have been deleted. Close this page to go back.",

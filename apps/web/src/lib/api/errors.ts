@@ -1,4 +1,10 @@
-import type { ErrorCode, Id, IsinTakenDetails } from "@fpr/contracts";
+import type {
+  Decimal,
+  ErrorCode,
+  Id,
+  IsinTakenDetails,
+  ValueChangedDetails,
+} from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
@@ -86,6 +92,15 @@ export function isinTakenBy(error: unknown): Id | null {
   }
   const details = error.data as Partial<IsinTakenDetails> | undefined;
   return details?.shareId ?? null;
+}
+
+/** The value point's stored price, when the API refused a value write with `value_changed`. */
+export function changedPrice(error: unknown): Decimal | null {
+  if (!isApiError(error, "value_changed")) {
+    return null;
+  }
+  const details = error.data as Partial<ValueChangedDetails> | undefined;
+  return details?.priceEur ?? null;
 }
 
 /**

@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fixtureShareId } from "../src/mocks/fixtures/shares.ts";
 import { click, submit, typeInto } from "./interact.ts";
@@ -111,6 +112,71 @@ describe("Shares", () => {
     expect(stored).toMatchObject({ name: "Example Fund", kind: "manual" });
     expect(stored?.prices[0]?.priceEur).toBe("40.10");
     expect(router.state.location.pathname).toBe(`/shares/${stored?.id}`);
+  });
+
+  it("adds a value to a manual share, then opens its page", async () => {
+    const wind = fixtureShareId("wind");
+    const { page, router, store } = await visit(
+      `/shares/${wind}/value`,
+      "member",
+    );
+
+    await vi.waitFor(() => expect(field("price")).toBeTruthy());
+    typeInto(field("price"), "54.20");
+    await submit(page, () =>
+      expect(router.state.location.pathname).toBe(`/shares/${wind}`),
+    );
+    const share = store.shares.find(({ id }) => id === wind);
+    expect(share?.prices.at(-1)?.priceEur).toBe("54.20");
+  });
+
+  it("shows a value someone changed meanwhile, and saves the edit once confirmed", async () => {
+    const wind = fixtureShareId("wind");
+    const { page, router, store } = await visit("/shares", "member");
+    const value = store.shares.find(({ id }) => id === wind)?.prices.at(-1);
+    if (value === undefined) throw new Error("No value to edit");
+    const at = new Date(value.atMs).toISOString();
+    await act(() =>
+      router.navigate({ href: `/shares/${wind}/value?at=${at}` }),
+    );
+    await vi.waitFor(() => expect(field("price")?.value).toBe("53.10"));
+
+    value.priceEur = "60.00";
+    typeInto(field("price"), "54");
+    await submit(page, () =>
+      expect(text()).toContain("Someone changed this value to €60.00"),
+    );
+    expect(value.priceEur).toBe("60.00");
+
+    await submit(page, () =>
+      expect(router.state.location.pathname).toBe(`/shares/${wind}`),
+    );
+    expect(value.priceEur).toBe("54");
+  });
+
+  it("keeps a manual share's last value: its Delete is off and says why", async () => {
+    const wind = fixtureShareId("wind");
+    const { queryClient, store } = await visit(`/shares/${wind}`, "member");
+    const share = store.shares.find(({ id }) => id === wind);
+    share?.prices.splice(0, share.prices.length - 1);
+    await act(() => queryClient.invalidateQueries());
+
+    const rows = () => [
+      ...([...document.body.querySelectorAll("section")]
+        .find(
+          (section) => section.querySelector("h2")?.textContent === "Values",
+        )
+        ?.querySelectorAll<HTMLElement>("ol > li") ?? []),
+    ];
+    await vi.waitFor(() => expect(rows()).toHaveLength(1));
+    await click(
+      () => rows()[0]?.querySelector("button"),
+      () => expect(text()).toContain("A manual share keeps at least one value"),
+    );
+    const remove = [
+      ...document.body.querySelectorAll<HTMLElement>("[role=menuitem]"),
+    ].find((item) => item.textContent?.startsWith("Delete"));
+    expect(remove?.getAttribute("aria-disabled")).toBe("true");
   });
 
   it("adds a share found by a lookup from Record a change's Which share, then asks when", async () => {

@@ -3,7 +3,7 @@ import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import { timestamp } from "../../store/calendar.ts";
 import { Big } from "../../store/decimal.ts";
-import { toPerson } from "../../store/people.ts";
+import { racers, toPerson } from "../../store/people.ts";
 import { requireShare } from "../../store/shares.ts";
 import type {
   MockPerson,
@@ -28,6 +28,30 @@ function valueAt(share: StoredShare, at: string): StoredPrice {
     throw mockError("not_found");
   }
   return value;
+}
+
+/**
+ * With `?mock-conflict`, another member raises the value by €1 the first
+ * time someone edits or deletes it, as if they had saved just before.
+ */
+function playConflict(
+  store: MockStore,
+  share: StoredShare,
+  value: StoredPrice,
+  viewer: MockPerson,
+): void {
+  if (store.conflicted === null || store.conflicted.has(value.atMs)) return;
+  store.conflicted.add(value.atMs);
+  const other = racers(store).find((person) => person.id !== viewer.id);
+  if (other === undefined) return;
+  const priceEur = new Big(value.priceEur).plus(1).toFixed(2);
+  recordEdit(store, share, other, {
+    atMs: value.atMs,
+    priceEur,
+    previousPriceEur: value.priceEur,
+  });
+  value.priceEur = priceEur;
+  value.enteredBy = other.id;
 }
 
 /** Refuses an edit made over a value someone changed in the meantime. */
@@ -97,6 +121,7 @@ export const valueWrites = {
     const viewer = viewerOf(context);
     const share = manualShare(store, input.id);
     const value = valueAt(share, input.at);
+    playConflict(store, share, value, viewer);
     expectPrice(value, input.expectedPriceEur);
     recordEdit(store, share, viewer, {
       atMs: value.atMs,
@@ -116,6 +141,7 @@ export const valueWrites = {
     if (share.prices.length === 1) {
       throw mockError("last_value_point");
     }
+    playConflict(store, share, value, viewer);
     expectPrice(value, input.expectedPriceEur);
     share.prices = share.prices.filter((price) => price !== value);
     recordEdit(store, share, viewer, {

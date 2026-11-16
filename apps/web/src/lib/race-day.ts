@@ -23,6 +23,11 @@ export function raceDayOf(at: string | number): IsoDate {
   return dayFormat.format(new Date(at));
 }
 
+/** Whether a moment or a day falls in the race's current year: a date outside it is written with its year. */
+export function inThisYear(at: string | number): boolean {
+  return raceDayOf(at).slice(0, 4) === raceDayOf(Date.now()).slice(0, 4);
+}
+
 /** The day `days` after `day`, or before it when negative. */
 export function addDays(day: IsoDate, days: number): IsoDate {
   return new Date(Date.parse(`${day}T12:00:00Z`) + days * DAY_MS)
