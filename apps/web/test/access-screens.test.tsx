@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import {
   accessKeys,
   mockBootstrapKey,
@@ -47,6 +48,77 @@ async function submit(page: HTMLElement, done: () => void) {
     await vi.waitFor(done);
   });
 }
+
+/** Presses the step's main button, the last of the page's column, then waits until `done` holds. */
+async function next(page: HTMLElement, done: () => void) {
+  const button = [...page.querySelectorAll("main button")].at(-1);
+  await act(async () => {
+    (button as HTMLButtonElement | undefined)?.click();
+    await vi.waitFor(done);
+  });
+}
+
+describe("onboarding", () => {
+  it("save each step's choice, say the portfolio is being prepared, then mark onboarding finished and land Home", async () => {
+    const { page, router, store } = await visit("/onboarding", "newcomer");
+    const noa = store.people.find(
+      (person) => person.id === fixturePersonId("noa"),
+    );
+    fill(page, "displayName", "  Noa L.  ");
+    await submit(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=look"),
+    );
+    expect(noa?.displayName).toBe("Noa L.");
+
+    await next(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=portfolio"),
+    );
+    await vi.waitFor(() =>
+      expect(page.textContent).toContain(
+        "Votre portefeuille est en préparation",
+      ),
+    );
+
+    await next(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=welcome"),
+    );
+    await next(page, () => expect(router.state.location.pathname).toBe("/"));
+    expect(noa?.onboarded).toBe(true);
+  });
+
+  it("keep sending an unfinished person back to the first step, with what they chose kept", async () => {
+    const { page, router } = await visit("/onboarding", "newcomer");
+    fill(page, "displayName", "Noa L.");
+    await submit(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=look"),
+    );
+
+    await act(() => router.navigate({ to: "/shares" }));
+    expect(router.state.location.href).toBe("/onboarding");
+    expect(
+      page.querySelector<HTMLInputElement>('input[name="displayName"]')?.value,
+    ).toBe("Noa L.");
+  });
+
+  it("take a guest from their look straight to the welcome", async () => {
+    const { page, router, store, queryClient } = await visit("/", "guest");
+    const guest = store.people.find(
+      (person) => person.id === fixturePersonId("morgan"),
+    );
+    if (guest) guest.onboarded = false;
+    await act(async () => {
+      await queryClient.invalidateQueries();
+      await router.navigate({ to: "/onboarding", search: { step: "look" } });
+    });
+
+    await next(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=welcome"),
+    );
+    expect(
+      page.querySelector('[role="progressbar"]')?.getAttribute("aria-valuemax"),
+    ).toBe("3");
+  });
+});
 
 describe("the access screens", () => {
   it("sign in and open the page asked for, after one generic error for a wrong pair", async () => {
@@ -111,7 +183,7 @@ describe("the access screens", () => {
     expect(text).toContain("FPR is already set up");
   });
 
-  it("open an invitation without the key in the address, keep it valid until the password, then start onboarding", async () => {
+  it("open an invitation without the key in the address, keep it valid until the password, then onboard through the prepared portfolio to Home", async () => {
     const { key } = accessKeys.waiting;
     const { page, router, store } = await visit(`/access/${key}`, "signedOut");
     expect(router.state.location.href).toBe("/access");
@@ -126,6 +198,16 @@ describe("the access screens", () => {
     await submit(page, () =>
       expect(router.state.location.pathname).toBe("/onboarding"),
     );
+
+    await submit(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=look"),
+    );
+    await next(page, () => expect(page.textContent).toContain("Robotics ETF"));
+    expect(page.textContent).toContain("Price pending");
+    await next(page, () =>
+      expect(router.state.location.searchStr).toBe("?step=welcome"),
+    );
+    await next(page, () => expect(router.state.location.pathname).toBe("/"));
   });
 
   it("sign an anonymous viewer in with their link and take them Home", async () => {
