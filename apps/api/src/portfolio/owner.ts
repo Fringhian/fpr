@@ -1,5 +1,5 @@
 import { writerRoles } from "@fpr/contracts";
-import { type Db, type User, users } from "@fpr/db";
+import { type Db, type Share, shares, type User, users } from "@fpr/db";
 import { apiError } from "../errors.js";
 
 /**
@@ -18,6 +18,21 @@ export async function findPortfolioOwner(
     throw apiError("not_found");
   }
   return user;
+}
+
+/** The share a route reads a portfolio owner's holding of, or `not_found`. */
+export async function findOwnerShare(
+  db: Db,
+  { userId, shareId }: { userId: string; shareId: string },
+): Promise<Share> {
+  const [, share] = await Promise.all([
+    findPortfolioOwner(db, userId),
+    shares.findById(db, shareId),
+  ]);
+  if (share === undefined) {
+    throw apiError("not_found");
+  }
+  return share;
 }
 
 /** A moment the person sent, refused with `future_moment` when it is after now. */
