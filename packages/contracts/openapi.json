@@ -3115,6 +3115,17 @@
                         }
                       ]
                     },
+                    "cashSetAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "gain": {
                       "type": "object",
                       "properties": {
@@ -3356,6 +3367,7 @@
                     "sharesWeight",
                     "cashEur",
                     "cashWeight",
+                    "cashSetAt",
                     "gain",
                     "firstEntryOn",
                     "measuredFrom",

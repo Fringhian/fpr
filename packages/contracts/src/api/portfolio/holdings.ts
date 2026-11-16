@@ -56,6 +56,8 @@ export const portfolioSchema = z.object({
   cashEur: quantity(decimalSchema),
   /** The cash's weight, or `null` while the balance is zero. */
   cashWeight: percentSchema.nullable(),
+  /** The moment of the cash balance that sets the cash now, or `null` when none was ever set. */
+  cashSetAt: timestampSchema.nullable(),
   /** The balance's gain over the period. */
   gain: gainSchema,
   firstEntryOn: firstEntryOnSchema,
