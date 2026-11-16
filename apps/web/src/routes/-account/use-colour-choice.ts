@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { isApiError } from "../../lib/api/errors";
 import { useApi } from "../../lib/api/use-api";
 import { MEMBER_COLORS, type MemberColor } from "../../lib/member-color";
@@ -18,27 +18,46 @@ export function useColourChoice(saved: MemberColor, onSaved?: () => void) {
   const { taken, refresh } = useTakenColours(saved);
   const { formError, refuse, refuseError } = useRefusal();
   const update = useMutation(api.me.update.mutationOptions());
+  const latest = useRef(saved);
+  const sending = useRef(false);
 
-  const save = (picked: MemberColor = color) => {
-    refuse(null);
-    setColor(picked);
-    if (picked === saved) {
+  // One save runs at a time. Each one that ends sends the latest pick when
+  // it differs from what the account now has, so the account ends on the
+  // last colour picked, whatever order the picks came in.
+  const settle = (onAccount: MemberColor) => {
+    const next = latest.current;
+    if (next === onAccount) {
+      sending.current = false;
       onSaved?.();
       return;
     }
+    sending.current = true;
     update.mutate(
-      { color: MEMBER_COLORS.indexOf(picked) + 1 },
+      { color: MEMBER_COLORS.indexOf(next) + 1 },
       {
-        onSuccess: () => onSaved?.(),
+        onSuccess: () => settle(next),
         onError: (error) => {
+          if (isApiError(error, "color_taken")) refresh();
+          if (latest.current !== next) {
+            settle(onAccount);
+            return;
+          }
+          sending.current = false;
           refuseError(error);
           if (isApiError(error, "color_taken")) {
-            setColor(saved);
-            refresh();
+            latest.current = onAccount;
+            setColor(onAccount);
           }
         },
       },
     );
+  };
+
+  const save = (picked: MemberColor = color) => {
+    refuse(null);
+    setColor(picked);
+    latest.current = picked;
+    if (!sending.current) settle(saved);
   };
 
   return {
