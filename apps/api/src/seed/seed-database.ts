@@ -1,41 +1,18 @@
-import { createHash, randomBytes } from "node:crypto";
-import {
-  accessKeys,
-  cashBalances,
-  type Db,
-  manualPriceEvents,
-  portfolioChanges,
-  type Role,
-  shares,
-  users,
-} from "@fpr/db";
+import type { Db } from "@fpr/db";
 import { hashPassword } from "better-auth/crypto";
-import { DAY_MS, inventCloses } from "./seed-closes.js";
-import {
-  cash,
-  changes,
-  listings,
-  manualShares,
-  type PersonKey,
-  people,
-  RACE_LENGTH_DAYS,
-  SEED_PASSWORD,
-  type ShareKey,
-} from "./seed-data.js";
+import { people, SEED_PASSWORD } from "./data/people.js";
+import { cash, changes } from "./data/portfolios.js";
+import { listings, manualShares } from "./data/shares.js";
+import { raceClock } from "./seed-clock.js";
+import { type SeededPerson, seedPeople } from "./seed-people.js";
+import { seedCashBalances, seedPortfolioChanges } from "./seed-portfolios.js";
+import { seedShares } from "./seed-shares.js";
 
 /** Stops when `NODE_ENV` is `production`: the seed is for development only. */
 export function refuseProduction(nodeEnv: string | undefined): void {
   if (nodeEnv === "production") {
     throw new Error("The seed does not run when NODE_ENV is production");
   }
-}
-
-export interface SeededPerson {
-  displayName: string;
-  email: string;
-  role: Role;
-  /** Set for the anonymous viewer and for a link waiting for first use. */
-  accessLink: string | null;
 }
 
 export interface SeedResult {
@@ -73,223 +50,46 @@ export async function seedDatabase(
     now?: Date;
   },
 ): Promise<SeedResult> {
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-  );
-  const start = today - RACE_LENGTH_DAYS * DAY_MS;
-  /** A moment on a day of the race, in UTC. */
-  const at = (day: number, hours = 10): Date =>
-    new Date(start + day * DAY_MS + hours * 60 * 60 * 1000);
+  const clock = raceClock(now);
   const passwordHash = await hashPassword(SEED_PASSWORD);
 
   return db.transaction().execute(async (trx) => {
-    const existing = await trx
-      .selectFrom("user")
-      .select((eb) => eb.fn.countAll<string>().as("count"))
-      .executeTakeFirstOrThrow();
-    if (Number(existing.count) > 0) {
-      throw new Error(
-        "The database already has people: the seed fills an empty database only",
-      );
-    }
-
-    const personIds = new Map<PersonKey, string>();
-    const seeded: SeededPerson[] = [];
-    for (const person of people) {
-      const joined = person.joinedDay === null ? now : at(person.joinedDay, 9);
-      const row = await users.insert(trx, {
-        email: person.email ?? `seed-${person.key}@anonymous.invalid`,
-        displayName: person.displayName,
-        avatarKey: null,
-        role: person.role,
-        color: person.color,
-        locale: person.locale,
-        onboardedAt:
-          person.joinedDay === null || person.role === "anonymous"
-            ? null
-            : joined,
-        createdAt: joined,
-        updatedAt: joined,
-      });
-      // An anonymous viewer's email is made of their id, known once inserted.
-      const email = person.email ?? `${row.id}@anonymous.invalid`;
-      if (person.email === null) {
-        await users.update(trx, row.id, { email });
-      }
-      personIds.set(person.key, row.id);
-
-      const key = randomBytes(32).toString("base64url");
-      await accessKeys.insert(trx, {
-        userId: row.id,
-        codeHash: createHash("sha256").update(key).digest("hex"),
-        claimedAt: person.joinedDay === null ? null : joined,
-        accessUntil: null,
-        revokedAt: null,
-        createdBy:
-          person.role === "admin" ? null : (personIds.get("alex") ?? null),
-        createdAt: joined,
-        ...(person.joinedDay === null
-          ? {}
-          : { claimBefore: new Date(joined.getTime() + 7 * DAY_MS) }),
-      });
-
-      if (person.joinedDay !== null && person.role !== "anonymous") {
-        await trx
-          .insertInto("account")
-          .values({
-            accountId: row.id,
-            providerId: "credential",
-            userId: row.id,
-            accessToken: null,
-            refreshToken: null,
-            idToken: null,
-            accessTokenExpiresAt: null,
-            refreshTokenExpiresAt: null,
-            scope: null,
-            password: passwordHash,
-            createdAt: joined,
-            updatedAt: joined,
-          })
-          .execute();
-      }
-
-      const linked = person.role === "anonymous" || person.joinedDay === null;
-      seeded.push({
-        displayName: person.displayName,
-        email,
-        role: person.role,
-        accessLink: linked
-          ? `${publicUrl.replace(/\/$/, "")}/access/${key}`
-          : null,
-      });
-    }
-    const personId = (key: PersonKey): string => {
-      const id = personIds.get(key);
-      if (id === undefined) throw new Error(`No seeded person ${key}`);
-      return id;
-    };
-
-    const shareIds = new Map<ShareKey, string>();
-    let priceCount = 0;
-    for (const [index, listing] of listings.entries()) {
-      const share = await shares.insert(trx, {
-        isin: listing.isin,
-        name: listing.name,
-        kind: "market",
-        tradingCurrency: listing.tradingCurrency,
-        providerSymbol: listing.providerSymbol,
-        exchange: listing.exchange,
-        historyStartsOn: null,
-        createdBy: null,
-        createdAt: at(0, 8),
-      });
-      shareIds.set(listing.key, share.id);
-      const closes = inventCloses(
-        listing,
-        index,
-        start - 7 * DAY_MS,
-        today,
-        timeZone,
-      );
-      await trx
-        .insertInto("prices")
-        .values(closes.map((close) => ({ ...close, shareId: share.id })))
-        .execute();
-      priceCount += closes.length;
-    }
-
-    for (const manual of manualShares) {
-      const share = await shares.insert(trx, {
-        isin: manual.isin,
-        name: manual.name,
-        kind: "manual",
-        tradingCurrency: null,
-        providerSymbol: null,
-        exchange: null,
-        historyStartsOn: null,
-        createdBy: personId(manual.createdBy),
-        createdAt: at(manual.createdDay, 8),
-      });
-      shareIds.set(manual.key, share.id);
-      for (const point of manual.valuePoints) {
-        // Before the day's share changes, so a first purchase has a value.
-        const moment = at(point.day, 9);
-        const first = point.edited ?? point;
-        await manualPriceEvents.insert(trx, {
-          shareId: share.id,
-          at: moment,
-          action: "added",
-          priceEur: first.priceEur,
-          previousPriceEur: null,
-          userId: personId(first.enteredBy),
-          createdAt: moment,
-        });
-        if (point.edited) {
-          await manualPriceEvents.insert(trx, {
-            shareId: share.id,
-            at: moment,
-            action: "edited",
-            priceEur: point.priceEur,
-            previousPriceEur: point.edited.priceEur,
-            userId: personId(point.enteredBy),
-            createdAt: new Date(moment.getTime() + DAY_MS),
-          });
-        }
-        await trx
-          .insertInto("prices")
-          .values({
-            shareId: share.id,
-            at: moment,
-            priceEur: point.priceEur,
-            source: "manual",
-            enteredBy: personId(point.enteredBy),
-            createdAt: moment,
-          })
-          .execute();
-        priceCount += 1;
-      }
-    }
-    const shareId = (key: ShareKey): string => {
-      const id = shareIds.get(key);
-      if (id === undefined) throw new Error(`No seeded share ${key}`);
-      return id;
-    };
-
-    for (const change of changes) {
-      const userId = personId(change.person);
-      await portfolioChanges.insert(trx, {
-        userId,
-        shareId: shareId(change.share),
-        quantityDelta: change.quantityDelta,
-        effectiveAt: at(change.day),
-        createdBy: userId,
-        createdAt: at(change.day),
-      });
-    }
-
-    for (const balance of cash) {
-      const userId = personId(balance.person);
-      await cashBalances.insert(trx, {
-        userId,
-        amountEur: balance.amountEur,
-        effectiveAt: at(balance.day),
-        createdBy: userId,
-        createdAt: at(balance.day),
-      });
-    }
+    await refuseNonEmpty(trx);
+    const { personId, signIns } = await seedPeople(trx, {
+      clock,
+      publicUrl,
+      passwordHash,
+    });
+    const { shareId, prices } = await seedShares(trx, {
+      clock,
+      timeZone,
+      personId,
+    });
+    await seedPortfolioChanges(trx, { clock, personId, shareId });
+    await seedCashBalances(trx, { clock, personId });
 
     return {
       password: SEED_PASSWORD,
-      people: seeded,
+      people: signIns,
       counts: {
         people: people.length,
         shares: listings.length + manualShares.length,
-        prices: priceCount,
+        prices,
         portfolioChanges: changes.length,
         cashBalances: cash.length,
       },
     };
   });
+}
+
+async function refuseNonEmpty(trx: Db): Promise<void> {
+  const existing = await trx
+    .selectFrom("user")
+    .select((eb) => eb.fn.countAll<string>().as("count"))
+    .executeTakeFirstOrThrow();
+  if (Number(existing.count) > 0) {
+    throw new Error(
+      "The database already has people: the seed fills an empty database only",
+    );
+  }
 }
