@@ -123,7 +123,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 
 ### Formatting
 
-Numbers, amounts and dates are formatted with `Intl` by the functions of `src/lib/format.ts`, each given the value and the language. English formats as `en-GB` and French as `fr-FR`: the day before the month, and the 24-hour clock.
+Numbers, amounts and dates are formatted with `Intl` by the functions of `src/lib/format/` (`number.ts`, `money.ts`, `date.ts`, `text.ts`), each given the value and the language. English formats as `en-GB` and French as `fr-FR`: the day before the month, and the 24-hour clock.
 
 | Value | English | French |
 | --- | --- | --- |
