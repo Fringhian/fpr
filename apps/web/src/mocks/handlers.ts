@@ -49,7 +49,6 @@ export type MockApiOptions = Omit<MockStoreOptions, "session"> & {
   faults?: MockFaults | undefined;
 };
 
-/** The fault an answer plays, if any: a wait, then maybe a `500`. */
 async function playFaults(
   request: Request,
   origin: string,

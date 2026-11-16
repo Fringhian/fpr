@@ -5,7 +5,6 @@ import { LoadingPlaceholder } from "../../../components/atoms/loading-placeholde
 import * as Standings from "../../../components/organisms/standings/standings";
 import { lookOf } from "../../../lib/look";
 
-/** A row's lane but its value: who, their best share, and whether a price is missing. */
 function laneOf({
   member,
   bestHolding,
@@ -22,7 +21,6 @@ function laneOf({
   };
 }
 
-/** Each row of the standings as its lane shows it: the gain in the unit it ranks by, or the balance. */
 function lanesOf(standings: Leaderboard): Standings.StandingsMember[] {
   return standings.board === "gain"
     ? standings.rows.map((row) => ({

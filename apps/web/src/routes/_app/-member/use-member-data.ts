@@ -9,7 +9,6 @@ import { useViewState } from "../../../lib/view-state/use-view-state";
 /** A member as the members list has them: who, gain, balance, first entry. */
 export type MemberRow = Members["members"][number];
 
-/** The reads of one person's portfolio over the period: their holdings and their balance over time. */
 function usePortfolioReads(userId: Id, enabled: boolean) {
   const api = useApi();
   const { setting } = useViewState();

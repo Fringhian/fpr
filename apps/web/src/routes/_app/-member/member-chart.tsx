@@ -21,7 +21,6 @@ const CHART = cn("", "h-[13rem]", "tablet:h-[15rem]", "desktop:h-[15rem]");
 
 type History = PortfolioBalanceHistory["points"];
 
-/** Their line in their colour, on top of the viewer's, thin and grey behind it. */
 function useLines(
   member: Look,
   points: History,

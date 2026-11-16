@@ -11,7 +11,6 @@ import {
 } from "./role-switch/saved-session.ts";
 import { takeUrlSwitch } from "./url-switch.ts";
 
-/** The faults `?mock-slow` and `?mock-fail=<path>` ask for. */
 function readFaults(): MockFaults {
   const slow = takeUrlSwitch(urlSwitches.slow);
   const fail = takeUrlSwitch(urlSwitches.fail);

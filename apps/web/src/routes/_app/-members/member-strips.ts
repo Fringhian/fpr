@@ -11,7 +11,6 @@ type Member = Members["members"][number];
 /** A strip as the list draws it, without the link, which the screen adds. */
 export type StripData = Omit<MemberStrip.BasicProps, "link"> & { id: Id };
 
-/** The viewer first, then everyone by the name shown, whatever the period. */
 function inOrder(
   members: readonly Member[],
   viewerId: Id,
