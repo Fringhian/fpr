@@ -1,4 +1,4 @@
-import type { AdminShare, AdminShareGroups, Decimal } from "@fpr/contracts";
+import type { AdminShare, AdminShareGroups } from "@fpr/contracts";
 import type { BadgeState } from "../../../../components/atoms/badge/badge";
 
 /** The groups, in the page's order: what needs the admin first. */
@@ -41,20 +41,4 @@ export function actionOf(
 ): ShareDialog["kind"] | null {
   if (group === "needsAttention") return "makeManual";
   return group === "notHeld" && !share.hasShareChanges ? "delete" : null;
-}
-
-const PRICE = /^(\d+)(?:[.,](\d+))?$/;
-
-/**
- * The price a person typed, as the API's decimal string, or `null` when it
- * isn't a number above zero: `12,40` and `€ 12.40` give `12.40`.
- */
-export function typedPrice(text: string): Decimal | null {
-  const match = PRICE.exec(text.replace(/[\s€  ]/g, ""));
-  if (match === null) {
-    return null;
-  }
-  const whole = (match[1] ?? "").replace(/^0+(?=\d)/, "");
-  const price = match[2] === undefined ? whole : `${whole}.${match[2]}`;
-  return Number(price) > 0 ? price : null;
 }

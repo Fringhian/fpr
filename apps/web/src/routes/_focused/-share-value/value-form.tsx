@@ -9,7 +9,8 @@ import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { LeaveGuard } from "../../../lib/leave-guard";
-import { RACE_TIME_ZONE, raceDayOf } from "../../../lib/race-day";
+import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { useRaceToday } from "../../../lib/use-race-today";
 import { useSaveValue } from "./use-save-value";
 import { timeNow, type ValueDraft } from "./value-draft";
 import { ValueFields } from "./value-fields";
@@ -76,7 +77,7 @@ export function ValueForm({
 }) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const [today] = useState(() => raceDayOf(Date.now()));
+  const today = useRaceToday();
   const [draft, setDraft] = useState<ValueDraft>(() => ({
     day: today,
     time: timeNow(),

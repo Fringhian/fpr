@@ -936,6 +936,10 @@
     "incomplete": {
       "title": "Incomplete",
       "body": "Some shares are still waiting for their prices. Until they arrive, they aren’t counted, never at €0."
+    },
+    "manual": {
+      "title": "A manual share’s value",
+      "body": "No price provider tracks this share, so members enter its value by hand. Each value holds until someone adds the next one."
     }
   },
   "oneTimeSecret": {
@@ -1076,9 +1080,6 @@
       "fromPrice": "Its latest price, {{price}} {{when}}, becomes its first value.",
       "noPrice_one": "It has no price yet, so it needs a first value. {{holders}} holds it.",
       "noPrice_other": "It has no price yet, so it needs a first value. {{holders}} hold it.",
-      "price": "Value of one unit",
-      "day": "On",
-      "priceInvalid": "Enter a value above zero, such as 12.40.",
       "dayInvalid": "Pick today or an earlier day.",
       "done": "Made manual"
     },

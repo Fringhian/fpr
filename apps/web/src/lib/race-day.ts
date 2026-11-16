@@ -63,11 +63,6 @@ export function localInstant(day: IsoDate, time: string): number {
   return asUtc - offsetMs(first);
 }
 
-/** The first moment of a race day. */
-export function raceDayStart(day: IsoDate): Timestamp {
-  return new Date(localInstant(day, "00:00:00")).toISOString();
-}
-
 /**
  * The last second of a race day, 23:59:59 there: an entry dated on a past
  * day counts in that day's close and every holding read on that day.

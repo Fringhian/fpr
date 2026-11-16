@@ -7,6 +7,7 @@ import { Picture } from "../../../components/atoms/picture/picture";
 import { cn } from "../../../lib/cn";
 import { formatDate } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
+import { HelpInfo } from "../../../lib/help-info";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
 import { usePriceTime } from "../../../lib/price-time";
@@ -92,8 +93,10 @@ export function SharePrice({
   share: ShareDetail;
   lastValue: ShareValue | undefined;
 }) {
+  const { t } = useTranslation();
   const language = useLanguage();
 
+  const manual = share.kind === "manual";
   if (share.latestPrice === null) {
     return <Badge state="pricePending" className="w-fit self-start" />;
   }
@@ -106,17 +109,28 @@ export function SharePrice({
         "desktop:flex-col desktop:items-end",
       )}
     >
-      <span
-        className={cn(
-          "font-semibold text-primary tabular-nums",
-          "text-xl",
-          "tablet:text-display",
-          "desktop:text-display",
-        )}
-      >
-        {formatMoney(share.latestPrice.priceEur, language)}
+      <span className="inline-flex items-center gap-xs">
+        <span
+          className={cn(
+            "font-semibold text-primary tabular-nums",
+            "text-xl",
+            "tablet:text-display",
+            "desktop:text-display",
+          )}
+        >
+          {formatMoney(share.latestPrice.priceEur, language)}
+        </span>
+        {manual ? (
+          <HelpInfo
+            section="manual"
+            title={t("helpInfo.manual.title")}
+            align="end"
+          >
+            {t("helpInfo.manual.body")}
+          </HelpInfo>
+        ) : null}
       </span>
-      {share.kind === "manual" && lastValue ? (
+      {manual && lastValue ? (
         <EnteredBy value={lastValue} />
       ) : (
         <ChangeAndTime share={share} />

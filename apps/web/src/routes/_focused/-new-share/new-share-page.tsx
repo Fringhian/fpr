@@ -3,7 +3,7 @@ import { useState } from "react";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { LeaveGuard } from "../../../lib/leave-guard";
 import type { NewShareSearch } from "../../../lib/new-share-search";
-import { raceDayOf } from "../../../lib/race-day";
+import { useRaceToday } from "../../../lib/use-race-today";
 import { BackLink } from "./back-link";
 import type { ShareDraft } from "./draft";
 import { DraftPanel } from "./draft-panel";
@@ -17,7 +17,7 @@ import { useCreateShare } from "./use-create-share";
  * Leaving with something typed asks first.
  */
 export function NewSharePage({ search }: { search: NewShareSearch }) {
-  const [today] = useState(() => raceDayOf(Date.now()));
+  const today = useRaceToday();
   const [draft, setDraft] = useState<ShareDraft>({
     isin: search.isin ?? "",
     name: "",

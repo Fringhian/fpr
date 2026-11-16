@@ -6,21 +6,25 @@ import { Button } from "../../../../components/atoms/button/button";
 import * as Dialog from "../../../../components/molecules/dialog/dialog";
 import { FormError } from "../../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
+import { priceIn } from "../../../../lib/amount";
 import { useApi } from "../../../../lib/api/use-api";
 import type { DialogRootState } from "../../../../lib/dialog-state";
 import { formatMoney } from "../../../../lib/format/money";
 import { formatList } from "../../../../lib/format/text";
 import { useLanguage } from "../../../../lib/i18n";
 import { usePriceTime } from "../../../../lib/price-time";
-import { RACE_TIME_ZONE, raceDayStart } from "../../../../lib/race-day";
+import {
+  momentOfDay,
+  RACE_TIME_ZONE,
+  raceToday,
+} from "../../../../lib/race-day";
 import { useRefusal } from "../../../-account/use-refusal";
 import { DialogHeading } from "../-shared/dialog-heading";
 import { FirstValueFields } from "./first-value-fields";
-import { typedPrice } from "./shares-model";
 
-type FirstValue = { priceEur?: string; on?: string };
+type FirstValue = { price?: string; on?: string };
 
-const blame = { future_moment: "on", invalid_request: "priceEur" } as const;
+const blame = { future_moment: "on", invalid_request: "price" } as const;
 
 /** What becomes the share's first value: its latest price, or the one the admin types, with who holds it. */
 function FirstValueNote({ share }: { share: AdminShare }) {
@@ -55,16 +59,17 @@ function FirstValueNote({ share }: { share: AdminShare }) {
  */
 function useMakeManual(share: AdminShare, onDone: () => void) {
   const { t } = useTranslation();
+  const language = useLanguage();
   const api = useApi();
   const toast = useToast();
   const makeManual = useMutation(api.admin.makeManual.mutationOptions());
   const { errors, formError, refuseError } = useRefusal(blame);
 
-  const submit = ({ priceEur = "", on = "" }: FirstValue) => {
-    const price = typedPrice(priceEur);
+  const submit = ({ price = "", on = "" }: FirstValue) => {
+    const priceEur = priceIn(price, language);
     const first =
-      share.latestPrice === null && price !== null
-        ? { priceEur: price, at: raceDayStart(on) }
+      share.latestPrice === null && priceEur !== null
+        ? { priceEur, at: momentOfDay(on, raceToday()) }
         : {};
     makeManual.mutate(
       { id: share.id, ...first },

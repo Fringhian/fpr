@@ -950,6 +950,10 @@
     "incomplete": {
       "title": "Incomplet",
       "body": "Certains titres attendent encore leurs cours. D’ici là, ils ne sont pas comptés, jamais à zéro."
+    },
+    "manual": {
+      "title": "La valeur d’un titre manuel",
+      "body": "Aucun fournisseur de cours ne suit ce titre : les membres saisissent sa valeur à la main. Chaque valeur tient jusqu’à ce que quelqu’un ajoute la suivante."
     }
   },
   "oneTimeSecret": {
@@ -1092,9 +1096,6 @@
       "noPrice_one": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détient.",
       "noPrice_many": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
       "noPrice_other": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
-      "price": "Valeur d’une part",
-      "day": "Le",
-      "priceInvalid": "Saisissez une valeur supérieure à zéro, comme 12,40.",
       "dayInvalid": "Choisissez aujourd’hui ou un jour précédent.",
       "done": "Passé en manuel"
     },
