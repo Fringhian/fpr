@@ -1,50 +1,13 @@
-import { type RawBuilder, sql } from "kysely";
+import { sql } from "kysely";
 import type { Db } from "../database.js";
 import type { PriceSource } from "../tables/price.js";
+import { shareValue } from "./share-price.js";
 
 /** The price a share is valued at, with that price's own moment and source. */
 export interface ShareValue {
   at: Date;
   priceEur: string;
   source: PriceSource;
-}
-
-/**
- * The price `shares` row `share` is valued at, at `at`, or now when `at` is
- * null: its latest price then. With `fallback`, before its first price, a
- * manual share, or a market share whose provider history starts late, takes
- * its earliest price, as balances do. Joined as `value`, empty without one.
- */
-function valueJoin(
-  share: string,
-  at: RawBuilder<unknown> | Date | null,
-  fallback: boolean,
-) {
-  const shareId = sql.ref(`${share}.id`);
-  const bound = at === null ? sql`true` : sql`at <= ${at}`;
-  const earliest = fallback
-    ? sql`${sql.ref(`${share}.kind`)} = 'manual' or ${sql.ref(`${share}.history_starts_on`)} is not null`
-    : sql`false`;
-  return sql`
-    left join lateral (
-      select at, price_eur, source from prices
-      where share_id = ${shareId} and ${bound}
-      order by at desc
-      limit 1
-    ) latest on true
-    left join lateral (
-      select at, price_eur, source from prices
-      where share_id = ${shareId}
-      order by at
-      limit 1
-    ) earliest on ${earliest}
-    cross join lateral (
-      select
-        coalesce(latest.at, earliest.at) as at,
-        coalesce(latest.price_eur, earliest.price_eur) as price_eur,
-        coalesce(latest.source, earliest.source) as source
-    ) value
-  `;
 }
 
 /**
@@ -57,11 +20,17 @@ export async function valuesAt(
   shareIds: readonly string[],
   { at = null, fallback = true }: { at?: Date | null; fallback?: boolean } = {},
 ): Promise<Map<string, ShareValue>> {
+  const value = shareValue("shares", at, { fallback });
   const { rows } = await sql<ShareValue & { shareId: string }>`
-    select shares.id as share_id, value.at, value.price_eur, value.source
+    select
+      shares.id as share_id,
+      ${value.column("at")} as at,
+      ${value.column("price_eur")} as price_eur,
+      ${value.column("source")} as source
     from shares
-    ${valueJoin("shares", at, fallback)}
-    where shares.id = any(${[...shareIds]}::uuid[]) and value.at is not null
+    ${value.join}
+    where shares.id = any(${[...shareIds]}::uuid[])
+      and ${value.column("at")} is not null
   `.execute(db);
   return new Map(rows.map(({ shareId, ...value }) => [shareId, value]));
 }
@@ -105,6 +74,7 @@ export async function changesAtDayValue(
     ((changes.effective_at at time zone ${timeZone})::date + time '23:59:59')
       at time zone ${timeZone}
   `;
+  const value = shareValue("shares", dayClose, { fallback: true });
   const { rows } = await sql<ChangeAtDayValue>`
     select
       changes.id,
@@ -112,10 +82,10 @@ export async function changesAtDayValue(
       changes.share_id,
       changes.quantity_delta,
       changes.effective_at,
-      value.price_eur as day_price_eur
+      ${value.column("price_eur")} as day_price_eur
     from portfolio_changes changes
     join shares on shares.id = changes.share_id
-    ${valueJoin("shares", dayClose, true)}
+    ${value.join}
     where ${userId === undefined ? sql`true` : sql`changes.user_id = ${userId}`}
       and ${shareId === undefined ? sql`true` : sql`changes.share_id = ${shareId}`}
     order by changes.effective_at, changes.created_at, changes.id
@@ -162,6 +132,7 @@ export async function holdingAtMoments(
     moments,
   }: { userId: string; shareId: string; moments: readonly Date[] },
 ): Promise<HoldingAtMoment[]> {
+  const value = shareValue("shares", sql`moments.at`, { fallback: true });
   const { rows } = await sql<HoldingAtMoment>`
     select
       moments.at,
@@ -171,10 +142,10 @@ export async function holdingAtMoments(
           and share_id = ${shareId}
           and effective_at <= moments.at
       ), 0) as quantity,
-      value.price_eur
+      ${value.column("price_eur")} as price_eur
     from unnest(${[...moments]}::timestamptz[]) moments(at)
     join shares on shares.id = ${shareId}
-    ${valueJoin("shares", sql`moments.at`, true)}
+    ${value.join}
     order by moments.at
   `.execute(db);
   return rows;
