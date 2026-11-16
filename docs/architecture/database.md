@@ -135,7 +135,7 @@ The primary key (`share_id`, `at`) of `prices` serves a share's latest price and
 - A day's balance is the balance at 23:59:59 in `RACE_TIMEZONE`, where the day's close is stored. Past days are valued at their close: the `close` price for a market share, the latest `manual` price for a manual share. Today is valued at the latest `intraday` price.
 - Leaderboards use closes only, so a member who sells in the morning and buys in the afternoon is never ranked on the gap in between.
 - A held market share with no price yet is pending, and its holder's balance is marked incomplete.
-- A holding before a share's `history_starts_on` is valued at the share's earliest close.
+- A holding before a share's `history_starts_on`, or before a manual share's first value point, is valued at the share's earliest price.
 - Leaderboards and balances are calculated from these tables, never stored.
 
 ## Deletion

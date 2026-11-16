@@ -28,6 +28,9 @@ export type { ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";
 export * as users from "./queries/users.js";
+export type { BalanceSeries, SeriesClock } from "./queries/valuation.js";
+export * as valuation from "./queries/valuation.js";
+export type { Balance, BalancePoint } from "./queries/value-moments.js";
 export type {
   AccessKey,
   AccessKeyTable,

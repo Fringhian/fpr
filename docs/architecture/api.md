@@ -195,7 +195,7 @@ The rules on roles, the last admin, and access are in `auth.md`, Admin rules. Ma
 
 ## Race calculation
 
-Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each day's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
+Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each weekday's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
 
 - **Balance**: the series at the last close.
 - **Gain**: the series at the last close minus its value at the period's start, in euros, or divided by it, in percent.
