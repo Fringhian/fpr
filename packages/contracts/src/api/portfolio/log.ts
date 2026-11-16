@@ -1,14 +1,28 @@
 import { z } from "zod";
+import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
+import { decimalSchema } from "../../decimal.js";
 import { roles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
-import { portfolioCashBalanceSchema } from "./cash.js";
+import {
+  portfolioCashAmountSchema,
+  portfolioCashBalanceSchema,
+} from "./cash.js";
 import { portfolioChangeSchema } from "./changes.js";
 
-/** A share change or a cash balance, told apart by `type`. */
+/**
+ * A share change or a cash balance, told apart by `type`, with what it
+ * changed: the quantity of the share held just after a change, and the cash
+ * just before a balance, `null` before the first. Entries at the same moment
+ * count in the order they were recorded.
+ */
 export const portfolioLogEntrySchema = z.discriminatedUnion("type", [
-  portfolioChangeSchema,
-  portfolioCashBalanceSchema,
+  portfolioChangeSchema.extend({
+    quantityAfter: quantity(decimalSchema),
+  }),
+  portfolioCashBalanceSchema.extend({
+    previousAmountEur: quantity(portfolioCashAmountSchema.nullable()),
+  }),
 ]);
 
 export type PortfolioLogEntry = z.infer<typeof portfolioLogEntrySchema>;
@@ -18,6 +32,8 @@ export const portfolioLogSchema = z.object({
   entries: z.array(portfolioLogEntrySchema),
   /** The `before` of the next page, or `null` on the last page. */
   nextBefore: z.string().min(1).nullable(),
+  /** How many entries the whole log holds. */
+  total: z.int().min(0),
 });
 
 export type PortfolioLog = z.infer<typeof portfolioLogSchema>;

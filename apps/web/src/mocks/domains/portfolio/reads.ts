@@ -61,6 +61,7 @@ function logPage(
       last !== undefined && start + input.limit < all.length
         ? cursorOf(last)
         : null,
+    total: all.length,
   };
 }
 

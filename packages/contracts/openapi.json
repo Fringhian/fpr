@@ -3945,6 +3945,11 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "quantityAfter": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
                               }
                             },
                             "required": [
@@ -3953,7 +3958,8 @@
                               "share",
                               "quantityDelta",
                               "effectiveAt",
-                              "madeBy"
+                              "madeBy",
+                              "quantityAfter"
                             ]
                           },
                           {
@@ -4000,6 +4006,18 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "previousAmountEur": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "x-anonymize": "quantity"
                               }
                             },
                             "required": [
@@ -4007,7 +4025,8 @@
                               "id",
                               "amountEur",
                               "effectiveAt",
-                              "madeBy"
+                              "madeBy",
+                              "previousAmountEur"
                             ]
                           }
                         ]
@@ -4023,11 +4042,17 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
                     }
                   },
                   "required": [
                     "entries",
-                    "nextBefore"
+                    "nextBefore",
+                    "total"
                   ]
                 }
               }
@@ -6686,6 +6711,11 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "quantityAfter": {
+                                "type": "string",
+                                "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                                "x-anonymize": "quantity"
                               }
                             },
                             "required": [
@@ -6694,7 +6724,8 @@
                               "share",
                               "quantityDelta",
                               "effectiveAt",
-                              "madeBy"
+                              "madeBy",
+                              "quantityAfter"
                             ]
                           },
                           {
@@ -6741,6 +6772,18 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "previousAmountEur": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "x-anonymize": "quantity"
                               }
                             },
                             "required": [
@@ -6748,7 +6791,8 @@
                               "id",
                               "amountEur",
                               "effectiveAt",
-                              "madeBy"
+                              "madeBy",
+                              "previousAmountEur"
                             ]
                           }
                         ]
