@@ -6,16 +6,8 @@ import type {
 } from "@fpr/contracts";
 import type { ChartPoint } from "../components/molecules/chart/chart";
 import type { GainUnit } from "./gain";
+import { raceDayOf } from "./race-day";
 
-/** A moment's calendar day on the browser's clock, where timestamps are read. */
-function localDay(at: string): IsoDate {
-  const moment = new Date(at);
-  const month = String(moment.getMonth() + 1).padStart(2, "0");
-  const day = String(moment.getDate()).padStart(2, "0");
-  return `${moment.getFullYear()}-${month}-${day}`;
-}
-
-/** One value per day, the latest of the day, so today's refreshes end on the newest one. */
 function byDay<T>(
   points: readonly T[],
   read: (point: T) => { at: string; value: Decimal | null | undefined },
@@ -23,13 +15,14 @@ function byDay<T>(
   const days = new Map<IsoDate, Decimal>();
   for (const point of points) {
     const { at, value } = read(point);
-    if (value != null) days.set(localDay(at), value);
+    if (value != null) days.set(raceDayOf(at), value);
   }
   return [...days].map(([day, value]) => ({ day, value }));
 }
 
 /**
- * A member's gain as a chart draws it, one point per day in the unit. A point
+ * A member's gain as a chart draws it, one point per race day in the unit:
+ * the day's latest, so today's refreshes end on the newest one. A point
  * with no value in the unit, a percentage from a start at zero, is left out
  * rather than drawn in the other unit.
  */
@@ -43,15 +36,18 @@ export function gainPoints(
   }));
 }
 
-/** A share's price as a chart draws it, one point per day. */
+/** A share's price as a chart draws it, the latest of each race day. */
 export function pricePoints(points: readonly PricePoint[]): ChartPoint[] {
   return byDay(points, ({ at, priceEur }) => ({ at, value: priceEur }));
 }
 
-/** The day of the series' last close: the points after it are today's, not final. */
+/**
+ * The day of the series' last close, as the API's `lastCloseOn` names it for
+ * a response without one: the points after it are today's, not final.
+ */
 export function lastCloseOf(
   points: readonly MemberSeriesPoint[],
 ): IsoDate | undefined {
   const close = points.findLast((point) => !point.provisional);
-  return close === undefined ? undefined : localDay(close.at);
+  return close === undefined ? undefined : raceDayOf(close.at);
 }
