@@ -22,6 +22,10 @@ import {
 } from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
+import {
+  createSeriesCache,
+  type SeriesCache,
+} from "./valuation/series-cache.js";
 
 export interface AppOptions {
   /** The contract routes served under `/api`. Defaults to every API route. */
@@ -37,8 +41,10 @@ export interface AppOptions {
   bootstrapKey: string;
   /** `PSEUDONYM_SECRET`: the key pseudonyms are derived with. */
   pseudonymSecret: string;
-  /** `RACE_TIMEZONE`: where a day starts. */
+  /** `RACE_TIMEZONE`: where a day starts and closes. */
   raceTimeZone: string;
+  /** Every member's balance series. Defaults to one on `db`. */
+  series?: SeriesCache;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
   docs?: boolean;
@@ -59,6 +65,7 @@ export function createApp({
   bootstrapKey,
   pseudonymSecret,
   raceTimeZone,
+  series = createSeriesCache({ db, timeZone: raceTimeZone }),
   logger,
   docs = false,
   router = apiRouter,
@@ -96,6 +103,7 @@ export function createApp({
     pseudonymSecret,
     raceTimeZone,
     rateLimits: createRateLimiter(publicWriteRateLimit),
+    series,
   });
   routes?.(app);
 

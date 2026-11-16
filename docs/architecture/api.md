@@ -204,7 +204,7 @@ Leaderboards and the race chart come from one series per member, computed in Pos
 - Leaderboards use closes only. The intraday points serve the race chart's current day, portfolios, and share pages.
 - A member whose first entry is after the period's start is measured from it, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the others, marked incomplete.
 
-The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` in `prices` has changed, which catches the price service's runs.
+The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` or the number of rows in `prices` has changed, which catches the price service's runs, or when a new close has passed.
 
 ## Anonymization
 

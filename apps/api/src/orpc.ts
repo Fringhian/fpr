@@ -12,6 +12,7 @@ import type { Express, Request, Response } from "express";
 import type { Auth } from "./auth/auth.js";
 import type { RateLimiter } from "./pipeline/index.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
+import type { SeriesCache } from "./valuation/series-cache.js";
 
 /**
  * What the process gives every request: its pool, Better Auth, picture
@@ -32,6 +33,8 @@ export interface ApiServices {
   raceTimeZone: string;
   /** The counts of the public writes' rate limit, per route and client address. */
   rateLimits: RateLimiter;
+  /** Every member's balance series. A write to portfolios, shares or prices clears it. */
+  series: SeriesCache;
 }
 
 /** What every handler receives. */

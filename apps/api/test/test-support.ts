@@ -30,6 +30,7 @@ import {
   type AvatarStore,
   createAvatarStore,
 } from "../src/storage/avatar-store.js";
+import type { SeriesCache } from "../src/valuation/series-cache.js";
 
 export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
@@ -116,6 +117,8 @@ export async function serveApp(options: {
   router?: AnyRouter;
   /** The picture storage. Defaults to an empty test bucket. */
   avatars?: AvatarStore;
+  /** The balance series. Defaults to one on `db`. */
+  series?: SeriesCache;
 }): Promise<TestServer> {
   const chunks: string[] = [];
   const destination = new Writable({
