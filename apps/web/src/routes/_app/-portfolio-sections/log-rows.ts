@@ -1,7 +1,7 @@
 import type { Id, PortfolioLogEntry } from "@fpr/contracts";
 import Big from "big.js";
 import type { TimelineEntry } from "../../../components/molecules/timeline-row/timeline-row";
-import { changeSummaryOf } from "../../../lib/log-entry";
+import { changeSummaryOf, weighedSummaryOf } from "../../../lib/log-entry";
 
 /**
  * One entry of the log as a timeline row draws it, with the entry itself for
@@ -31,15 +31,17 @@ function rowOf(entry: PortfolioLogEntry): TimelineEntry {
 /**
  * The log's entries of `ownerId`'s portfolio as timeline rows, newest first:
  * each change with the quantity held before and after it, each cash balance
- * with the cash before it.
+ * with the cash before it. An anonymous viewer's rows show each entry's
+ * weight alone: every quantity and cash field of an entry they read is that
+ * same weight, so there is no before → after.
  */
 export function logRows(
   entries: readonly PortfolioLogEntry[],
-  ownerId: Id,
+  { ownerId, anonymous }: { ownerId: Id; anonymous: boolean },
 ): LogRow[] {
   return entries.map((entry) => ({
     entry,
-    row: rowOf(entry),
+    row: anonymous ? weighedSummaryOf(entry) : rowOf(entry),
     madeBy:
       entry.madeBy !== null && entry.madeBy.id !== ownerId
         ? entry.madeBy.displayName

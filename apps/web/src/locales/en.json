@@ -217,6 +217,14 @@
     "heldSpoken": "from {{before}} to {{after}} units held",
     "newHolding": "New holding",
     "firstCash": "First cash entry",
+    "weighed": {
+      "bought": "Bought {{share}}",
+      "sold": "Sold {{share}}",
+      "traded": "Traded {{share}}",
+      "cashSet": "Cash set"
+    },
+    "weight": "{{weight}} of the portfolio",
+    "weightUnknown": "Weight unknown",
     "was": "was {{before}}",
     "madeBy": "by {{name}}",
     "subject": "{{title}}, {{date}}"

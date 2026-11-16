@@ -2,6 +2,7 @@ import type { Id } from "@fpr/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useApi } from "../../../lib/api/use-api";
+import { useSession } from "../../../lib/session/use-session";
 import { logRows } from "./log-rows";
 
 const PAGE_SIZE = 20;
@@ -13,6 +14,7 @@ const PAGE_SIZE = 20;
  */
 export function useLog(userId: Id, enabled = true) {
   const api = useApi();
+  const { readOnly } = useSession();
   const log = useInfiniteQuery(
     api.portfolio.log.infiniteOptions({
       input: (before: string | undefined) => ({
@@ -32,9 +34,9 @@ export function useLog(userId: Id, enabled = true) {
       pages &&
       logRows(
         pages.flatMap((page) => page.entries),
-        userId,
+        { ownerId: userId, anonymous: readOnly },
       ),
-    [pages, userId],
+    [pages, userId, readOnly],
   );
   return { log, rows, total: pages?.[0]?.total };
 }

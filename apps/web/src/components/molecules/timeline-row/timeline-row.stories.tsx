@@ -65,6 +65,7 @@ interface TimelineRowArgs {
   before: string;
   after: string;
   amount: string;
+  weight: string;
   price: string;
   madeBy: string;
   year: boolean;
@@ -73,24 +74,30 @@ interface TimelineRowArgs {
   actionsIcon: keyof typeof ACTIONS_ICONS;
 }
 
-/** The kind's own fields, from the args. */
+/** The kind's own fields, from the args. A `weight` makes a share change or a cash balance an anonymous viewer's. */
 function entryOf(args: TimelineRowArgs): TimelineRow.TimelineEntry {
   switch (args.kind) {
     case "bought":
     case "sold":
-      return {
-        kind: args.kind,
-        share: args.share,
-        quantity: args.quantity,
-        before: args.before,
-        after: args.after,
-      };
+      return args.weight === ""
+        ? {
+            kind: args.kind,
+            share: args.share,
+            quantity: args.quantity,
+            before: args.before,
+            after: args.after,
+          }
+        : { kind: args.kind, share: args.share, weight: args.weight };
+    case "traded":
+      return { kind: "traded", share: args.share, weight: null };
     case "cashSet":
-      return {
-        kind: "cashSet",
-        amount: args.amount,
-        before: args.before === "" ? null : args.before,
-      };
+      return args.weight === ""
+        ? {
+            kind: "cashSet",
+            amount: args.amount,
+            before: args.before === "" ? null : args.before,
+          }
+        : { kind: "cashSet", weight: args.weight };
     case "valueAdded":
       return { kind: "valueAdded", price: args.price };
     case "valueEdited":
@@ -195,6 +202,33 @@ const HISTORY: HistoryEntry[] = [
     amount: "2400",
     before: null,
   },
+];
+
+/** The same history as an anonymous viewer reads it: each entry's weight in the portfolio, one with none. */
+const WEIGHED: HistoryEntry[] = [
+  {
+    id: "1",
+    date: "2026-03-03",
+    kind: "bought",
+    share: "World Index ETF",
+    weight: "12.5",
+  },
+  { id: "2", date: "2026-03-01", kind: "cashSet", weight: "8.3" },
+  {
+    id: "3",
+    date: "2026-02-24",
+    kind: "sold",
+    share: "US Health ETF",
+    weight: "-4.2",
+  },
+  {
+    id: "4",
+    date: "2026-02-12",
+    kind: "traded",
+    share: "Nordic Wind AG",
+    weight: null,
+  },
+  { id: "5", date: "2026-01-12", kind: "cashSet", weight: null },
 ];
 
 /** A manual share's values, newest first, each with who entered it. */
@@ -304,6 +338,14 @@ A screen with a need \`Basic\` doesn't cover composes the parts with its own chi
 | \`valueEdited\` | \`price\`, \`before\` | “Value changed to €40.10”, “was €41.00” |
 | \`valueDeleted\` | \`before\` | “Value of €41.00 deleted” |
 
+An anonymous viewer reads no quantity or cash: a share change or a cash balance takes \`weight\`, its weight in the portfolio in percent, in place of its other fields, and the line under it says that weight, signed for a change, instead of before → after.
+
+| \`kind\` | Fields | Reads |
+| --- | --- | --- |
+| \`bought\`, \`sold\` | \`share\`, \`weight\` | “Bought World Index ETF”, “+12.5% of the portfolio” |
+| \`traded\` | \`share\`, \`weight\` \`null\` | “Traded Nordic Wind AG”, “Weight unknown”: without a weight, the direction is unknown too |
+| \`cashSet\` | \`weight\`, \`null\` when unknown | “Cash set”, “8.3% of the portfolio” or “Weight unknown” |
+
 - \`madeBy\` adds “by Alex” after the change: on a member's entry the admin made, and on every value of a manual share.
 - \`actions\` takes the menu's \`Menu.Item\`s, such as Edit and Delete. The ⋯ button is named after the row for screen readers: “More actions for Bought 10 World Index ETF, 3 Mar”. Without actions, a read-only viewer's row has no ⋯.
 - \`icon\` swaps the kind's icon: plus, minus, coins, tag, pencil by default. \`actionsIcon\` swaps the ⋯ button's three dots.
@@ -326,6 +368,7 @@ const meta = {
     before: "50",
     after: "60",
     amount: "2000",
+    weight: "",
     price: "40.10",
     madeBy: "",
     year: false,
@@ -341,7 +384,7 @@ const meta = {
       table: {
         type: {
           summary:
-            '"bought" | "sold" | "cashSet" | "valueAdded" | "valueEdited" | "valueDeleted"',
+            '"bought" | "sold" | "traded" | "cashSet" | "valueAdded" | "valueEdited" | "valueDeleted"',
         },
       },
     },
@@ -368,6 +411,11 @@ const meta = {
     },
     amount: {
       description: "`cashSet`: the cash from that day, in euros.",
+      control: { type: "text" },
+    },
+    weight: {
+      description:
+        "`bought`, `sold`, `cashSet` for an anonymous viewer: the weight in the portfolio, in percent, signed for a change, in place of the other fields. Empty here for a viewer who reads quantities. `traded`: `null`.",
       control: { type: "text" },
     },
     price: {
@@ -509,6 +557,32 @@ export const History: Story = {
   render: (args) => (
     <List
       entries={HISTORY}
+      label="history"
+      withActions={args.actions}
+      actionsIcon={args.actionsIcon}
+    />
+  ),
+};
+
+/** A share change as an anonymous viewer reads it: its weight in the portfolio, signed, in place of before → after. */
+export const Weighed: Story = {
+  args: { weight: "12.5" },
+  parameters: { controls: { include: ["share", "weight", ...COMMON] } },
+};
+
+/** A change an anonymous viewer reads with no weight, without a price or with a zero balance: neither bought nor sold. */
+export const Traded: Story = {
+  args: { kind: "traded", date: "2026-02-12", share: "Nordic Wind AG" },
+  parameters: { controls: { include: ["share", ...COMMON] } },
+};
+
+/** The History list as an anonymous viewer reads it: each entry's weight, one change and one cash balance with none. */
+export const Anonymous: Story = {
+  parameters: { controls: { include: ["actions", "actionsIcon"] } },
+  args: { actions: false },
+  render: (args) => (
+    <List
+      entries={WEIGHED}
       label="history"
       withActions={args.actions}
       actionsIcon={args.actionsIcon}
