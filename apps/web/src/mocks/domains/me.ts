@@ -63,6 +63,13 @@ export const meRoutes = {
     return toMe(viewer);
   }),
 
+  people: mock.me.people.handler(({ context }) =>
+    context.store.people.map((person) => ({
+      ...toPerson(person),
+      role: person.role,
+    })),
+  ),
+
   getAvatar: mock.me.getAvatar.handler(({ context, input }) => {
     const avatar = personOf(context.store, input.userId)?.avatar;
     if (avatar === undefined || avatar === null) {
