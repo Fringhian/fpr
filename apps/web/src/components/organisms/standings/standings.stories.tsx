@@ -1,15 +1,11 @@
 import { leaderboardBoards } from "@fpr/contracts/values";
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useArgs } from "storybook/preview-api";
 import { expect, userEvent, within } from "storybook/test";
 import { TextLink } from "../../atoms/text-link/text-link";
-import {
-  Standings,
-  type StandingsBoard,
-  type StandingsMember,
-  type StandingsProps,
-} from "./standings";
+import type { StandingsBoard, StandingsMember } from "./standings";
+import * as Standings from "./standings";
 
 /** An abstract photo, drawn inline: a sun over two hills, no person. */
 const PHOTO = `data:image/svg+xml,${encodeURIComponent(
@@ -154,7 +150,7 @@ const ANONYMOUS: readonly StandingsMember[] = BY_GAIN.map(
 );
 
 /** The stories' args: the standings' own props, with the panel fixed by the story. */
-type StandingsArgs = Omit<StandingsProps, "panel">;
+type StandingsArgs = Omit<Standings.BasicProps, "panel">;
 
 /** The standings sit at the width of Home's content column. */
 const inTheColumn: Decorator = (Story) => (
@@ -173,18 +169,20 @@ Every member's lane in one card, highest first, with the Gain / Balance switch, 
 - \`focusedId\` and \`onFocusMember\` hold the focused member. Pressing a lane focuses its member and opens that lane in place; pressing the focused lane again calls \`onFocusMember(null)\`, back to the viewer. On phone the opened lane shows the best share, then \`panel\`; on tablet and desktop the best share stays under the name, and the lane opens only when \`panel\` gives it something to show.
 - With nobody in the race yet, the card says so where the lanes go, with no switch.
 
+\`Standings.Basic\` is the ready-made card. A screen with a special need composes the parts: \`Root\` (the card), \`Header\` (the top row), \`Title\`, \`BoardSwitch\`, \`Lanes\` and \`Empty\`.
+
 On this page every story renders at the page's own width, a desktop width: the **On tablet**, **On phone** and **Phone, focused** stories in the sidebar show the narrower ones.
 `;
 
 const meta = {
   title: "Organisms/Standings",
-  component: Standings,
+  component: Standings.Basic,
   tags: ["autodocs"],
   decorators: [inTheColumn],
   parameters: {
     docs: { description: { component: DESCRIPTION } },
   },
-} satisfies Meta<typeof Standings>;
+} satisfies Meta<typeof Standings.Basic>;
 
 export default meta;
 
@@ -208,7 +206,7 @@ function StandingsOwner(args: StandingsArgs) {
   const [focusedId, setFocusedId] = useState(args.focusedId ?? null);
 
   return (
-    <Standings
+    <Standings.Basic
       {...args}
       board={board}
       members={BOARDS[board]}
@@ -270,7 +268,7 @@ const configurable = {
   render: function ConfiguredStandings(args) {
     const [, updateArgs] = useArgs<StandingsArgs>();
     return (
-      <Standings
+      <Standings.Basic
         {...args}
         onBoardChange={(board) => updateArgs({ board, members: BOARDS[board] })}
         onFocusMember={(focusedId) => updateArgs({ focusedId })}
@@ -342,6 +340,44 @@ export const Switching: Story = {
     const lanes = within(canvas.getByRole("list")).getAllByRole("listitem");
     await expect(lanes[0]).toHaveTextContent(/^Alex/);
   },
+};
+
+/** The card composed of its parts, holding its own board and focus. */
+function Composed({ boardSwitch }: { boardSwitch: boolean }) {
+  const titleId = useId();
+  const [board, setBoard] = useState<StandingsBoard>("gain");
+  const [focused, setFocused] = useState<string | null>(null);
+
+  return (
+    <Standings.Root aria-labelledby={titleId}>
+      <Standings.Header>
+        <Standings.Title id={titleId} period="this month" />
+        {boardSwitch ? (
+          <Standings.BoardSwitch board={board} onBoardChange={setBoard} />
+        ) : null}
+      </Standings.Header>
+      <Standings.Lanes
+        members={BOARDS[board]}
+        viewerId="alex"
+        focused={focused}
+        onFocus={setFocused}
+        panel={pageLink}
+      />
+    </Standings.Root>
+  );
+}
+
+/** The parts composed by hand, for a screen with a special need: the title and the lanes, without the not-started line, the switch optional. */
+export const Parts: StoryObj<{ boardSwitch: boolean }> = {
+  args: { boardSwitch: true },
+  argTypes: {
+    boardSwitch: {
+      control: { type: "boolean" },
+      name: "Standings.BoardSwitch",
+    },
+  },
+  parameters: { controls: { include: ["boardSwitch"] } },
+  render: (args) => <Composed {...args} />,
 };
 
 export const OnTablet: Story = {

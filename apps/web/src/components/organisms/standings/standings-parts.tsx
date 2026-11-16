@@ -1,6 +1,6 @@
 import type { LeaderboardBoard } from "@fpr/contracts";
 import { leaderboardBoards } from "@fpr/contracts/values";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import { laneScale } from "../../../lib/lane";
@@ -31,56 +31,70 @@ const MEDALS = [
   "bronze",
 ] as const satisfies readonly PictureMedal[];
 
-/** The title, with the period after it, and the Gain / Balance switch when the board can change. */
-export function StandingsHeader({
-  titleId,
-  period,
-  board,
-  onBoardChange,
-  switchable,
-}: {
-  titleId: string;
-  period: string | undefined;
-  board: StandingsBoard;
-  onBoardChange: ((board: StandingsBoard) => void) | undefined;
-  switchable: boolean;
-}) {
-  const { t } = useTranslation();
-
+/** The top row: the `Title`, then the `BoardSwitch`. */
+export function Header({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
+      {...props}
       className={cn(
         "flex flex-wrap items-center justify-between gap-s pb-s",
         "ps-s",
         "tablet:ps-[0.75rem]",
         "desktop:ps-[0.75rem]",
+        className,
       )}
+    />
+  );
+}
+
+/** “Standings”, with the period after it in words: “Standings · this month”. */
+export function Title({
+  period,
+  className,
+  ...props
+}: { period?: string | undefined } & Omit<ComponentProps<"h2">, "children">) {
+  const { t } = useTranslation();
+
+  return (
+    <h2
+      {...props}
+      className={cn("text-l font-semibold text-primary", className)}
     >
-      <h2 id={titleId} className="text-l font-semibold text-primary">
-        {period === undefined
-          ? t("standings.title")
-          : t("standings.titleOver", { period })}
-      </h2>
-      {switchable ? (
-        <Segment.Root<StandingsBoard>
-          backdrop="snow"
-          value={board}
-          onValueChange={(next) => onBoardChange?.(next)}
-          aria-label={t("controls.standings.label")}
-        >
-          {leaderboardBoards.map((option) => (
-            <Segment.Item key={option} value={option}>
-              {t(`controls.standings.${option}`)}
-            </Segment.Item>
-          ))}
-        </Segment.Root>
-      ) : null}
-    </div>
+      {period === undefined
+        ? t("standings.title")
+        : t("standings.titleOver", { period })}
+    </h2>
+  );
+}
+
+/** The Gain / Balance switch. */
+export function BoardSwitch({
+  board,
+  onBoardChange,
+}: {
+  board: StandingsBoard;
+  onBoardChange?: ((board: StandingsBoard) => void) | undefined;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Segment.Root<StandingsBoard>
+      backdrop="snow"
+      value={board}
+      onValueChange={(next) => onBoardChange?.(next)}
+      aria-label={t("controls.standings.label")}
+    >
+      {leaderboardBoards.map((option) => (
+        <Segment.Item key={option} value={option}>
+          {t(`controls.standings.${option}`)}
+        </Segment.Item>
+      ))}
+    </Segment.Root>
   );
 }
 
 /** Nobody is in the race yet. */
-export function StandingsEmpty() {
+export function Empty() {
   const { t } = useTranslation();
 
   return (
@@ -101,7 +115,7 @@ export function StandingsEmpty() {
 }
 
 /** The lanes, highest first, on one scale, sliding to their new rank when the order changes. */
-export function StandingsLanes({
+export function Lanes({
   members,
   viewerId,
   focused,

@@ -1,18 +1,46 @@
+// The standings' parts, imported as a namespace: `import * as Standings from "…/standings"`.
 import { type ComponentProps, type ReactNode, useId, useState } from "react";
 import { cn } from "../../../lib/cn";
 import { Card } from "../../atoms/card/card";
 import { LaneNotStarted } from "../../molecules/lane/lane";
 import {
+  BoardSwitch,
+  Empty,
+  Header,
+  Lanes,
   type StandingsBoard,
-  StandingsEmpty,
-  StandingsHeader,
-  StandingsLanes,
   type StandingsMember,
+  Title,
 } from "./standings-parts";
 
-export type { StandingsBoard, StandingsMember } from "./standings-parts";
+export {
+  BoardSwitch,
+  Empty,
+  Header,
+  Lanes,
+  type StandingsBoard,
+  type StandingsMember,
+  Title,
+} from "./standings-parts";
 
-export type StandingsProps = {
+/** The card, a `<section>`. Name it with `aria-labelledby`, the `Title`'s id. */
+export function Root({ className, ...props }: ComponentProps<"section">) {
+  return (
+    <Card
+      {...props}
+      render={<section />}
+      className={cn(
+        "flex min-w-0 flex-col",
+        "p-s",
+        "tablet:p-m",
+        "desktop:p-m",
+        className,
+      )}
+    />
+  );
+}
+
+export type BasicProps = {
   /** The standings shown, chosen with the Gain / Balance switch. */
   board: StandingsBoard;
   /** Called with the board the viewer picks. The owner loads its rows and passes them as `members`. */
@@ -56,7 +84,7 @@ export type StandingsProps = {
  * When the order changes, each lane slides to its new rank and its bar eases
  * to its new length; with reduced motion, they move at once.
  */
-export function Standings({
+export function Basic({
   board,
   onBoardChange,
   anonymous = false,
@@ -67,9 +95,8 @@ export function Standings({
   focusedId,
   onFocusMember,
   panel,
-  className,
   ...props
-}: StandingsProps) {
+}: BasicProps) {
   const titleId = useId();
   const [heldFocus, setHeldFocus] = useState<string | null>(null);
 
@@ -80,29 +107,17 @@ export function Standings({
   };
 
   return (
-    <Card
-      {...props}
-      render={<section />}
-      aria-labelledby={titleId}
-      className={cn(
-        "flex min-w-0 flex-col",
-        "p-s",
-        "tablet:p-m",
-        "desktop:p-m",
-        className,
-      )}
-    >
-      <StandingsHeader
-        titleId={titleId}
-        period={period}
-        board={board}
-        onBoardChange={onBoardChange}
-        switchable={!anonymous && !empty}
-      />
+    <Root {...props} aria-labelledby={titleId}>
+      <Header>
+        <Title id={titleId} period={period} />
+        {anonymous || empty ? null : (
+          <BoardSwitch board={board} onBoardChange={onBoardChange} />
+        )}
+      </Header>
       {empty ? (
-        <StandingsEmpty />
+        <Empty />
       ) : (
-        <StandingsLanes
+        <Lanes
           members={members}
           viewerId={viewerId}
           focused={focusedId === undefined ? heldFocus : focusedId}
@@ -111,6 +126,6 @@ export function Standings({
         />
       )}
       <LaneNotStarted names={notStarted} />
-    </Card>
+    </Root>
   );
 }
