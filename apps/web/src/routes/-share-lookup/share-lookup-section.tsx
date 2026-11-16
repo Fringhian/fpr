@@ -1,10 +1,9 @@
 import type { ShareSummary } from "@fpr/contracts";
 import { Link } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
 import * as ShareLookup from "../../components/organisms/share-lookup/share-lookup";
-import { isinTakenBy, useErrorText } from "../../lib/api/errors";
 import { isinIn } from "../../lib/isin";
 import type { NewShareSearch } from "../../lib/new-share-search";
+import { useIsinRefusal } from "../-share-fields/use-isin-refusal";
 import type { useShareLookup } from "./use-share-lookup";
 
 /**
@@ -24,11 +23,9 @@ export function ShareLookupSection({
   query: string;
   onAdd: (share: ShareSummary) => void;
 } & Pick<NewShareSearch, "back" | "pick">) {
-  const { t } = useTranslation();
-  const errorText = useErrorText();
-
   const { listing, state } = lookup;
-  const takenBy = isinTakenBy(listing.error);
+  const refusal = useIsinRefusal(listing.error);
+
   const search: NewShareSearch = {
     isin: isinIn(query) ?? undefined,
     back,
@@ -46,16 +43,8 @@ export function ShareLookupSection({
         listing.variables && {
           symbol: listing.variables.query,
           adding: listing.isPending,
-          error:
-            takenBy !== null
-              ? t("shareLookup.isinTaken")
-              : listing.isError
-                ? errorText(listing.error)
-                : null,
-          takenLink:
-            takenBy === null ? null : (
-              <Link to="/shares/$shareId" params={{ shareId: takenBy }} />
-            ),
+          error: refusal.text,
+          takenLink: refusal.takenLink,
         }
       }
       createLink={<Link to="/shares/new" search={search} ignoreBlocker />}

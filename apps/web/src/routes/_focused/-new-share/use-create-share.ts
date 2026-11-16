@@ -3,10 +3,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../components/molecules/toast/use-toast";
-import { isinTakenBy, useErrorText } from "../../../lib/api/errors";
 import { useApi } from "../../../lib/api/use-api";
 import { useLanguage } from "../../../lib/i18n";
 import type { NewShareSearch } from "../../../lib/new-share-search";
+import { useIsinRefusal } from "../../-share-fields/use-isin-refusal";
 import { bodyOf, type ShareDraft } from "./draft";
 
 /**
@@ -39,17 +39,16 @@ function useLeave({ back, pick }: NewShareSearch) {
 
 /**
  * Creates the manual share the draft describes, says so, and leaves for
- * its page, or back with it picked. `refusal` is why the API refused it,
- * and `takenBy` the share that has its ISIN already, when that is why.
+ * its page, or back with it picked. `refusal` is why the API refused it.
  */
 export function useCreateShare(search: NewShareSearch, today: IsoDate) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const errorText = useErrorText();
   const api = useApi();
   const toast = useToast();
   const leave = useLeave(search);
   const create = useMutation(api.shares.createManual.mutationOptions());
+  const refusal = useIsinRefusal(create.error);
 
   return {
     create: (draft: ShareDraft) => {
@@ -64,13 +63,7 @@ export function useCreateShare(search: NewShareSearch, today: IsoDate) {
     },
     pending: create.isPending,
     created: create.isSuccess,
-    refusal:
-      isinTakenBy(create.error) !== null
-        ? t("shareLookup.isinTaken")
-        : create.isError
-          ? errorText(create.error)
-          : null,
-    takenBy: isinTakenBy(create.error),
+    refusal,
     reset: () => {
       if (create.isError) create.reset();
     },

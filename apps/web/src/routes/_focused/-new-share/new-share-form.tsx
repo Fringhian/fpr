@@ -1,6 +1,5 @@
 import { Form } from "@base-ui/react/form";
 import type { IsoDate } from "@fpr/contracts";
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
@@ -26,11 +25,11 @@ export function NewShareForm({
 }) {
   const { t } = useTranslation();
 
-  const { refusal, takenBy } = share;
+  const { text, takenLink } = share.refusal;
   return (
     <Form
       className="contents"
-      errors={takenBy && refusal ? { isin: refusal } : {}}
+      errors={takenLink && text ? { isin: text } : {}}
       onFormSubmit={() => share.create(draft)}
     >
       <StepFlow.Body>
@@ -40,14 +39,10 @@ export function NewShareForm({
           draft={draft}
           onChange={onChange}
           today={today}
-          takenLink={
-            takenBy === null ? null : (
-              <Link to="/shares/$shareId" params={{ shareId: takenBy }} />
-            )
-          }
+          takenLink={takenLink}
         />
         <p className="text-xs text-secondary">{t("newShare.help")}</p>
-        <FormError>{takenBy ? null : refusal}</FormError>
+        <FormError>{takenLink ? null : text}</FormError>
       </StepFlow.Body>
       <StepFlow.Actions>
         <StepFlow.MainButton

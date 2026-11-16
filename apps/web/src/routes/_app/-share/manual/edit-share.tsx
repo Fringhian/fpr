@@ -1,7 +1,6 @@
 import { Form } from "@base-ui/react/form";
 import type { ShareDetail } from "@fpr/contracts";
 import { useMutation } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../../components/atoms/button/button";
@@ -9,20 +8,19 @@ import { TextLink } from "../../../../components/atoms/text-link/text-link";
 import * as Dialog from "../../../../components/molecules/dialog/dialog";
 import { FormError } from "../../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
-import { isinTakenBy, useErrorText } from "../../../../lib/api/errors";
 import { useApi } from "../../../../lib/api/use-api";
 import { isinIn } from "../../../../lib/isin";
 import { IsinField, NameField } from "../../../-share-fields/share-fields";
+import { useIsinRefusal } from "../../../-share-fields/use-isin-refusal";
 
 /** Saves the share's name and ISIN as typed, then says so; `refusal` is why the API refused them. */
 function useUpdateShare(share: ShareDetail, onDone: () => void) {
   const { t } = useTranslation();
-  const errorText = useErrorText();
   const toast = useToast();
   const api = useApi();
   const update = useMutation(api.shares.update.mutationOptions());
+  const refusal = useIsinRefusal(update.error);
 
-  const takenBy = isinTakenBy(update.error);
   return {
     save: (draft: { name: string; isin: string }) => {
       const isin = isinIn(draft.isin);
@@ -39,12 +37,7 @@ function useUpdateShare(share: ShareDetail, onDone: () => void) {
       );
     },
     pending: update.isPending,
-    takenBy,
-    refusal: takenBy
-      ? t("shareLookup.isinTaken")
-      : update.isError
-        ? errorText(update.error)
-        : null,
+    refusal,
     reset: () => update.reset(),
   };
 }
@@ -61,31 +54,28 @@ function EditForm({
   const [draft, setDraft] = useState({ name: share.name, isin: share.isin });
   const update = useUpdateShare(share, onDone);
 
+  const { text, takenLink } = update.refusal;
   const change = (patch: Partial<typeof draft>) => {
     setDraft((previous) => ({ ...previous, ...patch }));
-    if (update.refusal) update.reset();
+    if (text) update.reset();
   };
 
   return (
     <Form
       className="grid gap-m"
-      errors={update.takenBy && update.refusal ? { isin: update.refusal } : {}}
+      errors={takenLink && text ? { isin: text } : {}}
       onFormSubmit={() => update.save(draft)}
     >
       <IsinField
         value={draft.isin}
         onValueChange={(isin) => change({ isin })}
-        takenLink={
-          update.takenBy === null ? null : (
-            <Link to="/shares/$shareId" params={{ shareId: update.takenBy }} />
-          )
-        }
+        takenLink={takenLink}
       />
       <NameField
         value={draft.name}
         onValueChange={(name) => change({ name })}
       />
-      <FormError>{update.takenBy ? null : update.refusal}</FormError>
+      <FormError>{takenLink ? null : text}</FormError>
       <Dialog.Footer>
         <Dialog.Cancel />
         <Button
