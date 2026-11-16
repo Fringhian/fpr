@@ -63,6 +63,17 @@
     "close": "Fermer",
     "cancel": "Annuler"
   },
+  "leaveGuard": {
+    "title": "Quitter sans enregistrer ?",
+    "description": "Ce que vous avez saisi n’est pas encore enregistré.",
+    "stay": "Rester",
+    "leave": "Quitter"
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Fermer",
+    "undo": "Annuler"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermillon",

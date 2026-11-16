@@ -5,6 +5,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import type { i18n as I18n } from "i18next";
+import * as Toast from "../components/molecules/toast/toast.tsx";
 import type { Api } from "../lib/api/api.ts";
 import { followSessionLanguage } from "../lib/language-choice.ts";
 import { guard } from "../lib/session/access.ts";
@@ -34,6 +35,15 @@ export const Route = createRootRouteWithContext<{
       throw redirect(target);
     }
   },
-  component: Outlet,
+  component: Root,
   errorComponent: LoadFailed,
 });
+
+/** Every page, with the toasts each layout shows in its own region. */
+function Root() {
+  return (
+    <Toast.Provider>
+      <Outlet />
+    </Toast.Provider>
+  );
+}

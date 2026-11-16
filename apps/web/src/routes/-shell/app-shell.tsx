@@ -1,4 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import * as Toast from "../../components/molecules/toast/toast";
 import * as Navigation from "../../components/organisms/navigation/navigation";
 import * as AppLayout from "../../components/templates/app-layout/app-layout";
 import { memberColor } from "../../lib/member-color";
@@ -10,7 +11,8 @@ const renderLink = ({ href }: Navigation.NavigationLink) => <Link to={href} />;
 /**
  * The frame every everyday page shares, kept while the person moves between
  * them: the navigation for their role, its current item read from the
- * address, and the page in the column. Each page renders its own `Screen`.
+ * address, the page in the column, and the toasts' region. Each page renders
+ * its own `Screen`.
  */
 export function AppShell() {
   const { person, role } = useSession();
@@ -37,6 +39,7 @@ export function AppShell() {
         </AppLayout.Main>
         <Navigation.TabBar />
       </AppLayout.Root>
+      <Toast.Region />
     </Navigation.Root>
   );
 }

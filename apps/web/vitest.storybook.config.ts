@@ -21,6 +21,7 @@ export default mergeConfig(
     optimizeDeps: {
       entries: ["index.html"],
       include: [
+        "@base-ui/react/alert-dialog",
         "@base-ui/react/avatar",
         "@base-ui/react/button",
         "@base-ui/react/collapsible",
@@ -32,6 +33,7 @@ export default mergeConfig(
         "@base-ui/react/progress",
         "@base-ui/react/radio",
         "@base-ui/react/radio-group",
+        "@base-ui/react/toast",
         "@base-ui/react/toggle",
         "@base-ui/react/toggle-group",
         "@base-ui/react/use-render",

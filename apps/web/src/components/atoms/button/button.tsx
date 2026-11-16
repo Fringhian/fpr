@@ -92,7 +92,7 @@ export type ButtonProps = {
    */
   loading?: boolean;
   /** The text shown while loading. Defaults to “Saving…”. */
-  loadingLabel?: string;
+  loadingLabel?: string | undefined;
 } & Omit<
   ComponentProps<typeof BaseButton>,
   | "intent"

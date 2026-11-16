@@ -256,6 +256,8 @@
 /* A field its validation marks invalid. Native `:invalid` is left out: it
    matches an empty required field before anyone types. */
 @custom-variant invalid (&:is([data-invalid], [aria-invalid="true"]));
+/* A toast past the region's limit, kept until the newer ones go */
+@custom-variant limited (&[data-limited]);
 /* The page's scrolling element, `<html>`, while the element is on the page:
    a bar over the page sets the scroll padding that keeps a focused or
    scrolled-to element clear of it (WCAG 2.4.11). */

@@ -62,6 +62,17 @@
     "close": "Close",
     "cancel": "Cancel"
   },
+  "leaveGuard": {
+    "title": "Leave without saving?",
+    "description": "What you entered isn’t saved yet.",
+    "stay": "Stay",
+    "leave": "Leave"
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Dismiss",
+    "undo": "Undo"
+  },
   "swatch": {
     "colours": {
       "vermilion": "Vermilion",
