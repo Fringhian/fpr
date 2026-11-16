@@ -2,18 +2,11 @@
 
 Everything people do in FPR, grouped by activity, with every case to cover. Each path is drawn in `user-flows.md`. **Version** is `v1` for the first version, `later` for what comes after it.
 
-FPR has four roles, detailed in `../architecture/auth.md`:
+FPR has four roles, detailed in `../architecture/auth.md`: the admin, who also manages people, access and shares and can record any member's portfolio; members, who record their own portfolio and keep manual shares; guests, who see what members see without a portfolio; and anonymous viewers, who see everything read-only, the admin area included, with pseudonyms and no euro amounts. Members and the admin are ranked; guests and anonymous viewers never are.
 
-- **Admin**: everything, real names and amounts. Records their own portfolio and any member's, and manages people, access and shares.
-- **Member**: everything outside the admin area. Records their own portfolio, and creates and edits manual shares.
-- **Guest**: what a member sees, read-only, with no portfolio. Edits their own profile.
-- **Anonymous viewer**: everything, the admin area included, read-only, with pseudonyms, initials instead of photos, and no euro amounts.
+The race is closed: adding or removing shares moves no money in FPR. A member records what they hold, and sets their cash themselves when it changes.
 
-Members and the admin are ranked. Guests and anonymous viewers are never ranked.
-
-The race is closed: no money enters or leaves it. Adding or removing shares moves no money in FPR. A member records what they hold, and sets their cash themselves when it changes.
-
-Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and one unit (€ or %): a single setting shared by every screen, kept across visits.
+Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and one unit (€ or %), a single setting shared by every screen and kept across visits.
 
 ## Access — get in and stay in
 
@@ -97,7 +90,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 | ID | As a member or guest, I want to… | So that… | Version |
 | --- | --- | --- | --- |
-| SHR-1 | find a share: FPR's shares filter as I type, a full ISIN is looked up at the price provider by itself, and any other text can be looked up with one button | I add what I own, even if nobody in the race holds it yet | v1 |
+| SHR-1 | find a share among FPR's, or look it up at the price provider | I add what I own, even if nobody in the race holds it yet | v1 |
 | SHR-2 | open a share's page: latest price with its time, change over the period, price chart, exchange, currency, ISIN, and my position (quantity, value, gain since I bought) next to Buy and Sell | I know what I hold before I buy or sell | v1 |
 | SHR-3 | see a held share's price refreshed every 30 minutes during the trading day | the race moves during the day | v1 |
 | SHR-4 | see on a share's chart when each member added or removed it, and how each holder is doing on it | I compare who got in at the better moment | v1 |
@@ -108,18 +101,17 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 **Cases to cover**
 
 - The Shares page lists the shares held in the race first, most holders first, then the shares nobody holds.
-- Filtering reads FPR's own shares only and costs no provider call. A lookup is one provider call.
+- Typing filters FPR's own shares and costs no provider call. A full ISIN is looked up at the provider by itself; any other text is looked up with one button. A lookup is one provider call.
 - A lookup that finds nothing offers "Create a manual share" with the ISIN filled in. Manual creation is offered only after a lookup.
 - When the provider is unavailable, or FPR's daily call budget is used, the lookup says so and still offers manual creation.
 - A listing returned without an ISIN asks the member to type it before it can be added. A listing whose ISIN is already in FPR opens that share.
 - An ISIN is stored once, and the filter finds it: creating a second share with it, or giving a manual share an ISIN another share has, is refused with a link to that share. An ISIN listed on several exchanges is stored on its primary listing.
 - A manual share always keeps at least one value point.
 - Two members editing the same value point: the second save shows the new value and asks to confirm.
-- Every change to a manual share's values is recorded: who changed which value, from what to what.
 - A market share held since before the provider's history starts is valued at its earliest close until that day: it shows no gain before it, and its page says "prices from <date>".
 - A fund has no price during the day: its value is its latest daily price, one or two trading days late, shown with its date.
 - A share quoted in another currency is shown in EUR, converted when its price was fetched.
-- Every price shows its time. Outside trading hours, the latest price is the last close, marked as such.
+- Outside trading hours, the latest price is the last close, marked as such.
 - A share's chart starts at its earliest holding in the race, or where the provider's history starts when that is later. A share nobody has held has no chart yet.
 - The gain since I bought values each purchase at the share's price on that day.
 - The provider being down never blocks a screen: every screen shows the latest stored prices with their time.
@@ -147,7 +139,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Standings use daily closes only. Removing shares in the morning and adding others in the afternoon never shows on them.
 - A missing close for a held share is valued at its latest stored price, and Home says "prices as of <date>".
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
-- Every share change, cash balance, and manual value edit stays recorded with who made it and when. v1 shows no feed.
+- Every share change, cash balance, and manual value edit stays recorded: who made it, when, and from what to what. v1 shows no feed.
 
 ## Comparison — side by side
 
