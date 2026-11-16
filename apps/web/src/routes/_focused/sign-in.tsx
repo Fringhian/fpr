@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { appPath } from "../../lib/session/access";
-import { AccessEnded } from "./-sign-in/access-ended";
+import { AccessEnded } from "./-access/access-ended";
 import { PasteLink } from "./-sign-in/paste-link";
 import { SignInForm } from "./-sign-in/sign-in-form";
 

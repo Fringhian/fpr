@@ -31,6 +31,16 @@ export function EmailField({
   );
 }
 
+/**
+ * The account a password is chosen for, hidden beside it: password managers
+ * save the new password under this email.
+ */
+export function HiddenEmail({ email }: { email: string }) {
+  return (
+    <input type="email" autoComplete="username" value={email} readOnly hidden />
+  );
+}
+
 /** A password being chosen, named `password`, with Show and its length under it. */
 export function NewPasswordField({ label }: { label?: string }) {
   const { t } = useTranslation();

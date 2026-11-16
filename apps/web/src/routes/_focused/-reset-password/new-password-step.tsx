@@ -6,7 +6,7 @@ import { FormError } from "../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useApi } from "../../../lib/api/use-api";
-import { NewPasswordField } from "../-access/access-fields";
+import { HiddenEmail, NewPasswordField } from "../-access/access-fields";
 import { AccessPage } from "../-access/access-page";
 import { useRefusal } from "../-access/use-refusal";
 import type { ResetPair } from "./check-step";
@@ -59,14 +59,7 @@ export function NewPasswordStep({
           <StepFlow.Description>
             {t("resetPassword.newDescription")}
           </StepFlow.Description>
-          {/* The account the new password is for, which password managers save it under. */}
-          <input
-            type="email"
-            autoComplete="username"
-            value={pair.email}
-            readOnly
-            hidden
-          />
+          <HiddenEmail email={pair.email} />
           <NewPasswordField label={t("resetPassword.password")} />
           <FormError>{formError}</FormError>
         </StepFlow.Body>
