@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useApi } from "../../../lib/api/use-api";
+import { lookOf } from "../../../lib/look";
 import { useSession } from "../../../lib/session/use-session";
 import { DisplayNameField } from "../-access/access-fields";
 import { useRefusal } from "../-access/use-refusal";
-import { LookPanel, lookOf } from "./look-preview";
+import { LookPanel } from "./look-preview";
 import { OnboardingPage } from "./onboarding-page";
 import { useGoToStep } from "./steps";
 

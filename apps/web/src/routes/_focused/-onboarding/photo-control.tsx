@@ -4,7 +4,7 @@ import { Button } from "../../../components/atoms/button/button";
 import { Picture } from "../../../components/atoms/picture/picture";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import { cn } from "../../../lib/cn";
-import type { Look } from "./look-preview";
+import type { Look } from "../../../lib/look";
 import { usePhoto } from "./use-photo";
 
 /**

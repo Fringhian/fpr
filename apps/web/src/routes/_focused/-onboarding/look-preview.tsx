@@ -1,27 +1,10 @@
-import type { Person } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { Card } from "../../../components/atoms/card/card";
 import { Picture } from "../../../components/atoms/picture/picture";
 import * as Lane from "../../../components/molecules/lane/lane";
 import { cn } from "../../../lib/cn";
 import type { LaneValue } from "../../../lib/lane";
-import { type MemberColor, memberColor } from "../../../lib/member-color";
-
-/** How the person shows: their name, colour, and photo as chosen so far. */
-export type Look = {
-  name: string;
-  color: MemberColor;
-  photo: string | null;
-};
-
-/** The look the person has saved. */
-export function lookOf(person: Person): Look {
-  return {
-    name: person.displayName,
-    color: memberColor(person.color),
-    photo: person.avatarUrl,
-  };
-}
+import type { Look } from "../../../lib/look";
 
 const startingValue: LaneValue = {
   board: "gain",
