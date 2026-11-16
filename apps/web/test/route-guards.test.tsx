@@ -2,12 +2,14 @@
 import { act } from "react";
 import { describe, expect, it } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
-import { fixtureShareId } from "../src/mocks/fixtures/shares.ts";
+import { fixtureShares } from "../src/mocks/fixtures/shares.ts";
 import type { Persona } from "../src/mocks/personas.ts";
 import { setSession } from "../src/mocks/store/session.ts";
 import { visit } from "./visit-app.tsx";
 
 const userId = fixturePersonId("sam");
+// Add a value opens only on a manual share: one with value points.
+const manualShare = fixtureShares.find((share) => "values" in share);
 
 /** Every route, by the address a visit asks for. */
 const routes = {
@@ -23,7 +25,7 @@ const routes = {
   shares: "/shares",
   share: "/shares/0b8a4c62-5d1e-4f0a-9c3e-2a7f6b1d9e40",
   newShare: "/shares/new",
-  shareValue: `/shares/${fixtureShareId("wind")}/value`,
+  shareValue: `/shares/${manualShare?.id}/value`,
   help: "/help",
   people: "/admin/people",
   trackedShares: "/admin/shares",
@@ -67,6 +69,10 @@ const enters = {
 } satisfies Partial<Record<Persona, readonly string[]>>;
 
 describe("the route guards", () => {
+  it("visit Add a value on a manual share", () => {
+    expect(manualShare).toBeDefined();
+  });
+
   describe.each(Object.keys(enters) as (keyof typeof enters)[])(
     "for the %s",
     (persona) => {
