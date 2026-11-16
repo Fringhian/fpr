@@ -7,6 +7,7 @@ import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useAccessChecks } from "../../../lib/access-checks";
 import type { SignInOutcome } from "../../../lib/session/better-auth";
+import { EmailField } from "../-access/access-fields";
 import { AccessPage } from "../-access/access-page";
 import { type Refusal, useRefusal } from "../-access/use-refusal";
 import { usePasswordSignIn } from "./use-password-sign-in";
@@ -86,15 +87,7 @@ export function SignInForm() {
         <StepFlow.Body>
           <StepFlow.Question>{t("signIn.question")}</StepFlow.Question>
           <StepFlow.Description>{t("signIn.description")}</StepFlow.Description>
-          <Field.Root name="email" validate={checks.email}>
-            <Field.Label>{t("accessFields.email")}</Field.Label>
-            <Field.Control
-              type="email"
-              autoComplete="email"
-              spellCheck={false}
-            />
-            <Field.Error />
-          </Field.Root>
+          <EmailField />
           <Field.Root name="password" validate={checks.password}>
             <Field.Label>{t("accessFields.password")}</Field.Label>
             <Field.Password autoComplete="current-password" />

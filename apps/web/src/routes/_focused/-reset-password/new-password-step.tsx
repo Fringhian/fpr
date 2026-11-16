@@ -2,12 +2,11 @@ import { Form } from "@base-ui/react/form";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import * as Field from "../../../components/molecules/field/field";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
-import { PASSWORD, useAccessChecks } from "../../../lib/access-checks";
 import { useApi } from "../../../lib/api/use-api";
+import { NewPasswordField } from "../-access/access-fields";
 import { AccessPage } from "../-access/access-page";
 import { useRefusal } from "../-access/use-refusal";
 import type { ResetPair } from "./check-step";
@@ -27,7 +26,6 @@ export function NewPasswordStep({
   const api = useApi();
   const navigate = useNavigate();
   const toast = useToast();
-  const checks = useAccessChecks();
   const { formError, refuse, refuseError } = useRefusal();
   const reset = useMutation(api.access.reset.mutationOptions());
 
@@ -69,14 +67,7 @@ export function NewPasswordStep({
             readOnly
             hidden
           />
-          <Field.Root name="password" validate={checks.newPassword}>
-            <Field.Label>{t("resetPassword.password")}</Field.Label>
-            <Field.Password autoComplete="new-password" />
-            <Field.Description>
-              {t("accessFields.passwordHelp", { min: PASSWORD.min })}
-            </Field.Description>
-            <Field.Error />
-          </Field.Root>
+          <NewPasswordField label={t("resetPassword.password")} />
           <FormError>{formError}</FormError>
         </StepFlow.Body>
         <StepFlow.Actions>
