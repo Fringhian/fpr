@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { formatDate } from "../../../lib/format/date";
 import { Chart, type ChartLine, type ChartPoint } from "./chart";
+import { MarkKey, NotFinalKey } from "./chart-key";
 import { toDecimal } from "./chart-model";
 
 /** The weekdays from 2 March 2026, a trading month and a half. */
@@ -93,6 +94,7 @@ The one chart every chart in FPR is built on, on TradingView Lightweight Charts.
 - **line**: the left axis and the days in \`secondary\` text, a dashed \`divider\` grid, and a dashed crosshair. Hovering shows the crosshair and a readout of every line on that day. The chart takes focus: the left and right arrow keys move the crosshair from day to day with the same readout, Home and End go to the ends, Escape leaves, and each step is read out to screen readers.
 - **sparkline**: the line alone, for cards. No axes, no grid, no interaction; its \`label\` names it to screen readers.
 - **lines**: each line has its colour token, a label, its points (a day and the decimal string the API sends), and optionally the last final day: the points after it are dashed and read “not final”. \`emphasis: "context"\` draws a thin line behind the ones in focus, as the race draws the other members in grey. Lines draw in order, the last on top.
+- **marks**, on a line chart: arrows on a line’s days, up under it in \`positive\` or down over it in \`negative\`, such as Portfolio’s purchases and sales. One arrow per day and direction; a mark on a day with no point moves to the line’s next point. The readout of that day says what each mark stands for, and \`MarkKey\` draws an arrow with its words for the chart’s key.
 - **unit**, **precision** and **signed** format every value of the axis and the readout with \`lib/format\`, in the reader’s language.
 - **overlay** and **onSelectLine**, on a line chart: the overlay is drawn over the chart from where each line ends, and redrawn as it resizes; a click or a tap on a line, or close to it, calls \`onSelectLine\` with its \`id\`. The race card draws its pictures and signs with them.
 
@@ -179,6 +181,61 @@ export const SeveralLines: Story = {
     label: "The race: each member’s gain since 2 March",
     unit: "percent",
     signed: true,
+  },
+};
+
+/** An invented member’s balance in their colour, today dashed, with a purchase, a sale on a weekend shown on the Monday, and another purchase. */
+const BALANCE: readonly ChartLine[] = [
+  {
+    id: "balance",
+    label: "Your balance",
+    color: "cobalt",
+    points: walk(19, 12_000, 18, 160),
+    dashedAfter: LAST_CLOSE,
+    marks: [
+      {
+        day: DAYS[6] ?? "",
+        direction: "up",
+        label: "Bought 10 World Index ETF",
+      },
+      { day: "2026-03-21", direction: "down", label: "Sold 5 Swiss Pharma AG" },
+      {
+        day: DAYS.at(-5) ?? "",
+        direction: "up",
+        label: "Bought 4 Nordic Wind AG",
+      },
+    ],
+  },
+];
+
+/** Marks on the line: ▲ under it for each purchase, ▼ over it for each sale, named in the readout of their day. */
+export const Marks: Story = {
+  args: {
+    lines: BALANCE,
+    label: "Your balance since 2 March",
+    precision: "euros",
+  },
+  render: (args) => (
+    <div className={cn(card, "grid max-w-[45rem] gap-m")}>
+      <Chart {...args} />
+      <p className="flex gap-m text-xs text-secondary">
+        <MarkKey direction="up">Purchase</MarkKey>
+        <MarkKey direction="down">Sale</MarkKey>
+        <NotFinalKey />
+      </p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const chart = within(canvasElement).getByRole("group");
+    const live = canvasElement.querySelector("[aria-live]");
+    chart.focus();
+    await userEvent.keyboard("{Home}");
+    for (let step = 0; step < 6; step += 1) {
+      await userEvent.keyboard("{ArrowRight}");
+    }
+    await waitFor(() =>
+      expect(live).toHaveTextContent("Bought 10 World Index ETF"),
+    );
   },
 };
 
