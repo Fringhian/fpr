@@ -22,8 +22,9 @@ type Context = Pick<ApiContext, "db" | "series">;
 
 /**
  * `POST /users/{userId}/cash-balances`: "from this moment, I have €X". It
- * takes the person's lock, so a request sent twice with its `id` saves once;
- * an `id` another person has is `forbidden`.
+ * takes the person's lock and reads their role under it, as making a guest
+ * takes the same lock to check they have no entries. A request sent twice
+ * with its `id` saves once; an `id` another person has is `forbidden`.
  */
 export async function setCash(
   { db, series }: Context,
@@ -31,12 +32,12 @@ export async function setCash(
   input: PortfolioCashInput,
 ): Promise<PortfolioCashBalance> {
   assertMayWriteUser(viewer, input.userId);
-  await findPortfolioOwner(db, input.userId);
   const effectiveAt = pastMoment(input.effectiveAt);
   const saved = await db
     .transaction()
     .execute(async (trx) => {
       await portfolioChanges.lockUser(trx, input.userId);
+      await findPortfolioOwner(trx, input.userId);
       const stored =
         input.id === undefined
           ? undefined

@@ -75,8 +75,10 @@ async function afterWrite(
 
 /**
  * `POST /users/{userId}/changes`, in one transaction holding the person's
- * lock. An `id` already stored for the person answers that change and saves
- * nothing; one another person has is `forbidden`.
+ * lock. The person's role is read under it, as making a guest takes the same
+ * lock to check they have no entries. An `id` already stored for the person
+ * answers that change and saves nothing; one another person has is
+ * `forbidden`.
  */
 export async function recordChange(
   context: Context,
@@ -85,13 +87,13 @@ export async function recordChange(
 ): Promise<PortfolioChange> {
   const { db } = context;
   assertMayWriteUser(viewer, input.userId);
-  await findPortfolioOwner(db, input.userId);
   const effectiveAt = pastMoment(input.effectiveAt);
   const share = await findShare(db, input.shareId);
   const saved = await db
     .transaction()
     .execute(async (trx) => {
       await portfolioChanges.lockUser(trx, input.userId);
+      await findPortfolioOwner(trx, input.userId);
       const stored =
         input.id === undefined
           ? undefined
