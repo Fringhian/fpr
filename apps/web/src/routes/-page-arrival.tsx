@@ -22,32 +22,43 @@ function useArrivedPlace(): string | undefined {
   });
 }
 
-/** Calls `found` with the page's heading as soon as it renders, for a while. */
-function awaitHeading(found: (heading: HTMLHeadingElement) => void) {
-  const find = () => document.querySelector<HTMLHeadingElement>("main h1");
-  const now = find();
-  if (now !== null) {
-    found(now);
-    return () => undefined;
-  }
-  const observer = new MutationObserver(() => {
-    const heading = find();
-    if (heading === null) return;
-    stop();
-    found(heading);
-  });
+/**
+ * Calls `seen` with the page's heading as soon as it renders, then again each
+ * time another heading replaces it, as a loading page's does, for a while.
+ */
+function followHeading(
+  seen: (heading: HTMLHeadingElement, first: boolean) => void,
+) {
+  let last: HTMLHeadingElement | null = null;
+  const look = () => {
+    const heading = document.querySelector<HTMLHeadingElement>("main h1");
+    if (heading === null || heading === last) return;
+    seen(heading, last === null);
+    last = heading;
+  };
+  const observer = new MutationObserver(look);
+  observer.observe(document.body, { childList: true, subtree: true });
   const timer = window.setTimeout(() => observer.disconnect(), HEADING_WAIT_MS);
-  const stop = () => {
+  look();
+  return () => {
     observer.disconnect();
     window.clearTimeout(timer);
   };
-  observer.observe(document.body, { childList: true, subtree: true });
-  return stop;
 }
 
-function focusLost(): boolean {
+/**
+ * Whether focus is free to take: nowhere, gone with the last page, or on a
+ * heading an arrival focused. A page can render before the router marks it
+ * arrived, so the last arrival may have focused this one's heading already.
+ */
+function focusFree(): boolean {
   const active = document.activeElement;
-  return active === null || active === document.body || !active.isConnected;
+  return (
+    active === null ||
+    active === document.body ||
+    !active.isConnected ||
+    active.matches('h1[tabindex="-1"]')
+  );
 }
 
 /** Focuses the heading until it loses focus, without moving the page. */
@@ -74,18 +85,21 @@ export function PageArrival() {
 
   useEffect(() => {
     if (place === undefined) return;
-    const first = arrivals.current === 0;
+    const load = arrivals.current === 0;
     arrivals.current += 1;
-    return awaitHeading((heading) => {
+    let focused = false;
+    return followHeading((heading, first) => {
       const brand = i18n.t("brand");
       const name =
         document.querySelector("[data-page-title]")?.textContent?.trim() ||
         heading.textContent?.trim();
       document.title = name ? `${name} · ${brand}` : brand;
-      if (first) return;
-      if (focusLost()) {
+      if (load) return;
+      // A heading that replaces the focused one takes its focus over.
+      if ((first || focused) && focusFree()) {
         focusHeading(heading);
-      } else {
+        focused = true;
+      } else if (first) {
         setAnnouncement(heading.textContent?.trim() ?? "");
       }
     });
