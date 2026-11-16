@@ -166,7 +166,9 @@ export const TabletScrolled: Story = {
   globals: { viewport: { value: "tablet" } },
   play: async ({ canvasElement }) => {
     await scrollTo(canvasElement, 400, "shown");
-    await waitFor(() => expect(compactBar(canvasElement)).toBeVisible());
+    const bar = compactBar(canvasElement);
+    await waitFor(() => expect(bar).toBeVisible());
+    await expect(bar.getBoundingClientRect().height).toBe(64);
   },
 };
 

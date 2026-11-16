@@ -5,14 +5,14 @@ import { Root } from "./page-bar-parts";
 import { useColumnSpan, useCompactBar } from "./use-compact-bar";
 
 // Fixed rather than sticky, so focus moving into the bar never scrolls the
-// page; it spans the column its holder sits in. Under reduced motion it fades
-// in and out without sliding.
+// page; it spans the column its holder sits in, and the layout sets its
+// gutters. Under reduced motion it fades in and out without sliding.
 const compact = cva(
   [
-    "fixed top-0 left-[var(--column-left,0px)] z-30 w-[var(--column-width,100%)] frosted border-b-[1.5px] border-divider transition-[translate,opacity,visibility] duration-l ease-soft",
-    "h-[calc(var(--compact-bar)+var(--safe-top))] px-m",
-    "tablet:h-[calc(var(--compact-bar)+var(--safe-top))] tablet:px-l",
-    "desktop:h-[calc(var(--compact-bar)+var(--safe-top))] desktop:px-l",
+    "fixed top-0 left-(--column-left,0px) z-30 w-(--column-width,100%) frosted border-b-[1.5px] border-divider transition-[translate,opacity,visibility] duration-l ease-soft",
+    "h-[calc(var(--compact-bar)+var(--safe-top))]",
+    "tablet:h-[calc(var(--compact-bar)+var(--safe-top))]",
+    "desktop:h-[calc(var(--compact-bar)+var(--safe-top))]",
     "motion-reduce:translate-y-0",
   ],
   {
@@ -49,8 +49,8 @@ export type CompactProps = {
  * account menu, bound to the same setting. On tablet and desktop it stays
  * pinned; on phone it tucks away on scroll down and comes back on the first
  * scroll up, or when keyboard focus moves into it. The layout places it first
- * in the page's column, outside the gutters, and it spans that column. Its
- * state is in `data-state`.
+ * in the page's column, outside the gutters, and sets its gutters; it spans
+ * that column. Its state is in `data-state`.
  */
 export function Compact({ anchor, className, ...props }: CompactProps) {
   const holder = useRef<HTMLDivElement>(null);
