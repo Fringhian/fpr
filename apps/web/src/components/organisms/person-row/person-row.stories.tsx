@@ -6,12 +6,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
 import { MEMBER_COLORS } from "../../../lib/member-color";
 import * as Menu from "../../molecules/menu/menu";
-import {
-  type AccessStatus,
-  PersonList,
-  PersonRow,
-  type PersonRowProps,
-} from "./person-row";
+import * as PersonRow from "./person-row";
 
 /** An abstract photo, drawn inline: a sun over two hills, no person. */
 const PHOTO = `data:image/svg+xml,${encodeURIComponent(
@@ -42,7 +37,7 @@ const STATUSES = [
   "expired",
   "ended",
   "revoked",
-] as const satisfies readonly AccessStatus[];
+] as const satisfies readonly PersonRow.AccessStatus[];
 
 /** The demo menu items, in the toolbar’s language. They are the stories’ content, not the row’s. */
 const TEXTS = {
@@ -65,7 +60,7 @@ const TEXTS = {
 } as const satisfies Record<Language, Record<string, string>>;
 
 /** The admin’s actions on a person: revoking becomes restoring once access is revoked. */
-function Actions({ status }: { status: AccessStatus }) {
+function Actions({ status }: { status: PersonRow.AccessStatus }) {
   const text = TEXTS[useLanguage()];
 
   return (
@@ -82,7 +77,7 @@ function Actions({ status }: { status: AccessStatus }) {
 
 /** The stories’ args: the photo, end date and ⋯ icon are picked by name, and `actions` switches the ⋯ menu on. */
 type PersonRowArgs = Omit<
-  PersonRowProps,
+  PersonRow.BasicProps,
   "photo" | "accessUntil" | "actions" | "actionsIcon"
 > & {
   photo: PhotoName;
@@ -97,7 +92,7 @@ function toProps({
   actions,
   actionsIcon,
   ...args
-}: PersonRowArgs): PersonRowProps {
+}: PersonRowArgs): PersonRow.BasicProps {
   return {
     ...args,
     photo: PHOTOS[photo],
@@ -165,7 +160,7 @@ const PEOPLE = [
     accessUntil: "2026-11-01",
     photo: null,
   },
-] as const satisfies readonly Omit<PersonRowProps, "actions">[];
+] as const satisfies readonly Omit<PersonRow.BasicProps, "actions">[];
 
 /** The same people as an anonymous viewer reads them: pseudonyms, initials, no emails, no ⋯. */
 const PSEUDONYMS = [
@@ -179,12 +174,17 @@ const PSEUDONYMS = [
 ];
 
 const DESCRIPTION = `
-A person in the admin area: their picture, name, email, access status, end date, and the ⋯ menu of what the admin can do. Rows go in a \`PersonList\`, whose columns every row shares, so the emails, badges and end dates line up.
+A person in the admin area: their picture, name, email, access status, end date, and the ⋯ menu of what the admin can do. Rows go in a \`List\`, whose columns every row shares, so the emails, badges and end dates line up. \`Basic\` is the ready-made row; a screen with a special need composes the parts, each placed in its own column.
 
 | Part | What it is |
 | --- | --- |
-| \`PersonList\` | The \`<ul>\` the rows go in. |
-| \`PersonRow\` | One person, an \`<li>\`. |
+| \`List\` | The \`<ul>\` the rows go in. |
+| \`Root\` | One person, an \`<li>\`. |
+| \`Picture\` | Their picture, in the first column. |
+| \`Name\` | Their name, and their email when there is one. |
+| \`Access\` | The access status's badge and the end date. |
+| \`Actions\` | The ⋯ button and its menu's items. |
+| \`Basic\` | The ready-made row, all of the above. |
 
 - The status is one of five, each with its badge: waiting for first use, active, link expired (never used before its deadline), ended (past its end date), or revoked. Grey is a plain fact, green works, red keeps the person out.
 - The end date is written with its year, “Until 30 Jun 2027”. With no end date, a dash, read “No end date” by screen readers.
@@ -197,10 +197,10 @@ The **Phone** and **Tablet** stories in the sidebar show the list at those width
 
 const meta = {
   title: "Organisms/Person row",
-  component: PersonRow,
+  component: PersonRow.Basic,
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-} satisfies Meta<typeof PersonRow>;
+} satisfies Meta<typeof PersonRow.Basic>;
 
 export default meta;
 
@@ -247,9 +247,9 @@ const configurable = {
     },
   },
   render: (args) => (
-    <PersonList>
-      <PersonRow {...toProps(args)} />
-    </PersonList>
+    <PersonRow.List>
+      <PersonRow.Basic {...toProps(args)} />
+    </PersonRow.List>
   ),
 } satisfies StoryObj<PersonRowArgs>;
 
@@ -327,15 +327,15 @@ export const LinkExpired: Story = {
 export const List: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <PersonList>
+    <PersonRow.List>
       {PEOPLE.map((person) => (
-        <PersonRow
+        <PersonRow.Basic
           key={person.name}
           {...person}
           actions={<Actions status={person.status} />}
         />
       ))}
-    </PersonList>
+    </PersonRow.List>
   ),
 };
 
@@ -344,9 +344,9 @@ export const AnonymousViewer: Story = {
   name: "As an anonymous viewer",
   parameters: { controls: { disable: true } },
   render: () => (
-    <PersonList>
+    <PersonRow.List>
       {PEOPLE.map((person, index) => (
-        <PersonRow
+        <PersonRow.Basic
           key={person.name}
           {...person}
           name={PSEUDONYMS[index] ?? person.name}
@@ -354,7 +354,38 @@ export const AnonymousViewer: Story = {
           email={null}
         />
       ))}
-    </PersonList>
+    </PersonRow.List>
+  ),
+};
+
+/** Which optional parts the Parts story renders. */
+interface PartsArgs {
+  access: boolean;
+  actions: boolean;
+}
+
+/** The parts composed by hand, each in its own column of the list. */
+export const Parts: StoryObj<PartsArgs> = {
+  args: { access: true, actions: true },
+  argTypes: {
+    access: { control: { type: "boolean" }, name: "PersonRow.Access" },
+    actions: { control: { type: "boolean" }, name: "PersonRow.Actions" },
+  },
+  render: ({ access, actions }) => (
+    <PersonRow.List>
+      <PersonRow.Root>
+        <PersonRow.Picture name="Jo" color="amber" photo={null} />
+        <PersonRow.Name name="Jo" email="jo@example.com" />
+        {access ? (
+          <PersonRow.Access status="active" accessUntil="2027-06-30" />
+        ) : null}
+        {actions ? (
+          <PersonRow.Actions subject="Jo">
+            <Actions status="active" />
+          </PersonRow.Actions>
+        ) : null}
+      </PersonRow.Root>
+    </PersonRow.List>
   ),
 };
 

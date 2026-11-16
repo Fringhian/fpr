@@ -1,28 +1,33 @@
+// The holding card's parts, imported as a namespace: `import * as HoldingCard from "…/holding-card"`.
 import type { Decimal, LatestPrice, ShareKind } from "@fpr/contracts";
-import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
-import {
-  type ComponentProps,
-  type ReactElement,
-  type ReactNode,
-  useId,
-} from "react";
-import { cn } from "../../../lib/cn";
+import { type ComponentProps, type ReactNode, useId } from "react";
 import type { GainInput, GainUnit } from "../../../lib/gain";
-import { Card } from "../../atoms/card/card";
+import { Badge } from "../../atoms/badge/badge";
 import type { IconProps } from "../../foundations/icon/icon";
 import type { ChartPoint } from "../chart/chart";
-import { card } from "./holding-card-parts";
+import { Details, Pending, Value } from "./holding-card-figures";
 import {
-  HoldingDetails,
-  HoldingHeader,
-  PendingFoot,
-  PricedFoot,
-} from "./holding-card-sections";
+  Actions,
+  Header,
+  Name,
+  type NameProps,
+  Root,
+} from "./holding-card-parts";
 
-export { CashCard, type CashCardProps } from "./cash-card";
+export { Cash, type CashProps } from "./holding-card-cash";
+export { Details, Pending, Value } from "./holding-card-figures";
+export {
+  Actions,
+  Caption,
+  Figure,
+  Foot,
+  Header,
+  Name,
+  type NameProps,
+  Root,
+} from "./holding-card-parts";
 
-export type HoldingCardProps = {
-  /** The share's name. */
+export type BasicProps = {
   name: string;
   /** `manual` for a share members value by hand: a Manual badge, and its value “as of” the day of its last value point. */
   kind?: ShareKind;
@@ -42,35 +47,60 @@ export type HoldingCardProps = {
   unit: GainUnit;
   /** The viewer is anonymous: the weight in percent replaces the quantity and the value, and the gain reads in percent. */
   anonymous?: boolean;
-  /** Makes the card open the share's page: an `<a href>`, or the router's link, `<Link to="/shares/$shareId" … />`. The name then ends with `linkIcon`. */
-  link?: ReactElement | undefined;
-  /** The icon that ends a linked name, any Phosphor icon. A caret by default. */
-  linkIcon?: IconProps["icon"] | undefined;
   /** The items of the card's ⋯ menu, such as Buy more and Sell (`Menu.Item`, `Menu.LinkItem`). Without them, the card has no ⋯ button. */
   actions?: ReactNode;
   /** The icon of the button that opens `actions`, any Phosphor icon. Three dots by default. */
   actionsIcon?: IconProps["icon"] | undefined;
   /** The time zone a price's time and day are read in. The browser's by default. */
   timeZone?: string | undefined;
-} & Omit<
-  ComponentProps<"article">,
-  | "name"
-  | "kind"
-  | "quantity"
-  | "latestPrice"
-  | "curve"
-  | "valueEur"
-  | "weight"
-  | "gain"
-  | "unit"
-  | "anonymous"
-  | "link"
-  | "linkIcon"
-  | "actions"
-  | "actionsIcon"
-  | "timeZone"
-  | "children"
->;
+} & Pick<NameProps, "link" | "linkIcon"> &
+  Omit<
+    ComponentProps<"article">,
+    | "name"
+    | "kind"
+    | "quantity"
+    | "latestPrice"
+    | "curve"
+    | "valueEur"
+    | "weight"
+    | "gain"
+    | "unit"
+    | "anonymous"
+    | "link"
+    | "linkIcon"
+    | "actions"
+    | "actionsIcon"
+    | "timeZone"
+    | "children"
+  >;
+
+/** The name, linked or not, the Manual badge, and the ⋯ menu. */
+function BasicHeader({
+  nameId,
+  name,
+  kind,
+  link,
+  linkIcon,
+  actions,
+  actionsIcon,
+}: { nameId: string } & Pick<
+  BasicProps,
+  "name" | "kind" | "link" | "linkIcon" | "actions" | "actionsIcon"
+>) {
+  return (
+    <Header>
+      <Name id={nameId} link={link} linkIcon={linkIcon}>
+        {name}
+      </Name>
+      {kind === "manual" ? <Badge state="manual" /> : null}
+      {actions === undefined ? null : (
+        <Actions subject={name} icon={actionsIcon}>
+          {actions}
+        </Actions>
+      )}
+    </Header>
+  );
+}
 
 /**
  * One share someone holds: its name, the quantity as entered with the latest
@@ -79,7 +109,7 @@ export type HoldingCardProps = {
  * them loading and is not counted yet. An anonymous viewer sees the weight in
  * percent instead of the quantity and the value.
  */
-export function HoldingCard({
+export function Basic({
   name,
   kind = "market",
   quantity,
@@ -91,41 +121,30 @@ export function HoldingCard({
   unit,
   anonymous = false,
   link,
-  linkIcon = CaretRightIcon,
+  linkIcon,
   actions,
   actionsIcon,
   timeZone,
-  className,
   ...props
-}: HoldingCardProps) {
+}: BasicProps) {
   const nameId = useId();
 
   return (
-    <Card
-      {...props}
-      render={<article />}
-      aria-labelledby={nameId}
-      className={cn(card, className)}
-    >
-      <HoldingHeader
+    <Root {...props} aria-labelledby={nameId}>
+      <BasicHeader
         nameId={nameId}
-        name={name}
-        kind={kind}
-        link={link}
-        linkIcon={linkIcon}
-        actions={actions}
-        actionsIcon={actionsIcon}
+        {...{ name, kind, link, linkIcon, actions, actionsIcon }}
       />
-      <HoldingDetails
+      <Details
         quantity={quantity}
         latestPrice={latestPrice}
         anonymous={anonymous}
         timeZone={timeZone}
       />
       {latestPrice === null ? (
-        <PendingFoot />
+        <Pending />
       ) : (
-        <PricedFoot
+        <Value
           name={name}
           curve={curve}
           valueEur={valueEur}
@@ -135,6 +154,6 @@ export function HoldingCard({
           anonymous={anonymous}
         />
       )}
-    </Card>
+    </Root>
   );
 }

@@ -4,7 +4,6 @@ import type { ChartLine, ChartPoint } from "../../molecules/chart/chart";
 
 /** A member in the race: who they are, and their gain at each day of the period. */
 export interface RaceMember {
-  /** The member's id. */
   id: string;
   /** Their display name, or an anonymous viewer's pseudonym. */
   name: string;
@@ -23,7 +22,6 @@ export type RaceRole = "you" | "focus" | "context";
 export interface RaceCast {
   /** The viewer's id, when they have a portfolio. */
   youId?: string | null | undefined;
-  /** The focused member's id. */
   focusId?: string | null | undefined;
 }
 
