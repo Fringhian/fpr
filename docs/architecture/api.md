@@ -15,8 +15,8 @@ Every route is an oRPC contract in `packages/contracts`. `apiContract` holds the
 
 A contract declares who may call it, its method and path under `/api`, its input (path params, query, and body in one Zod object), its output, and its error codes. It starts from `publicRoute` or from `signedInRoute(roles)`: a route that declares neither fails to type-check, and the API refuses it with `403 forbidden`.
 
-- Roles and the role lists routes share live in `src/roles.ts`.
-- A list of values is defined once, and its `z.enum` and every use reference it. The lists the web app reads (periods, units, languages, boards, share kinds, price sources) live in `src/values.ts`; the others, such as the access key states, in their route's file.
+- The `Role` type, its schema and its by-name constant live in `src/roles.ts`, which re-exports the roles and the role lists routes share from `src/values.ts`.
+- A list of values is defined once, and its `z.enum` and every use reference it. The lists the web app reads (periods, units, roles and role lists, languages, boards, share kinds, price sources) live in `src/values.ts`; the others, such as the access key states, in their route's file.
 - A schema stays in its route's file until a second area uses it, then moves to `src/schemas/`. The API's and the price service's routes share these schemas under the same names.
 
 Tests over every route of both contracts fail when:
