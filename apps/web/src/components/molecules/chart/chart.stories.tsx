@@ -198,6 +198,12 @@ export const Keyboard: Story = {
     await userEvent.keyboard("{ArrowLeft}");
     await waitFor(() => expect(live).toHaveTextContent(said(LAST_DAY)));
 
+    // A redraw (a resize, the font arriving) keeps the keyboard's point and its announcement.
+    const frame = canvasElement.firstElementChild;
+    if (frame instanceof HTMLElement) frame.style.maxWidth = "30rem";
+    await new Promise((done) => setTimeout(done, 300));
+    await expect(live).toHaveTextContent(said(LAST_DAY));
+
     await userEvent.keyboard("{ArrowLeft}");
     await waitFor(() =>
       expect(live).toHaveTextContent(said(DAYS.at(-2) ?? "")),

@@ -15,9 +15,11 @@ import {
 } from "lightweight-charts";
 import {
   type ComponentProps,
+  type Dispatch,
   type KeyboardEvent,
   type ReactNode,
   type RefObject,
+  type SetStateAction,
   useEffect,
   useEffectEvent,
   useId,
@@ -365,6 +367,42 @@ function useLineSelect(
   }, [chart, container, drawn, enabled]);
 }
 
+/**
+ * The pointer moves the crosshair, and the readout follows it. The chart
+ * repeats its crosshair after every redraw (a resize, a font, new options)
+ * with no source event: that repeat moves the readout to the new x but
+ * keeps whose point it is, so a keyboard point stays announced.
+ */
+function usePointerReadout(
+  chart: IChartApi | null,
+  enabled: boolean,
+  dayIndex: ReadonlyMap<IsoDate, number>,
+  setActive: Dispatch<SetStateAction<Active | null>>,
+): void {
+  useEffect(() => {
+    if (!chart || !enabled) return;
+    const onMove = ({ time, point, sourceEvent }: MouseEventParams<Time>) => {
+      if (time === undefined || point === undefined) {
+        setActive((current) =>
+          current?.source === "pointer" ? null : current,
+        );
+        return;
+      }
+      if (sourceEvent === undefined) {
+        setActive(
+          (current) => current && { ...current, ...place(chart, time) },
+        );
+        return;
+      }
+      const index = dayIndex.get(dayOf(time));
+      if (index === undefined) return;
+      setActive({ index, source: "pointer", ...place(chart, time) });
+    };
+    chart.subscribeCrosshairMove(onMove);
+    return () => chart.unsubscribeCrosshairMove(onMove);
+  }, [chart, enabled, dayIndex, setActive]);
+}
+
 /** What the readout shows on a day: the date, each line's value that day, and whether every value is final. */
 interface Readout {
   date: string;
@@ -552,23 +590,7 @@ export function Chart({
       },
     });
   }, [chart, language, unit, precision, signed]);
-  // The pointer moves the crosshair; the readout follows it.
-  useEffect(() => {
-    if (!chart || variant !== "line") return;
-    const onMove = (event: MouseEventParams<Time>) => {
-      if (event.time === undefined || event.point === undefined) {
-        setActive((current) =>
-          current?.source === "pointer" ? null : current,
-        );
-        return;
-      }
-      const index = dayIndex.get(dayOf(event.time));
-      if (index === undefined) return;
-      setActive({ index, source: "pointer", ...place(chart, event.time) });
-    };
-    chart.subscribeCrosshairMove(onMove);
-    return () => chart.unsubscribeCrosshairMove(onMove);
-  }, [chart, variant, dayIndex]);
+  usePointerReadout(chart, variant === "line", dayIndex, setActive);
 
   const interactive = variant === "line";
   const several = lines.length > 1;
