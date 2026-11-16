@@ -132,6 +132,22 @@ describe("the mock API", () => {
     );
   });
 
+  it("measures a member's gain from their balance at the period's start to the last close", async () => {
+    const { client } = mockClient({ session: "member" });
+    for (const period of periods) {
+      const [{ members }, history] = await Promise.all([
+        client.race.members({ period }),
+        client.portfolio.balanceHistory({ userId: sam, period }),
+      ]);
+      const start = history.points[0];
+      const lastClose = history.points.findLast((point) => !point.provisional);
+      const expected =
+        Number(lastClose?.balanceEur) - Number(start?.balanceEur);
+      const gain = members.find(({ member }) => member.id === sam)?.gain;
+      expect(Number(gain?.eur), period).toBeCloseTo(expected, 2);
+    }
+  });
+
   it("gives an anonymous viewer no names, euro amounts or quantities", async () => {
     const { client } = mockClient({ session: "anonymous" });
     const calls = reads(client);
