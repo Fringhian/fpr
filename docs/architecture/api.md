@@ -13,9 +13,7 @@ The package has four entry points:
 | `@fpr/contracts` | `apiContract`, the types of each route's input and output, the shared schemas, the error codes, the roles, and the helpers that declare a route | the web app, the API, and the price service |
 | `@fpr/contracts/prices` | `pricesContract` and the types of its routes | the API and the price service |
 | `@fpr/contracts/openapi` | `createOpenApiDocument`, oRPC's generator | the API's `/api/docs`, and `pnpm contracts:openapi` |
-| `@fpr/contracts/values` | the plain lists the schemas are built from, `periods` and `units`, with no runtime import | the web app |
-
-The package is free of side effects (`"sideEffects": false`), so a bundle keeps only the modules it uses.
+| `@fpr/contracts/values` | the plain lists the schemas are built from, with no runtime import | the web app |
 
 A test fails when the root entry point loads the price service's routes or the generator. A route is reached through its tree, such as `apiContract.race.leaderboard`, and is not exported on its own. Its schemas stay in its file, which exports their types under short names, such as `Leaderboard` for the response and `LeaderboardQuery` for the input. A schema becomes shared, in `src/schemas/`, once a second area uses it.
 
