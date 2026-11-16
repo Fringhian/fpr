@@ -2,6 +2,8 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "priceLate": "Cours en retard",
+    "upToDate": "À jour",
     "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
@@ -9,6 +11,7 @@
     "ended": "Terminé",
     "expired": "Lien expiré",
     "heldBefore": "Détenue auparavant",
+    "neverHeld": "Jamais détenue",
     "saved": "Enregistré"
   },
   "lane": {
@@ -227,13 +230,15 @@
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, provisoire"
   },
+  "priceTime": {
+    "asOfTime": "à {{time}}",
+    "asOfDate": "au {{date}}",
+    "closeOf": "clôture du {{date}}"
+  },
   "holdingCard": {
     "units_one": "{{quantity}} part",
     "units_many": "{{quantity}} de parts",
     "units_other": "{{quantity}} parts",
-    "asOfTime": "à {{time}}",
-    "asOfDate": "au {{date}}",
-    "closeOf": "clôture du {{date}}",
     "curve": "{{name}}, cours sur la période",
     "loadingPrices": "Chargement de ses cours…",
     "notCounted": "pas encore compté",
@@ -945,6 +950,161 @@
     "incomplete": {
       "title": "Incomplet",
       "body": "Certains titres attendent encore leurs cours. D’ici là, ils ne sont pas comptés, jamais à zéro."
+    }
+  },
+  "oneTimeSecret": {
+    "copy": "Copier",
+    "copied": "Copié",
+    "onClipboard": "C’est dans votre presse-papiers.",
+    "copyByHand": "Votre navigateur ne l’a pas copié. Il est sélectionné : copiez-le à la main."
+  },
+  "adminPeople": {
+    "loading": "Chargement de tout le monde…",
+    "empty": "Personne pour l’instant.",
+    "groups": {
+      "admin": "Admins",
+      "member": "Membres",
+      "guest": "Invités",
+      "anonymous": "Visiteurs anonymes"
+    },
+    "add": {
+      "admin": "Ajouter un admin",
+      "member": "Ajouter un membre",
+      "guest": "Ajouter un invité",
+      "anonymous": "Ajouter un visiteur"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Membre",
+      "guest": "Invité"
+    },
+    "fields": {
+      "name": "Nom affiché",
+      "role": "Rôle",
+      "endDate": "Fin de l’accès (facultatif)",
+      "endDateHelp": "L’accès dure jusqu’à la fin de ce jour. Laissez vide pour un accès sans fin.",
+      "endDatePast": "Ce jour est passé. Choisissez aujourd’hui ou un jour suivant."
+    },
+    "addDialog": {
+      "anonymous": "Un visiteur anonyme n’a pas d’e-mail : son lien suffit pour entrer, et il voit tout le monde sous un pseudonyme, en lecture seule.",
+      "create": "Créer le lien d’accès"
+    },
+    "secret": {
+      "creating": "Création…",
+      "done": "Terminé"
+    },
+    "link": {
+      "title": "Lien d’accès de {{name}}",
+      "newTitle": "Nouveau lien d’accès de {{name}}",
+      "description": "Copiez-le maintenant : il ne sera plus affiché. Il fonctionne jusqu’au {{date}}.",
+      "label": "Lien d’accès",
+      "hint": "Perdu ? Utilisez Remplacer le lien dans le menu ⋯ de {{name}}.",
+      "prepare": "Préparer le portefeuille de {{name}}"
+    },
+    "replace": {
+      "title": "Remplacer le lien de {{name}} ?",
+      "description": "Le lien actuel cesse aussitôt de fonctionner, et {{name}} ne peut plus entrer avant d’ouvrir le nouveau. Il fonctionne 7 jours.",
+      "action": "Remplacer le lien"
+    },
+    "resetKey": {
+      "title": "Créer une clé de réinitialisation pour {{name}} ?",
+      "description": "{{name}} la saisit avec son e-mail pour choisir un nouveau mot de passe. Elle remplace toute clé pas encore utilisée.",
+      "action": "Créer la clé",
+      "secretTitle": "Clé de réinitialisation de {{name}}",
+      "secretDescription": "Copiez-la maintenant : elle ne sera plus affichée. Elle fonctionne jusqu’au {{date}} à {{time}}.",
+      "label": "Clé de réinitialisation",
+      "hint": "{{name}} la saisit sur la page de connexion, sous « réinitialiser votre mot de passe »."
+    },
+    "menu": {
+      "edit": "Modifier",
+      "editPortfolio": "Modifier le portefeuille",
+      "replaceLink": "Remplacer le lien",
+      "resetKey": "Réinitialiser le mot de passe",
+      "revoke": "Révoquer l’accès",
+      "restore": "Rétablir l’accès",
+      "delete": "Supprimer",
+      "lastAdmin": "FPR a besoin d’au moins un admin : {{name}} garde son accès et ne peut pas être supprimé."
+    },
+    "access": {
+      "revoked": "Accès révoqué",
+      "restored": "Accès rétabli",
+      "refused": "L’accès n’a pas changé"
+    },
+    "edit": {
+      "title": "Modifier {{name}}",
+      "save": "Enregistrer",
+      "saved": "Modifications enregistrées",
+      "lastAdmin": "FPR a besoin d’au moins un admin : {{name}} reste admin. Nommez d’abord quelqu’un d’autre admin.",
+      "lastAdminEnd": "L’accès du seul admin n’a pas de fin.",
+      "hasPortfolio": "{{name}} a un portefeuille, et ne peut donc pas devenir invité."
+    },
+    "delete": {
+      "title": "Supprimer {{name}} ?",
+      "withPortfolio": "Les mouvements et les liquidités de {{name}} sont supprimés avec son compte, et {{name}} quitte la course. Les titres manuels et les valeurs saisis restent.",
+      "withoutPortfolio": "{{name}} perd son accès et quitte FPR.",
+      "typeName": "Saisissez {{name}} pour confirmer",
+      "action": "Supprimer {{name}}",
+      "deleting": "Suppression…",
+      "deleted": "Personne supprimée"
+    }
+  },
+  "adminShares": {
+    "loading": "Chargement des titres…",
+    "neverPriced": "Jamais coté",
+    "groups": {
+      "needsAttention": {
+        "title": "À surveiller",
+        "description": "Détenus, sans cours pour l’instant ou sans clôture depuis 5 jours de bourse. FPR réessaie toutes les 30 minutes.",
+        "empty": "Chaque titre détenu a ses cours."
+      },
+      "tracked": {
+        "title": "Suivis",
+        "description": "Titres de marché détenus, actualisés toutes les 30 minutes les jours de bourse.",
+        "empty": "Personne ne détient encore de titre de marché."
+      },
+      "manual": {
+        "title": "Manuels",
+        "description": "Valorisés à la main par les membres. FPR ne les actualise pas.",
+        "empty": "Aucun titre manuel pour l’instant."
+      },
+      "notHeld": {
+        "title": "Non détenus",
+        "description": "Personne ne les détient, FPR ne les actualise donc pas.",
+        "empty": "Chaque titre est détenu."
+      }
+    },
+    "actions": {
+      "makeManual": "Passer en manuel",
+      "delete": "Supprimer"
+    },
+    "refresh": {
+      "schedule": "Les cours sont actualisés toutes les 30 minutes les jours de bourse.",
+      "action": "Actualiser les cours",
+      "running": "Actualisation…",
+      "done_one": "Actualisé à {{time}} : {{count}} titre coté.",
+      "done_many": "Actualisé à {{time}} : {{count}} de titres cotés.",
+      "done_other": "Actualisé à {{time}} : {{count}} titres cotés."
+    },
+    "makeManual": {
+      "title": "Passer {{name}} en manuel ?",
+      "description": "FPR cesse de demander son cours au fournisseur, et les membres saisissent sa valeur à la main, comme pour tout titre manuel. C’est définitif.",
+      "fromPrice": "Son dernier cours, {{price}} {{when}}, devient sa première valeur.",
+      "noPrice_one": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détient.",
+      "noPrice_many": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
+      "noPrice_other": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
+      "price": "Valeur d’une part",
+      "day": "Le",
+      "priceInvalid": "Saisissez une valeur supérieure à zéro, comme 12,40.",
+      "dayInvalid": "Choisissez aujourd’hui ou un jour précédent.",
+      "done": "Passé en manuel"
+    },
+    "delete": {
+      "title": "Supprimer {{name}} ?",
+      "description": "Personne ne l’a détenu, il quitte donc simplement la liste des titres de FPR. Le rechercher à nouveau le fait revenir.",
+      "action": "Supprimer le titre",
+      "deleting": "Suppression…",
+      "deleted": "Titre supprimé",
+      "refused": "Titre non supprimé"
     }
   },
   "pageStates": {

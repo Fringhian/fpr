@@ -6,13 +6,13 @@ import { PASSWORD, useAccessChecks } from "../../lib/access-checks";
 /**
  * The email a person signs in with, named `email`. `autoComplete` is
  * `username` where a password is chosen beside it, so password managers save
- * the pair.
+ * the pair, and `off` where it is someone else's.
  */
 export function EmailField({
   autoComplete = "email",
   defaultValue,
 }: {
-  autoComplete?: "email" | "username";
+  autoComplete?: "email" | "username" | "off";
   defaultValue?: string | undefined;
 }) {
   const { t } = useTranslation();
@@ -46,7 +46,8 @@ export function HiddenEmail({ email }: { email: string }) {
  * A display name, named `displayName`, with `help` under it. `label` stays
  * for screen readers alone with `hiddenLabel`, where the step's question
  * already asks for the name. Outside a form, `validationMode="onBlur"`
- * checks it as it is left.
+ * checks it as it is left. `autoComplete` is `nickname` unless it is someone
+ * else's name.
  */
 export function DisplayNameField({
   label,
@@ -58,7 +59,10 @@ export function DisplayNameField({
   label: string;
   help?: string | undefined;
   hiddenLabel?: boolean;
-} & Pick<Field.ControlProps, "defaultValue" | "onValueChange" | "onBlur"> &
+} & Pick<
+  Field.ControlProps,
+  "defaultValue" | "onValueChange" | "onBlur" | "autoComplete"
+> &
   Pick<ComponentProps<typeof Field.Root>, "validationMode">) {
   const checks = useAccessChecks();
 
@@ -71,7 +75,7 @@ export function DisplayNameField({
       <Field.Label className={hiddenLabel ? "sr-only" : undefined}>
         {label}
       </Field.Label>
-      <Field.Control {...props} autoComplete="nickname" />
+      <Field.Control autoComplete="nickname" {...props} />
       {help === undefined ? null : (
         <Field.Description>{help}</Field.Description>
       )}

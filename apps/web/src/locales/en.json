@@ -2,6 +2,8 @@
   "badge": {
     "manual": "Manual",
     "pricePending": "Price pending",
+    "priceLate": "Price late",
+    "upToDate": "Up to date",
     "incomplete": "Incomplete",
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
@@ -9,6 +11,7 @@
     "ended": "Ended",
     "expired": "Link expired",
     "heldBefore": "Held before",
+    "neverHeld": "Never held",
     "saved": "Saved"
   },
   "lane": {
@@ -222,12 +225,14 @@
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, not final"
   },
+  "priceTime": {
+    "asOfTime": "as of {{time}}",
+    "asOfDate": "as of {{date}}",
+    "closeOf": "close of {{date}}"
+  },
   "holdingCard": {
     "units_one": "{{quantity}} unit",
     "units_other": "{{quantity}} units",
-    "asOfTime": "as of {{time}}",
-    "asOfDate": "as of {{date}}",
-    "closeOf": "close of {{date}}",
     "curve": "{{name}}, price over the period",
     "loadingPrices": "Loading its prices…",
     "notCounted": "not counted yet",
@@ -931,6 +936,159 @@
     "incomplete": {
       "title": "Incomplete",
       "body": "Some shares are still waiting for their prices. Until they arrive, they aren’t counted, never at €0."
+    }
+  },
+  "oneTimeSecret": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "onClipboard": "It’s on your clipboard.",
+    "copyByHand": "Your browser didn’t copy it. It’s selected: copy it by hand."
+  },
+  "adminPeople": {
+    "loading": "Loading everyone…",
+    "empty": "Nobody yet.",
+    "groups": {
+      "admin": "Admins",
+      "member": "Members",
+      "guest": "Guests",
+      "anonymous": "Anonymous viewers"
+    },
+    "add": {
+      "admin": "Add an admin",
+      "member": "Add a member",
+      "guest": "Add a guest",
+      "anonymous": "Add a viewer"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "fields": {
+      "name": "Display name",
+      "role": "Role",
+      "endDate": "Access ends (optional)",
+      "endDateHelp": "Access lasts through that day. Leave it empty for no end date.",
+      "endDatePast": "This day has passed. Pick today or a later day."
+    },
+    "addDialog": {
+      "anonymous": "An anonymous viewer has no email: their link alone lets them in, and they see everyone under pseudonyms, read-only.",
+      "create": "Create access link"
+    },
+    "secret": {
+      "creating": "Creating…",
+      "done": "Done"
+    },
+    "link": {
+      "title": "{{name}}’s access link",
+      "newTitle": "{{name}}’s new access link",
+      "description": "Copy it now: it won’t be shown again. It works until {{date}}.",
+      "label": "Access link",
+      "hint": "Lost it? Use Replace link in {{name}}’s ⋯ menu.",
+      "prepare": "Prepare {{name}}’s portfolio"
+    },
+    "replace": {
+      "title": "Replace {{name}}’s link?",
+      "description": "The current link stops working at once, and {{name}} can’t get in until they open the new one. It works for 7 days.",
+      "action": "Replace link"
+    },
+    "resetKey": {
+      "title": "Create a reset key for {{name}}?",
+      "description": "{{name}} enters it with their email to choose a new password. It replaces any key they haven’t used.",
+      "action": "Create reset key",
+      "secretTitle": "{{name}}’s reset key",
+      "secretDescription": "Copy it now: it won’t be shown again. It works until {{date}} at {{time}}.",
+      "label": "Reset key",
+      "hint": "{{name}} enters it on the sign-in page, under “reset your password”."
+    },
+    "menu": {
+      "edit": "Edit",
+      "editPortfolio": "Edit portfolio",
+      "replaceLink": "Replace link",
+      "resetKey": "Reset password",
+      "revoke": "Revoke access",
+      "restore": "Restore access",
+      "delete": "Delete",
+      "lastAdmin": "FPR needs at least one admin, so {{name}} keeps their access and can’t be deleted."
+    },
+    "access": {
+      "revoked": "Access revoked",
+      "restored": "Access restored",
+      "refused": "Access didn’t change"
+    },
+    "edit": {
+      "title": "Edit {{name}}",
+      "save": "Save changes",
+      "saved": "Changes saved",
+      "lastAdmin": "FPR needs at least one admin, so {{name}} stays admin. Make someone else admin first.",
+      "lastAdminEnd": "The only admin’s access has no end date.",
+      "hasPortfolio": "{{name}} has a portfolio, so they can’t become a guest."
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "withPortfolio": "{{name}}’s share changes and cash balances are deleted with them, and they leave the race. Manual shares and values they entered stay.",
+      "withoutPortfolio": "{{name}} loses their access and leaves FPR.",
+      "typeName": "Type {{name}} to confirm",
+      "action": "Delete {{name}}",
+      "deleting": "Deleting…",
+      "deleted": "Person deleted"
+    }
+  },
+  "adminShares": {
+    "loading": "Loading the shares…",
+    "neverPriced": "Never priced",
+    "groups": {
+      "needsAttention": {
+        "title": "Needs attention",
+        "description": "Held, with no price yet or no close in the last 5 trading days. FPR keeps trying every 30 minutes.",
+        "empty": "Every held share has its prices."
+      },
+      "tracked": {
+        "title": "Tracked",
+        "description": "Held market shares, refreshed every 30 minutes on trading days.",
+        "empty": "Nobody holds a market share yet."
+      },
+      "manual": {
+        "title": "Manual",
+        "description": "Valued by hand by members. FPR doesn’t refresh them.",
+        "empty": "No manual share yet."
+      },
+      "notHeld": {
+        "title": "Not held",
+        "description": "Nobody holds them now, so FPR doesn’t refresh them.",
+        "empty": "Every share is held."
+      }
+    },
+    "actions": {
+      "makeManual": "Make manual",
+      "delete": "Delete"
+    },
+    "refresh": {
+      "schedule": "Prices refresh every 30 minutes on trading days.",
+      "action": "Refresh prices now",
+      "running": "Refreshing…",
+      "done_one": "Refreshed at {{time}}: {{count}} share priced.",
+      "done_other": "Refreshed at {{time}}: {{count}} shares priced."
+    },
+    "makeManual": {
+      "title": "Make {{name}} manual?",
+      "description": "FPR stops asking the price provider for its price, and members enter its value by hand, like any manual share. This can’t be undone.",
+      "fromPrice": "Its latest price, {{price}} {{when}}, becomes its first value.",
+      "noPrice_one": "It has no price yet, so it needs a first value. {{holders}} holds it.",
+      "noPrice_other": "It has no price yet, so it needs a first value. {{holders}} hold it.",
+      "price": "Value of one unit",
+      "day": "On",
+      "priceInvalid": "Enter a value above zero, such as 12.40.",
+      "dayInvalid": "Pick today or an earlier day.",
+      "done": "Made manual"
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "description": "Nobody has held it, so it simply leaves FPR’s list of shares. Looking it up again brings it back.",
+      "action": "Delete share",
+      "deleting": "Deleting…",
+      "deleted": "Share deleted",
+      "refused": "Share not deleted"
     }
   },
   "pageStates": {
