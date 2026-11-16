@@ -97,27 +97,49 @@ export function measuredFrom(
   return first !== undefined && first.at > window.markAfter ? first.day : null;
 }
 
-/** A balance's gain since the one it is measured from. */
-export function balanceGain(
-  from: { balanceEur: string },
-  to: { balanceEur: string },
-): GainAmount {
-  const base = new Big(from.balanceEur);
-  return { eur: new Big(to.balanceEur).minus(base), base };
+/**
+ * Each point's gain since the first, which it is measured from: the balance's
+ * change minus the flows between them, so money added or taken out is no
+ * gain. The percentage is Modified Dietz: the gain over the first balance plus
+ * each flow weighted by the fraction of the span left after it. A flow is
+ * dated at the first point it shows in.
+ */
+export function withGains<
+  P extends Pick<BalancePoint, "at" | "balanceEur" | "flowsEur">,
+>(points: readonly P[]): { point: P; gain: GainAmount }[] {
+  const [first] = points;
+  if (first === undefined) {
+    return [];
+  }
+  const start = new Big(first.balanceEur);
+  const startFlows = new Big(first.flowsEur);
+  // Σ Fᵢ·(tᵢ − t₀), so that Σ Fᵢ·(t − tᵢ)/(t − t₀) = added − timed/(t − t₀).
+  let timed = new Big(0);
+  let previous = startFlows;
+  return points.map((point) => {
+    const flows = new Big(point.flowsEur);
+    const elapsed = point.at.getTime() - first.at.getTime();
+    timed = timed.plus(flows.minus(previous).times(elapsed));
+    previous = flows;
+    const added = flows.minus(startFlows);
+    const weighted = elapsed === 0 ? added : added.minus(timed.div(elapsed));
+    const gain = {
+      eur: new Big(point.balanceEur).minus(start).minus(added),
+      base: start.plus(weighted),
+    };
+    return { point, gain };
+  });
 }
 
 /** Each point with its gain since the first. */
 export function toSeriesPoints(
   points: readonly BalancePoint[],
 ): MemberSeriesPoint[] {
-  const [first] = points;
-  return first === undefined
-    ? []
-    : points.map((point) => ({
-        at: point.at.toISOString(),
-        balanceEur: money(new Big(point.balanceEur)),
-        gain: toGain(balanceGain(first, point)),
-        provisional: point.provisional,
-        incomplete: point.incomplete,
-      }));
+  return withGains(points).map(({ point, gain }) => ({
+    at: point.at.toISOString(),
+    balanceEur: money(new Big(point.balanceEur)),
+    gain: toGain(gain),
+    provisional: point.provisional,
+    incomplete: point.incomplete,
+  }));
 }

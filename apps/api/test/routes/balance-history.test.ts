@@ -46,20 +46,22 @@ describe("GET /users/{userId}/balance-history", () => {
       await (await historyOf(race.blake.id, "1W")).json(),
     );
 
+    // The 120 € of A bought on Monday 9 is no gain; A's rise after it is.
     expect(
       body.points.map(({ balanceEur, gain, provisional }) => [
         balanceEur,
         gain.eur,
+        gain.percent,
         provisional,
       ]),
     ).toEqual([
-      ["100.00", "0.00", false],
-      ["100.00", "0.00", false],
-      ["100.00", "0.00", false],
-      ["100.00", "0.00", false],
-      ["220.00", "120.00", false],
-      ["240.00", "140.00", false],
-      ["250.00", "150.00", true],
+      ["100.00", "0.00", "0.00", false],
+      ["100.00", "0.00", "0.00", false],
+      ["100.00", "0.00", "0.00", false],
+      ["100.00", "0.00", "0.00", false],
+      ["220.00", "0.00", "0.00", false],
+      ["240.00", "20.00", "17.07", false],
+      ["250.00", "30.00", "24.40", true],
     ]);
     expect(body.entries).toEqual([
       expect.objectContaining({

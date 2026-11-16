@@ -196,12 +196,14 @@ export async function weights(
   db: Db,
   userId: string,
   ids: readonly string[],
+  timeZone: string,
 ): Promise<Map<string, string>> {
   if (ids.length === 0) {
     return new Map();
   }
   const balances = valuedMoments(
     sql`select distinct ${userId}::uuid as user_id, at, false as provisional from entries`,
+    timeZone,
   );
   const { rows } = await sql<{ id: string; weight: string }>`
     with entries as (

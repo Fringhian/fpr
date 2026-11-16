@@ -13,6 +13,7 @@ import { findPortfolioOwner } from "./owner.js";
 /** What the log routes read with, and the anonymizer's weights they fill. */
 export interface LogContext {
   db: Db;
+  raceTimeZone: string;
   viewer: Viewer;
   quantityWeights: Map<string, string>;
 }
@@ -23,14 +24,15 @@ export interface LogContext {
  * them.
  */
 export async function weighEntries(
-  { db, viewer, quantityWeights }: LogContext,
+  { db, raceTimeZone, viewer, quantityWeights }: LogContext,
   userId: string,
   ids: string[],
 ): Promise<void> {
   if (viewer.role !== Role.anonymous) {
     return;
   }
-  for (const [id, weight] of await portfolioLog.weights(db, userId, ids)) {
+  const weights = await portfolioLog.weights(db, userId, ids, raceTimeZone);
+  for (const [id, weight] of weights) {
     quantityWeights.set(id, weight);
   }
 }

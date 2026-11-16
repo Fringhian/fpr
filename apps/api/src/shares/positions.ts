@@ -28,7 +28,7 @@ export async function sharePositions(
   const [positions, changes, balances] = await Promise.all([
     currentPositions.listByShare(db, shareId),
     shareValues.changesAtDayValue(db, { shareId }, timeZone),
-    valuation.balancesAt(db, new Date()),
+    valuation.balancesAt(db, { at: new Date(), timeZone }),
   ]);
   const holdings = await holdingsNow(db, positions);
   return {

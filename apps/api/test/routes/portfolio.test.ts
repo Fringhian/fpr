@@ -88,6 +88,8 @@ describe("GET /users/{userId}/portfolio", () => {
 
     // Bought on Monday 9 at its 12 € close, worth 16 € now.
     expect(a?.gain).toEqual({ eur: "40.00", percent: "33.33" });
+    // The balance's gain leaves the 120 € paid for it out.
+    expect(body.gain.eur).toBe("30.00");
   });
 
   it("leaves a share with no price out of the balance, marked incomplete", async () => {

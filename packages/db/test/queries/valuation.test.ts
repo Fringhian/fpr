@@ -268,6 +268,19 @@ describe("balanceSeries", () => {
     ]);
   });
 
+  it("carries the flows up to each moment: share changes at their day's close, plus cash", async () => {
+    const series = await balanceSeries(db, clock);
+    const flows = (userId: string) =>
+      (series.members.get(userId) ?? []).map(({ flowsEur }) =>
+        Number(flowsEur),
+      );
+
+    // Bought 10 at 10, cash set to 150, sold 4 at Tuesday's 12.
+    expect(flows(people.alex)).toEqual([100, 250, 250, 202, 202, 202]);
+    // The pending share counts as zero, as the balance leaves it out.
+    expect(flows(people.sam)[0]).toBe(120);
+  });
+
   it("leaves out a pending share, and values a manual or late share at its earliest price before it", async () => {
     const points = await pointsOf(people.sam);
 
@@ -305,7 +318,10 @@ describe("balanceSeries", () => {
 
 describe("balancesAt", () => {
   it("values every member with an entry at a moment", async () => {
-    const balances = await balancesAt(db, clock.now);
+    const balances = await balancesAt(db, {
+      at: clock.now,
+      timeZone: clock.timeZone,
+    });
 
     expect(Number(balances.get(people.alex)?.balanceEur)).toBe(225.6);
     expect(balances.get(people.sam)).toMatchObject({ incomplete: true });
