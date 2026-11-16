@@ -152,7 +152,7 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 - Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Each refetch reads Postgres only.
 - Every price shows its time: "as of 14:30", or "close of 5 March".
 - The race chart draws the points after the last close dashed, labelled "today, not final".
-- An "access ended" answer to any call signs the person out and shows "Your access has ended".
+- An "access ended" answer to any call signs the person out and shows "Your access has ended". An "unauthenticated" answer mid-visit, once the session has expired, leads to sign-in, then back to the page.
 
 ## Installable app
 
