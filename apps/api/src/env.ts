@@ -8,6 +8,8 @@ export const envSchema = z.object({
   PUBLIC_URL: z.url(),
   /** Signs the session cookies: a long random string, 32 characters or more. */
   BETTER_AUTH_SECRET: z.string().min(32),
+  /** The key that creates the first admin: a long random string, 32 characters or more. */
+  ADMIN_BOOTSTRAP_KEY: z.string().min(32),
   /** The race's time zone: days, closes, and schedules follow it. */
   RACE_TIMEZONE: z
     .string()

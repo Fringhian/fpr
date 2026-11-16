@@ -2,6 +2,7 @@ import { accessKeys, type Db } from "@fpr/db";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { APIError } from "better-auth/api";
 import type { Logger } from "pino";
+import { accessSessions } from "../access/session.js";
 import { changePasswordRules } from "./change-password.js";
 import { ipAddressOptions, rateLimitOptions } from "./rate-limit.js";
 import { authSchema } from "./schema.js";
@@ -85,6 +86,7 @@ export function createAuth({
     hooks: { before: changePasswordRules },
     // A person's profile changes through PATCH /me, which checks it.
     disabledPaths: ["/update-user"],
+    plugins: [accessSessions()],
   });
 }
 

@@ -15,7 +15,11 @@ import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
 import { avatarUploadPath, readAvatarBody } from "./me/avatar-body.js";
 import { mountRouter } from "./orpc.js";
-import { authAccessCheck } from "./pipeline/index.js";
+import {
+  authAccessCheck,
+  createRateLimiter,
+  publicWriteRateLimit,
+} from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
 
@@ -29,6 +33,8 @@ export interface AppOptions {
   avatars: AvatarStore;
   /** `PUBLIC_URL`: the only origin a write is accepted from. */
   publicUrl: string;
+  /** `ADMIN_BOOTSTRAP_KEY`: the key that creates the first admin. */
+  bootstrapKey: string;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
   docs?: boolean;
@@ -46,6 +52,7 @@ export function createApp({
   auth,
   avatars,
   publicUrl,
+  bootstrapKey,
   logger,
   docs = false,
   router = apiRouter,
@@ -79,6 +86,8 @@ export function createApp({
     auth,
     avatars,
     publicOrigin: new URL(publicUrl).origin,
+    bootstrapKey,
+    rateLimits: createRateLimiter(publicWriteRateLimit),
   });
   routes?.(app);
 

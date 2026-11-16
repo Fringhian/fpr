@@ -9,12 +9,13 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 - It accepts writes from `PUBLIC_URL` alone.
 - Passwords are 12 to 128 characters, hashed with Better Auth's default hasher. Changing one takes the current password and always ends the person's other sessions, whatever the request asks. Anonymous viewers have no password, and are refused with `403 forbidden`.
 - A session starts only for a person whose access key gives access: a correct password for a person whose access ended is `401 access_ended`. A wrong password gets the same answer whatever the person's access.
+- Setup, claims, and anonymous sign-ins start their session through a server-only endpoint of a Better Auth plugin, never reachable over HTTP, so the same cookie and access check apply.
 - It writes `user`, `account`, `session`, and `verification`. FPR's own columns on `user` are additional fields no Better Auth endpoint accepts as input. See `database.md`.
 - Its warnings and errors are lines of the API's logger.
 
 ## Rate limits
 
-Sign-in, setup, the access link routes, and password reset are rate-limited per client address, with the counts kept in memory. Password sign-in allows five attempts per address within a minute, then answers `429` for a minute. A request to `/api/auth/*` without a client address is not rate-limited, so clients never share one count, and the first one since the API started is logged as an error.
+Sign-in, setup, the access link routes, and password reset are rate-limited per client address, with the counts kept in memory. Password sign-in allows five attempts per address within a minute, then answers `429` for a minute. Each public write allows five requests per address within a minute, then answers `429 rate_limited` with `Retry-After`. A request to `/api/auth/*` or a public write without a client address is not rate-limited, so clients never share one count, and the first one since the API started is logged as an error.
 
 ### Client address
 
@@ -63,7 +64,7 @@ stateDiagram-v2
     Revoked --> [*]: admin replaces the link
 ```
 
-Replacing a link revokes the current key and creates a new waiting one with the same `access_until`. The person has no access until they open the new link. A password user keeps their account and password.
+Replacing a link revokes the current key and creates a new waiting one with the same `access_until`. The person has no access until they open the new link. A password user keeps their account and password. A revoked key reads as `replaced` once its person has a newer key, and a key past `access_until` as `ended`, claimed or not.
 
 Access is checked on every request to a route that isn't public, and on every Better Auth endpoint but sign-in and sign-out. Without a key giving access, every session of the person is deleted and the answer is `401 access_ended`. Sign-in checks access when the session starts, so a cookie left by a person whose access ended never blocks another person's sign-in on the same browser.
 
@@ -75,7 +76,7 @@ The admin enters a display name, an email, a role, and optionally an access end 
 
 ### First use, password users
 
-The link opens `/access/<key>`. The API checks the key and returns the person's email and display name. The person types a password, and the API creates their `account`, marks the key claimed, and starts a session. A person who already has a password, after a replaced link, skips the password step: opening the link claims the new key and leads to sign-in.
+The link opens `/access/<key>`. The API checks the key and returns the person's email and display name. The person types a password, and the API creates their `account`, marks the key claimed, and starts a session. A person who already has a password, after a replaced link, skips the password step: opening the link claims the new key and leads to sign-in. Two claims of one key at once claim it once.
 
 ### Anonymous viewers
 
@@ -84,12 +85,12 @@ Anonymous viewers have no `account` and no password. Opening the link signs them
 ### Password reset
 
 1. The admin generates a reset key for one person. It is shown once, valid 24 hours, and replaces any unused reset key of that person.
-2. The person enters their email and the reset key. A wrong pair gives one generic error.
+2. The person enters their email and the reset key. A wrong pair, or an anonymous viewer's, gives one generic error.
 3. They type their new password. The API sets it, marks the reset key used, and deletes every session of that person.
 
 ### First admin
 
-While no admin exists, `/setup` accepts the value of `ADMIN_BOOTSTRAP_KEY` with an email, a display name, and a password, and creates the admin with a claimed key and a session. Once an admin exists, `/setup` is closed whatever the key.
+While no admin exists, `/setup` accepts the value of `ADMIN_BOOTSTRAP_KEY` with an email, a display name, and a password, and creates the admin with a claimed key and a session. Once an admin exists, `/setup` is closed whatever the key, and two setups at once create one admin.
 
 ## Admin rules
 

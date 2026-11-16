@@ -6,8 +6,10 @@ export {
   type Db,
   ping,
 } from "./database.js";
+export { violatedConstraint } from "./errors.js";
 export { migrateToLatest } from "./migrate.js";
 export * as accessKeys from "./queries/access-keys.js";
+export * as accounts from "./queries/accounts.js";
 export type { CashBalanceChanges } from "./queries/cash-balances.js";
 export * as cashBalances from "./queries/cash-balances.js";
 export * as currentPositions from "./queries/current-positions.js";
@@ -20,6 +22,7 @@ export * as portfolioChanges from "./queries/portfolio-changes.js";
 export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
 export * as resetKeys from "./queries/reset-keys.js";
+export * as sessions from "./queries/sessions.js";
 export type { ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";

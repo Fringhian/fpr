@@ -126,6 +126,17 @@ export async function lockColors(trx: Transaction<Database>): Promise<void> {
 }
 
 /**
+ * Takes the transaction-level lock that serializes creating the first
+ * admin, so two setups at once never both find no admin. Released when the
+ * transaction ends.
+ */
+export async function lockFirstAdminSetup(db: Db): Promise<void> {
+  await sql`select pg_advisory_xact_lock(hashtextextended('fpr.first_admin_setup', 0))`.execute(
+    db,
+  );
+}
+
+/**
  * The colours people have, each once, in order. With `exceptUserId`, that
  * person's colour counts only if someone else has it too.
  */

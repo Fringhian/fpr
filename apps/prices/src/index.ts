@@ -25,7 +25,12 @@ function main(): void {
     logger,
     budget,
   });
-  const app = createApp({ db, logger, token: env.PRICES_TOKEN });
+  const app = createApp({
+    db,
+    logger,
+    token: env.PRICES_TOKEN,
+    timeZone: env.RACE_TIMEZONE,
+  });
   const server: Server = app.listen(env.PORT, () => {
     logger.info(
       {

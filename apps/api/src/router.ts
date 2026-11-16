@@ -1,3 +1,4 @@
+import { accessRouter } from "./access/index.js";
 import { meRouter } from "./me/index.js";
 
 /**
@@ -5,5 +6,6 @@ import { meRouter } from "./me/index.js";
  * without a handler is not served, and answers `not_found`.
  */
 export const apiRouter = {
+  access: accessRouter,
   me: meRouter,
 };

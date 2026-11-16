@@ -34,6 +34,12 @@ export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
 export const TEST_PASSWORD = "a long enough password";
 
+export const SESSION_COOKIE = "__Secure-better-auth.session_token";
+
+/** `ADMIN_BOOTSTRAP_KEY` in tests. */
+export const TEST_BOOTSTRAP_KEY =
+  "a-test-bootstrap-key-of-at-least-32-characters";
+
 /** Better Auth on a test database, as `index.ts` builds it. */
 export function createTestAuth(db: Db): Auth {
   return createAuth({
@@ -114,6 +120,7 @@ export async function serveApp(options: {
     ...options,
     avatars: options.avatars ?? createTestBucket().avatars,
     publicUrl: TEST_PUBLIC_URL,
+    bootstrapKey: TEST_BOOTSTRAP_KEY,
     logger: createLogger({ destination }),
   });
   const server: Server = await new Promise((resolve) => {

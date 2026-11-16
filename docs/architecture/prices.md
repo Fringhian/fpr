@@ -128,7 +128,7 @@ Every endpoint refuses a request without `Authorization: Bearer <PRICES_TOKEN>` 
 | `POST /shares/manual` | Create a manual share with its first value point | `isin_taken`; `future_moment` |
 | `PATCH /shares/:id` | Edit a manual share's name or ISIN | `not_found` for a missing or market share; `isin_taken` |
 | `POST /shares/:id/history` | Make sure closes are stored from a day. Returns `historyStartsOn` once they are | `not_found` |
-| `POST /shares/:id/manual-prices` | Add a value point to a manual share | `not_found`; `value_changed` when one exists at that moment; `future_moment` |
+| `POST /shares/:id/manual-prices` | Add a value point to a manual share | `not_found`; `value_changed` when a price exists at that moment; `future_moment` |
 | `PATCH /shares/:id/manual-prices/:at` | Edit a value point's price, given the price the member saw | `not_found`; `value_changed` when it differs |
 | `DELETE /shares/:id/manual-prices/:at` | Delete a value point, given the price the member saw | `not_found`; `value_changed`; `last_value_point` |
 | `DELETE /shares/:id` | Delete a share with its prices and value edits | `not_found`; `share_in_use` when a share change refers to it |
@@ -138,6 +138,10 @@ Every endpoint refuses a request without `Authorization: Bearer <PRICES_TOKEN>` 
 `:at` is a value point's moment, percent-encoded as one path segment. Any offset names the same moment.
 
 Every value point added, edited, or deleted writes a `manual_price_events` row in the same transaction, with the member the API names as its author. Creating a manual share and making a share manual each add a value point, recorded as `added`.
+
+Every write to a share or its value points locks the share's row until its transaction ends, so two writes to the same share run one after the other.
+
+A market share needs attention when someone holds it and it has no price, or no close in the 5 weekdays up to the last one whose close the 07:00 run has fetched.
 
 ## Logs
 

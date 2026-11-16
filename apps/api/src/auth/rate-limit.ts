@@ -45,7 +45,7 @@ function perClientAddressRules(logger: Logger | undefined) {
   let missingAddressLogged = false;
   return (rule?: BetterAuthRateLimitRule) =>
     (request: Request, current: BetterAuthRateLimitRule) => {
-      if (clientAddress(request) !== null) {
+      if (clientAddress(request.headers) !== null) {
         return rule ?? current;
       }
       if (!missingAddressLogged) {
@@ -60,13 +60,13 @@ function perClientAddressRules(logger: Logger | undefined) {
 }
 
 /**
- * The client address Better Auth keeps a request's rate limit for, or
- * `null` when the request has none: `X-Forwarded-For` must hold a single
- * IP address.
+ * The client address a request's rate limits are kept for, Better Auth's
+ * and the public writes' alike, or `null` when the request has none:
+ * `X-Forwarded-For` must hold a single IP address.
  */
-function clientAddress(request: Request): string | null {
-  const forwarded = request.headers.get(clientAddressHeader)?.trim() ?? "";
+export function clientAddress(headers: Headers): string | null {
+  const forwarded = headers.get(clientAddressHeader)?.trim() ?? "";
   return isIP(forwarded) === 0
     ? null
-    : getIP(request, { advanced: { ipAddress: ipAddressOptions } });
+    : getIP(headers, { advanced: { ipAddress: ipAddressOptions } });
 }

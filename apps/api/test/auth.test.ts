@@ -13,6 +13,7 @@ import {
   createTestAuth,
   newClientAddress,
   postSignIn,
+  SESSION_COOKIE,
   serveApp,
   signIn,
   TEST_PASSWORD,
@@ -25,8 +26,6 @@ const UUID_V7 =
 
 /** Every person is added by the admin. */
 const ADDED_BY_ADMIN = { method: "admin" } as const;
-
-const SESSION_COOKIE = "__Secure-better-auth.session_token";
 
 let test: TestDatabase;
 let auth: Auth;
@@ -212,6 +211,14 @@ describe("/api/auth", () => {
       displayName: "Test member",
       role: "member",
     });
+  });
+
+  it("keeps the endpoint that starts access-link sessions off HTTP", async () => {
+    const endpoint = auth.api.startAccessSession;
+    const options = endpoint.options as Record<string, unknown>;
+
+    expect("path" in endpoint ? endpoint.path : undefined).toBeUndefined();
+    expect(options.metadata).toMatchObject({ SERVER_ONLY: true });
   });
 
   it("refuses a sign-in for a person whose access ended, with access_ended, but never to a wrong password", async () => {

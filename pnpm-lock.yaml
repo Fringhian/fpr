@@ -99,6 +99,12 @@ importers:
       '@fpr/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@orpc/openapi':
+        specifier: 1.16.1
+        version: 1.16.1(ws@8.23.0)
+      '@orpc/server':
+        specifier: 1.16.1
+        version: 1.16.1(ws@8.23.0)
       big.js:
         specifier: 7.0.1
         version: 7.0.1

@@ -11,6 +11,7 @@ Postgres 18, reached by the API and the price service through one shared interna
 - **Table types** (`src/tables/`): each table's row, insert, and update types, shared by every process.
 - **Queries** (`src/queries/`): one module per table, holding that table's queries and no workflow logic.
 - **Test databases** (`@fpr/db/testing`): each test file that touches the database creates its own migrated `fpr_test_…` database on the server at `DATABASE_URL`, and drops it afterwards.
+- **Constraint errors**: `violatedConstraint(error)` names the constraint a failed write violated, such as `shares_isin_key`.
 
 `pnpm --filter @fpr/api auth:schema` prints the SQL that brings the database at `DATABASE_URL` to Better Auth's schema, as configured in `apps/api/src/auth/`, and nothing once it matches.
 
@@ -35,7 +36,7 @@ Each table has one writer. Every process can read any table.
 
 | Table | Written by |
 | --- | --- |
-| `user`, `account`, `session`, `verification` | API, through Better Auth and, for a person's profile and picture, its `/me` routes |
+| `user`, `account`, `session`, `verification` | API, through Better Auth. The `/me` routes also write a person's profile and picture; setup, claims, and password resets write `account`, setup the first admin's `user`, and resets delete `session` rows, each in its own transaction |
 | `access_keys`, `reset_keys` | API |
 | `portfolio_changes`, `cash_balances` | API |
 | `shares`, `prices`, `manual_price_events` | Price service. A manual share or value a member enters reaches it through the API. |

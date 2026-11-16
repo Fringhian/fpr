@@ -33,6 +33,7 @@ async function serve(): Promise<Running> {
     db: {} as Db,
     logger: createLogger({ destination }),
     token: TOKEN,
+    timeZone: "Europe/Paris",
   });
   const server: Server = await new Promise((resolve) => {
     const listening = app.listen(0, "127.0.0.1", () => resolve(listening));

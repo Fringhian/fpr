@@ -10,6 +10,7 @@ import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request, Response } from "express";
 import type { Auth } from "./auth/auth.js";
+import type { RateLimiter } from "./pipeline/index.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
 
 /**
@@ -23,6 +24,10 @@ export interface ApiServices {
   avatars: AvatarStore;
   /** `PUBLIC_URL`'s origin, such as `https://fpr.example.com`. */
   publicOrigin: string;
+  /** `ADMIN_BOOTSTRAP_KEY`: the key `POST /setup` asks for. */
+  bootstrapKey: string;
+  /** The counts of the public writes' rate limit, per route and client address. */
+  rateLimits: RateLimiter;
 }
 
 /** What every handler receives. */
