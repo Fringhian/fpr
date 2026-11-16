@@ -1,6 +1,7 @@
 import { os } from "@orpc/server";
 import { apiError } from "../errors.js";
 import { checkAccess } from "./access.js";
+import { anonymize } from "./anonymize.js";
 import { checkOrigin } from "./origin.js";
 import { limitPublicWrites } from "./rate-limit.js";
 import { guardRoles } from "./roles.js";
@@ -28,16 +29,18 @@ export type { PipelineContext, Viewer } from "./session.js";
  *    sessions are deleted and the answer is `access_ended`.
  * 5. `guardRoles`: the route's declared roles accept the person, and
  *    anonymous viewers write nothing. Otherwise the answer is `forbidden`.
+ * 6. `anonymize`: once the handler has answered and the contract has
+ *    validated the response, an anonymous viewer's is anonymized.
  *
- * A public route skips the last three, and a signed-in route the rate
- * limit. A route whose contract declares no access is refused with
- * `forbidden`.
+ * A public route skips steps 3 to 5, and a signed-in route the rate limit.
+ * A route whose contract declares no access is refused with `forbidden`.
  */
 export const requestPipeline = checkOrigin
   .concat(limitPublicWrites)
   .concat(readSession)
   .concat(checkAccess)
-  .concat(guardRoles);
+  .concat(guardRoles)
+  .concat(anonymize);
 
 /**
  * Narrows the context of a signed-in route's handler to its viewer:

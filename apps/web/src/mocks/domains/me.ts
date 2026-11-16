@@ -13,6 +13,8 @@ function toMe(person: MockPerson): Me {
   return {
     ...toPerson(person),
     role: person.role,
+    email: person.email,
+    raceTimeZone: "Europe/Paris",
     language: person.language,
     onboarded: person.onboarded,
   };
@@ -60,6 +62,13 @@ export const meRoutes = {
     viewer.avatar = null;
     return toMe(viewer);
   }),
+
+  people: mock.me.people.handler(({ context }) =>
+    context.store.people.map((person) => ({
+      ...toPerson(person),
+      role: person.role,
+    })),
+  ),
 
   getAvatar: mock.me.getAvatar.handler(({ context, input }) => {
     const avatar = personOf(context.store, input.userId)?.avatar;

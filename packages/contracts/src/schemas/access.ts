@@ -1,12 +1,16 @@
 import { z } from "zod";
+import { accessKeyPattern, passwordLength } from "../values.js";
 
 /** A new password: 12 to 128 characters. */
-export const passwordSchema = z.string().min(12).max(128);
+export const passwordSchema = z
+  .string()
+  .min(passwordLength.min)
+  .max(passwordLength.max);
 
 /** An access key: 32 random bytes in base64url, the end of `/access/<key>`. */
 export const accessKeySchema = z
   .string()
-  .regex(/^[A-Za-z0-9_-]{43}$/, { error: "Expected an access key" });
+  .regex(accessKeyPattern, { error: "Expected an access key" });
 
 /**
  * A one-time password reset key. A secret, shown once and never logged or

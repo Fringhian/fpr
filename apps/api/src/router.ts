@@ -1,4 +1,5 @@
 import { accessRouter } from "./access/index.js";
+import { adminRouter } from "./admin/index.js";
 import { meRouter } from "./me/index.js";
 
 /**
@@ -7,5 +8,6 @@ import { meRouter } from "./me/index.js";
  */
 export const apiRouter = {
   access: accessRouter,
+  admin: adminRouter,
   me: meRouter,
 };

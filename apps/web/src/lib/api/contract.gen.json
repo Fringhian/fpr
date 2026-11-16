@@ -182,6 +182,24 @@
           "summary": "A person's uploaded picture"
         }
       }
+    },
+    "people": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/people",
+          "summary": "Every person: name, picture, colour, and role"
+        }
+      }
     }
   },
   "portfolio": {

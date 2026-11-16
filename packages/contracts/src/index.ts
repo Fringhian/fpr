@@ -15,6 +15,10 @@ export {
   quantity,
 } from "./anonymize.js";
 export {
+  type AnonymizeReplacements,
+  anonymizeResponse,
+} from "./anonymize-response.js";
+export {
   accessKeyStates,
   accessSignInMethods,
 } from "./api/access/access-keys.js";

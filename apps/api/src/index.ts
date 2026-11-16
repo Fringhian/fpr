@@ -36,6 +36,8 @@ function main(): void {
     avatars,
     publicUrl: env.PUBLIC_URL,
     bootstrapKey: env.ADMIN_BOOTSTRAP_KEY,
+    pseudonymSecret: env.PSEUDONYM_SECRET,
+    raceTimeZone: env.RACE_TIMEZONE,
     logger,
     docs: process.env.NODE_ENV === "development",
   });

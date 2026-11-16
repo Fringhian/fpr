@@ -13,7 +13,7 @@ type KnownKeyState = Exclude<AccessKeyState, "unknown">;
  * - `expired` once `claimBefore` has passed;
  * - `waiting` otherwise.
  */
-function keyState(
+export function keyState(
   key: AccessKey,
   latestKeyId: string,
   now: Date,

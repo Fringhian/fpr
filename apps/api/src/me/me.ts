@@ -1,4 +1,4 @@
-import { type Me, Role } from "@fpr/contracts";
+import { type Me, type Person, Role } from "@fpr/contracts";
 import type { User } from "@fpr/db";
 
 /**
@@ -29,14 +29,31 @@ export function avatarUrl(user: Pick<User, "id" | "avatarKey">): string | null {
   return `/api/users/${user.id}/avatar?v=${version}`;
 }
 
-/** The signed-in person, as `GET /me` answers them. Anonymous viewers have no picture. */
-export function toMe(user: User): Me {
+/**
+ * A person as every screen shows them. An anonymous viewer has no picture,
+ * and their generated email is never shown.
+ */
+export function toPerson(user: User): Person {
   return {
     id: user.id,
     displayName: user.displayName,
     avatarUrl: user.role === Role.anonymous ? null : avatarUrl(user),
     color: user.color,
+  };
+}
+
+/** The sign-in email, or `null` for an anonymous viewer's generated one. */
+export function shownEmail(user: User): string | null {
+  return user.role === Role.anonymous ? null : user.email;
+}
+
+/** The signed-in person, as `GET /me` answers them. */
+export function toMe(user: User, raceTimeZone: string): Me {
+  return {
+    ...toPerson(user),
     role: user.role,
+    email: shownEmail(user),
+    raceTimeZone,
     language: user.locale,
     onboarded: user.onboardedAt !== null,
   };

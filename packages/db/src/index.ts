@@ -5,6 +5,7 @@ export {
   type Database,
   type Db,
   ping,
+  type Trx,
 } from "./database.js";
 export { violatedConstraint } from "./errors.js";
 export { migrateToLatest } from "./migrate.js";

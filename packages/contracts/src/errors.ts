@@ -1,36 +1,7 @@
 import { z } from "zod";
+import { errorCodes } from "./values.js";
 
-/** Every code an error response can carry. */
-export const errorCodes = [
-  "invalid_request",
-  "unauthenticated",
-  "access_ended",
-  "forbidden",
-  "not_found",
-  "admin_exists",
-  "color_taken",
-  "email_taken",
-  "isin_taken",
-  "share_in_use",
-  "share_not_needing_attention",
-  "value_changed",
-  "refresh_running",
-  "avatar_too_large",
-  "avatar_type_unsupported",
-  "invalid_access_key",
-  "invalid_reset_key",
-  "invalid_bootstrap_key",
-  "holding_below_zero",
-  "future_moment",
-  "last_admin",
-  "has_portfolio_entries",
-  "anonymous_role_fixed",
-  "last_value_point",
-  "rate_limited",
-  "call_budget_used",
-  "internal_error",
-  "provider_unavailable",
-] as const;
+export { errorCodes };
 
 export const errorCodeSchema = z.enum(errorCodes);
 

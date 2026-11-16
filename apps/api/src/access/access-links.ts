@@ -7,6 +7,7 @@ import {
 import { accessKeys, accounts, type User, users } from "@fpr/db";
 import { apiError } from "../errors.js";
 import { api } from "../implement.js";
+import { avatarUrl } from "../me/me.js";
 import { readKeyState } from "./key-state.js";
 import { hashKey } from "./keys.js";
 import { startSession } from "./session.js";
@@ -29,8 +30,8 @@ const signsInWithLink = (user: User) => user.role === Role.anonymous;
 
 /**
  * A key's state, and how its person signs in. A waiting key of a password
- * user also gives their email, display name, and whether they already have
- * a password, from an earlier link.
+ * user also gives their email, display name, colour, picture, and whether
+ * they already have a password, from an earlier link.
  */
 export const checkAccessKey = api.access.check.handler(
   async ({ context: { db }, input }): Promise<AccessCheckResponse> => {
@@ -49,6 +50,8 @@ export const checkAccessKey = api.access.check.handler(
         signsInWith: "password",
         email: user.email,
         displayName: user.displayName,
+        color: user.color,
+        avatarUrl: avatarUrl(user),
         hasPassword: await accounts.hasPassword(db, user.id),
       };
     }

@@ -89,6 +89,8 @@ async function serve(
     avatars: createTestBucket().avatars,
     publicUrl: "https://fpr.example.test",
     bootstrapKey: "a-test-bootstrap-key-of-at-least-32-characters",
+    pseudonymSecret: "a-test-pseudonym-secret-of-at-least-32-characters",
+    raceTimeZone: "Europe/Paris",
     logger: createLogger({ destination }),
     docs,
     ...(router ? { router } : {}),

@@ -41,6 +41,7 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
     "me.get": () => client.me.get(),
     "me.getAvatar": () =>
       client.me.getAvatar({ userId: fixturePersonId("alex") }),
+    "me.people": () => client.me.people(),
     "portfolio.get": () => client.portfolio.get({ userId: sam, period: "1M" }),
     "portfolio.holdingAt": () =>
       client.portfolio.holdingAt({

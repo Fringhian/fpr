@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { personal } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { profileRoles, roleSchema, roles } from "../../roles.js";
 import {
   colorSchema,
   displayNameSchema,
+  emailSchema,
   personSchema,
 } from "../../schemas/person.js";
 import { languages } from "../../values.js";
@@ -14,10 +16,14 @@ export const languageSchema = z.enum(languages);
 
 export type Language = z.infer<typeof languageSchema>;
 
-/** The signed-in person. */
+/** The signed-in person, and the instance's time zone. */
 export const meSchema = personSchema.extend({
   role: roleSchema,
-  /** `null` until the person picks one: the web app follows the browser. */
+  /** The sign-in email, or `null` for an anonymous viewer, who has none. */
+  email: personal(emailSchema.nullable()),
+  /** `RACE_TIMEZONE`, an IANA time zone such as `Europe/Paris`: where a day starts. */
+  raceTimeZone: z.string().min(1),
+  /** `null` until the person picks one: the web app uses the device's pick, then French. */
   language: languageSchema.nullable(),
   onboarded: z.boolean(),
 });

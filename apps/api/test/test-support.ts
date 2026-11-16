@@ -25,6 +25,7 @@ import type { z } from "zod";
 import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
+import { pseudonyms } from "../src/pseudonyms/pseudonyms.js";
 import {
   type AvatarStore,
   createAvatarStore,
@@ -39,6 +40,13 @@ export const SESSION_COOKIE = "__Secure-better-auth.session_token";
 /** `ADMIN_BOOTSTRAP_KEY` in tests. */
 export const TEST_BOOTSTRAP_KEY =
   "a-test-bootstrap-key-of-at-least-32-characters";
+
+/** `PSEUDONYM_SECRET` in tests. */
+export const TEST_PSEUDONYM_SECRET =
+  "a-test-pseudonym-secret-of-at-least-32-characters";
+
+/** `RACE_TIMEZONE` in tests. */
+export const TEST_RACE_TIMEZONE = "Europe/Paris";
 
 /** Better Auth on a test database, as `index.ts` builds it. */
 export function createTestAuth(db: Db): Auth {
@@ -121,6 +129,8 @@ export async function serveApp(options: {
     avatars: options.avatars ?? createTestBucket().avatars,
     publicUrl: TEST_PUBLIC_URL,
     bootstrapKey: TEST_BOOTSTRAP_KEY,
+    pseudonymSecret: TEST_PSEUDONYM_SECRET,
+    raceTimeZone: TEST_RACE_TIMEZONE,
     logger: createLogger({ destination }),
   });
   const server: Server = await new Promise((resolve) => {
@@ -292,6 +302,23 @@ export function testPicture(
   })
     .toFormat(format)
     .toBuffer();
+}
+
+/** The pseudonym an anonymous viewer sees for this person, from everyone on the database. */
+export async function pseudonymOf(db: Db, userId: string): Promise<string> {
+  const names = pseudonyms(TEST_PSEUDONYM_SECRET, await users.listIds(db));
+  return names.get(userId) ?? "";
+}
+
+/** Adds a person with this role, signs them in, and resolves with their session's cookie. */
+export async function addSignedIn(
+  server: TestServer,
+  db: Db,
+  auth: Auth,
+  role: Role,
+): Promise<TestPerson & { cookie: string }> {
+  const person = await addPerson(db, auth, role);
+  return { ...person, cookie: await signIn(server, person) };
 }
 
 /** Signs a person in and resolves with their session's `Cookie` header. */

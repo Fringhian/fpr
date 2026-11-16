@@ -114,7 +114,8 @@ Every public write is rate-limited per client address: see `auth.md`.
 
 | Route | Who | What |
 | --- | --- | --- |
-| `GET /me` | all | The signed-in person: role, display name, picture, colour, language, onboarding |
+| `GET /me` | all | The signed-in person: role, email, display name, picture, colour, language, onboarding, and the race's time zone |
+| `GET /people` | all | Every person: display name, picture, colour, and role |
 | `PATCH /me` | profile | Change display name, colour, or language, or finish onboarding |
 | `PUT /me/avatar`, `DELETE /me/avatar` | profile | Upload a picture, stored in S3-compatible storage, or remove it |
 | `GET /users/:userId/avatar` | profile | A person's uploaded picture |

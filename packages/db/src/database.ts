@@ -1,4 +1,10 @@
-import { CamelCasePlugin, Kysely, PostgresDialect, sql } from "kysely";
+import {
+  CamelCasePlugin,
+  Kysely,
+  PostgresDialect,
+  sql,
+  type Transaction,
+} from "kysely";
 import pg from "pg";
 import type { AccessKeyTable } from "./tables/access-key.js";
 import type { AccountTable } from "./tables/account.js";
@@ -34,6 +40,9 @@ export interface Database {
 }
 
 export type Db = Kysely<Database>;
+
+/** A transaction, for a query that must run inside one, such as one taking a lock. */
+export type Trx = Transaction<Database>;
 
 export interface CreateDbOptions {
   /** The Postgres connection string. Defaults to `DATABASE_URL`. */

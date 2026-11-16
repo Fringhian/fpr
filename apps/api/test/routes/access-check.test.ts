@@ -40,7 +40,7 @@ async function check(key: string) {
 }
 
 describe("POST /api/access/check", () => {
-  it("gives a waiting password user's email and display name", async () => {
+  it("gives a waiting password user's email, name, colour, and picture", async () => {
     const person = await addKeyHolder(test.db, auth, "member");
 
     expect(await check(person.key)).toEqual({
@@ -48,6 +48,8 @@ describe("POST /api/access/check", () => {
       signsInWith: "password",
       email: person.email,
       displayName: person.displayName,
+      color: 1,
+      avatarUrl: null,
       hasPassword: false,
     });
   });

@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { personal } from "../anonymize.js";
+import { colorCount, displayNameMaxLength } from "../values.js";
 import { idSchema } from "./ids.js";
+
+export { colorCount };
 
 /**
  * A sign-in email. Unmarked: a response field wraps it with `personal()`, so
@@ -9,10 +12,11 @@ import { idSchema } from "./ids.js";
 export const emailSchema = z.email();
 
 /** The name shown on leaderboards: 1 to 40 characters, trimmed. */
-export const displayNameSchema = z.string().trim().min(1).max(40);
-
-/** How many colours there are. */
-export const colorCount = 10;
+export const displayNameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(displayNameMaxLength);
 
 /** A person's colour, from 1 to 10. */
 export const colorSchema = z.int().min(1).max(colorCount);

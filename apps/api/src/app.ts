@@ -35,6 +35,10 @@ export interface AppOptions {
   publicUrl: string;
   /** `ADMIN_BOOTSTRAP_KEY`: the key that creates the first admin. */
   bootstrapKey: string;
+  /** `PSEUDONYM_SECRET`: the key pseudonyms are derived with. */
+  pseudonymSecret: string;
+  /** `RACE_TIMEZONE`: where a day starts. */
+  raceTimeZone: string;
   logger: Logger;
   /** Serves the OpenAPI document and its viewer at `/api/docs`. */
   docs?: boolean;
@@ -53,6 +57,8 @@ export function createApp({
   avatars,
   publicUrl,
   bootstrapKey,
+  pseudonymSecret,
+  raceTimeZone,
   logger,
   docs = false,
   router = apiRouter,
@@ -87,6 +93,8 @@ export function createApp({
     avatars,
     publicOrigin: new URL(publicUrl).origin,
     bootstrapKey,
+    pseudonymSecret,
+    raceTimeZone,
     rateLimits: createRateLimiter(publicWriteRateLimit),
   });
   routes?.(app);

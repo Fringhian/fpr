@@ -10,12 +10,13 @@ import {
   lookupResultSchema,
   pricePointSchema,
 } from "../../schemas/share.js";
+import { shareSearchMaxLength } from "../../values.js";
 import { shareQuoteSchema } from "./schemas.js";
 
 /** `GET /shares`: a name, ISIN, or symbol to filter by, and the period. */
 export const shareSearchQuerySchema = z.object({
   /** Empty lists every stored share. */
-  q: z.string().trim().max(100).default(""),
+  q: z.string().trim().max(shareSearchMaxLength).default(""),
   period: periodSchema,
 });
 

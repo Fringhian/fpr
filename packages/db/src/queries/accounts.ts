@@ -17,6 +17,24 @@ export async function hasPassword(db: Db, userId: string): Promise<boolean> {
   return row !== undefined;
 }
 
+/** The ids of the people with a password, among `userIds` when given. */
+export async function idsWithPassword(
+  db: Db,
+  userIds?: readonly string[],
+): Promise<Set<string>> {
+  let query = db
+    .selectFrom("account")
+    .select("userId")
+    .distinct()
+    .where("providerId", "=", credential)
+    .where("password", "is not", null);
+  if (userIds !== undefined) {
+    query = query.where("userId", "in", userIds);
+  }
+  const rows = await query.execute();
+  return new Set(rows.map((row) => row.userId));
+}
+
 /**
  * Sets the person's password hash, made with Better Auth's hasher, on their
  * password account, created as Better Auth creates it when they have none.
