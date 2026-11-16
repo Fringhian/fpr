@@ -24,8 +24,19 @@ export type { PortfolioLogRow } from "./queries/portfolio-log.js";
 export * as portfolioLog from "./queries/portfolio-log.js";
 export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
+export type { FirstEntry, RacePeriod } from "./queries/race-calendar.js";
+export * as raceCalendar from "./queries/race-calendar.js";
 export * as resetKeys from "./queries/reset-keys.js";
 export * as sessions from "./queries/sessions.js";
+export type { SeriesPoint } from "./queries/share-charts.js";
+export * as shareCharts from "./queries/share-charts.js";
+export * as shareLists from "./queries/share-lists.js";
+export type {
+  ChangeAtDayValue,
+  HoldingAtMoment,
+  ShareValue,
+} from "./queries/share-values.js";
+export * as shareValues from "./queries/share-values.js";
 export type { ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";
