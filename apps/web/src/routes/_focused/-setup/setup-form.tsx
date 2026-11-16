@@ -16,6 +16,29 @@ import { useRefusal } from "../-access/use-refusal";
 /** The fields the API knows the answer of but the form can't check. */
 const blame = { invalid_bootstrap_key: "bootstrapKey" } as const;
 
+function SetupFields() {
+  const { t } = useTranslation();
+  const checks = useAccessChecks();
+
+  return (
+    <>
+      <Field.Root name="bootstrapKey" validate={checks.key}>
+        <Field.Label>{t("setup.key")}</Field.Label>
+        <Field.Password autoComplete="off" />
+        <Field.Error />
+      </Field.Root>
+      <EmailField autoComplete="username" />
+      <Field.Root name="displayName" validate={checks.displayName}>
+        <Field.Label>{t("setup.name")}</Field.Label>
+        <Field.Control autoComplete="nickname" />
+        <Field.Description>{t("setup.nameHelp")}</Field.Description>
+        <Field.Error />
+      </Field.Root>
+      <NewPasswordField />
+    </>
+  );
+}
+
 /**
  * The first admin: the setup key from the server's configuration, then the
  * admin's email, name and password. Created, the admin is signed in and
@@ -25,7 +48,6 @@ export function SetupForm({ onClosed }: { onClosed: () => void }) {
   const { t } = useTranslation();
   const api = useApi();
   const navigate = useNavigate();
-  const checks = useAccessChecks();
   const { errors, formError, refuse, refuseError } = useRefusal(blame);
   const setup = useMutation(api.access.setup.mutationOptions());
 
@@ -61,19 +83,7 @@ export function SetupForm({ onClosed }: { onClosed: () => void }) {
         <StepFlow.Body>
           <StepFlow.Question>{t("setup.question")}</StepFlow.Question>
           <StepFlow.Description>{t("setup.description")}</StepFlow.Description>
-          <Field.Root name="bootstrapKey" validate={checks.key}>
-            <Field.Label>{t("setup.key")}</Field.Label>
-            <Field.Password autoComplete="off" />
-            <Field.Error />
-          </Field.Root>
-          <EmailField autoComplete="username" />
-          <Field.Root name="displayName" validate={checks.displayName}>
-            <Field.Label>{t("setup.name")}</Field.Label>
-            <Field.Control autoComplete="nickname" />
-            <Field.Description>{t("setup.nameHelp")}</Field.Description>
-            <Field.Error />
-          </Field.Root>
-          <NewPasswordField />
+          <SetupFields />
           <FormError>{formError}</FormError>
         </StepFlow.Body>
         <StepFlow.Actions>
