@@ -6,6 +6,7 @@ import type {
   Timestamp,
 } from "@fpr/contracts";
 import Big from "big.js";
+import { type EntrySummary, entrySummaryOf } from "../../../lib/log-entry";
 import { localInstant, raceDayEnd, raceDayOf } from "../../../lib/race-day";
 import type { RecordKind, RecordSearch } from "../../../lib/record-search";
 import { isPositive } from "./amount";
@@ -27,15 +28,18 @@ export type Draft = {
   entry?: PortfolioLogEntry | undefined;
 };
 
-function kindOf(entry: PortfolioLogEntry): RecordKind {
-  if (entry.type === "cash") return "cash";
-  return entry.quantityDelta.startsWith("-") ? "sell" : "buy";
-}
+const KINDS = {
+  bought: "buy",
+  sold: "sell",
+  cashSet: "cash",
+} as const satisfies Record<EntrySummary["kind"], RecordKind>;
 
-function amountOf(entry: PortfolioLogEntry): Decimal {
-  return entry.type === "cash"
-    ? entry.amountEur
-    : entry.quantityDelta.replace(/^-/, "");
+function answersOf(entry: PortfolioLogEntry) {
+  const summary = entrySummaryOf(entry);
+  return {
+    kind: KINDS[summary.kind],
+    amount: summary.kind === "cashSet" ? summary.amount : summary.quantity,
+  };
 }
 
 /**
@@ -48,7 +52,8 @@ export function draftOf(
   entry: PortfolioLogEntry | undefined,
   today: IsoDate,
 ): Draft {
-  const kind = search.kind ?? (entry && kindOf(entry));
+  const edited = entry && answersOf(entry);
+  const kind = search.kind ?? edited?.kind;
   const day =
     search.day !== undefined && search.day <= today ? search.day : undefined;
   const amount =
@@ -61,7 +66,7 @@ export function draftOf(
       search.share ?? (entry?.type === "change" ? entry.share.id : undefined),
     day: day ?? (entry ? raceDayOf(entry.effectiveAt) : today),
     dayChosen: day !== undefined || entry !== undefined,
-    amount: amount ?? (entry && amountOf(entry)),
+    amount: amount ?? edited?.amount,
     entry,
   };
 }

@@ -5,35 +5,12 @@ import { Button } from "../../../components/atoms/button/button";
 import { UndoList } from "../../../components/molecules/undo-list/undo-list";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { formatDate } from "../../../lib/format/date";
-import { formatMoney } from "../../../lib/format/money";
-import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
+import { useEntryTitle } from "../../../lib/log-entry";
 import { RACE_TIME_ZONE } from "../../../lib/race-day";
 import { useFlow } from "./flow";
 import { PortfolioNow } from "./portfolio-now";
 import { RecordPage } from "./record-page";
-
-/** An entry's title, as History writes it: “Bought 10 World Index ETF”. */
-function useEntryTitle(): (entry: PortfolioLogEntry) => string {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  return (entry) =>
-    entry.type === "cash"
-      ? t("timelineRow.cashSet", {
-          amount: formatMoney(entry.amountEur, language),
-        })
-      : t(
-          `timelineRow.${entry.quantityDelta.startsWith("-") ? "sold" : "bought"}`,
-          {
-            quantity: formatQuantity(
-              entry.quantityDelta.replace(/^-/, ""),
-              language,
-            ),
-            share: entry.share.name,
-          },
-        );
-}
 
 /**
  * Saved: the change just saved, then every change of this sitting with

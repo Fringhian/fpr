@@ -4,7 +4,7 @@ import type {
   ChartLine,
   ChartMark,
 } from "../../../components/molecules/chart/chart";
-import { formatQuantity } from "../../../lib/format/number";
+import { changeSummaryOf, entryTitle } from "../../../lib/log-entry";
 import type { MemberColor } from "../../../lib/member-color";
 import { raceDayOf } from "../../../lib/race-day";
 import { balancePoints, lastCloseOf } from "../../../lib/series";
@@ -17,19 +17,12 @@ function changeMarks(
 ): ChartMark[] {
   return entries.flatMap((entry): ChartMark[] => {
     if (entry.type === "cash") return [];
-    const sold = entry.quantityDelta.startsWith("-");
-    const quantity = formatQuantity(
-      entry.quantityDelta.replace(/^-/, ""),
-      language,
-    );
+    const change = changeSummaryOf(entry);
     return [
       {
         day: raceDayOf(entry.effectiveAt),
-        direction: sold ? "down" : "up",
-        label: t(`timelineRow.${sold ? "sold" : "bought"}`, {
-          quantity,
-          share: entry.share.name,
-        }),
+        direction: change.kind === "sold" ? "down" : "up",
+        label: entryTitle(change, t, language),
       },
     ];
   });

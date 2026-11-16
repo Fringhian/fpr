@@ -6,6 +6,7 @@ import type {
 } from "@fpr/contracts";
 import Big from "big.js";
 import type { TimelineEntry } from "../../../components/molecules/timeline-row/timeline-row";
+import { changeSummaryOf } from "../../../lib/log-entry";
 
 /** One entry of the log as a timeline row draws it, with the entry itself for its actions. */
 export type LogRow = {
@@ -60,9 +61,7 @@ export function logRows(
     return {
       entry,
       row: {
-        kind: entry.quantityDelta.startsWith("-") ? "sold" : "bought",
-        share: entry.share.name,
-        quantity: entry.quantityDelta.replace(/^-/, ""),
+        ...changeSummaryOf(entry),
         before: before.toFixed(),
         after: after.toFixed(),
       },

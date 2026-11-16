@@ -1,8 +1,7 @@
 import type { PortfolioLogEntry } from "@fpr/contracts";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useApi } from "../../../lib/api/use-api";
+import { entryValueOf, useEntryWrites } from "../../../lib/entry-writes";
 import { useEntryRefusal } from "../../_app/-portfolio-sections/use-entry-refusal";
 
 /** A change saved in this sitting: the entry, and what it was before an edit. */
@@ -14,41 +13,6 @@ export type SavedChange = {
   busy: boolean;
 };
 
-/** Takes a saved change back: deletes a new entry, or puts an edited one back as it was. */
-function useRevert() {
-  const api = useApi();
-  const deleteChange = useMutation(
-    api.portfolio.deleteChange.mutationOptions(),
-  );
-  const deleteCash = useMutation(api.portfolio.deleteCash.mutationOptions());
-  const updateChange = useMutation(
-    api.portfolio.updateChange.mutationOptions(),
-  );
-  const updateCash = useMutation(api.portfolio.updateCash.mutationOptions());
-
-  return async ({ entry, previous }: SavedChange): Promise<void> => {
-    const { id } = entry;
-    if (previous === null) {
-      await (entry.type === "cash"
-        ? deleteCash.mutateAsync({ id })
-        : deleteChange.mutateAsync({ id }));
-      return;
-    }
-    const { effectiveAt } = previous;
-    await (previous.type === "cash"
-      ? updateCash.mutateAsync({
-          id,
-          amountEur: previous.amountEur,
-          effectiveAt,
-        })
-      : updateChange.mutateAsync({
-          id,
-          quantityDelta: previous.quantityDelta,
-          effectiveAt,
-        }));
-  };
-}
-
 /**
  * The changes saved in this sitting of Record a change, oldest first, each
  * with Undo. An Undo that would take a holding below zero is refused, and a
@@ -58,8 +22,14 @@ function useRevert() {
 export function useSessionChanges() {
   const { t } = useTranslation();
   const refuse = useEntryRefusal();
-  const revert = useRevert();
+  const writes = useEntryWrites();
   const [items, setItems] = useState<readonly SavedChange[]>([]);
+
+  // Undo deletes a new entry, or puts an edited one back as it was.
+  const revert = ({ entry, previous }: SavedChange) =>
+    previous === null
+      ? writes.remove(entry)
+      : writes.update(entry.id, entryValueOf(previous));
 
   const patch = (id: string, change: Partial<SavedChange>) =>
     setItems((all) =>

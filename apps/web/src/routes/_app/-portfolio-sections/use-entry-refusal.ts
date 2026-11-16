@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import { isApiError, useErrorText } from "../../../lib/api/errors";
 import { formatDate } from "../../../lib/format/date";
-import { formatQuantity } from "../../../lib/format/number";
 import { quote } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
+import { useEntryTitle } from "../../../lib/log-entry";
 import { RACE_TIME_ZONE } from "../../../lib/race-day";
 
 /** The stored change a `holding_below_zero` refusal names, from its details. */
@@ -32,23 +32,14 @@ export function useEntryRefusalText(): (error: unknown) => string {
   const { t } = useTranslation();
   const language = useLanguage();
   const errorText = useErrorText();
+  const title = useEntryTitle();
 
   return (error) => {
     const change = brokenChange(error);
-    const kind = change?.quantityDelta.startsWith("-") ? "sold" : "bought";
     return change === null
       ? errorText(error)
       : t("entryActions.breaks", {
-          change: quote(
-            t(`timelineRow.${kind}`, {
-              quantity: formatQuantity(
-                change.quantityDelta.replace(/^-/, ""),
-                language,
-              ),
-              share: change.share.name,
-            }),
-            language,
-          ),
+          change: quote(title(change), language),
           date: formatDate(change.effectiveAt, language, {
             timeZone: RACE_TIME_ZONE,
           }),

@@ -8,6 +8,7 @@ import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
+import { entryTitle } from "../../../lib/log-entry";
 import type { IconProps } from "../../foundations/icon/icon";
 
 /** Shares added to a holding, or removed from it. */
@@ -85,10 +86,7 @@ function describeHolding(
 ): Description {
   const before = formatQuantity(entry.before, language);
   const after = formatQuantity(entry.after, language);
-  const title = t(`timelineRow.${entry.kind}`, {
-    quantity: formatQuantity(entry.quantity, language),
-    share: entry.share,
-  });
+  const title = entryTitle(entry, t, language);
   if (entry.kind === "bought" && ZERO.test(entry.before)) {
     return { title, change: t("timelineRow.newHolding") };
   }
@@ -120,7 +118,7 @@ export function describe(
       return describeHolding(entry, t, language);
     case "cashSet":
       return {
-        title: t("timelineRow.cashSet", { amount: money(entry.amount) }),
+        title: entryTitle(entry, t, language),
         change:
           entry.before === undefined
             ? null
