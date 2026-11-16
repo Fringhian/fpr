@@ -15,7 +15,14 @@ import { createMockHandlers } from "../src/mocks/handlers.ts";
 import type { Persona } from "../src/mocks/personas.ts";
 import { createAppRouter } from "../src/router.ts";
 
-const origin = "http://fpr.test";
+// Lightweight Charts draws on a canvas in the theme's colours, which happy-dom
+// has neither of: the visits' charts render nothing.
+vi.mock("../src/components/molecules/chart/chart.tsx", () => ({
+  Chart: () => null,
+}));
+
+// The page's own origin, where the app calls the API and Better Auth alike.
+const { origin } = window.location;
 const LANGUAGE_KEY = "fpr.language.v1";
 const roots: Root[] = [];
 
@@ -28,13 +35,16 @@ afterEach(() => {
     act(() => root.unmount());
   }
   document.body.replaceChildren();
+  vi.unstubAllGlobals();
 });
 
 /**
  * The app at `path`, on the mock API signed in as `session`, once its routes
- * have loaded and rendered. `failMe` answers `GET /me` with a server error.
- * `language` is the one picked on the device before the visit, English by
- * default, or `null` for none; a signed-in person's own language wins.
+ * have loaded and rendered. Better Auth's endpoints, which the app calls with
+ * `fetch`, answer from the same mock. `failMe` answers `GET /me` with a
+ * server error. `language` is the one picked on the device before the visit,
+ * English by default, or `null` for none; a signed-in person's own language
+ * wins. `empty` starts an instance with nobody yet.
  */
 export async function visit(
   path: string,
@@ -42,14 +52,21 @@ export async function visit(
   {
     failMe = false,
     language = "en",
-  }: { failMe?: boolean; language?: Language | null } = {},
+    empty = false,
+  }: { failMe?: boolean; language?: Language | null; empty?: boolean } = {},
 ) {
   if (language === null) {
     localStorage.removeItem(LANGUAGE_KEY);
   } else {
     localStorage.setItem(LANGUAGE_KEY, language);
   }
-  const { handlers, store } = createMockHandlers({ origin, session });
+  const { handlers, store } = createMockHandlers({ origin, session, empty });
+  vi.stubGlobal(
+    "fetch",
+    async (input: RequestInfo | URL, init?: RequestInit) =>
+      (await getResponse(handlers, new Request(input, init))) ??
+      Response.error(),
+  );
   const onAccessEnded: Mock<() => void> = vi.fn();
   const onSessionExpired: Mock<() => void> = vi.fn();
   const api = createTanstackQueryUtils(
