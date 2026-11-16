@@ -11,6 +11,7 @@ import { UpdatePrompt } from "../lib/app-update.tsx";
 import { followSessionLanguage } from "../lib/language-choice.ts";
 import { guard } from "../lib/session/access.ts";
 import { loadSession } from "../lib/session/session-query.ts";
+import { PageArrival } from "./-page-arrival.tsx";
 import { LoadFailed } from "./-states/load-failed.tsx";
 
 /**
@@ -41,11 +42,12 @@ export const Route = createRootRouteWithContext<{
   errorComponent: LoadFailed,
 });
 
-/** Every page, with the toasts each layout shows in its own region, a new version's included. */
+/** Every page, with the toasts each layout shows in its own region, a new version's included, and the news of each page's arrival. */
 function Root() {
   return (
     <Toast.Provider>
       <Outlet />
+      <PageArrival />
       <UpdatePrompt />
     </Toast.Provider>
   );

@@ -45,6 +45,8 @@ export function Title({
     defaultTagName: "p",
     props: {
       ...props,
+      // The tab's title reads the page's name from here.
+      "data-page-title": "",
       className: cn(
         "min-w-0 truncate text-l font-semibold text-primary",
         className,
