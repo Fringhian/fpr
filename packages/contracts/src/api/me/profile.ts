@@ -17,7 +17,7 @@ export type Language = z.infer<typeof languageSchema>;
 /** The signed-in person. */
 export const meSchema = personSchema.extend({
   role: roleSchema,
-  /** `null` until the person picks one: the web app follows the browser. */
+  /** `null` until the person picks one: the web app uses the device's pick, then French. */
   language: languageSchema.nullable(),
   onboarded: z.boolean(),
 });

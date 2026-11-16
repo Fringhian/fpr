@@ -23,7 +23,7 @@ export interface UserTable {
   role: Role;
   /** 1 to 10. */
   color: number;
-  /** `null` until the person picks one: the web app follows the browser. */
+  /** `null` until the person picks one: the web app uses the device's pick, then French. */
   locale: Locale | null;
   /** `null` until the person finishes onboarding. */
   onboardedAt: Date | null;
