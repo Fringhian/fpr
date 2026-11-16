@@ -65,6 +65,8 @@ function Started({
           userId={row.member.id}
           name={look.name}
           portfolio={data.portfolio}
+          rows={data.logRows}
+          cashSetAt={data.cashSetAt}
         />
       ) : (
         <MemberHoldings
@@ -139,7 +141,7 @@ function MemberView({
  */
 function MemberPage({ userId, editing }: { userId: Id; editing: boolean }) {
   const { t } = useTranslation();
-  const data = useMemberData(userId);
+  const data = useMemberData(userId, editing);
   const failed = useLoadFailedMessage(data.retry);
 
   const placeholder = (children: ReactNode) => (

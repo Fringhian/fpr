@@ -31,8 +31,12 @@ export function useLogPages(userId: Id, enabled = true) {
  * after. Portfolio and History read the same first page, which also gives
  * the moment of the latest cash balance.
  */
-export function useLog(userId: Id, portfolio: Portfolio | undefined) {
-  const log = useLogPages(userId);
+export function useLog(
+  userId: Id,
+  portfolio: Portfolio | undefined,
+  enabled = true,
+) {
+  const log = useLogPages(userId, enabled);
 
   const pages = log.data?.pages;
   const complete = !log.hasNextPage;

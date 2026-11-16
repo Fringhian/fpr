@@ -1,4 +1,4 @@
-import type { Id, Portfolio } from "@fpr/contracts";
+import type { Id, Portfolio, Timestamp } from "@fpr/contracts";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { Link } from "@tanstack/react-router";
@@ -13,9 +13,9 @@ import {
 } from "../../../lib/edit-portfolio";
 import { useSession } from "../../../lib/session/use-session";
 import { LatestChanges } from "../-portfolio-sections/latest-changes";
+import type { LogRow } from "../-portfolio-sections/log-rows";
 import { OwnedHoldings } from "../-portfolio-sections/owned-holdings";
 import { useRecord } from "../-portfolio-sections/record-link";
-import { useLog } from "../-portfolio-sections/use-log";
 
 /**
  * The admin's action on a member's page, for its `HeaderAction` and
@@ -92,13 +92,16 @@ export function EditableSections({
   userId,
   name,
   portfolio,
+  rows,
+  cashSetAt,
 }: {
   userId: Id;
   name: string;
   portfolio: Portfolio | undefined;
+  rows: readonly LogRow[] | undefined;
+  cashSetAt: Timestamp | undefined;
 }) {
   const { t } = useTranslation();
-  const { rows, cashSetAt } = useLog(userId, portfolio);
 
   return (
     <>

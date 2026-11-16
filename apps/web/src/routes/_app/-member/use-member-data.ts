@@ -3,6 +3,7 @@ import { neededReads } from "../../../lib/api/needed-reads";
 import { useMembers } from "../../../lib/members";
 import { useSession } from "../../../lib/session/use-session";
 import { useViewState } from "../../../lib/view-state/use-view-state";
+import { useLog } from "../-portfolio-sections/use-log";
 import { usePortfolioReads } from "../-portfolio-sections/use-portfolio-reads";
 
 /** A member as the members list has them: who, gain, balance, first entry. */
@@ -12,9 +13,11 @@ export type MemberRow = Members["members"][number];
  * A member's page's reads for the period: who they are and how they did, from
  * the members list; their portfolio and their balance over time once they
  * have started; and the viewer's own, to compare, when the viewer is in the
- * race too. `row` is `null` once the list has loaded without them.
+ * race too. In the admin's edit mode, `editing`, their log too, for the
+ * latest changes and the day the cash was set. `row` is `null` once the list
+ * has loaded without them.
  */
-export function useMemberData(userId: Id) {
+export function useMemberData(userId: Id, editing: boolean) {
   const { person } = useSession();
   const { setting } = useViewState();
   const members = useMembers(setting.period);
@@ -28,6 +31,7 @@ export function useMemberData(userId: Id) {
 
   const theirs = usePortfolioReads(userId, started);
   const yours = usePortfolioReads(person.id, comparing);
+  const theirLog = useLog(userId, theirs.portfolio.data, started && editing);
   return {
     row,
     viewer: comparing ? viewer : undefined,
@@ -35,6 +39,8 @@ export function useMemberData(userId: Id) {
     history: theirs.history.data,
     yourHistory: yours.history.data,
     yourPortfolio: yours.portfolio.data,
-    ...neededReads([members, theirs.portfolio, theirs.history]),
+    logRows: theirLog.rows,
+    cashSetAt: theirLog.cashSetAt,
+    ...neededReads([members, theirs.portfolio, theirs.history, theirLog.log]),
   };
 }
