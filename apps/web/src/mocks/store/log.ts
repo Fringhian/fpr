@@ -56,7 +56,6 @@ export function toCash(
   };
 }
 
-/** A person's entries of one type up to and including `entry`, in the log's order, oldest first. */
 function upTo<Entry extends StoredEntry>(
   store: MockStore,
   entry: Entry,

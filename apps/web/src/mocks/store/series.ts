@@ -53,7 +53,6 @@ export function firstEntryMs(store: MockStore, userId: Id): number | null {
   return first;
 }
 
-/** The close of the first trading day ending at or after a moment. */
 function firstCloseFrom(atMs: number): number {
   let day = dayOf(atMs);
   while (!isTradingDay(day) || closeAt(day) < atMs) {

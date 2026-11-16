@@ -55,7 +55,6 @@ function holdingView(
   };
 }
 
-/** The balance's gain from the period's start to now, measured as the series' points are. */
 function gainNow(
   store: MockStore,
   userId: Id,

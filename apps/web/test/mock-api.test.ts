@@ -86,7 +86,6 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
   };
 }
 
-/** A share's value at the close of a moment's day: its first price before it has one, zero with none. */
 async function dayClose(
   client: ApiClient,
   shareId: string,

@@ -7,7 +7,6 @@ import { formatDate, formatTime } from "../../../../lib/format/date";
 import { useLanguage } from "../../../../lib/i18n";
 import { raceDayOf, raceTimeZone, raceToday } from "../../../../lib/race-day";
 
-/** A run's moment: its time today, “14:30”, else its day too, “Mon 3 Mar, 09:00”. */
 function useWhen(): (at: Timestamp) => string {
   const { t } = useTranslation();
   const language = useLanguage();
@@ -24,7 +23,6 @@ function useWhen(): (at: Timestamp) => string {
   };
 }
 
-/** “Last run 14:30, 12 shares priced · next 15:00”. */
 function useRunsLine(): (state: RefreshState) => string {
   const { t } = useTranslation();
   const when = useWhen();

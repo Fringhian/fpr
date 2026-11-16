@@ -15,7 +15,6 @@ function refusesPicture(error: unknown): boolean {
   );
 }
 
-/** The refusal the API would answer a file with, before it is sent, or `null`. */
 function pictureRefusal(file: File): ORPCError<string, unknown> | null {
   if (oneOf(avatarMediaTypes, file.type) === undefined) {
     return new ORPCError("avatar_type_unsupported");

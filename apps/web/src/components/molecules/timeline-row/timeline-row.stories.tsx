@@ -74,7 +74,7 @@ interface TimelineRowArgs {
   actionsIcon: keyof typeof ACTIONS_ICONS;
 }
 
-/** The kind's own fields, from the args. A `weight` makes a share change or a cash balance an anonymous viewer's. */
+/** The kind's own fields, from the args. */
 function entryOf(args: TimelineRowArgs): TimelineRow.TimelineEntry {
   switch (args.kind) {
     case "bought":

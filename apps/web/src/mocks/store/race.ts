@@ -40,7 +40,6 @@ export function compareGains(unit: "eur" | "percent") {
   };
 }
 
-/** A member's three largest priced holdings now, each in percent of their balance now. */
 function topHoldings(store: MockStore, userId: Id) {
   const { holdings, balanceEur } = holdingsNow(store, userId);
   return {

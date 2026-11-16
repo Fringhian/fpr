@@ -122,7 +122,6 @@ function describeHolding(
   };
 }
 
-/** An anonymous viewer's entry: its weight in the portfolio, signed for a change, in place of before → after. */
 function describeWeighed(
   entry: WeighedSummary,
   t: TFunction,

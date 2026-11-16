@@ -22,11 +22,6 @@ const SHOWN = 4;
 
 type Step = { at: Timestamp; sold: boolean; quantity: Decimal; after: Decimal };
 
-/**
- * The moments the quantity held changed before `beforeMs`, the last few,
- * oldest first: each point of the holding's history that differs from the
- * one before it.
- */
 function stepsOf(
   points: readonly PortfolioHoldingHistoryPoint[],
   beforeMs: number,
@@ -75,7 +70,6 @@ function StepRow({ step }: { step: Step }) {
   );
 }
 
-/** The sale being recorded: what is left after it, once its quantity is known. */
 function SaleRow() {
   const { t } = useTranslation();
   const language = useLanguage();

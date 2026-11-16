@@ -115,7 +115,6 @@ export function createCalendar(now: Date): Calendar {
   };
 }
 
-/** The same day `months` calendar months earlier, on the month's last day when it has fewer. */
 function monthsBefore(day: IsoDate, months: number): IsoDate {
   const [year = 0, month = 1, date = 1] = day.split("-").map(Number);
   const first = new Date(Date.UTC(year, month - 1 - months, 1));

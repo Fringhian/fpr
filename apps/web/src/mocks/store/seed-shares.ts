@@ -5,11 +5,6 @@ import type { FixtureShare } from "../fixtures/shares.ts";
 import type { Calendar } from "./calendar.ts";
 import type { StoredEntry, StoredShare } from "./types.ts";
 
-/**
- * When a share was stored: a few minutes before its first change, as a
- * lookup comes before the change, or with its first value; a month ago for
- * one nobody recorded.
- */
 function addedAtMs(
   shareId: Id,
   entries: readonly StoredEntry[],
