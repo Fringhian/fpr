@@ -28,18 +28,9 @@ export function createQueryClient({
 }: {
   onSessionExpired: () => void;
 }): QueryClient {
-  // By default `onlineManager` assumes online until an `offline` event, so an
-  // app opened with no network wouldn't know it.
-  onlineManager.setEventListener((setOnline) => {
-    const update = () => setOnline(navigator.onLine);
-    update();
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
-    };
-  });
+  // `onlineManager` assumes online until an `offline` event: an app opened
+  // with no network starts offline instead.
+  onlineManager.setOnline(navigator.onLine !== false);
   const endExpiredSession = (error: unknown) => {
     if (isApiError(error, "unauthenticated") && holdsSession(queryClient)) {
       onSessionExpired();
