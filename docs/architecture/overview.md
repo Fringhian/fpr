@@ -43,7 +43,7 @@ flowchart LR
 
 - `api` and `prices` log with pino, one JSON line per event on standard output, each with the time, the level, the service, and a message. In development, `pino-pretty` prints them readably.
 - `api` logs every request with a request id, the method, the route, the status, the duration, and the signed-in person's id, and returns the id in `X-Request-Id`. `web`'s nginx writes one JSON access line per request, carrying the same id for requests proxied to `api`.
-- Every error is logged at `error` with its stack and its request id or price run.
+- An unexpected failure is logged at `error` with its stack and its request id or price run. A refusal with a declared error code, `400 invalid_request` included, is logged at `info` with its code and request id, and an invalid request's issue paths, never its values.
 - Passwords, access keys, reset keys, and session cookies are never logged.
 
 Vector collects every container's output into VictoriaLogs: see `deployment.md`, Logs.
