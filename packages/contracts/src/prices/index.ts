@@ -3,7 +3,7 @@ import {
   pricesDeleteManualPrice,
   pricesUpdateManualPrice,
 } from "./manual-prices.js";
-import { pricesRefresh } from "./refresh.js";
+import { pricesRefresh, pricesRefreshState } from "./refresh.js";
 import {
   pricesCreateManual,
   pricesCreateMarket,
@@ -35,6 +35,7 @@ export const pricesContract = {
   deleteShare: pricesDeleteShare,
   makeManual: pricesMakeManual,
   refresh: pricesRefresh,
+  refreshState: pricesRefreshState,
 };
 
 export type PricesContract = typeof pricesContract;
