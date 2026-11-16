@@ -21,13 +21,15 @@ const compact = cva(
         // Out of reach while the page bar is in view, so its controls are
         // never there twice.
         away: ["pointer-events-none invisible -translate-y-full opacity-0"],
-        // Tucked, it stays in the tab order: focus moving into it brings it back.
+        // Tucked, it stays in the tab order: keyboard focus moving into it
+        // brings it back. A tap focuses without `:focus-visible`, so it
+        // leaves the bar tucked as the page scrolls on.
         tucked: [
           "pointer-events-none visible -translate-y-full opacity-0",
           "",
           "",
           "",
-          "focus-within:pointer-events-auto focus-within:translate-y-0 focus-within:opacity-100",
+          "has-focus-visible:pointer-events-auto has-focus-visible:translate-y-0 has-focus-visible:opacity-100",
         ],
         shown: ["pointer-events-auto visible translate-y-0 opacity-100"],
       },
