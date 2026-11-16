@@ -1,7 +1,7 @@
 import type { Decimal, Language } from "@fpr/contracts";
 import { decimalPattern } from "@fpr/contracts/values";
 import Big from "big.js";
-import { INTL_LOCALE } from "../../../lib/language";
+import { INTL_LOCALE } from "./language";
 
 // The language's decimal mark, from Intl, and the marks accepted between
 // thousands: Intl's own group mark, any space, and the other of `,` and `.`,

@@ -1,4 +1,4 @@
-import type { ErrorCode } from "@fpr/contracts";
+import type { ErrorCode, Id, IsinTakenDetails } from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
@@ -77,6 +77,15 @@ export function isApiError<const Code extends ErrorCode>(
   code: Code,
 ): error is ORPCError<Code, unknown> {
   return error instanceof ORPCError && error.code === code;
+}
+
+/** The share that already has the ISIN a write sent, when the API refused it with `isin_taken`. */
+export function isinTakenBy(error: unknown): Id | null {
+  if (!isApiError(error, "isin_taken")) {
+    return null;
+  }
+  const details = error.data as Partial<IsinTakenDetails> | undefined;
+  return details?.shareId ?? null;
 }
 
 /**

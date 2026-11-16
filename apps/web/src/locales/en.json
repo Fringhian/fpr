@@ -578,6 +578,58 @@
     "held": "In the race",
     "notHeld": "Not held by anyone"
   },
+  "shareLookup": {
+    "notHere": "Not here?",
+    "lookUp": "Look up {{q}} at the price provider",
+    "looking": "Looking up {{q}} at the price provider…",
+    "found": "Not in FPR yet. Found at the price provider:",
+    "add": "Add",
+    "addShare": "Add share",
+    "adding": "Adding…",
+    "cancel": "Cancel",
+    "isin": {
+      "label": "ISIN of {{name}}",
+      "help": "The price provider didn’t send it. It’s on your statement.",
+      "invalid": "Enter an ISIN: two letters, nine letters or digits, then a digit."
+    },
+    "openTaken": "Open that share",
+    "isinTaken": "Another share in FPR already has this ISIN.",
+    "none": "No share found for {{q}}",
+    "noneOther": "Nothing else found for {{q}}",
+    "noneHelp": "The price provider doesn’t track it. Create it and enter its value yourself.",
+    "noneOtherHelp": "If your share isn’t above, create it and enter its value yourself.",
+    "failed": "Can’t search the price provider right now",
+    "failedHelp": "You can still create the share by hand.",
+    "create": "Create a manual share"
+  },
+  "dayField": {
+    "today": "Today",
+    "pick": "Pick a day"
+  },
+  "newShare": {
+    "question": "Create a manual share",
+    "description": "For a share the price provider doesn’t track: members enter its value.",
+    "isin": {
+      "label": "ISIN",
+      "invalid": "Enter an ISIN: two letters, nine letters or digits, then a digit."
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Name as on your statement",
+      "missing": "Enter the share’s name."
+    },
+    "price": {
+      "label": "Value of one unit",
+      "invalid": "Enter a value above zero, such as 40.10."
+    },
+    "day": "On",
+    "help": "Everyone can update its value later.",
+    "openTaken": "Open that share",
+    "summary": "The new share",
+    "create": "Create share",
+    "creating": "Creating…",
+    "created": "{{name}} created"
+  },
   "recordChange": {
     "leave": "This change isn’t saved yet. The changes saved before it stay.",
     "kinds": {

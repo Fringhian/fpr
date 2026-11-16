@@ -592,6 +592,58 @@
     "held": "Dans la course",
     "notHeld": "Que personne ne détient"
   },
+  "shareLookup": {
+    "notHere": "Pas dans la liste ?",
+    "lookUp": "Chercher {{q}} chez le fournisseur de cours",
+    "looking": "Recherche de {{q}} chez le fournisseur de cours…",
+    "found": "Pas encore dans FPR. Trouvé chez le fournisseur de cours :",
+    "add": "Ajouter",
+    "addShare": "Ajouter l’action",
+    "adding": "Ajout…",
+    "cancel": "Annuler",
+    "isin": {
+      "label": "ISIN de {{name}}",
+      "help": "Le fournisseur de cours ne l’a pas envoyé. Il figure sur votre relevé.",
+      "invalid": "Saisissez un ISIN : deux lettres, neuf lettres ou chiffres, puis un chiffre."
+    },
+    "openTaken": "Ouvrir cette action",
+    "isinTaken": "Une autre action de FPR a déjà cet ISIN.",
+    "none": "Aucune action trouvée pour {{q}}",
+    "noneOther": "Rien d’autre trouvé pour {{q}}",
+    "noneHelp": "Le fournisseur de cours ne la suit pas. Créez-la et saisissez sa valeur vous-même.",
+    "noneOtherHelp": "Si votre action n’est pas ci-dessus, créez-la et saisissez sa valeur vous-même.",
+    "failed": "Impossible de chercher chez le fournisseur de cours pour l’instant",
+    "failedHelp": "Vous pouvez quand même créer l’action à la main.",
+    "create": "Créer une action manuelle"
+  },
+  "dayField": {
+    "today": "Aujourd’hui",
+    "pick": "Choisir un jour"
+  },
+  "newShare": {
+    "question": "Créer une action manuelle",
+    "description": "Pour une action que le fournisseur de cours ne suit pas : les membres saisissent sa valeur.",
+    "isin": {
+      "label": "ISIN",
+      "invalid": "Saisissez un ISIN : deux lettres, neuf lettres ou chiffres, puis un chiffre."
+    },
+    "name": {
+      "label": "Nom",
+      "placeholder": "Nom comme sur votre relevé",
+      "missing": "Saisissez le nom de l’action."
+    },
+    "price": {
+      "label": "Valeur d’une part",
+      "invalid": "Saisissez une valeur supérieure à zéro, comme 40,10."
+    },
+    "day": "Le",
+    "help": "Tout le monde peut mettre à jour sa valeur ensuite.",
+    "openTaken": "Ouvrir cette action",
+    "summary": "La nouvelle action",
+    "create": "Créer l’action",
+    "creating": "Création…",
+    "created": "{{name}} créée"
+  },
   "recordChange": {
     "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
     "kinds": {

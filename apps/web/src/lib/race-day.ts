@@ -56,3 +56,20 @@ export function localInstant(day: IsoDate, time: string): number {
 export function raceDayEnd(day: IsoDate): Timestamp {
   return new Date(localInstant(day, "23:59:59")).toISOString();
 }
+
+// How far before the device's clock something made today is dated, so a
+// clock a little ahead of the API's never makes it a future moment.
+const CLOCK_MARGIN_MS = 60_000;
+
+/**
+ * The moment something entered for `day` is saved at: a minute ago for
+ * today, but never before the day starts; a past day's last second for
+ * another, so it counts in that day's close.
+ */
+export function momentOfDay(day: IsoDate, today: IsoDate): Timestamp {
+  if (day !== today) return raceDayEnd(day);
+  const dayStart = localInstant(today, "00:00:00");
+  return new Date(
+    Math.max(Date.now() - CLOCK_MARGIN_MS, dayStart),
+  ).toISOString();
+}
