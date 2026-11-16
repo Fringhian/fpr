@@ -1,20 +1,12 @@
 import { WarningCircleIcon } from "@phosphor-icons/react/WarningCircle";
 import { WifiSlashIcon } from "@phosphor-icons/react/WifiSlash";
+import { onlineManager } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { type ReactNode, useSyncExternalStore } from "react";
+import { type ReactNode, useEffect, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../components/atoms/button/button";
 import type { PageMessageProps } from "../../components/templates/page-message/page-message";
 import { MessagePage } from "./message-page";
-
-function onConnectionChange(onChange: () => void) {
-  window.addEventListener("online", onChange);
-  window.addEventListener("offline", onChange);
-  return () => {
-    window.removeEventListener("online", onChange);
-    window.removeEventListener("offline", onChange);
-  };
-}
 
 /**
  * The message of a load that failed, with Retry: a whole page's, or a screen's
@@ -27,8 +19,8 @@ export function useLoadFailedMessage(
 ): PageMessageProps {
   const { t } = useTranslation();
   const offline = useSyncExternalStore(
-    onConnectionChange,
-    () => !navigator.onLine,
+    (onChange) => onlineManager.subscribe(onChange),
+    () => !onlineManager.isOnline(),
   );
 
   return {
@@ -47,9 +39,21 @@ export function useLoadFailedMessage(
   };
 }
 
-/** A page whose load failed, such as the session with no network, with Retry. */
+/**
+ * A page whose load failed, such as the session with no network, with Retry.
+ * It loads again by itself once the network comes back, as a screen's reads
+ * do.
+ */
 export function LoadFailed() {
   const router = useRouter();
+
+  useEffect(
+    () =>
+      onlineManager.subscribe((online) => {
+        if (online) void router.invalidate();
+      }),
+    [router],
+  );
 
   return (
     <MessagePage {...useLoadFailedMessage(() => void router.invalidate())} />
