@@ -230,6 +230,56 @@ describe("an anonymized response", () => {
     });
   });
 
+  it("keeps a sale's sign on its weight, never its amount", () => {
+    const schema = outputOf(apiContract.shares.holders);
+    const [buy, sale] = [
+      "019a0000-0000-7000-8000-000000000003",
+      "019a0000-0000-7000-8000-000000000004",
+    ];
+    const holders = schema.parse({
+      holders: [
+        {
+          person: {
+            id: memberId,
+            displayName: "Robin",
+            avatarUrl: null,
+            color: 3,
+          },
+          quantity: "4",
+          valueEur: "800.00",
+          weight: "80",
+          gain: { eur: "40.00", percent: "5.26" },
+          changes: [
+            {
+              id: buy,
+              quantityDelta: "6",
+              effectiveAt: "2026-03-02T10:00:00Z",
+            },
+            {
+              id: sale,
+              quantityDelta: "-2",
+              effectiveAt: "2026-03-03T10:00:00Z",
+            },
+          ],
+        },
+      ],
+    });
+    const weights = new Map([
+      [buy, "60"],
+      [sale, "20"],
+    ]);
+
+    const [holder] = (
+      anonymizeResponse(holders, schema, { ...replacements, weights }) as {
+        holders: { changes: { quantityDelta: string }[] }[];
+      }
+    ).holders;
+    expect(holder?.changes.map(({ quantityDelta }) => quantityDelta)).toEqual([
+      "60",
+      "-20",
+    ]);
+  });
+
   it("leaves the balance leaderboard its ranks and pseudonyms, without amounts", () => {
     const schema = outputOf(apiContract.race.leaderboard);
     const member = {

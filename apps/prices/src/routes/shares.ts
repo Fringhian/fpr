@@ -1,12 +1,12 @@
 import type { ShareSummary } from "@fpr/contracts";
 import {
+  attentionWindowStart,
   type Db,
   prices,
   type Share,
   shares,
   violatedConstraint,
 } from "@fpr/db";
-import { attentionWindowStart } from "../market/trading-day.js";
 import { service } from "../orpc.js";
 import { storeValuePoint } from "./value-point.js";
 

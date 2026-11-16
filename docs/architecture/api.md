@@ -89,7 +89,7 @@ Every error is `{ "error": { "code", "details" } }`. The web app turns the code 
 | `429` | `rate_limited` | Too many requests from one client address |
 | `429` | `call_budget_used` | A lookup or refresh once the day's provider calls are used |
 | `500` | `internal_error` | An unexpected failure, logged with its request id |
-| `503` | `provider_unavailable` | A lookup while the price provider doesn't answer |
+| `503` | `provider_unavailable` | A lookup while the price provider or the price service doesn't answer, or a refresh that priced nothing |
 
 ## Routes
 
@@ -190,6 +190,7 @@ Periods are `1D`, `1W`, `1M`, `3M`, `YTD`, and `all`. Every gain is `{ eur, perc
 | `GET /admin/shares` | admin area | Every stored share, grouped as needing attention, tracked, manual, or not held |
 | `POST /admin/shares/:id/make-manual` | admin | Turn a market share that needs attention into a manual share |
 | `POST /admin/prices/refresh` | admin | Run the price refresh now |
+| `GET /admin/prices/refresh` | admin area | The refresh's last run, next run, and the day's provider calls against the cap |
 
 The rules on roles, the last admin, and access are in `auth.md`, Admin rules. Making manual and refreshing go through the price service.
 

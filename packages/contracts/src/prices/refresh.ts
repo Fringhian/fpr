@@ -1,6 +1,6 @@
 import { errorMap } from "../contract.js";
+import { refreshRunSchema, refreshStateSchema } from "../schemas/refresh.js";
 import { internalRoute } from "./base.js";
-import { pricesRefreshRunSchema, pricesRefreshStateSchema } from "./schemas.js";
 
 export const pricesRefresh = internalRoute
   .route({
@@ -8,7 +8,7 @@ export const pricesRefresh = internalRoute
     path: "/refresh",
     summary: "Run the intraday refresh now",
   })
-  .output(pricesRefreshRunSchema)
+  .output(refreshRunSchema)
   .errors(
     errorMap("refresh_running", "call_budget_used", "provider_unavailable"),
   );
@@ -19,4 +19,4 @@ export const pricesRefreshState = internalRoute
     path: "/refresh",
     summary: "Read the intraday refresh's state",
   })
-  .output(pricesRefreshStateSchema);
+  .output(refreshStateSchema);

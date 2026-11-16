@@ -56,8 +56,20 @@ function replace(
     case "quantity":
       return value === null
         ? null
-        : weightOf(parent, key, replacements.weights);
+        : signed(value, weightOf(parent, key, replacements.weights));
   }
+}
+
+/**
+ * The weight with the quantity's sign: a sale stays negative and a purchase
+ * positive, which shows the direction of a change and never its amount. A
+ * zero weight stays `0`, as a decimal string has no negative zero.
+ */
+function signed(quantity: unknown, weight: unknown): unknown {
+  const negative = typeof quantity === "string" && quantity.startsWith("-");
+  return negative && typeof weight === "string" && /[1-9]/.test(weight)
+    ? `-${weight.replace(/^-/, "")}`
+    : weight;
 }
 
 function walkObject(

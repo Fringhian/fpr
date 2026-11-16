@@ -1,8 +1,7 @@
 import type { IsoDate } from "@fpr/contracts";
 import type { PricesHistory } from "@fpr/contracts/prices";
-import { prices, shares } from "@fpr/db";
+import { lastTradingDay, prices, shares } from "@fpr/db";
 import { RatesError } from "../market/rates.js";
-import { lastTradingDay } from "../market/trading-day.js";
 import { ProviderError } from "../providers/index.js";
 import { missingCloses, recordHistoryStart } from "./closes.js";
 import type { PricedShare, PricingDeps } from "./deps.js";

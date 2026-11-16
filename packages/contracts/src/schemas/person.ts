@@ -34,3 +34,13 @@ export const personSchema = z.object({
 });
 
 export type Person = z.infer<typeof personSchema>;
+
+/**
+ * Who made an entry or entered a value: the member, or the admin for them.
+ * `null` once that person is deleted.
+ */
+export const madeBySchema = z
+  .object({ id: idSchema, displayName: personal(displayNameSchema) })
+  .nullable();
+
+export type MadeBy = z.infer<typeof madeBySchema>;

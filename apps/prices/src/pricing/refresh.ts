@@ -1,12 +1,8 @@
 import { randomUUID } from "node:crypto";
-import type {
-  PricesRefreshRun,
-  PricesRefreshState,
-} from "@fpr/contracts/prices";
-import type { HeldMarketShare } from "@fpr/db";
+import type { RefreshRun, RefreshState } from "@fpr/contracts";
+import { type HeldMarketShare, lastTradingDay } from "@fpr/db";
 import type { Cron } from "croner";
 import { dayIn } from "../market/time.js";
-import { lastTradingDay } from "../market/trading-day.js";
 import type { ProviderErrorReason } from "../providers/index.js";
 import { closesJobs, fetchCloses, recordHistoryStarts } from "./closes.js";
 import type { PricingDeps } from "./deps.js";
@@ -15,7 +11,7 @@ import { storePrices } from "./store.js";
 
 /** A finished run, and why it failed when a call did. */
 export interface RefreshOutcome {
-  run: PricesRefreshRun;
+  run: RefreshRun;
   cause: ProviderErrorReason | undefined;
 }
 
@@ -25,10 +21,8 @@ export interface Refresh {
    * their latest prices. Resolves with `undefined`, running nothing, while
    * another run is going.
    */
-  run(
-    trigger: PricesRefreshRun["trigger"],
-  ): Promise<RefreshOutcome | undefined>;
-  state(): PricesRefreshState;
+  run(trigger: RefreshRun["trigger"]): Promise<RefreshOutcome | undefined>;
+  state(): RefreshState;
 }
 
 export function createRefresh(
@@ -36,7 +30,7 @@ export function createRefresh(
   options: { listHeld: () => Promise<HeldMarketShare[]>; schedule: Cron },
 ): Refresh {
   let running = false;
-  let last: PricesRefreshRun | null = null;
+  let last: RefreshRun | null = null;
   let runsToday = { day: "", count: 0 };
   const today = () => dayIn(deps.now(), deps.timeZone);
 
@@ -77,7 +71,7 @@ export function createRefresh(
 
 async function refreshOnce(
   deps: PricingDeps,
-  trigger: PricesRefreshRun["trigger"],
+  trigger: RefreshRun["trigger"],
   held: readonly HeldMarketShare[],
 ): Promise<RefreshOutcome> {
   const startedAt = deps.now();
@@ -86,12 +80,9 @@ async function refreshOnce(
     sinceLastClose: false,
   });
   const finish = (
-    status: PricesRefreshRun["status"],
-    counts: Pick<
-      PricesRefreshRun,
-      "sharesPriced" | "closesStored" | "failures"
-    >,
-  ): PricesRefreshRun => ({
+    status: RefreshRun["status"],
+    counts: Pick<RefreshRun, "sharesPriced" | "closesStored" | "failures">,
+  ): RefreshRun => ({
     trigger,
     status,
     startedAt: startedAt.toISOString(),

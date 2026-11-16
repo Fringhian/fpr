@@ -4,6 +4,7 @@ import { portfolioChanges, type Share } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Auth } from "../../src/auth/auth.js";
+import { apiError } from "../../src/errors.js";
 import {
   createSeriesCache,
   type SeriesCache,
@@ -256,6 +257,31 @@ describe("POST /api/users/:userId/changes", () => {
           body: { from: "2026-03-03" },
         },
       ]);
+  });
+
+  it("saves the change when the history request fails, and logs the failure", async () => {
+    const member = await signedIn("member");
+    const market = await addShare(test.db);
+    prices.routes.fillHistory = async () => {
+      throw apiError("call_budget_used");
+    };
+    try {
+      await record(member, market, "1", "2026-03-02T10:00:00Z");
+
+      await expect
+        .poll(() =>
+          server
+            .lines()
+            .some(
+              (line) =>
+                line.message === "price history request failed" &&
+                line.shareId === market.id,
+            ),
+        )
+        .toBe(true);
+    } finally {
+      prices.reset();
+    }
   });
 
   it("asks for nothing once the share has closes in the week up to the change", async () => {

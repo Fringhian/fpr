@@ -1,5 +1,5 @@
 import { type Me, type Person, Role } from "@fpr/contracts";
-import type { User } from "@fpr/db";
+import { type Db, type User, users } from "@fpr/db";
 
 /**
  * A picture's object key: `avatars/<userId>/<version>.webp`. A new picture
@@ -40,6 +40,13 @@ export function toPerson(user: User): Person {
     avatarUrl: user.role === Role.anonymous ? null : avatarUrl(user),
     color: user.color,
   };
+}
+
+/** Every person as screens show them, by id. */
+export async function peopleById(db: Db): Promise<Map<string, Person>> {
+  return new Map(
+    (await users.list(db)).map((user) => [user.id, toPerson(user)]),
+  );
 }
 
 /** The sign-in email, or `null` for an anonymous viewer's generated one. */

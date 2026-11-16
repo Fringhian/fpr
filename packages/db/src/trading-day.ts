@@ -1,6 +1,3 @@
-import type { IsoDate } from "@fpr/contracts";
-import { dayIn } from "./time.js";
-
 /** The hour the daily-closes run fetches the previous trading day's closes. */
 const DAILY_CLOSES_HOUR = 7;
 
@@ -23,12 +20,13 @@ function hourIn(moment: Date, timeZone: string): number {
   );
 }
 
-/** Midnight UTC of a calendar day, to step through days. */
-function toMs(day: IsoDate): number {
+/** Midnight UTC of the calendar day a moment falls on in `timeZone`, to step through days. */
+function dayMs(moment: Date, timeZone: string): number {
+  const day = new Intl.DateTimeFormat("en-CA", { timeZone }).format(moment);
   return Date.parse(`${day}T00:00:00Z`);
 }
 
-function toDay(ms: number): IsoDate {
+function toDay(ms: number): string {
   return new Date(ms).toISOString().slice(0, 10);
 }
 
@@ -47,13 +45,13 @@ function weekdayBefore(ms: number): number {
 }
 
 /**
- * The last trading day whose close the daily run has fetched: the last
- * weekday before today in `timeZone`, or before yesterday until the run's
- * hour. On Tuesday at 08:00 it is Monday; on Tuesday at 06:00, Saturday, or
- * Monday, it is the Friday before.
+ * The last trading day whose close the daily run has fetched, as
+ * `YYYY-MM-DD`: the last weekday before today in `timeZone`, or before
+ * yesterday until the run's hour. On Tuesday at 08:00 it is Monday; on
+ * Tuesday at 06:00, Saturday, or Monday, it is the Friday before.
  */
-export function lastTradingDay(now: Date, timeZone: string): IsoDate {
-  const today = toMs(dayIn(now, timeZone));
+export function lastTradingDay(now: Date, timeZone: string): string {
+  const today = dayMs(now, timeZone);
   const reference =
     hourIn(now, timeZone) < DAILY_CLOSES_HOUR ? today - DAY_MS : today;
   return toDay(weekdayBefore(reference));
@@ -62,10 +60,11 @@ export function lastTradingDay(now: Date, timeZone: string): IsoDate {
 /**
  * The first of the last `ATTENTION_TRADING_DAYS` trading days, up to and
  * including the last trading day. A held market share with no close from that
- * day onward needs attention.
+ * day onward needs attention: the price service refuses to make any other
+ * share manual, and the admin area groups shares by the same day.
  */
-export function attentionWindowStart(now: Date, timeZone: string): IsoDate {
-  let day = toMs(lastTradingDay(now, timeZone));
+export function attentionWindowStart(now: Date, timeZone: string): string {
+  let day = Date.parse(`${lastTradingDay(now, timeZone)}T00:00:00Z`);
   for (let count = 1; count < ATTENTION_TRADING_DAYS; count += 1) {
     day = weekdayBefore(day);
   }

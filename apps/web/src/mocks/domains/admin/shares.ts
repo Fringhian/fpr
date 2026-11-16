@@ -29,6 +29,8 @@ function holdersOf(store: MockStore, share: StoredShare) {
 function toAdminShare(store: MockStore, share: StoredShare): AdminShare {
   return {
     ...toShareSummary(share),
+    exchange: share.exchange,
+    addedAt: timestamp(share.prices[0]?.atMs ?? store.calendar.nowMs),
     latestPrice: latestPrice(share, store.calendar.nowMs),
     holders: holdersOf(store, share).map(toPerson),
     hasShareChanges: store.entries.some(
@@ -129,4 +131,12 @@ export const adminShareRoutes = {
       finishedAt: timestamp(store.calendar.nowMs),
     };
   }),
+
+  refreshState: mock.admin.refreshState.handler(({ context }) => ({
+    lastRunAt: timestamp(context.store.calendar.nowMs),
+    lastResult: null,
+    nextRunAt: null,
+    runsToday: 0,
+    cap: { callLimit: 1000, callsToday: 0, callsLeft: 1000 },
+  })),
 };

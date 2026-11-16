@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { errorWithDetails } from "../contract.js";
-import { priceSources, shareKinds } from "../values.js";
+import { isinPattern, priceSources, shareKinds } from "../values.js";
 import { idSchema } from "./ids.js";
 import { currencySchema, priceEurSchema } from "./money.js";
 import { timestampSchema } from "./time.js";
@@ -10,7 +10,7 @@ export { priceSources, shareKinds };
 /** An ISIN: two letters, nine letters or digits, and a check digit. */
 export const isinSchema = z
   .string()
-  .regex(/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/, { error: "Expected an ISIN" });
+  .regex(isinPattern, { error: "Expected an ISIN" });
 
 export const shareKindSchema = z.enum(shareKinds);
 

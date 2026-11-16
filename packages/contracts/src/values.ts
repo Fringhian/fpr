@@ -64,6 +64,9 @@ export const accessKeyPattern = /^[A-Za-z0-9_-]{43}$/;
 export const idPattern =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 
+/** An ISIN: two letters, nine letters or digits, and a check digit. */
+export const isinPattern = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
+
 /** The longest text a shares search takes, in characters. */
 export const shareSearchMaxLength = 100;
 

@@ -898,6 +898,22 @@
           "summary": "Run the price refresh now"
         }
       }
+    },
+    "refreshState": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/admin/prices/refresh",
+          "summary": "The price refresh's state"
+        }
+      }
     }
   }
 }
