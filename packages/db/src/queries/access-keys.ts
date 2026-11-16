@@ -92,6 +92,32 @@ export async function hasAccess(
 }
 
 /**
+ * How many admins other than this person have access now. Run under
+ * `users.lockAdmins` before taking an admin's role or access away.
+ */
+export async function countOtherAdminsWithAccess(
+  db: Db,
+  userId: string,
+): Promise<number> {
+  const { count } = await db
+    .selectFrom("user")
+    .innerJoin("accessKeys", "accessKeys.userId", "user.id")
+    .select((eb) => eb.fn.count<string>("user.id").distinct().as("count"))
+    .where("user.role", "=", "admin")
+    .where("user.id", "<>", userId)
+    .where("accessKeys.claimedAt", "is not", null)
+    .where("accessKeys.revokedAt", "is", null)
+    .where((eb) =>
+      eb.or([
+        eb("accessKeys.accessUntil", "is", null),
+        eb("accessKeys.accessUntil", ">", sql<Date>`now()`),
+      ]),
+    )
+    .executeTakeFirstOrThrow();
+  return Number(count);
+}
+
+/**
  * Sets `claimedAt` on a key not claimed yet, to `at` or now. Resolves with
  * the claimed row, or `undefined` when the key is unknown or already claimed.
  */

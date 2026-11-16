@@ -61,6 +61,24 @@ export async function listIds(db: Db): Promise<string[]> {
   return rows.map((row) => row.id);
 }
 
+/**
+ * The ids of the people with a share change or a cash balance, among
+ * `userIds` when given, each once.
+ */
+export async function idsWithPortfolioEntries(
+  db: Db,
+  userIds?: readonly string[],
+): Promise<Set<string>> {
+  const owners = (table: "portfolioChanges" | "cashBalances") => {
+    const query = db.selectFrom(table).select("userId");
+    return userIds === undefined ? query : query.where("userId", "in", userIds);
+  };
+  const rows = await owners("portfolioChanges")
+    .union(owners("cashBalances"))
+    .execute();
+  return new Set(rows.map((row) => row.userId));
+}
+
 /** Adds a person, with their email in lowercase. */
 export async function insert(db: Db, user: NewUser): Promise<User> {
   return db
@@ -124,6 +142,19 @@ const COLOR_LOCK = 2;
  */
 export async function lockColors(trx: Transaction<Database>): Promise<void> {
   await sql`select pg_advisory_xact_lock(${COLOR_LOCK}, 0)`.execute(trx);
+}
+
+/** The first key of FPR's advisory lock on who is an admin with access. */
+const ADMINS_LOCK = 3;
+
+/**
+ * Takes the lock on who is an admin with access until the transaction ends.
+ * Every write that can take an admin's role or access away takes it before
+ * counting the other admins, so two admins can't each remove the other at
+ * once and leave none.
+ */
+export async function lockAdmins(trx: Transaction<Database>): Promise<void> {
+  await sql`select pg_advisory_xact_lock(${ADMINS_LOCK}, 0)`.execute(trx);
 }
 
 /**
