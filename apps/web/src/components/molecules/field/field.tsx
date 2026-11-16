@@ -1,8 +1,8 @@
-import { Button as BaseButton } from "@base-ui/react/button";
 import { Field as BaseField } from "@base-ui/react/field";
 import { type ComponentProps, createContext, use, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { cn, stateClassName } from "../../../lib/cn";
+import { stateClassName } from "../../../lib/cn";
+import { Button } from "../../atoms/button/button";
 import { Input, type InputProps } from "../../atoms/input/input";
 
 /** Whether the field around a control is disabled, so the Show button follows it. */
@@ -102,16 +102,6 @@ function FieldError({ className, match, children, ...props }: ErrorProps) {
 
 export { FieldError as Error };
 
-const toggle = cn(
-  "-mr-xs flex min-h-[1.75rem] cursor-pointer items-center rounded-full px-xs text-secondary",
-  "",
-  "",
-  "",
-  "not-disabled:hover:text-primary",
-  "focus-visible:focus-ring",
-  "disabled:cursor-not-allowed disabled:text-secondary/55",
-);
-
 /** Every prop of the Input atom but `type` and `end`, which the password sets: its type follows Show, and Show holds its end. */
 export type PasswordProps = Omit<InputProps, "type" | "end">;
 
@@ -137,14 +127,16 @@ export function Password(props: PasswordProps) {
       {...props}
       type={shown ? "text" : "password"}
       end={
-        <BaseButton
+        <Button
+          intent="ghost"
+          size="s"
           aria-label={toggleName}
           disabled={toggleDisabled}
           onClick={() => setShown((value) => !value)}
-          className={toggle}
+          className="me-[-0.625rem]"
         >
           {toggleText}
-        </BaseButton>
+        </Button>
       }
     />
   );

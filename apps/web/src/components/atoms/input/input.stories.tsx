@@ -3,33 +3,16 @@ import { XIcon } from "@phosphor-icons/react/X";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { cn } from "../../../lib/cn";
-import { Icon } from "../../foundations/icon/icon";
+import { Button } from "../button/button";
+import { IconButton } from "../icon-button/icon-button";
 import { Input, type InputProps } from "./input";
 
-/** Stands in for the small text button the end slot holds, until the Button atom lands. */
-function EndButton({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label?: string;
-}) {
+/** A ghost button in the end slot, pulled towards the edge. */
+function EndButton({ children }: { children: ReactNode }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      className={cn(
-        "flex min-h-[2rem] items-center rounded-full px-xs text-secondary",
-        "",
-        "",
-        "",
-        "hover:text-primary",
-        "focus-visible:focus-ring",
-      )}
-    >
+    <Button intent="ghost" size="s" className="me-[-0.625rem]">
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -40,9 +23,12 @@ const ENDS = {
   show: <EndButton>Show</EndButton>,
   all: <EndButton>All</EndButton>,
   clear: (
-    <EndButton label="Clear the search">
-      <Icon icon={XIcon} size="s" />
-    </EndButton>
+    <IconButton
+      icon={XIcon}
+      label="Clear the search"
+      size="s"
+      className="-me-xs"
+    />
   ),
 };
 

@@ -1,11 +1,9 @@
-import { useRender } from "@base-ui/react/use-render";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import {
   type ComponentProps,
   type ReactElement,
   type ReactNode,
   useId,
-  useMemo,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
@@ -13,10 +11,8 @@ import {
   type Decimal,
   formatDate,
   formatMoney,
-  formatPercent,
   formatQuantity,
   formatTime,
-  type IsoDate,
   type Timestamp,
 } from "../../../lib/format";
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
@@ -25,15 +21,19 @@ import { Badge } from "../../atoms/badge/badge";
 import { Card } from "../../atoms/card/card";
 import { GainChip } from "../../atoms/gain-chip/gain-chip";
 import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
-import { TextLink } from "../../atoms/text-link/text-link";
-import { Icon, type IconProps } from "../../foundations/icon/icon";
-import {
-  Chart,
-  type ChartColor,
-  type ChartLine,
-  type ChartPoint,
-} from "../chart/chart";
+import type { IconProps } from "../../foundations/icon/icon";
+import type { ChartColor, ChartPoint } from "../chart/chart";
 import * as Menu from "../menu/menu";
+import {
+  CardFigure,
+  Curve,
+  caption,
+  card,
+  foot,
+  NameLink,
+} from "./holding-card-parts";
+
+export { CashCard, type CashCardProps } from "./cash-card";
 
 /** Where a price comes from: a daily close, the 30-minute refresh, or a value point a member entered. */
 export type PriceSource = "close" | "intraday" | "manual";
@@ -45,96 +45,7 @@ export interface HoldingPrice {
   source: PriceSource;
 }
 
-const card = "relative flex min-w-0 flex-col gap-s p-m font-sans text-primary";
-
-/** The value line, at the card's foot whatever the height of the cards beside it. */
-const foot = "mt-auto flex flex-wrap items-center justify-between gap-s";
-
-const caption = "text-xs text-secondary";
-
-const big = "text-l font-semibold tabular-nums";
-
-interface WeightProps {
-  weight: Decimal | null;
-}
-
-/** What an anonymous viewer sees in place of an amount: its weight in the portfolio. */
-function Weight({ weight }: WeightProps) {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  return weight === null ? null : (
-    <span className="flex flex-wrap items-baseline gap-x-xs">
-      <span className={big}>{formatPercent(weight, language)}</span>
-      <span className={caption}>{t("holdingCard.ofPortfolio")}</span>
-    </span>
-  );
-}
-
-interface NameLinkProps {
-  name: string;
-  link: ReactElement;
-  icon: IconProps["icon"];
-}
-
-/**
- * The name as a link to the share's page. Its hit area stretches over the
- * whole card, under the ⋯ button, and its focus ring draws round the card.
- */
-function NameLink({ name, link, icon }: NameLinkProps) {
-  return useRender({
-    render: link,
-    defaultTagName: "a",
-    props: {
-      className: cn(
-        "flex min-w-0 items-center gap-xs text-primary no-underline outline-none after:absolute after:inset-0 after:rounded-l after:content-['']",
-        "",
-        "",
-        "",
-        "hover:underline",
-        "focus-visible:after:focus-ring",
-      ),
-      children: (
-        <>
-          <span className="truncate">{name}</span>
-          <Icon icon={icon} size="s" className="text-secondary" />
-        </>
-      ),
-    },
-  });
-}
-
-interface CurveProps {
-  name: string;
-  points: readonly ChartPoint[];
-  color: ChartColor;
-}
-
-/** The share's price over the period, as a sparkline in the colour of the gain. */
-function Curve({ name, points, color }: CurveProps) {
-  const { t } = useTranslation();
-  const lines = useMemo<readonly ChartLine[]>(
-    () => [{ id: "price", label: name, color, points }],
-    [name, color, points],
-  );
-
-  return (
-    <Chart
-      variant="sparkline"
-      unit="money"
-      lines={lines}
-      label={t("holdingCard.curve", { name })}
-    />
-  );
-}
-
-const CURVE_COLORS = {
-  positive: "positive",
-  negative: "negative",
-  flat: "muted",
-} as const satisfies Record<string, ChartColor>;
-
-interface HoldingCardOwnProps {
+export type HoldingCardProps = {
   /** The share's name. */
   name: string;
   /** `manual` for a share members value by hand: a Manual badge, and its value “as of” the day of its last value point. */
@@ -165,10 +76,128 @@ interface HoldingCardOwnProps {
   actionsIcon?: IconProps["icon"] | undefined;
   /** The time zone a price's time and day are read in. The browser's by default. */
   timeZone?: string | undefined;
+} & Omit<
+  ComponentProps<"article">,
+  | "name"
+  | "kind"
+  | "quantity"
+  | "latestPrice"
+  | "curve"
+  | "valueEur"
+  | "weight"
+  | "gain"
+  | "unit"
+  | "anonymous"
+  | "link"
+  | "linkIcon"
+  | "actions"
+  | "actionsIcon"
+  | "timeZone"
+  | "children"
+>;
+
+const CURVE_COLORS = {
+  positive: "positive",
+  negative: "negative",
+  flat: "muted",
+} as const satisfies Record<string, ChartColor>;
+
+/** The name, linked or not, the Manual badge, and the ⋯ menu. */
+function HoldingHeader({
+  nameId,
+  name,
+  kind,
+  link,
+  linkIcon,
+  actions,
+  actionsIcon,
+}: Pick<
+  HoldingCardProps,
+  "name" | "kind" | "link" | "actions" | "actionsIcon"
+> & { nameId: string; linkIcon: IconProps["icon"] }) {
+  return (
+    <div className="flex min-h-l items-center gap-s">
+      <p id={nameId} className="min-w-0 flex-1 text-s font-semibold">
+        {link === undefined ? (
+          <span className="block truncate">{name}</span>
+        ) : (
+          <NameLink name={name} link={link} icon={linkIcon} />
+        )}
+      </p>
+      {kind === "manual" ? <Badge state="manual" /> : null}
+      {actions === undefined ? null : (
+        <Menu.Root>
+          <Menu.MoreTrigger
+            subject={name}
+            icon={actionsIcon}
+            size="s"
+            className="relative"
+          />
+          <Menu.Popup>{actions}</Menu.Popup>
+        </Menu.Root>
+      )}
+    </div>
+  );
 }
 
-export type HoldingCardProps = HoldingCardOwnProps &
-  Omit<ComponentProps<"article">, keyof HoldingCardOwnProps | "children">;
+/** The quantity as entered, the latest price, and its time or day: “74.328 units · €40.10 · as of 14:30”. */
+function HoldingDetails({
+  quantity,
+  latestPrice,
+  anonymous,
+  timeZone,
+}: {
+  quantity: Decimal;
+  latestPrice: HoldingPrice | null;
+  anonymous: boolean;
+  timeZone: string | undefined;
+}) {
+  const { t } = useTranslation();
+  const language = useLanguage();
+
+  const priceTime =
+    latestPrice === null
+      ? null
+      : latestPrice.source === "intraday"
+        ? t("holdingCard.asOfTime", {
+            time: formatTime(latestPrice.at, language, { timeZone }),
+          })
+        : t(
+            latestPrice.source === "manual"
+              ? "holdingCard.asOfDate"
+              : "holdingCard.closeOf",
+            { date: formatDate(latestPrice.at, language, { timeZone }) },
+          );
+  const details = [
+    anonymous
+      ? null
+      : t("holdingCard.units", {
+          count: Number(quantity),
+          quantity: formatQuantity(quantity, language),
+        }),
+    latestPrice === null ? null : formatMoney(latestPrice.priceEur, language),
+    priceTime,
+  ].filter((part) => part !== null);
+
+  return details.length === 0 ? null : (
+    <p className={caption}>{details.join(" · ")}</p>
+  );
+}
+
+/** While the prices are pending: a loading line, and the holding said not counted yet. */
+function PendingFoot() {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <LoadingPlaceholder>{t("holdingCard.loadingPrices")}</LoadingPlaceholder>
+      <div className={foot}>
+        <Badge state="pricePending" />
+        <span className={caption}>{t("holdingCard.notCounted")}</span>
+      </div>
+    </>
+  );
+}
 
 /**
  * One share someone holds: its name, the quantity as entered with the latest
@@ -196,40 +225,15 @@ export function HoldingCard({
   className,
   ...props
 }: HoldingCardProps) {
-  const { t } = useTranslation();
   const language = useLanguage();
   const nameId = useId();
 
-  const pending = latestPrice === null;
   const shownGain: GainInput | null =
     gain === null || !anonymous ? gain : { percent: gain.percent };
   const tone =
     shownGain === null
       ? "flat"
       : (gainDisplay(shownGain, unit, language)?.tone ?? "flat");
-  const priceTime =
-    latestPrice === null
-      ? null
-      : latestPrice.source === "intraday"
-        ? t("holdingCard.asOfTime", {
-            time: formatTime(latestPrice.at, language, { timeZone }),
-          })
-        : t(
-            latestPrice.source === "manual"
-              ? "holdingCard.asOfDate"
-              : "holdingCard.closeOf",
-            { date: formatDate(latestPrice.at, language, { timeZone }) },
-          );
-  const details = [
-    anonymous
-      ? null
-      : t("holdingCard.units", {
-          count: Number(quantity),
-          quantity: formatQuantity(quantity, language),
-        }),
-    latestPrice === null ? null : formatMoney(latestPrice.priceEur, language),
-    priceTime,
-  ].filter((part) => part !== null);
 
   return (
     <Card
@@ -238,139 +242,40 @@ export function HoldingCard({
       aria-labelledby={nameId}
       className={cn(card, className)}
     >
-      <div className="flex min-h-l items-center gap-s">
-        <p id={nameId} className="min-w-0 flex-1 text-s font-semibold">
-          {link === undefined ? (
-            <span className="block truncate">{name}</span>
-          ) : (
-            <NameLink name={name} link={link} icon={linkIcon} />
-          )}
-        </p>
-        {kind === "manual" ? <Badge state="manual" /> : null}
-        {actions === undefined ? null : (
-          <Menu.Root>
-            <Menu.MoreTrigger
-              subject={name}
-              icon={actionsIcon}
-              size="s"
-              className="relative"
-            />
-            <Menu.Popup>{actions}</Menu.Popup>
-          </Menu.Root>
-        )}
-      </div>
-      {details.length === 0 ? null : (
-        <p className={caption}>{details.join(" · ")}</p>
-      )}
-      {pending ? (
-        <>
-          <LoadingPlaceholder>
-            {t("holdingCard.loadingPrices")}
-          </LoadingPlaceholder>
-          <div className={foot}>
-            <Badge state="pricePending" />
-            <span className={caption}>{t("holdingCard.notCounted")}</span>
-          </div>
-        </>
+      <HoldingHeader
+        nameId={nameId}
+        name={name}
+        kind={kind}
+        link={link}
+        linkIcon={linkIcon}
+        actions={actions}
+        actionsIcon={actionsIcon}
+      />
+      <HoldingDetails
+        quantity={quantity}
+        latestPrice={latestPrice}
+        anonymous={anonymous}
+        timeZone={timeZone}
+      />
+      {latestPrice === null ? (
+        <PendingFoot />
       ) : (
         <>
           {curve.length > 1 ? (
             <Curve name={name} points={curve} color={CURVE_COLORS[tone]} />
           ) : null}
           <div className={foot}>
-            {anonymous ? (
-              <Weight weight={weight} />
-            ) : valueEur === null || valueEur === undefined ? null : (
-              <span className={big}>
-                {formatMoney(valueEur, language, { precision: "euros" })}
-              </span>
-            )}
+            <CardFigure
+              anonymous={anonymous}
+              amountEur={valueEur}
+              weight={weight}
+            />
             {shownGain === null ? null : (
               <GainChip gain={shownGain} unit={unit} />
             )}
           </div>
         </>
       )}
-    </Card>
-  );
-}
-
-interface CashCardOwnProps {
-  /** The cash held, in euros. An anonymous viewer has none. */
-  amountEur?: Decimal | null | undefined;
-  /** The cash's weight in percent of the balance, shown to an anonymous viewer in place of the amount. */
-  weight: Decimal | null;
-  /** The day the cash was last set, or the moment of that entry. */
-  setOn?: IsoDate | Timestamp | undefined;
-  /** The viewer is anonymous: the weight in percent replaces the amount. */
-  anonymous?: boolean;
-  /** Opens the cash step of Record a change. Without it, the card has no Update cash action. */
-  onUpdateCash?: (() => void) | undefined;
-  /** The icon that ends Update cash, any Phosphor icon. A caret by default. */
-  updateCashIcon?: IconProps["icon"] | undefined;
-  /** The time zone a moment's day is read in. The browser's by default. */
-  timeZone?: string | undefined;
-}
-
-export type CashCardProps = CashCardOwnProps &
-  Omit<ComponentProps<"article">, keyof CashCardOwnProps | "children">;
-
-/** The cash someone holds, the last card after their holdings: its amount, the day it was set, and Update cash. */
-export function CashCard({
-  amountEur,
-  weight,
-  setOn,
-  anonymous = false,
-  onUpdateCash,
-  updateCashIcon,
-  timeZone,
-  className,
-  ...props
-}: CashCardProps) {
-  const { t } = useTranslation();
-  const language = useLanguage();
-  const titleId = useId();
-
-  return (
-    <Card
-      {...props}
-      render={<article />}
-      aria-labelledby={titleId}
-      className={cn(card, className)}
-    >
-      <p
-        id={titleId}
-        className="flex min-h-l items-center text-s font-semibold"
-      >
-        {t("holdingCard.cash")}
-      </p>
-      {setOn === undefined ? null : (
-        <p className={caption}>
-          {t("holdingCard.setOn", {
-            date: formatDate(setOn, language, { timeZone }),
-          })}
-        </p>
-      )}
-      <div className={foot}>
-        {anonymous ? (
-          <Weight weight={weight} />
-        ) : amountEur === null || amountEur === undefined ? null : (
-          <span className={big}>
-            {formatMoney(amountEur, language, { precision: "euros" })}
-          </span>
-        )}
-        {onUpdateCash === undefined ? null : (
-          <TextLink
-            toPage
-            toPageIcon={updateCashIcon}
-            render={<button type="button" />}
-            onClick={onUpdateCash}
-            className="cursor-pointer bg-transparent text-s"
-          >
-            {t("holdingCard.updateCash")}
-          </TextLink>
-        )}
-      </div>
     </Card>
   );
 }

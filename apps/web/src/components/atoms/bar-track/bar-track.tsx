@@ -70,7 +70,7 @@ export function BarTrack({
       {/* Always drawn, so a bar grows from or shrinks to nothing when the amount changes. */}
       <span
         className={cn(
-          "absolute inset-y-0 rounded-full transition-[left,right,width] duration-300 ease-out",
+          "absolute inset-y-0 rounded-full transition-[left,right,width] duration-l ease-soft",
           "",
           "",
           "",

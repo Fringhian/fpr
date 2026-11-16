@@ -123,7 +123,7 @@ export type PopupState = Pick<
 >;
 
 const popup =
-  "popup-motion w-[17.5rem] max-w-(--available-width) origin-(--transform-origin) rounded-[1.125rem] bg-surface px-m py-[0.875rem] font-sans text-s text-primary shadow-float outline-none";
+  "popup-motion w-[17.5rem] max-w-(--available-width) origin-(--transform-origin) rounded-card bg-surface px-m py-[0.875rem] font-sans text-s text-primary shadow-float outline-none";
 
 /**
  * The popup's placement, then every prop of Base UI's `Popover.Popup` but

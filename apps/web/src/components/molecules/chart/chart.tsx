@@ -24,6 +24,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
+import { cssVariable } from "../../../lib/css-variable";
 import {
   type Decimal,
   formatDate,
@@ -137,7 +138,7 @@ function dayOf(time: Time): IsoDate {
 
 /** A colour token's value, read where the chart sits so it follows the theme. */
 function token(element: Element, name: string): string {
-  return getComputedStyle(element).getPropertyValue(`--color-${name}`).trim();
+  return cssVariable(`--color-${name}`, element);
 }
 
 /** The options both variants share, styled from the tokens. */
@@ -531,7 +532,7 @@ export function Chart({
             "",
             "",
             "",
-            "motion-safe:transition-transform",
+            "motion-safe:transition-transform motion-safe:duration-s motion-safe:ease-soft",
           )}
         >
           <span className="whitespace-nowrap">{date}</span>

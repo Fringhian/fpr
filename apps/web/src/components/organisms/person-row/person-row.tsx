@@ -105,7 +105,7 @@ export function PersonRow({
     <li
       {...props}
       className={cn(
-        "col-span-full grid grid-cols-subgrid items-center rounded-[1.125rem] bg-surface px-[0.875rem] py-[0.625rem] shadow-outline",
+        "col-span-full grid grid-cols-subgrid items-center rounded-card bg-surface px-[0.875rem] py-[0.625rem] shadow-outline",
         "gap-y-[0.125rem]",
         "tablet:gap-y-0",
         "desktop:gap-y-0",

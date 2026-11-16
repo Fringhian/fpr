@@ -23,6 +23,10 @@ const twMerge = extendTailwindMerge({
       "rounded-l": [{ "rounded-l": ["none", "full", fromTheme("radius")] }],
     },
   },
+  extend: {
+    theme: { ease: ["soft"] },
+    classGroups: { duration: [{ duration: ["s", "m", "l"] }] },
+  },
 });
 
 /**

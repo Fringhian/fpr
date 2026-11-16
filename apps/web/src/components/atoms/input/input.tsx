@@ -4,12 +4,12 @@ import { cn } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 const box = cn(
-  "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-ring-[1.5px] inset-ring-divider",
+  "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-shadow-outline",
   "",
   "",
   "",
-  "focus-within:inset-ring-primary",
-  "has-invalid:inset-ring-error",
+  "focus-within:inset-shadow-primary",
+  "has-invalid:inset-shadow-error",
   "has-disabled:bg-page has-disabled:text-secondary/55",
 );
 
