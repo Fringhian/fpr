@@ -5,6 +5,7 @@ import { type Db, ping } from "@fpr/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
 import { createLogger } from "../src/logger.js";
+import type { Pricing } from "../src/pricing/pricing.js";
 
 vi.mock("@fpr/db", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@fpr/db")>();
@@ -29,11 +30,17 @@ async function serve(): Promise<Running> {
       callback();
     },
   });
-  const app = createApp({
+  // A pool that is never reached: these routes answer before Postgres, or
+  // fail on it as an unexpected error.
+  const deps = {
     db: {} as Db,
+    timeZone: "Europe/Paris",
+    now: () => new Date("2026-03-04T10:00:00+01:00"),
+  };
+  const app = createApp({
     logger: createLogger({ destination }),
     token: TOKEN,
-    timeZone: "Europe/Paris",
+    pricing: { deps } as unknown as Pricing,
   });
   const server: Server = await new Promise((resolve) => {
     const listening = app.listen(0, "127.0.0.1", () => resolve(listening));
@@ -135,6 +142,64 @@ describe("request logging", () => {
       req: { method: "GET" },
       res: { statusCode: 200 },
       route: "/health",
+    });
+  });
+
+  it("logs a refusal at info with its code and an invalid request's issue paths, and an unexpected failure at error with its stack", async () => {
+    running = await serve();
+    const post = (body: Record<string, unknown>) =>
+      fetch(`${running?.url}/shares/manual`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          isin: "QZ0EXAMPLE16",
+          name: "Example Certificate",
+          priceEur: "40.10",
+          at: "2026-03-02T05:10:00+01:00",
+          createdBy: "01900000-0000-7000-8000-000000000000",
+          ...body,
+        }),
+      });
+
+    const future = await post({ at: "2026-03-05T10:00:00+01:00" });
+    const invalid = await post({ priceEur: "secret-value-12" });
+    const broken = await post({});
+
+    expect([future.status, invalid.status, broken.status]).toEqual([
+      422, 400, 500,
+    ]);
+    const lines = running.rawLines
+      .join("")
+      .split("\n")
+      .filter((line) => line.length > 0)
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const lineOf = (response: Response) =>
+      lines.find(
+        (line) =>
+          line.requestId === response.headers.get("x-request-id") &&
+          line.message !== "request completed",
+      );
+    expect(lineOf(future)).toEqual(
+      expect.objectContaining({
+        level: "info",
+        code: "future_moment",
+        message: "request refused",
+      }),
+    );
+    expect(lineOf(future)).not.toHaveProperty("err");
+    expect(lineOf(invalid)).toMatchObject({
+      level: "info",
+      code: "invalid_request",
+      issues: [["priceEur"]],
+    });
+    expect(JSON.stringify(lineOf(invalid))).not.toContain("secret-value-12");
+    expect(lineOf(broken)).toMatchObject({
+      level: "error",
+      message: "unexpected error",
+      err: { stack: expect.stringContaining("Error") },
     });
   });
 

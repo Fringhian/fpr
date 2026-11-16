@@ -14,8 +14,8 @@ export interface ProviderListing {
   name: string;
   /** The provider's exchange code, such as `PA` or `XETRA`. */
   exchange: string;
-  /** The provider's country name for the listing, `null` when it has none. */
-  country: string | null;
+  /** The listing's country, as an ISO 3166 two-letter code, `null` when unknown. */
+  countryCode: string | null;
   /** The currency the provider quotes the listing in, such as `EUR` or `GBX`. */
   tradingCurrency: Currency;
   /** The provider's instrument type, such as `Common Stock`, `ETF`, or `FUND`. */
@@ -52,6 +52,8 @@ export interface PriceProvider {
   readonly latestBatchSize: number;
   /** The listings matching an ISIN or a ticker. One call. */
   lookup(query: string): Promise<ProviderListing[]>;
+  /** The listing of a symbol a lookup returned, `undefined` when gone. One call. */
+  listing(symbol: string): Promise<ProviderListing | undefined>;
   /**
    * The latest price of each listing, in as few requests as the provider
    * allows. A listing with no latest price, such as a fund or an unknown
@@ -60,8 +62,9 @@ export interface PriceProvider {
   latest(symbols: readonly string[]): Promise<ProviderQuote[]>;
   /**
    * The daily closes of a listing from `from` to `to`, both included, oldest
-   * first. One call. Rejects with `not_found` for a symbol the provider
-   * doesn't carry.
+   * first. One call. A close at or below zero is left out with a warning
+   * naming its symbol and day. Rejects with `not_found` for a symbol the
+   * provider doesn't carry.
    */
   closes(symbol: string, from: IsoDate, to: IsoDate): Promise<ProviderClose[]>;
 }

@@ -24,7 +24,7 @@ export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
 export * as resetKeys from "./queries/reset-keys.js";
 export * as sessions from "./queries/sessions.js";
-export type { ShareChanges } from "./queries/shares.js";
+export type { HeldMarketShare, ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";
 export * as users from "./queries/users.js";

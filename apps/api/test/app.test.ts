@@ -277,6 +277,35 @@ describe("contract routes", () => {
     });
   });
 
+  it("logs a refusal at info with its code and an invalid request's issue paths, without values or stack", async () => {
+    running = await serve(undefined, { router: testRouter });
+    const post = (id: string, amount: unknown) =>
+      fetch(`${running?.url}/api/things/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+    const missing = await post(MISSING, "1");
+    const invalid = await post(THING, "secret-amount-12");
+
+    const lineOf = (response: Response) =>
+      running?.lines.find(
+        (line) =>
+          line.requestId === response.headers.get("x-request-id") &&
+          line.message === "request refused",
+      );
+    expect(lineOf(missing)).toMatchObject({ level: "info", code: "not_found" });
+    expect(lineOf(missing)).not.toHaveProperty("err");
+    expect(lineOf(invalid)).toMatchObject({
+      level: "info",
+      code: "invalid_request",
+      issues: [["amount"]],
+    });
+    expect(JSON.stringify(running.lines)).not.toContain("secret-amount-12");
+    expect(running.lines.some((line) => line.level === "error")).toBe(false);
+  });
+
   it("answers a thrown error with internal_error, logged with its stack", async () => {
     running = await serve(undefined, { router: testRouter });
 
