@@ -13,6 +13,7 @@ FPR runs as three Docker images, Postgres, and S3-compatible storage. Any host t
 | `rustfs` | `rustfs/rustfs`, in the `storage` profile | None |
 | `victorialogs` | `victoriametrics/victoria-logs` | `LOGS_PORT`, default `9428`, on the loopback address |
 | `vector` | `deploy/vector.Dockerfile`: `timberio/vector` with `deploy/vector.yaml` | None |
+| `backup` | `deploy/backup.Dockerfile`: Postgres 18's client tools, rclone, and supercronic, with `deploy/backup/` | None |
 
 Every image is pinned to an exact version, in `compose.yaml` or in the Dockerfile that builds on it.
 
@@ -62,7 +63,31 @@ The API image runs pending migrations before starting the server (`database.md`)
 
 ## Backups
 
-Postgres holds all of FPR's data, the bucket holds the profile pictures, and the `victorialogs` volume holds the logs. Backing up an instance means dumping Postgres with `pg_dump`, copying the bucket, and copying the logs volume.
+Postgres holds all of FPR's data, the bucket holds the profile pictures, and the `victorialogs` volume holds the logs. The `backup` service copies all three to a backup bucket, an S3-compatible bucket off the host with its own key, on `BACKUP_SCHEDULE`. While `BACKUP_S3_BUCKET` is empty, backups are off: the service logs a warning and idles.
+
+Each run writes, in the backup bucket:
+
+| Key | Content |
+| --- | --- |
+| `postgres/fpr-<time>.dump` | The database, as a `pg_dump` custom-format file |
+| `pictures/current/` | A copy of the pictures bucket |
+| `logs/current/` | A copy of the `victorialogs` volume, mounted read-only |
+| `pictures/replaced/<time>/`, `logs/replaced/<time>/` | The files the run deleted or overwrote in each copy |
+
+`<time>` is the run's UTC time, `YYYYMMDDTHHMMSSZ`. After a run whose every step succeeded, the dumps and `replaced` folders older than `BACKUP_RETENTION_DAYS` are deleted; a failed run deletes nothing. A run logs each step, and a failed step logs at `error` with its output, followed by `Backup failed`. `docker compose exec backup fpr-backup` runs one at once.
+
+| Variable | Purpose |
+| --- | --- |
+| `BACKUP_SCHEDULE` | When runs start, a cron expression in UTC. Default `0 3 * * *` |
+| `BACKUP_RETENTION_DAYS` | How long dumps and replaced files are kept. Default `30` |
+| `BACKUP_S3_ENDPOINT`, `BACKUP_S3_REGION`, `BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY` | The backup bucket and its key |
+
+Restoring into a fresh instance, with the backup variables set:
+
+1. `docker compose run --rm backup fpr-restore database` restores the latest dump, or the one named after it from `fpr-restore list`, into the new, empty database. It refuses a database that already has tables, so it runs before `api` has migrated one.
+2. `docker compose run --rm backup fpr-restore pictures` copies the pictures into `S3_BUCKET`.
+3. For the logs, with `victorialogs` stopped: `docker compose run --rm --user root -v <logs volume>:/restore backup fpr-restore logs /restore`, where `<logs volume>` is the volume `docker volume ls` lists ending in `victorialogs-data`.
+4. `docker compose up -d` starts the instance.
 
 ## Development
 
@@ -76,7 +101,7 @@ Postgres holds all of FPR's data, the bucket holds the profile pictures, and the
 
 ## CI
 
-GitHub Actions runs on every pull request and every push to `main`: install, `biome ci`, typecheck, a check that `openapi.json` matches the contracts, `pnpm db:migrate` on a `postgres:18` service container, Vitest, build, a Storybook build with its accessibility checks, and a Docker build of each app. Tests never reach the network: the provider's and Frankfurter's HTTP calls are mocked. A pull request merges only when CI passes.
+GitHub Actions runs on every pull request and every push to `main`: install, `biome ci`, typecheck, a check that `openapi.json` matches the contracts, `pnpm db:migrate` on a `postgres:18` service container, Vitest, build, a Storybook build with its accessibility checks, and a Docker build of each app and of the backup image. Tests never reach the network: the provider's and Frankfurter's HTTP calls are mocked. A pull request merges only when CI passes.
 
 ## Deploy
 
