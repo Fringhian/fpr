@@ -7,6 +7,7 @@ import {
   personal,
   quantity,
 } from "../src/anonymize.js";
+import { anonymizeResponse } from "../src/anonymize-response.js";
 import { apiContract } from "../src/api/index.js";
 import { contractProcedures } from "../src/contract.js";
 import { decimalSchema } from "../src/decimal.js";
@@ -150,6 +151,116 @@ describe("the euro amounts of every response", () => {
       expect(field.key === "balanceEur" || percentageBeside(field)).toBe(true);
     },
   );
+});
+
+describe("an anonymized response", () => {
+  const memberId = "019a0000-0000-7000-8000-000000000001";
+  const share = {
+    id: "019a0000-0000-7000-8000-000000000002",
+    isin: "QZ0EXAMPLE16",
+    name: "Example fund",
+    kind: "market",
+    symbol: "EXF.PA",
+  };
+  const replacements = {
+    pseudonym: (id: string) => `Pseudonym of ${id}`,
+    weights: new Map<string, string>(),
+  };
+  const outputOf = (route: { "~orpc": { outputSchema?: unknown } }) =>
+    route["~orpc"].outputSchema as z.ZodType;
+
+  it("keeps percentages and prices, removes euros, and turns quantities and cash into weights", () => {
+    const schema = outputOf(apiContract.portfolio.get);
+    const portfolio = schema.parse({
+      latestPricesAt: "2026-03-02T17:30:00+01:00",
+      balanceEur: "1000.00",
+      sharesEur: "800.00",
+      sharesWeight: "80",
+      cashEur: "200.00",
+      cashWeight: "20",
+      gain: { eur: "50.00", percent: "5.26" },
+      firstEntryOn: "2026-01-05",
+      measuredFrom: null,
+      incomplete: false,
+      holdings: [
+        {
+          share,
+          quantity: "4",
+          valueEur: "800.00",
+          weight: "80",
+          gain: { eur: "40.00", percent: "5.26" },
+          latestPrice: {
+            at: "2026-03-02T17:30:00+01:00",
+            priceEur: "200.00",
+            source: "intraday",
+          },
+          pricesFrom: null,
+          series: [{ at: "2026-03-02T17:30:00+01:00", priceEur: "200.00" }],
+        },
+      ],
+    });
+
+    expect(anonymizeResponse(portfolio, schema, replacements)).toEqual({
+      latestPricesAt: "2026-03-02T17:30:00+01:00",
+      sharesWeight: "80",
+      cashEur: "20",
+      cashWeight: "20",
+      gain: { percent: "5.26" },
+      firstEntryOn: "2026-01-05",
+      measuredFrom: null,
+      incomplete: false,
+      holdings: [
+        {
+          share,
+          quantity: "80",
+          weight: "80",
+          gain: { percent: "5.26" },
+          latestPrice: {
+            at: "2026-03-02T17:30:00+01:00",
+            priceEur: "200.00",
+            source: "intraday",
+          },
+          pricesFrom: null,
+          series: [{ at: "2026-03-02T17:30:00+01:00", priceEur: "200.00" }],
+        },
+      ],
+    });
+  });
+
+  it("leaves the balance leaderboard its ranks and pseudonyms, without amounts", () => {
+    const schema = outputOf(apiContract.race.leaderboard);
+    const member = {
+      id: memberId,
+      displayName: "Robin",
+      avatarUrl: "/a",
+      color: 3,
+    };
+    const leaderboard = schema.parse({
+      board: "balance",
+      lastCloseOn: "2026-03-02",
+      rows: [
+        { member, balanceEur: "1000.00", incomplete: false, bestHolding: null },
+      ],
+      notStarted: [],
+    });
+
+    expect(anonymizeResponse(leaderboard, schema, replacements)).toEqual({
+      board: "balance",
+      lastCloseOn: "2026-03-02",
+      rows: [
+        {
+          member: {
+            ...member,
+            displayName: `Pseudonym of ${memberId}`,
+            avatarUrl: null,
+          },
+          incomplete: false,
+          bestHolding: null,
+        },
+      ],
+      notStarted: [],
+    });
+  });
 });
 
 describe("an anonymization mark", () => {
