@@ -26,6 +26,10 @@ export interface ApiServices {
   publicOrigin: string;
   /** `ADMIN_BOOTSTRAP_KEY`: the key `POST /setup` asks for. */
   bootstrapKey: string;
+  /** `PSEUDONYM_SECRET`: the key pseudonyms are derived with. */
+  pseudonymSecret: string;
+  /** `RACE_TIMEZONE`: where a day starts. */
+  raceTimeZone: string;
   /** The counts of the public writes' rate limit, per route and client address. */
   rateLimits: RateLimiter;
 }

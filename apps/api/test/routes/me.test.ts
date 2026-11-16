@@ -19,6 +19,7 @@ import {
   parseOutput,
   serveApp,
   signIn,
+  TEST_RACE_TIMEZONE,
   type TestPerson,
   type TestServer,
 } from "../test-support.js";
@@ -74,6 +75,8 @@ describe("GET /api/me", () => {
     expect(asMe(await response.json())).toEqual({
       id: person.id,
       role: "member",
+      email: person.email,
+      raceTimeZone: TEST_RACE_TIMEZONE,
       displayName: "Test member",
       avatarUrl: null,
       color: 1,
@@ -82,7 +85,7 @@ describe("GET /api/me", () => {
     });
   });
 
-  it("answers an anonymous viewer without a picture", async () => {
+  it("answers an anonymous viewer without a picture or an email", async () => {
     const viewer = await signedIn("anonymous");
     await users.update(test.db, viewer.id, { avatarKey: "avatars/x/y.webp" });
 
@@ -92,6 +95,7 @@ describe("GET /api/me", () => {
     expect(asMe(await response.json())).toMatchObject({
       role: "anonymous",
       avatarUrl: null,
+      email: null,
     });
   });
 });

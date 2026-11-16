@@ -50,14 +50,15 @@ export async function findByEmail(
     .executeTakeFirst();
 }
 
-/** Every person, by display name, then by when they were added. */
+/** Every person, in the order they were added: ids are UUIDv7. */
 export async function list(db: Db): Promise<User[]> {
-  return db
-    .selectFrom("user")
-    .selectAll()
-    .orderBy("displayName")
-    .orderBy("id")
-    .execute();
+  return db.selectFrom("user").selectAll().orderBy("id").execute();
+}
+
+/** Every person's id, in the order they were added. */
+export async function listIds(db: Db): Promise<string[]> {
+  const rows = await db.selectFrom("user").select("id").orderBy("id").execute();
+  return rows.map((row) => row.id);
 }
 
 /** Adds a person, with their email in lowercase. */

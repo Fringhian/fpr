@@ -40,6 +40,13 @@ export const SESSION_COOKIE = "__Secure-better-auth.session_token";
 export const TEST_BOOTSTRAP_KEY =
   "a-test-bootstrap-key-of-at-least-32-characters";
 
+/** `PSEUDONYM_SECRET` in tests. */
+export const TEST_PSEUDONYM_SECRET =
+  "a-test-pseudonym-secret-of-at-least-32-characters";
+
+/** `RACE_TIMEZONE` in tests. */
+export const TEST_RACE_TIMEZONE = "Europe/Paris";
+
 /** Better Auth on a test database, as `index.ts` builds it. */
 export function createTestAuth(db: Db): Auth {
   return createAuth({
@@ -121,6 +128,8 @@ export async function serveApp(options: {
     avatars: options.avatars ?? createTestBucket().avatars,
     publicUrl: TEST_PUBLIC_URL,
     bootstrapKey: TEST_BOOTSTRAP_KEY,
+    pseudonymSecret: TEST_PSEUDONYM_SECRET,
+    raceTimeZone: TEST_RACE_TIMEZONE,
     logger: createLogger({ destination }),
   });
   const server: Server = await new Promise((resolve) => {
