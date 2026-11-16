@@ -1,5 +1,6 @@
 import { Form } from "@base-ui/react/form";
 import { useMutation } from "@tanstack/react-query";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FormError } from "../../components/molecules/form-error/form-error";
 import { useAccessChecks } from "../../lib/access-checks";
@@ -21,13 +22,26 @@ export function NameSetting() {
   const checks = useAccessChecks();
   const { errors, formError, refuse, refuseError } = useRefusal(blame);
   const update = useMutation(api.me.update.mutationOptions());
+  // The name last sent, so Enter then leaving the field sends it once; `null`
+  // compares with the account's, after a refusal or before any save.
+  const sent = useRef<string | null>(null);
 
   const save = ({ displayName }: { displayName: string }) => {
     const name = displayName.trim();
     refuse(null);
-    if (name !== person.displayName) {
-      update.mutate({ displayName: name }, { onError: refuseError });
+    if (name === (sent.current ?? person.displayName)) {
+      return;
     }
+    sent.current = name;
+    update.mutate(
+      { displayName: name },
+      {
+        onError: (error) => {
+          sent.current = null;
+          refuseError(error);
+        },
+      },
+    );
   };
 
   return (
