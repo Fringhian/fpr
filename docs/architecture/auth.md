@@ -96,6 +96,6 @@ While no admin exists, `/setup` accepts the value of `ADMIN_BOOTSTRAP_KEY` with 
 
 - The admin changes a person's display name, email, role, and access end date.
 - Roles move between admin, member, and guest. Nobody becomes or stops being anonymous. A person with portfolio entries can't become a guest.
-- The last admin's access can't be revoked, ended, or replaced, and the last admin can't be deleted or change role.
+- The last admin, an admin while no other admin has access, can't have their access revoked, ended, or replaced, be deleted, or change role.
 - Revoking access, ending it, or deleting a person deletes their sessions at once.
 - Restoring access clears the revocation. The person signs in again with their password, or their link for an anonymous viewer.
