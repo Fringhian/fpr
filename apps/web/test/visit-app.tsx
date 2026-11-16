@@ -48,7 +48,8 @@ afterEach(() => {
  * wins. `empty` starts an instance with nobody yet. A route call whose URL
  * `hold` matches waits for `release()`, to look at the page mid-load.
  * `failPath` answers a server error to every route whose path starts with
- * it, as `?mock-fail=` does.
+ * it, as `?mock-fail=` does. `offline` opens the app with no network, until
+ * `setOnline(true)`.
  */
 export async function visit(
   path: string,
@@ -59,17 +60,19 @@ export async function visit(
     empty = false,
     hold = () => false,
     failPath,
+    offline = false,
   }: {
     failMe?: boolean;
     language?: Language | null;
     empty?: boolean;
     hold?: (url: URL) => boolean;
     failPath?: string;
+    offline?: boolean;
   } = {},
 ) {
   const { promise: released, resolve: release } = Promise.withResolvers();
-  let online = true;
-  const onLine = vi.spyOn(navigator, "onLine", "get");
+  let online = !offline;
+  const onLine = vi.spyOn(navigator, "onLine", "get").mockReturnValue(online);
   if (language === null) {
     localStorage.removeItem(LANGUAGE_KEY);
   } else {

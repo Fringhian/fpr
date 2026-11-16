@@ -205,4 +205,15 @@ describe("the route guards", () => {
     );
     expect(page.textContent).not.toContain("Retry");
   });
+
+  it("open on You're offline with no network, and load by themselves once back", async () => {
+    const { page, setOnline } = await visit("/members", "member", {
+      offline: true,
+    });
+    expect(page.textContent).toContain("You’re offline");
+
+    await setOnline(true);
+    await vi.waitFor(() => expect(page.querySelector("nav")).not.toBeNull());
+    expect(page.textContent).not.toContain("Retry");
+  });
 });
