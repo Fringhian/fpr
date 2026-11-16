@@ -13,7 +13,7 @@ import * as TimelineRow from "../../../components/molecules/timeline-row/timelin
 import { useApi } from "../../../lib/api/use-api";
 import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
-import { raceDayStart, raceTimeZone } from "../../../lib/race-day";
+import { inThisYear, raceDayStart, raceTimeZone } from "../../../lib/race-day";
 import { useFlow } from "./flow";
 import { useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
@@ -57,7 +57,11 @@ function StepRow({ step }: { step: Step }) {
   const kind = step.sold ? "sold" : "bought";
   return (
     <TimelineRow.Root>
-      <TimelineRow.Day date={step.at} timeZone={raceTimeZone()} />
+      <TimelineRow.Day
+        date={step.at}
+        timeZone={raceTimeZone()}
+        year={!inThisYear(step.at)}
+      />
       <TimelineRow.Marker icon={TimelineRow.TIMELINE_ICONS[kind]} />
       <TimelineRow.Title>
         {t(`recordChange.overTime.${kind}`, {
@@ -84,7 +88,7 @@ function SaleRow() {
       : undefined;
   return (
     <TimelineRow.Root>
-      <TimelineRow.Day date={draft.day} />
+      <TimelineRow.Day date={draft.day} year={!inThisYear(draft.day)} />
       <TimelineRow.Marker icon={TimelineRow.TIMELINE_ICONS.sold} />
       <TimelineRow.Title>
         {t("recordChange.overTime.thisSale")}
