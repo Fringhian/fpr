@@ -19,6 +19,15 @@
     "notStarted_one": "{{names}} hasn’t started yet.",
     "notStarted_other": "{{names}} haven’t started yet."
   },
+  "memberStrip": {
+    "noShares": "No shares yet",
+    "noGain": "No gain yet",
+    "more_one": "+{{count}} more",
+    "more_other": "+{{count}} more",
+    "topHoldings": "Top holdings",
+    "curve": "{{name}}’s gain over the period",
+    "curveVsYou": "{{name}}’s gain over the period, against yours"
+  },
   "standings": {
     "title": "Standings",
     "titleOver": "Standings · {{period}}",
@@ -224,7 +233,8 @@
     "ofPortfolio": "of the portfolio",
     "cash": "Cash",
     "setOn": "Set on {{date}}",
-    "updateCash": "Update cash"
+    "updateCash": "Update cash",
+    "youHoldIt": "You hold it too"
   },
   "controls": {
     "period": {
@@ -450,6 +460,35 @@
     "access": "Access link",
     "resetPassword": "Reset your password",
     "onboarding": "Welcome"
+  },
+  "membersPage": {
+    "loading": "Loading the members…",
+    "empty": {
+      "title": "Nobody’s here yet",
+      "body": "Members show here once the admin adds them."
+    }
+  },
+  "memberPage": {
+    "headline": {
+      "up": "{{period}}, {{name}} is up <gain>{{amount}}</gain>.",
+      "down": "{{period}}, {{name}} is down <gain>{{amount}}</gain>.",
+      "flat": "{{period}}, {{name}} is flat at <gain>{{amount}}</gain>."
+    },
+    "compare": {
+      "ahead": "That’s {{difference}} ahead of you.",
+      "behind": "That’s {{difference}} behind you.",
+      "level": "That’s level with you."
+    },
+    "points_one": "{{points}} point",
+    "points_other": "{{points}} points",
+    "inRace": "In the race since {{date}}",
+    "shares_one": "{{count}} share",
+    "shares_other": "{{count}} shares",
+    "notStarted": "{{name}} hasn’t recorded any shares yet.",
+    "chart": "{{name}}’s gain over the period",
+    "chartVsYou": "{{name}}’s gain over the period, against yours",
+    "holdings": "{{name}}’s holdings",
+    "loading": "Loading the page…"
   },
   "pageStates": {
     "notFound": {

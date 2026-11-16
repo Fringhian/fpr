@@ -20,6 +20,16 @@
     "notStarted_many": "{{names}} n’ont pas encore commencé.",
     "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
+  "memberStrip": {
+    "noShares": "Pas encore d’actions",
+    "noGain": "Pas encore de gain",
+    "more_one": "+{{count}} autre",
+    "more_many": "+{{count}} autres",
+    "more_other": "+{{count}} autres",
+    "topHoldings": "Principales positions",
+    "curve": "Le gain de {{name}} sur la période",
+    "curveVsYou": "Le gain de {{name}} sur la période, face au vôtre"
+  },
   "standings": {
     "title": "Classement",
     "titleOver": "Classement · {{period}}",
@@ -229,7 +239,8 @@
     "ofPortfolio": "du portefeuille",
     "cash": "Liquidités",
     "setOn": "Définies le {{date}}",
-    "updateCash": "Modifier les liquidités"
+    "updateCash": "Modifier les liquidités",
+    "youHoldIt": "Vous l’avez aussi"
   },
   "controls": {
     "period": {
@@ -457,6 +468,37 @@
     "access": "Lien d’accès",
     "resetPassword": "Réinitialiser votre mot de passe",
     "onboarding": "Bienvenue"
+  },
+  "membersPage": {
+    "loading": "Chargement des membres…",
+    "empty": {
+      "title": "Personne n’est encore là",
+      "body": "Les membres apparaissent ici dès que l’admin les ajoute."
+    }
+  },
+  "memberPage": {
+    "headline": {
+      "up": "{{period}}, {{name}} gagne <gain>{{amount}}</gain>.",
+      "down": "{{period}}, {{name}} perd <gain>{{amount}}</gain>.",
+      "flat": "{{period}}, {{name}} est stable à <gain>{{amount}}</gain>."
+    },
+    "compare": {
+      "ahead": "Soit {{difference}} d’avance sur vous.",
+      "behind": "Soit {{difference}} de retard sur vous.",
+      "level": "Soit autant que vous."
+    },
+    "points_one": "{{points}} point",
+    "points_many": "{{points}} de points",
+    "points_other": "{{points}} points",
+    "inRace": "Dans la course depuis le {{date}}",
+    "shares_one": "{{count}} action",
+    "shares_many": "{{count}} d’actions",
+    "shares_other": "{{count}} actions",
+    "notStarted": "{{name}} n’a encore enregistré aucune action.",
+    "chart": "Le gain de {{name}} sur la période",
+    "chartVsYou": "Le gain de {{name}} sur la période, face au vôtre",
+    "holdings": "Les positions de {{name}}",
+    "loading": "Chargement de la page…"
   },
   "pageStates": {
     "notFound": {
