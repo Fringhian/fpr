@@ -1,85 +1,8 @@
 // @vitest-environment happy-dom
-import type { Id } from "@fpr/contracts";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
-import { getResponse } from "msw";
-import { act } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { I18nextProvider } from "react-i18next";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { createApiClient } from "../src/lib/api/client.ts";
-import { createQueryClient } from "../src/lib/api/query-client.ts";
-import { createI18n } from "../src/lib/i18n.ts";
+import { describe, expect, it } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
-import { createMockHandlers } from "../src/mocks/handlers.ts";
 import type { Persona } from "../src/mocks/personas.ts";
-import { createAppRouter } from "../src/router.ts";
-
-const origin = "http://fpr.test";
-const roots: Root[] = [];
-
-beforeAll(() => {
-  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-});
-
-afterEach(() => {
-  for (const root of roots.splice(0)) {
-    act(() => root.unmount());
-  }
-  document.body.replaceChildren();
-});
-
-/**
- * The app at `path`, on the mock API signed in as `session`, once its routes
- * have loaded and rendered. `failMe` answers `GET /me` with a server error.
- */
-async function visit(
-  path: string,
-  session: Persona | Id,
-  { failMe = false }: { failMe?: boolean } = {},
-) {
-  const { handlers } = createMockHandlers({ origin, session });
-  const onAccessEnded = vi.fn();
-  const api = createTanstackQueryUtils(
-    createApiClient({
-      url: `${origin}/api`,
-      fetch: async (request) =>
-        failMe && new URL(request.url).pathname === "/api/me"
-          ? new Response(null, { status: 502 })
-          : ((await getResponse(handlers, request)) ?? Response.error()),
-      onAccessEnded,
-    }),
-  );
-  const queryClient = createQueryClient();
-  queryClient.setDefaultOptions({ queries: { retry: false } });
-  const router = createAppRouter({
-    queryClient,
-    api,
-    history: createMemoryHistory({ initialEntries: [path] }),
-  });
-  const page = document.createElement("div");
-  document.body.append(page);
-  const root = createRoot(page);
-  roots.push(root);
-  await act(async () => {
-    await router.load();
-    root.render(
-      <I18nextProvider i18n={createI18n("en")}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </I18nextProvider>,
-    );
-  });
-  return {
-    location: router.state.location,
-    /** The search the page reads, once its route validated it. */
-    search: router.state.matches.at(-1)?.search,
-    text: page.textContent ?? "",
-    onAccessEnded,
-  };
-}
+import { visit } from "./visit-app.tsx";
 
 const userId = fixturePersonId("sam");
 
@@ -126,7 +49,9 @@ describe("the route guards", () => {
       it.each(pages)("lead from %s where the role may go", async (page) => {
         const allowed: readonly string[] = enters[persona];
         const { location } = await visit(routes[page], persona);
-        expect(location.href).toBe(allowed.includes(page) ? routes[page] : "/");
+        expect(location.pathname).toBe(
+          allowed.includes(page) ? routes[page] : "/",
+        );
       });
     },
   );
@@ -181,15 +106,20 @@ describe("the route guards", () => {
   });
 
   it("open the admin area on People", async () => {
-    expect((await visit("/admin", "admin")).location.href).toBe(
+    expect((await visit("/admin", "admin")).location.pathname).toBe(
       "/admin/people",
     );
   });
 
-  it("show Page not found at an address no route answers", async () => {
-    const { location, text } = await visit("/nowhere", "member");
-    expect(location.pathname).toBe("/nowhere");
-    expect(text).toContain("Page not found");
+  it("show Page not found at an address no route answers, inside the app shell", async () => {
+    for (const path of ["/nowhere", "/admin/nowhere", `/members/${userId}/x`]) {
+      const { location, text, page } = await visit(path, "admin");
+      expect(location.pathname).toBe(path);
+      expect(text).toContain("Page not found");
+      expect(page.querySelector("nav")).not.toBeNull();
+    }
+    const signedOut = await visit("/nowhere", "signedOut");
+    expect(signedOut.location.pathname).toBe("/sign-in");
   });
 
   it("show Retry when the session can't load", async () => {
