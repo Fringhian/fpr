@@ -5,7 +5,6 @@ import type {
 } from "@phosphor-icons/react/lib";
 import { cn } from "../../../lib/cn";
 
-/** Icon sizes: `s` 16 px in text, `m` 20 px in navigation, `l` 24 px for page actions and state icons. */
 const SIZES = {
   s: "size-m",
   m: "size-[1.25rem]",
@@ -14,7 +13,7 @@ const SIZES = {
 
 export type IconSize = keyof typeof SIZES;
 
-interface IconOwnProps {
+export type IconProps = {
   /** A Phosphor icon, imported from its own module: `@phosphor-icons/react/House`. */
   icon: PhosphorIconType;
   /** `s` 16 px in text, `m` 20 px in navigation, `l` 24 px for page actions and state icons. */
@@ -23,13 +22,17 @@ interface IconOwnProps {
   weight?: Extract<IconWeight, "regular" | "fill">;
   /** Names the icon for screen readers. Without it, the icon is hidden from them. */
   label?: string;
-}
-
-export type IconProps = IconOwnProps &
-  Omit<
-    PhosphorIconProps,
-    keyof IconOwnProps | "alt" | "color" | "mirrored" | "children"
-  >;
+} & Omit<
+  PhosphorIconProps,
+  | "icon"
+  | "size"
+  | "weight"
+  | "label"
+  | "alt"
+  | "color"
+  | "mirrored"
+  | "children"
+>;
 
 /** A Phosphor icon in the current text colour, at one of the icon sizes. */
 export function Icon({
@@ -43,6 +46,7 @@ export function Icon({
   const accessibility = label
     ? { role: "img", "aria-label": label }
     : { "aria-hidden": true };
+
   return (
     <Glyph
       {...props}

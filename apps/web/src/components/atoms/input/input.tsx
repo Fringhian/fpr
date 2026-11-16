@@ -21,7 +21,7 @@ const field = cn(
   "disabled:text-secondary/55 disabled:placeholder:text-secondary/55",
 );
 
-export interface InputOwnProps {
+export type InputProps = {
   /** An icon at the start, any Phosphor icon: the search's `MagnifyingGlassIcon`. */
   icon?: IconProps["icon"] | undefined;
   /** A short control at the end: Show on a password, All on a quantity, clear on a search. */
@@ -32,10 +32,10 @@ export interface InputOwnProps {
   invalid?: boolean | undefined;
   /** Classes for the outlined box the input sits in, such as its width: the box is what this component renders around Base UI's input. */
   className?: ComponentProps<"div">["className"];
-}
-
-export type InputProps = InputOwnProps &
-  Omit<ComponentProps<typeof BaseInput>, keyof InputOwnProps>;
+} & Omit<
+  ComponentProps<typeof BaseInput>,
+  "icon" | "end" | "decimal" | "invalid" | "className"
+>;
 
 /**
  * Text entry: 44 px tall, 16 px text, 12 px corners, with an optional icon
