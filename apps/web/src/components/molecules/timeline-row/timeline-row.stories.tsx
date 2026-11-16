@@ -95,6 +95,8 @@ function entryOf(args: TimelineRowArgs): TimelineRow.TimelineEntry {
       return { kind: "valueAdded", price: args.price };
     case "valueEdited":
       return { kind: "valueEdited", price: args.price, before: args.before };
+    case "valueDeleted":
+      return { kind: "valueDeleted", before: args.before };
   }
 }
 
@@ -300,6 +302,7 @@ A screen with a need \`Basic\` doesn't cover composes the parts with its own chi
 | \`cashSet\` | \`amount\`, \`before\` (\`null\` for the first, left out while not known) | “Cash set to €2,000.00”, “was €2,400.00” or “First cash entry”, or no line |
 | \`valueAdded\` | \`price\` | “Value of €38.60 added” |
 | \`valueEdited\` | \`price\`, \`before\` | “Value changed to €40.10”, “was €41.00” |
+| \`valueDeleted\` | \`before\` | “Value of €41.00 deleted” |
 
 - \`madeBy\` adds “by Alex” after the change: on a member's entry the admin made, and on every value of a manual share.
 - \`actions\` takes the menu's \`Menu.Item\`s, such as Edit and Delete. The ⋯ button is named after the row for screen readers: “More actions for Bought 10 World Index ETF, 3 Mar”. Without actions, a read-only viewer's row has no ⋯.
@@ -338,7 +341,7 @@ const meta = {
       table: {
         type: {
           summary:
-            '"bought" | "sold" | "cashSet" | "valueAdded" | "valueEdited"',
+            '"bought" | "sold" | "cashSet" | "valueAdded" | "valueEdited" | "valueDeleted"',
         },
       },
     },
@@ -356,7 +359,7 @@ const meta = {
     },
     before: {
       description:
-        "`bought`, `sold`: the units held just before; `0` on a purchase reads “New holding”. `cashSet`: the cash before, empty here for the first entry (`null`). `valueEdited`: the value before.",
+        "`bought`, `sold`: the units held just before; `0` on a purchase reads “New holding”. `cashSet`: the cash before, empty here for the first entry (`null`). `valueEdited`, `valueDeleted`: the value before.",
       control: { type: "text" },
     },
     after: {
@@ -479,6 +482,18 @@ export const ValueEdited: Story = {
     madeBy: "Lea",
   },
   parameters: { controls: { include: ["price", "before", ...COMMON] } },
+};
+
+/** A manual share's value deleted, with the value it had. */
+export const ValueDeleted: Story = {
+  name: "Value deleted",
+  args: {
+    kind: "valueDeleted",
+    date: "2026-03-04",
+    before: "41.00",
+    madeBy: "Lea",
+  },
+  parameters: { controls: { include: ["before", ...COMMON] } },
 };
 
 /** A member's entry the admin made for them: who made it follows the change. */

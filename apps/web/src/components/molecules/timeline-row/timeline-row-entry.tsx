@@ -4,6 +4,7 @@ import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { TagIcon } from "@phosphor-icons/react/Tag";
+import { TrashIcon } from "@phosphor-icons/react/Trash";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import { formatMoney } from "../../../lib/format/money";
@@ -48,7 +49,14 @@ interface ValueEdited {
   before: Decimal;
 }
 
-type Entry = HoldingChange | CashSet | ValueAdded | ValueEdited;
+/** A value point of a manual share deleted. */
+interface ValueDeleted {
+  kind: "valueDeleted";
+  /** The value it had, in euros. */
+  before: Decimal;
+}
+
+type Entry = HoldingChange | CashSet | ValueAdded | ValueEdited | ValueDeleted;
 
 export type KeysOf<T> = T extends unknown ? keyof T : never;
 
@@ -69,6 +77,7 @@ export const TIMELINE_ICONS = {
   cashSet: CoinsIcon,
   valueAdded: TagIcon,
   valueEdited: PencilSimpleIcon,
+  valueDeleted: TrashIcon,
 } as const satisfies Record<TimelineRowKind, IconProps["icon"]>;
 
 /** What an entry says: its title, and the line under it, before → after or `null`. */
@@ -135,6 +144,11 @@ export function describe(
       return {
         title: t("timelineRow.valueEdited", { price: money(entry.price) }),
         change: t("timelineRow.was", { before: money(entry.before) }),
+      };
+    case "valueDeleted":
+      return {
+        title: t("timelineRow.valueDeleted", { price: money(entry.before) }),
+        change: null,
       };
   }
 }
