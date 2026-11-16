@@ -42,7 +42,7 @@ export function closeAt(day: IsoDate): number {
   return localInstant(day, "23:59:59");
 }
 
-/** The 30-minute refreshes of a trading day, 09:00 to 17:30. */
+/** The refreshes that store new prices on a trading day: every 30 minutes, 09:00 to 17:30. */
 export function refreshInstants(day: IsoDate): number[] {
   return Array.from({ length: 18 }, (_, step) => {
     const minutes = 9 * 60 + step * 30;
@@ -51,68 +51,81 @@ export function refreshInstants(day: IsoDate): number[] {
   });
 }
 
+/** How recent the last refresh is while refreshes run, as the API reads it. */
+const RUNNING_WITHIN_MS = 45 * 60 * 1000;
+
+/** The hour the daily run stores the previous trading day's closes. */
+const DAILY_CLOSES_HOUR = "07:00:00";
+
 /**
- * The market as of the store's clock: the last close is the trading day
- * before today, as closes arrive overnight, and today's refreshes until now
- * are provisional.
+ * The market as of the store's clock, by the API's rules: the last close is
+ * the latest trading day that has ended, and the refreshes since are
+ * provisional. The daily run stores a day's close the next morning, so until
+ * then that day is valued at its latest refresh.
  */
 export type Calendar = {
   nowMs: number;
   today: IsoDate;
   lastCloseOn: IsoDate;
+  /** The last trading day whose close is stored. */
+  closesThrough: IsoDate;
   refreshesRunning: boolean;
-  /** The market day's refreshes so far, the provisional points. */
+  /** The refreshes since the last close, the provisional points. */
   provisional: number[];
 };
 
-/**
- * The market as of `now`. The market day is today once its refreshes start,
- * else the trading day before, whose close the mock never records: its
- * refreshes stay provisional until the next market day, so "today, not
- * final" points show at any hour. The last close is the trading day before
- * the market day.
- */
 export function createCalendar(now: Date): Calendar {
   const nowMs = now.getTime();
   const today = dayOf(nowMs);
-  const opened =
-    isTradingDay(today) && localInstant(today, "09:00:00") <= nowMs;
-  const marketDay = opened ? today : tradingDayOnOrBefore(addDays(today, -1));
-  const refreshes = refreshInstants(marketDay);
-  const provisional = refreshes.filter((atMs) => atMs <= nowMs);
-  const last = refreshes.at(-1) ?? 0;
+  const lastCloseOn = tradingDayOnOrBefore(
+    closeAt(today) <= nowMs ? today : addDays(today, -1),
+  );
+  const fetched = localInstant(today, DAILY_CLOSES_HOUR) <= nowMs;
+  const provisional = isTradingDay(today)
+    ? refreshInstants(today).filter((atMs) => atMs <= nowMs)
+    : [];
   return {
     nowMs,
     today,
-    lastCloseOn: tradingDayOnOrBefore(addDays(marketDay, -1)),
-    refreshesRunning: opened && nowMs <= last,
+    lastCloseOn,
+    closesThrough: tradingDayOnOrBefore(addDays(today, fetched ? -1 : -2)),
+    refreshesRunning: provisional.some(
+      (atMs) => nowMs - atMs <= RUNNING_WITHIN_MS,
+    ),
     provisional,
   };
 }
 
+/** The same day `months` calendar months earlier, on the month's last day when it has fewer. */
+function monthsBefore(day: IsoDate, months: number): IsoDate {
+  const [year = 0, month = 1, date = 1] = day.split("-").map(Number);
+  const first = new Date(Date.UTC(year, month - 1 - months, 1));
+  const length = new Date(
+    Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  first.setUTCDate(Math.min(date, length));
+  return first.toISOString().slice(0, 10);
+}
+
 /**
- * The trading day whose close a period's gain starts from, as of the last
- * close. `all` starts before `earliest`, the first entry it covers.
+ * The trading day whose close a period's gain starts from, counted back from
+ * the last close: one day, seven days, one or three calendar months, the
+ * previous year's last trading day, or for `all` the trading day before
+ * `firstEntry`, the race's first entry.
  */
 export function periodStartDay(
   calendar: Calendar,
   period: Period,
-  earliest: IsoDate,
+  firstEntry: IsoDate,
 ): IsoDate {
   const last = calendar.lastCloseOn;
-  const back = (days: number) => tradingDayOnOrBefore(addDays(last, -days));
-  switch (period) {
-    case "1D":
-      return back(1);
-    case "1W":
-      return back(7);
-    case "1M":
-      return back(30);
-    case "3M":
-      return back(91);
-    case "YTD":
-      return tradingDayOnOrBefore(`${Number(last.slice(0, 4)) - 1}-12-31`);
-    case "all":
-      return tradingDayOnOrBefore(addDays(earliest, -1));
-  }
+  const targets: Record<Period, IsoDate> = {
+    "1D": addDays(last, -1),
+    "1W": addDays(last, -7),
+    "1M": monthsBefore(last, 1),
+    "3M": monthsBefore(last, 3),
+    YTD: `${Number(last.slice(0, 4)) - 1}-12-31`,
+    all: addDays(firstEntry, -1),
+  };
+  return tradingDayOnOrBefore(targets[period]);
 }
