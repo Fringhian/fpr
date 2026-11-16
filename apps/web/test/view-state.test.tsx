@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { visit } from "./visit-app.tsx";
 
@@ -102,6 +102,66 @@ describe("each page's own view", () => {
       focus: undefined,
       standings: undefined,
     });
+  });
+
+  it("shows Home's focused member from the address, and a lane pressed focuses its member", async () => {
+    const robin = fixturePersonId("robin");
+    const { router, page } = await visit(`/?focus=${robin}`, "member");
+    const panelTitle = () =>
+      [...page.querySelectorAll("section")]
+        .find((section) => section.textContent?.includes("What moved"))
+        ?.querySelector("h2")?.textContent;
+    await vi.waitFor(() => expect(panelTitle()).toBe("Robin Leclerc"));
+
+    const lane = page.querySelector<HTMLButtonElement>(
+      `li[data-member="${fixturePersonId("jordan")}"] button`,
+    );
+    await act(async () => lane?.click());
+    expect(router.state.location.search).toMatchObject({
+      focus: fixturePersonId("jordan"),
+    });
+    await vi.waitFor(() => expect(panelTitle()).toBe("Jordan Petit"));
+  });
+
+  it("shows Home's standings switch on the board its lanes are from while the next one loads", async () => {
+    const { page, release } = await visit("/", "member", {
+      hold: (url) => url.pathname.endsWith("/leaderboards/balance"),
+    });
+    const board = () =>
+      page.querySelector('[aria-label="Standings by"] [aria-pressed="true"]')
+        ?.textContent;
+    const lanes = () =>
+      page.querySelector("ol li[data-member]")?.closest("section");
+    await vi.waitFor(() => expect(lanes()).toBeTruthy());
+
+    const balance = [
+      ...page.querySelectorAll('[aria-label="Standings by"] button'),
+    ].find((button) => button.textContent === "Balance");
+    await act(async () => (balance as HTMLButtonElement | undefined)?.click());
+    expect(board()).toBe("Gain");
+    expect(lanes()?.getAttribute("aria-busy")).toBe("true");
+
+    await release();
+    await vi.waitFor(() => expect(board()).toBe("Balance"));
+    expect(lanes()?.textContent).toContain("€");
+    expect(lanes()?.getAttribute("aria-busy")).toBeNull();
+  });
+
+  it("never shows a member's holdings under another member's page while theirs load", async () => {
+    const robin = fixturePersonId("robin");
+    const { router, page, release } = await visit(`/members/${sam}`, "guest", {
+      hold: (url) => url.pathname.includes(`/users/${robin}/`),
+    });
+    await vi.waitFor(() => expect(page.textContent).toContain("Clean Energy"));
+
+    await act(() =>
+      router.navigate({ to: "/members/$userId", params: { userId: robin } }),
+    );
+    expect(page.querySelector("h1")?.textContent).toContain("Robin Leclerc");
+    expect(page.textContent).not.toContain("Clean Energy");
+
+    await release();
+    await vi.waitFor(() => expect(page.textContent).toContain("Small Caps"));
   });
 
   it("keeps the Shares search as typed, spaces included, and drops a blank one", async () => {

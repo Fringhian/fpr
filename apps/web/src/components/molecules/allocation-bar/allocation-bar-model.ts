@@ -10,6 +10,17 @@ export interface AllocationHolding {
   weight: Decimal | null;
 }
 
+/** The holdings of a portfolio or a members list's row as the allocation reads them. */
+export function allocationHoldings<Weight extends Decimal | null>(
+  holdings: readonly { share: { id: string; name: string }; weight: Weight }[],
+): (AllocationHolding & { weight: Weight })[] {
+  return holdings.map(({ share, weight }) => ({
+    id: share.id,
+    name: share.name,
+    weight,
+  }));
+}
+
 /** One part of the allocation, its weight in percent with one decimal. */
 export type AllocationPart =
   | {

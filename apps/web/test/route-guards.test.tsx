@@ -12,7 +12,8 @@ const userId = fixturePersonId("sam");
 const routes = {
   home: "/",
   members: "/members",
-  member: `/members/${userId}`,
+  // Someone else's page: the member persona's own is their Portfolio.
+  member: `/members/${fixturePersonId("robin")}`,
   memberRecord: `/members/${userId}/record`,
   portfolio: "/portfolio",
   portfolioRecord: "/portfolio/record",
@@ -97,6 +98,11 @@ describe("the route guards", () => {
       );
       expect(search).toEqual({});
     }
+  });
+
+  it("open a member's own page on their Portfolio", async () => {
+    const { location } = await visit(`/members/${userId}`, "member");
+    expect(location.pathname).toBe("/portfolio");
   });
 
   it("send a person whose onboarding isn't finished to it from every other page", async () => {

@@ -1,16 +1,12 @@
 import type { IsoDate, Period, Timestamp } from "@fpr/contracts";
-
-/** The race's time zone, `RACE_TIMEZONE`: where a day starts. */
-const zone = "Europe/Paris";
+import { RACE_TIME_ZONE, raceDayOf } from "../../lib/race-day.ts";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const offsetFormat = new Intl.DateTimeFormat("en-US", {
-  timeZone: zone,
+  timeZone: RACE_TIME_ZONE,
   timeZoneName: "longOffset",
 });
-
-const dayFormat = new Intl.DateTimeFormat("en-CA", { timeZone: zone });
 
 function offsetMs(atMs: number): number {
   const name =
@@ -33,7 +29,7 @@ export function localInstant(day: IsoDate, time: string): number {
 
 /** The day an instant falls on in the race's zone. */
 export function dayOf(atMs: number): IsoDate {
-  return dayFormat.format(atMs);
+  return raceDayOf(atMs);
 }
 
 export function timestamp(atMs: number): Timestamp {

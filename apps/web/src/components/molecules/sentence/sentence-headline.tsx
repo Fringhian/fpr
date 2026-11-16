@@ -1,48 +1,33 @@
-import type { Language, Period } from "@fpr/contracts";
+import type { Period } from "@fpr/contracts";
 import { Trans, useTranslation } from "react-i18next";
-import { formatMoney, formatPercent } from "../../../lib/format/money";
 import {
   type GainInput,
   type GainTone,
   type GainUnit,
+  gainAmount,
   gainDisplay,
+  sentenceAmount,
 } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import { GAIN_TONE_TEXT } from "../../atoms/gain-value/gain-value";
 import { Headline } from "./sentence-parts";
+import type { Standing } from "./sentence-story";
 
-const HEADLINE_KEY = {
+/** The word a headline reads a gain with, by its tone: up, down or flat. */
+export const HEADLINE_KEY = {
   positive: "up",
   negative: "down",
   flat: "flat",
 } as const satisfies Record<GainTone, string>;
 
 /**
- * A gain written for the headline, in whole euros then in percent:
- * `€512 (+4.2%)`. Unsigned euros read after “up” or “down”; signed ones
- * after a leader's name. Either part alone when the other is missing.
+ * Whether the race sentence has a headline, which is the page's heading: the
+ * gain it reads, the viewer's or the leader's when watching, has a value.
  */
-function headlineAmount(
-  gain: GainInput,
-  language: Language,
-  signed: boolean,
-): string | null {
-  const eur = gain.eur ?? null;
-  const money =
-    eur === null
-      ? null
-      : formatMoney(signed ? eur : eur.replace(/^-/, ""), language, {
-          precision: "euros",
-          signed,
-        });
-  const percent =
-    gain.percent === null
-      ? null
-      : formatPercent(gain.percent, language, { signed: true });
-  if (money !== null && percent !== null) {
-    return `${money} (${percent})`;
-  }
-  return money ?? percent;
+export function hasHeadline(standing: Standing): boolean {
+  const gain =
+    standing.standing === "watching" ? standing.leader.gain : standing.gain;
+  return gainAmount(gain, "percent") !== null;
 }
 
 /**
@@ -65,7 +50,7 @@ export function RaceHeadline({
 
   const watching = leaderName !== null;
   const tone = gainDisplay(gain, unit, language)?.tone ?? null;
-  const amount = headlineAmount(gain, language, watching);
+  const amount = sentenceAmount(gain, language, watching);
 
   return amount === null || tone === null ? null : (
     <Headline>

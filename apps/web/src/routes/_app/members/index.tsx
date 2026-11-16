@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ScreenPlaceholder } from "../../-shell/screen-placeholder";
+import { MembersScreen } from "../-members/members-screen";
 
 export const Route = createFileRoute("/_app/members/")({
-  component: () => <ScreenPlaceholder page="members" period />,
+  component: MembersScreen,
 });

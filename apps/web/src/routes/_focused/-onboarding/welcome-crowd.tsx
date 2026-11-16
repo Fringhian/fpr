@@ -1,8 +1,8 @@
 import type { Person } from "@fpr/contracts";
 import { Picture } from "../../../components/atoms/picture/picture";
 import { cn } from "../../../lib/cn";
+import { type Look, lookOf } from "../../../lib/look";
 import { MEMBER_TONES } from "../../../lib/member-color";
-import { type Look, lookOf } from "./look-preview";
 
 /** How many of the others stand around the person. */
 const CROWD_SIZE = 6;

@@ -88,3 +88,31 @@ function toneOf(text: string): GainTone {
   }
   return text.startsWith(MINUS) ? "negative" : "flat";
 }
+
+/**
+ * A gain written in a sentence, in whole euros then in percent:
+ * `€512 (+4.2%)`. Unsigned euros read after “up” or “down”; signed ones
+ * after a name. Either part alone when the other is missing.
+ */
+export function sentenceAmount(
+  gain: GainInput,
+  language: Language,
+  signed: boolean,
+): string | null {
+  const eur = gain.eur ?? null;
+  const money =
+    eur === null
+      ? null
+      : formatMoney(signed ? eur : eur.replace(/^-/, ""), language, {
+          precision: "euros",
+          signed,
+        });
+  const percent =
+    gain.percent === null
+      ? null
+      : formatPercent(gain.percent, language, { signed: true });
+  if (money !== null && percent !== null) {
+    return `${money} (${percent})`;
+  }
+  return money ?? percent;
+}
