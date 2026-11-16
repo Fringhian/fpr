@@ -135,7 +135,7 @@ describe("GET /api/users/:userId/log", () => {
     const body = (await response.json()) as { entries: unknown[] };
     expect(JSON.stringify(body)).not.toContain("Test ");
     // Each entry's value over the balance at its moment: 50 of 80 €, then
-    // 2 × 10 of 60 €, 30 of 80 €, and 5 × 10 of 50 €.
+    // 2 × 10 of 60 €, 30 of 80 €, and 5 × 10 of 50 €. A sale keeps its sign.
     expect(body.entries).toMatchObject([
       {
         type: "cash",
@@ -146,7 +146,7 @@ describe("GET /api/users/:userId/log", () => {
           displayName: await pseudonymOf(test.db, member.id),
         },
       },
-      { type: "change", quantityDelta: "33.33", quantityAfter: "33.33" },
+      { type: "change", quantityDelta: "-33.33", quantityAfter: "33.33" },
       { type: "cash", amountEur: "37.50", previousAmountEur: null },
       {
         type: "change",
