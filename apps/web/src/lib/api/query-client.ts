@@ -12,9 +12,11 @@ import { invalidateAfter } from "./invalidation.ts";
 /**
  * The app's TanStack Query cache. Every successful write invalidates the
  * reads its row of `invalidations` names, and settles once they are fetched
- * again. A read the API refused isn't retried. A read or a write answered
- * `401 unauthenticated` while the cache holds a signed-in person means the
- * session expired mid-visit, and runs `onSessionExpired`.
+ * again. A write refused with `value_changed` invalidates them too: someone
+ * else's write changed what they show. A read the API refused isn't
+ * retried. A read or a write answered `401 unauthenticated` while the cache
+ * holds a signed-in person means the session expired mid-visit, and runs
+ * `onSessionExpired`.
  */
 export function createQueryClient({
   onSessionExpired,
@@ -31,7 +33,12 @@ export function createQueryClient({
     mutationCache: new MutationCache({
       onSuccess: (_data, _variables, _result, mutation) =>
         invalidateAfter(queryClient, mutation.options.mutationKey),
-      onError: endExpiredSession,
+      onError: (error, _variables, _result, mutation) => {
+        endExpiredSession(error);
+        if (isApiError(error, "value_changed")) {
+          void invalidateAfter(queryClient, mutation.options.mutationKey);
+        }
+      },
     }),
     defaultOptions: {
       queries: {
