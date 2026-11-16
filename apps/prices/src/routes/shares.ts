@@ -1,12 +1,42 @@
-import { manualPriceEvents, prices, shares, violatedConstraint } from "@fpr/db";
+import type { ShareSummary } from "@fpr/contracts";
+import {
+  type Db,
+  prices,
+  type Share,
+  shares,
+  violatedConstraint,
+} from "@fpr/db";
 import { attentionWindowStart } from "../market/trading-day.js";
 import { service } from "../orpc.js";
-import { isinTakenBy, toShareSummary } from "./rows.js";
+import { storeValuePoint } from "./value-point.js";
+
+function toShareSummary(share: Share): ShareSummary {
+  return {
+    id: share.id,
+    isin: share.isin,
+    name: share.name,
+    kind: share.kind,
+    symbol: share.providerSymbol,
+  };
+}
 
 /**
- * `POST /shares/manual`: a manual share with its first value point, entered
- * by its creator, and the `added` value edit, in one transaction.
+ * The id of the share that holds `isin`, when `error` is the unique ISIN
+ * refusing a write: two writers raced for the same ISIN. `undefined` for any
+ * other error.
  */
+async function isinTakenBy(
+  error: unknown,
+  db: Db,
+  isin: string | undefined,
+): Promise<string | undefined> {
+  if (isin === undefined || violatedConstraint(error) !== "shares_isin_key") {
+    return undefined;
+  }
+  return (await shares.findByIsin(db, isin))?.id;
+}
+
+/** `POST /shares/manual`: the share, its first value point, and its value edit. */
 export const createManual = service.createManual.handler(
   async ({ input, context, errors }) => {
     const at = new Date(input.at);
@@ -30,19 +60,10 @@ export const createManual = service.createManual.handler(
           historyStartsOn: null,
           createdBy: input.createdBy,
         });
-        await prices.upsert(trx, {
+        await storeValuePoint(trx, {
           shareId: created.id,
           at,
           priceEur: input.priceEur,
-          source: "manual",
-          enteredBy: input.createdBy,
-        });
-        await manualPriceEvents.insert(trx, {
-          shareId: created.id,
-          at,
-          action: "added",
-          priceEur: input.priceEur,
-          previousPriceEur: null,
           userId: input.createdBy,
         });
         return created;
@@ -58,7 +79,6 @@ export const createManual = service.createManual.handler(
   },
 );
 
-/** `PATCH /shares/:id`: a manual share's new name, ISIN, or both. */
 export const updateShare = service.updateShare.handler(
   async ({ input, context, errors }) => {
     try {
@@ -93,9 +113,9 @@ export const updateShare = service.updateShare.handler(
 );
 
 /**
- * `DELETE /shares/:id`: a share with its prices and value edits. The foreign
- * key of `portfolio_changes` refuses it while a share change refers to it,
- * including one recorded while the delete runs.
+ * `DELETE /shares/:id`. The foreign key of `portfolio_changes` refuses it
+ * while a share change refers to the share, including one recorded while the
+ * delete runs.
  */
 export const deleteShare = service.deleteShare.handler(
   async ({ input, context, errors }) => {
@@ -117,34 +137,44 @@ export const deleteShare = service.deleteShare.handler(
 );
 
 /**
+ * The value point a share turned manual starts with: its latest price, or,
+ * for a share with no price, the one given. A share with a price ignores the
+ * one given. `undefined` when neither exists.
+ */
+async function firstValuePoint(
+  db: Db,
+  input: { id: string; priceEur?: string | undefined; at?: string | undefined },
+  now: Date,
+): Promise<{ at: Date; priceEur: string } | undefined> {
+  const latest = await prices.latestAt(db, input.id, now);
+  if (latest !== undefined) {
+    return { at: latest.at, priceEur: latest.priceEur };
+  }
+  if (input.priceEur === undefined || input.at === undefined) {
+    return undefined;
+  }
+  return { at: new Date(input.at), priceEur: input.priceEur };
+}
+
+/**
  * `POST /shares/:id/make-manual`: turns a market share that needs attention
- * into a manual share. Its prices stay, and its latest price becomes a
- * `manual` value point entered by the admin. A share with no price takes the
- * given `{ priceEur, at }` instead, which a share with a price ignores.
+ * into a manual share. Its prices stay, and its first value point is entered
+ * by the admin.
  */
 export const makeManual = service.makeManual.handler(
   async ({ input, context, errors }) => {
     const now = context.now();
+    const { timeZone } = context;
     const share = await context.db.transaction().execute(async (trx) => {
-      const current = await shares.lockById(trx, input.id);
-      if (current === undefined) {
+      if ((await shares.lockById(trx, input.id)) === undefined) {
         throw errors.not_found();
       }
-      const attention = await shares.needsAttention(
-        trx,
-        input.id,
-        attentionWindowStart(now, context.timeZone),
-        context.timeZone,
-      );
-      if (!attention) {
+      const since = attentionWindowStart(now, timeZone);
+      if (!(await shares.needsAttention(trx, input.id, since, timeZone))) {
         throw errors.share_not_needing_attention();
       }
-
-      const latest = await prices.latest(trx, input.id);
-      let point: { at: Date; priceEur: string };
-      if (latest !== undefined) {
-        point = { at: latest.at, priceEur: latest.priceEur };
-      } else if (input.priceEur === undefined || input.at === undefined) {
+      const point = await firstValuePoint(trx, input, now);
+      if (point === undefined) {
         throw errors.invalid_request({
           data: {
             issues: [
@@ -153,32 +183,19 @@ export const makeManual = service.makeManual.handler(
             ],
           },
         });
-      } else {
-        point = { at: new Date(input.at), priceEur: input.priceEur };
-        if (point.at > now) {
-          throw errors.future_moment();
-        }
       }
-
+      if (point.at > now) {
+        throw errors.future_moment();
+      }
       const updated = await shares.update(trx, input.id, {
         kind: "manual",
         tradingCurrency: null,
         providerSymbol: null,
         exchange: null,
       });
-      await prices.upsert(trx, {
+      await storeValuePoint(trx, {
         shareId: input.id,
-        at: point.at,
-        priceEur: point.priceEur,
-        source: "manual",
-        enteredBy: input.enteredBy,
-      });
-      await manualPriceEvents.insert(trx, {
-        shareId: input.id,
-        at: point.at,
-        action: "added",
-        priceEur: point.priceEur,
-        previousPriceEur: null,
+        ...point,
         userId: input.enteredBy,
       });
       return updated;

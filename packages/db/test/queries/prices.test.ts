@@ -10,7 +10,6 @@ import {
 import type { Db } from "../../src/database.js";
 import {
   deleteIntradayBefore,
-  latest,
   latestAt,
   upsert,
 } from "../../src/queries/prices.js";
@@ -174,17 +173,6 @@ describe("latestAt", () => {
     expect(
       await latestAt(db, shareId, at("2026-03-10T00:00:00Z"), ["manual"]),
     ).toBeUndefined();
-  });
-});
-
-describe("latest", () => {
-  it("is a share's latest price, from any source", async () => {
-    await seedPrices();
-    expect(await latest(db, shareId)).toMatchObject({
-      priceEur: "43",
-      source: "intraday",
-    });
-    expect(await latest(db, otherShareId)).toMatchObject({ priceEur: "99" });
   });
 });
 

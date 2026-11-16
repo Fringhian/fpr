@@ -1,16 +1,23 @@
+import type { PricesValuePoint } from "@fpr/contracts/prices";
 import { manualPriceEvents, type Price, prices, shares } from "@fpr/db";
 import Big from "big.js";
 import { service } from "../orpc.js";
-import { toValuePoint } from "./rows.js";
+import { storeValuePoint } from "./value-point.js";
 
-type Trx = Parameters<typeof shares.lockById>[0];
+function toValuePoint(price: Price): PricesValuePoint {
+  return {
+    at: price.at.toISOString(),
+    priceEur: price.priceEur,
+    enteredBy: price.enteredBy,
+  };
+}
 
 /**
  * Locks a manual share and reads its value point at `at`. Resolves with
  * `undefined` for a missing or market share, or no value point there.
  */
 async function lockValuePoint(
-  trx: Trx,
+  trx: Parameters<typeof shares.lockById>[0],
   shareId: string,
   at: Date,
 ): Promise<Price | undefined> {
@@ -23,9 +30,8 @@ async function lockValuePoint(
 }
 
 /**
- * `POST /shares/:id/manual-prices`: a new value point, and its `added` value
- * edit, in one transaction. Any price already stored at that moment refuses
- * it with `value_changed`.
+ * `POST /shares/:id/manual-prices`. Any price already stored at that moment
+ * refuses it with `value_changed`.
  */
 export const addManualPrice = service.addManualPrice.handler(
   async ({ input, context, errors }) => {
@@ -42,19 +48,10 @@ export const addManualPrice = service.addManualPrice.handler(
       if (stored !== undefined) {
         throw errors.value_changed({ data: { priceEur: stored.priceEur } });
       }
-      const price = await prices.upsert(trx, {
+      const price = await storeValuePoint(trx, {
         shareId: input.id,
         at,
         priceEur: input.priceEur,
-        source: "manual",
-        enteredBy: input.enteredBy,
-      });
-      await manualPriceEvents.insert(trx, {
-        shareId: input.id,
-        at,
-        action: "added",
-        priceEur: input.priceEur,
-        previousPriceEur: null,
         userId: input.enteredBy,
       });
       return toValuePoint(price);
@@ -63,9 +60,8 @@ export const addManualPrice = service.addManualPrice.handler(
 );
 
 /**
- * `PATCH /shares/:id/manual-prices/:at`: a value point's new price, when its
- * price is still the one the member saw, and its `edited` value edit, in one
- * transaction.
+ * `PATCH /shares/:id/manual-prices/:at`: refused with `value_changed` when
+ * the stored price is no longer the one the member saw.
  */
 export const updateManualPrice = service.updateManualPrice.handler(
   async ({ input, context, errors }) => {
@@ -78,20 +74,12 @@ export const updateManualPrice = service.updateManualPrice.handler(
       if (!new Big(stored.priceEur).eq(input.expectedPriceEur)) {
         throw errors.value_changed({ data: { priceEur: stored.priceEur } });
       }
-      const price = await prices.upsert(trx, {
+      const price = await storeValuePoint(trx, {
         shareId: input.id,
         at,
         priceEur: input.priceEur,
-        source: "manual",
-        enteredBy: input.enteredBy,
-      });
-      await manualPriceEvents.insert(trx, {
-        shareId: input.id,
-        at,
-        action: "edited",
-        priceEur: input.priceEur,
-        previousPriceEur: stored.priceEur,
         userId: input.enteredBy,
+        previousPriceEur: stored.priceEur,
       });
       return toValuePoint(price);
     });
@@ -99,9 +87,8 @@ export const updateManualPrice = service.updateManualPrice.handler(
 );
 
 /**
- * `DELETE /shares/:id/manual-prices/:at`: a value point, when its price is
- * still the one the member saw and it isn't the share's only one, and its
- * `deleted` value edit, in one transaction.
+ * `DELETE /shares/:id/manual-prices/:at`: refused with `value_changed` as an
+ * edit is, and with `last_value_point` for the share's only one.
  */
 export const deleteManualPrice = service.deleteManualPrice.handler(
   async ({ input, context, errors }) => {

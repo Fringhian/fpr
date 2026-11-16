@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { type ErrorBody, errorStatus } from "@fpr/contracts";
 import { type Db, ping } from "@fpr/db";
-import type { AnyRouter } from "@orpc/server";
 import express, {
   type ErrorRequestHandler,
   type Express,
@@ -15,18 +14,13 @@ import { requireToken } from "./auth.js";
 import { mountRouter } from "./orpc.js";
 import { pricesRouter } from "./router.js";
 
-/** `RACE_TIMEZONE`'s default. */
-export const DEFAULT_TIME_ZONE = "Europe/Paris";
-
 export interface AppOptions {
   db: Db;
   logger: Logger;
   /** The bearer token every route except `/health` requires. */
   token: string;
-  /** The contract routes served. Defaults to every handler of `pricesRouter`. */
-  router?: AnyRouter;
-  /** `RACE_TIMEZONE`. Defaults to `Europe/Paris`. */
-  timeZone?: string;
+  /** `RACE_TIMEZONE`. */
+  timeZone: string;
   /** The current moment. Defaults to the clock; tests replace it. */
   now?: () => Date;
 }
@@ -40,8 +34,7 @@ export function createApp({
   db,
   logger,
   token,
-  router = pricesRouter,
-  timeZone = DEFAULT_TIME_ZONE,
+  timeZone,
   now = () => new Date(),
 }: AppOptions): Express {
   const app = express();
@@ -56,7 +49,7 @@ export function createApp({
   // Every route mounted after this point requires the bearer token.
   app.use(requireToken(token));
 
-  mountRouter(app, router, { db, timeZone, now });
+  mountRouter(app, pricesRouter, { db, timeZone, now });
 
   app.use(notFound);
   app.use(errorHandler);

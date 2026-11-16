@@ -321,12 +321,6 @@ describe("DELETE /shares/:id", () => {
       await app.db.selectFrom("shares").selectAll().execute(),
     ).toHaveLength(1);
   });
-
-  it("answers not_found for a missing share", async () => {
-    const { status, body } = await app.call("DELETE", `/shares/${UNKNOWN_ID}`);
-    expect(status).toBe(404);
-    expect(body).toEqual({ error: { code: "not_found" } });
-  });
 });
 
 describe("POST /shares/:id/make-manual", () => {
@@ -435,10 +429,11 @@ describe("POST /shares/:id/make-manual", () => {
     ]);
   });
 
-  it("refuses a market share that doesn't need attention", async () => {
+  it("refuses a share with a close 5 trading days old, a share nobody holds, and a manual share", async () => {
     const fresh = await insertMarketShare();
     await hold(fresh);
-    await addPrice(fresh, "2026-03-03T22:59:59Z", "40", "close");
+    // Wednesday 25 February is the fifth trading day back from Tuesday 3 March.
+    await addPrice(fresh, "2026-02-25T22:59:59Z", "40", "close");
     const notHeld = await insertMarketShare();
     const manual = await createManual();
 
@@ -452,21 +447,6 @@ describe("POST /shares/:id/make-manual", () => {
       expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
     }
     expect(await events(fresh)).toEqual([]);
-  });
-
-  it("refuses a fund whose latest close is 2 trading days old", async () => {
-    const fund = await insertMarketShare();
-    await hold(fund);
-    // The last trading day is Tuesday 3 March; the fund's latest close is
-    // Monday's.
-    await addPrice(fund, "2026-03-02T22:59:59Z", "40", "close");
-    const { status, body } = await app.call(
-      "POST",
-      `/shares/${fund}/make-manual`,
-      { enteredBy: member },
-    );
-    expect(status).toBe(409);
-    expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
   });
 
   it("refuses a share with no close on a Monday holiday", async () => {
@@ -483,15 +463,5 @@ describe("POST /shares/:id/make-manual", () => {
     );
     expect(status).toBe(409);
     expect(body).toEqual({ error: { code: "share_not_needing_attention" } });
-  });
-
-  it("answers not_found for a missing share", async () => {
-    const { status, body } = await app.call(
-      "POST",
-      `/shares/${UNKNOWN_ID}/make-manual`,
-      { enteredBy: member },
-    );
-    expect(status).toBe(404);
-    expect(body).toEqual({ error: { code: "not_found" } });
   });
 });

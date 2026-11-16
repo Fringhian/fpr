@@ -31,11 +31,6 @@ function isErrorCode(code: string): code is ErrorCode {
   return (errorCodes as readonly string[]).includes(code);
 }
 
-interface Issue {
-  path?: readonly PropertyKey[];
-  code?: string;
-}
-
 /**
  * The `invalid_request` details of oRPC's validation issues: each issue's path
  * and code, without Zod's text. A symbol in a path, which JSON can't carry,
@@ -43,14 +38,15 @@ interface Issue {
  */
 function toInvalidRequestDetails(issues: unknown): InvalidRequestDetails {
   return {
-    issues: (Array.isArray(issues) ? (issues as Issue[]) : []).map(
-      ({ path = [], code }) => ({
-        path: path.flatMap((key) =>
-          typeof key === "symbol" ? [] : [key as string | number],
-        ),
-        code: validationIssueCodeSchema.catch("custom").parse(code),
-      }),
-    ),
+    issues: (Array.isArray(issues)
+      ? (issues as { path?: readonly PropertyKey[]; code?: string }[])
+      : []
+    ).map(({ path = [], code }) => ({
+      path: path.flatMap((key) =>
+        typeof key === "symbol" ? [] : [key as string | number],
+      ),
+      code: validationIssueCodeSchema.catch("custom").parse(code),
+    })),
   };
 }
 
@@ -59,7 +55,7 @@ function toInvalidRequestDetails(issues: unknown): InvalidRequestDetails {
  * validation failure as `invalid_request` with each issue's path and code,
  * and anything else as `internal_error`, without its message.
  */
-export function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
+function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
   if (isErrorCode(error.code)) {
     const data = error.data as Record<string, unknown> | undefined;
     return {
