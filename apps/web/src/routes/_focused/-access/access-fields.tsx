@@ -41,6 +41,35 @@ export function HiddenEmail({ email }: { email: string }) {
   );
 }
 
+/**
+ * A display name, named `displayName`, with `help` under it. `label` stays
+ * for screen readers alone with `hiddenLabel`, where the step's question
+ * already asks for the name.
+ */
+export function DisplayNameField({
+  label,
+  help,
+  hiddenLabel = false,
+  ...props
+}: {
+  label: string;
+  help: string;
+  hiddenLabel?: boolean;
+} & Pick<Field.ControlProps, "defaultValue" | "onValueChange">) {
+  const checks = useAccessChecks();
+
+  return (
+    <Field.Root name="displayName" validate={checks.displayName}>
+      <Field.Label className={hiddenLabel ? "sr-only" : undefined}>
+        {label}
+      </Field.Label>
+      <Field.Control {...props} autoComplete="nickname" />
+      <Field.Description>{help}</Field.Description>
+      <Field.Error />
+    </Field.Root>
+  );
+}
+
 /** A password being chosen, named `password`, with Show and its length under it. */
 export function NewPasswordField({ label }: { label?: string }) {
   const { t } = useTranslation();

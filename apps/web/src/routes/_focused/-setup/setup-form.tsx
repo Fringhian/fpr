@@ -9,7 +9,11 @@ import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useAccessChecks } from "../../../lib/access-checks";
 import { isApiError } from "../../../lib/api/errors";
 import { useApi } from "../../../lib/api/use-api";
-import { EmailField, NewPasswordField } from "../-access/access-fields";
+import {
+  DisplayNameField,
+  EmailField,
+  NewPasswordField,
+} from "../-access/access-fields";
 import { AccessPage } from "../-access/access-page";
 import { useRefusal } from "../-access/use-refusal";
 
@@ -28,12 +32,7 @@ function SetupFields() {
         <Field.Error />
       </Field.Root>
       <EmailField autoComplete="username" />
-      <Field.Root name="displayName" validate={checks.displayName}>
-        <Field.Label>{t("setup.name")}</Field.Label>
-        <Field.Control autoComplete="nickname" />
-        <Field.Description>{t("setup.nameHelp")}</Field.Description>
-        <Field.Error />
-      </Field.Root>
+      <DisplayNameField label={t("setup.name")} help={t("setup.nameHelp")} />
       <NewPasswordField />
     </>
   );
