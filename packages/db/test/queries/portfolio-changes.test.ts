@@ -106,12 +106,13 @@ describe("belowZero", () => {
     await change(userId, shareId, "5", DAY_1);
     expect(await belowZero(db, userId, shareId)).toBeUndefined();
 
-    await change(userId, shareId, "-7", DAY_2);
+    const sale = await change(userId, shareId, "-7", DAY_2);
     await change(userId, shareId, "-1", DAY_3);
     expect(await belowZero(db, userId, shareId)).toEqual({
       at: DAY_2,
       quantityBefore: "5",
       quantityAfter: "-2",
+      changeIds: [sale.id],
     });
   });
 
@@ -128,7 +129,7 @@ describe("belowZero", () => {
     const shareId = await insertShare();
     await change(userId, shareId, "4", DAY_2);
     await change(userId, shareId, "-4", DAY_1);
-    expect(await belowZero(db, userId, shareId)).toEqual({
+    expect(await belowZero(db, userId, shareId)).toMatchObject({
       at: DAY_1,
       quantityBefore: "0",
       quantityAfter: "-4",

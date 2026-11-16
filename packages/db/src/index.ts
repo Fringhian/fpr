@@ -20,6 +20,8 @@ export type {
   PortfolioChangeChanges,
 } from "./queries/portfolio-changes.js";
 export * as portfolioChanges from "./queries/portfolio-changes.js";
+export type { PortfolioLogRow } from "./queries/portfolio-log.js";
+export * as portfolioLog from "./queries/portfolio-log.js";
 export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
 export * as resetKeys from "./queries/reset-keys.js";
