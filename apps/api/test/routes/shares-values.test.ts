@@ -261,9 +261,21 @@ describe("PATCH and DELETE /api/shares/:id/values/:at", () => {
     expect(clearSeries).toHaveBeenCalledOnce();
   });
 
-  it("refuses a stale expected value with the stored one", async () => {
+  it("refuses a stale expected value with the stored one and who entered it", async () => {
     const member = await addSignedIn(server, test.db, auth, "member");
+    const admin = await addSignedIn(server, test.db, auth, "admin");
     const share = await addShare(test.db, "manual");
+    await priceRows.upsert(test.db, {
+      shareId: share.id,
+      at: march2,
+      priceEur: "40.50",
+      source: "manual",
+      enteredBy: admin.id,
+    });
+    const details = {
+      priceEur: "40.50",
+      changedBy: { id: admin.id, displayName: "Test admin" },
+    };
     prices.routes.updateManualPrice = async () => {
       throw apiError("value_changed", { priceEur: "40.50" });
     };
@@ -276,17 +288,13 @@ describe("PATCH and DELETE /api/shares/:id/values/:at", () => {
       cookie: member.cookie,
       body: { priceEur: "42.00", expectedPriceEur: "41.00" },
     });
-    await expectError(updateValue, patched, "value_changed", {
-      priceEur: "40.50",
-    });
+    await expectError(updateValue, patched, "value_changed", details);
     const deleted = await apiRequest(server, path(share.id), {
       method: "DELETE",
       cookie: member.cookie,
       body: { expectedPriceEur: "41.00" },
     });
-    await expectError(deleteValue, deleted, "value_changed", {
-      priceEur: "40.50",
-    });
+    await expectError(deleteValue, deleted, "value_changed", details);
     expect(clearSeries).not.toHaveBeenCalled();
   });
 

@@ -1,6 +1,10 @@
-import { apiContract, type ShareValue } from "@fpr/contracts";
+import { apiContract, type MadeBy, type ShareValue } from "@fpr/contracts";
 import type { PricesValuePoint } from "@fpr/contracts/prices";
-import { type Db, users } from "@fpr/db";
+import { type Db, prices, users } from "@fpr/db";
+import type { AnyContractProcedure } from "@orpc/contract";
+import { ORPCError } from "@orpc/server";
+import type { Logger } from "pino";
+import { apiError } from "../errors.js";
 import { api } from "../implement.js";
 import { toPerson } from "../me/me.js";
 import { signedIn } from "../pipeline/index.js";
@@ -23,6 +27,50 @@ async function toShareValue(
   };
 }
 
+/** Who entered the price stored for a share at a moment, or `null`. */
+async function storedAuthor(
+  db: Db,
+  point: { id: string; at: string },
+): Promise<MadeBy> {
+  const price = await prices.find(db, point.id, new Date(point.at));
+  const user =
+    price?.enteredBy == null
+      ? undefined
+      : await users.findById(db, price.enteredBy);
+  return user === undefined
+    ? null
+    : { id: user.id, displayName: user.displayName };
+}
+
+/**
+ * `forwardRefusal`, with `value_changed` naming who entered the stored value.
+ * Only writers reach these routes, so the name is never an anonymous
+ * viewer's to pseudonymize.
+ */
+function forwardValueRefusal(
+  context: { db: Db; req: { log: Logger } },
+  route: AnyContractProcedure,
+  point: { id: string; at: string },
+): (error: unknown) => Promise<never> {
+  const forward: (error: unknown) => never = forwardRefusal(
+    route,
+    context.req.log,
+  );
+  return async (error) => {
+    try {
+      forward(error);
+    } catch (answer) {
+      if (answer instanceof ORPCError && answer.code === "value_changed") {
+        throw apiError("value_changed", {
+          ...(answer.data as Record<string, unknown>),
+          changedBy: await storedAuthor(context.db, point),
+        });
+      }
+      throw answer;
+    }
+  };
+}
+
 /**
  * The value point routes. Any member and the admin edit any manual share's
  * values: the price service stores each with the viewer as its author, and
@@ -35,7 +83,7 @@ export const valuePointRoutes = {
     .handler(async ({ context, input }) => {
       const point = await context.prices
         .addManualPrice({ ...input, enteredBy: context.viewer.id })
-        .catch(forwardRefusal(addValue, context.req.log));
+        .catch(forwardValueRefusal(context, addValue, input));
       context.series.clear();
       return toShareValue(context.db, point);
     }),
@@ -45,7 +93,7 @@ export const valuePointRoutes = {
     .handler(async ({ context, input }) => {
       const point = await context.prices
         .updateManualPrice({ ...input, enteredBy: context.viewer.id })
-        .catch(forwardRefusal(updateValue, context.req.log));
+        .catch(forwardValueRefusal(context, updateValue, input));
       context.series.clear();
       return toShareValue(context.db, point);
     }),
@@ -55,7 +103,7 @@ export const valuePointRoutes = {
     .handler(async ({ context, input }) => {
       await context.prices
         .deleteManualPrice({ ...input, deletedBy: context.viewer.id })
-        .catch(forwardRefusal(deleteValue, context.req.log));
+        .catch(forwardValueRefusal(context, deleteValue, input));
       context.series.clear();
     }),
 };
