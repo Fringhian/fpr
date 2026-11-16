@@ -1,6 +1,10 @@
 import type { IsoDate, Timestamp } from "@fpr/contracts";
 import { formatTime } from "../../../lib/format/date";
-import { localInstant, RACE_TIME_ZONE } from "../../../lib/race-day";
+import {
+  localInstant,
+  pastMomentOn,
+  RACE_TIME_ZONE,
+} from "../../../lib/race-day";
 
 /** Add a value's fields as typed: the day, the time of day `HH:MM` in the race's zone, and the value of one unit. */
 export type ValueDraft = { day: IsoDate; time: string; price: string };
@@ -14,15 +18,22 @@ export function timeNow(): string {
   });
 }
 
-/** The moment the day and time name, in the race's zone, or `null` while the time isn't one. */
+function instantOf(day: IsoDate, time: string): number | null {
+  return TIME.test(time) ? localInstant(day, `${time}:00`) : null;
+}
+
+/**
+ * The moment the day and time name, in the race's zone, saved as
+ * `pastMomentOn` keeps it: the current minute is a minute ago. `null` while
+ * the time isn't one.
+ */
 export function momentOf(day: IsoDate, time: string): Timestamp | null {
-  return TIME.test(time)
-    ? new Date(localInstant(day, `${time}:00`)).toISOString()
-    : null;
+  const at = instantOf(day, time);
+  return at === null ? null : pastMomentOn(day, at);
 }
 
 /** Whether the day and time are a moment that hasn't come yet. */
 export function isFuture(day: IsoDate, time: string): boolean {
-  const moment = momentOf(day, time);
-  return moment !== null && Date.parse(moment) > Date.now();
+  const at = instantOf(day, time);
+  return at !== null && at > Date.now();
 }
