@@ -1,10 +1,9 @@
-import { apiContract, type RouteMeta } from "@fpr/contracts";
+import { anonymizeResponse, apiContract, type RouteMeta } from "@fpr/contracts";
 import { implement, os } from "@orpc/server";
 import type { z } from "zod";
 import { hasAccess, personOf } from "../store/people.ts";
 import { setSession } from "../store/session.ts";
 import type { MockPerson, MockStore } from "../store/types.ts";
-import { anonymize } from "./anonymize.ts";
 import { mockError } from "./errors.ts";
 import { pseudonyms } from "./pseudonyms.ts";
 
@@ -38,20 +37,6 @@ function signedInPerson(store: MockStore): MockPerson {
   return viewer;
 }
 
-function weightOf(weights: Map<string, string>) {
-  return (fields: Record<string, unknown>, key: string): unknown => {
-    if (key === "quantity" && "weight" in fields) {
-      return fields.weight;
-    }
-    if (key === "cashEur") {
-      return fields.cashWeight;
-    }
-    const share = fields.share as { id?: unknown } | undefined;
-    const id = typeof fields.id === "string" ? fields.id : share?.id;
-    return typeof id === "string" ? (weights.get(id) ?? null) : null;
-  };
-}
-
 /**
  * The API's request pipeline, on the mock store: a signed-in route needs a
  * session (`unauthenticated`) whose person still has access (`access_ended`)
@@ -80,12 +65,12 @@ const pipeline = os
     }
     const names = pseudonyms(context.store.people.map((person) => person.id));
     // The contracts' schemas are Zod's, which the anonymizer walks.
-    const output = anonymize(
+    const output = anonymizeResponse(
       result.output,
       outputSchema as unknown as z.core.$ZodType,
       {
         pseudonym: (id) => names.get(id) ?? "",
-        weight: weightOf(added.quantityWeights),
+        weights: added.quantityWeights,
       },
     );
     return { ...result, output };
