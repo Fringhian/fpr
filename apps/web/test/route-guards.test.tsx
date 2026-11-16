@@ -2,6 +2,7 @@
 import { act } from "react";
 import { describe, expect, it } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
+import { fixtureShareId } from "../src/mocks/fixtures/shares.ts";
 import type { Persona } from "../src/mocks/personas.ts";
 import { setSession } from "../src/mocks/store/session.ts";
 import { visit } from "./visit-app.tsx";
@@ -15,11 +16,14 @@ const routes = {
   // Someone else's page: the member persona's own is their Portfolio.
   member: `/members/${fixturePersonId("robin")}`,
   memberRecord: `/members/${userId}/record`,
+  memberHistory: `/members/${userId}/history`,
   portfolio: "/portfolio",
   portfolioRecord: "/portfolio/record",
   portfolioHistory: "/portfolio/history",
   shares: "/shares",
   share: "/shares/0b8a4c62-5d1e-4f0a-9c3e-2a7f6b1d9e40",
+  newShare: "/shares/new",
+  shareValue: `/shares/${fixtureShareId("wind")}/value`,
   help: "/help",
   people: "/admin/people",
   trackedShares: "/admin/shares",
@@ -37,18 +41,27 @@ type Page = keyof typeof routes;
 
 const pages = Object.keys(routes) as Page[];
 const everyday = ["home", "members", "member", "shares", "share", "help"];
-const portfolio = [
+// The pages that write: a portfolio's, and a manual share's.
+const writes = [
   "portfolio",
   "portfolioRecord",
   "portfolioHistory",
   "portfolioNowhere",
+  "newShare",
+  "shareValue",
 ];
 const adminArea = ["people", "trackedShares", "adminNowhere"];
 
 /** The pages each onboarded persona enters; every other page leads Home. */
 const enters = {
-  admin: [...everyday, ...portfolio, ...adminArea, "memberRecord"],
-  member: [...everyday, ...portfolio],
+  admin: [
+    ...everyday,
+    ...writes,
+    ...adminArea,
+    "memberRecord",
+    "memberHistory",
+  ],
+  member: [...everyday, ...writes],
   guest: everyday,
   anonymous: [...everyday, ...adminArea],
 } satisfies Partial<Record<Persona, readonly string[]>>;
