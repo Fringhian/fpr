@@ -239,6 +239,24 @@
         }
       }
     },
+    "holdingHistory": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/holdings/{shareId}/history",
+          "summary": "A member's holding of a share over the period"
+        }
+      }
+    },
     "log": {
       "~orpc": {
         "errorMap": {},

@@ -1,14 +1,14 @@
-import type { PortfolioLogEntry } from "@fpr/contracts";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { entryValueOf, useEntryWrites } from "../../../lib/entry-writes";
+import type { SavedEntry } from "../../../lib/log-entry";
 import { useEntryRefusal } from "../../_app/-portfolio-sections/use-entry-refusal";
 
 /** A change saved in this sitting: the entry, and what it was before an edit. */
 export type SavedChange = {
-  entry: PortfolioLogEntry;
+  entry: SavedEntry;
   /** The entry before an edit, or `null` for a new one. */
-  previous: PortfolioLogEntry | null;
+  previous: SavedEntry | null;
   undone: boolean;
   busy: boolean;
 };
@@ -40,7 +40,7 @@ export function useSessionChanges() {
     items,
     last: items.at(-1),
     /** Adds a change just saved; one saved again, by a second press, keeps its place. */
-    add: (entry: PortfolioLogEntry, previous: PortfolioLogEntry | null) =>
+    add: (entry: SavedEntry, previous: SavedEntry | null) =>
       setItems((all) =>
         all.some((item) => item.entry.id === entry.id)
           ? all

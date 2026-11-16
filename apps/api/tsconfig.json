@@ -4,6 +4,10 @@
   "compilerOptions": {
     // File Layout
     "outDir": "./dist",
+    // An app: nothing imports its types, and the router's inferred type is
+    // too long to write to a declaration file.
+    "declaration": false,
+    "declarationMap": false,
 
     // Environment Settings
     "types": ["node"]

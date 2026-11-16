@@ -1,5 +1,6 @@
 import { type RawBuilder, sql } from "kysely";
 import type { Db } from "../database.js";
+import { shareValue } from "./share-price.js";
 
 /** A member's balance at a moment, as decimal strings in EUR. */
 export interface Balance {
@@ -48,6 +49,10 @@ export async function valueMoments(
  * build on in another query.
  */
 export function valuedMoments(moments: RawBuilder<unknown>) {
+  const value = shareValue("shares", sql`held.at`, {
+    fallback: true,
+    shareId: sql.ref("held.share_id"),
+  });
   return sql<BalancePoint & { userId: string }>`
     with moments as (${moments}),
     holding_steps as (
@@ -83,25 +88,10 @@ export function valuedMoments(moments: RawBuilder<unknown>) {
       where steps.quantity > 0
     ),
     priced as (
-      select
-        held.share_id,
-        held.at,
-        coalesce(latest.price_eur, earliest.price_eur) as price_eur
+      select held.share_id, held.at, ${value.column("price_eur")} as price_eur
       from (select distinct share_id, at from held) held
       join shares on shares.id = held.share_id
-      left join lateral (
-        select price_eur from prices
-        where share_id = held.share_id and at <= held.at
-        order by at desc
-        limit 1
-      ) latest on true
-      left join lateral (
-        select price_eur from prices
-        where share_id = held.share_id
-        order by at
-        limit 1
-      ) earliest
-        on shares.kind = 'manual' or shares.history_starts_on is not null
+      ${value.join}
     ),
     valued as (
       select

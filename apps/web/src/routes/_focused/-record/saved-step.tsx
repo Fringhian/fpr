@@ -1,4 +1,3 @@
-import type { PortfolioLogEntry } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { Badge } from "../../../components/atoms/badge/badge";
 import { Button } from "../../../components/atoms/button/button";
@@ -6,7 +5,7 @@ import { UndoList } from "../../../components/molecules/undo-list/undo-list";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
-import { useEntryTitle } from "../../../lib/log-entry";
+import { type SavedEntry, useEntryTitle } from "../../../lib/log-entry";
 import { RACE_TIME_ZONE } from "../../../lib/race-day";
 import { useFlow } from "./flow";
 import { PortfolioNow } from "./portfolio-now";
@@ -22,7 +21,7 @@ export function SavedStep() {
   const { session, recordAnother, close } = useFlow();
   const title = useEntryTitle();
 
-  const day = (entry: PortfolioLogEntry, style: "short" | "long") =>
+  const day = (entry: SavedEntry, style: "short" | "long") =>
     formatDate(entry.effectiveAt, language, {
       style,
       timeZone: RACE_TIME_ZONE,

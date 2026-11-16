@@ -31,6 +31,7 @@ import type {
   StoredEntry,
 } from "./types.ts";
 import {
+  cashOf,
   changesOf,
   type Holding,
   priceAt,
@@ -160,6 +161,9 @@ export function portfolioView(
     sharesWeight: ratio(valuation.sharesEur, valuation.balanceEur),
     cashEur: money(valuation.cashEur),
     cashWeight: ratio(valuation.cashEur, valuation.balanceEur),
+    cashSetAt:
+      cashOf(store, userId).findLast(({ atMs }) => atMs <= now)?.effectiveAt ??
+      null,
     gain: toGain(gainBetween(store, changes, window.startMs, now)),
     firstEntryOn: firstEntryOn(store, userId),
     measuredFrom: measuredFrom(store, userId, window),

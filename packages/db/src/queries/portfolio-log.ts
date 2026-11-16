@@ -236,6 +236,19 @@ export async function weights(
   return new Map(rows.map(({ id, weight }) => [id, weight]));
 }
 
+/** A person's log entries after a moment, oldest first. */
+export async function after(
+  db: Db,
+  userId: string,
+  at: Date,
+): Promise<PortfolioLogRow[]> {
+  const { rows } = await logEntries(
+    userId,
+    sql`entries.effective_at > ${at}`,
+  ).execute(db);
+  return rows.map(toRow).reverse();
+}
+
 /** How many share changes and cash balances a person has. */
 export async function count(db: Db, userId: string): Promise<number> {
   const { rows } = await sql<{ count: string }>`

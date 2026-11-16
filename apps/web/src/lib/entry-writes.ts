@@ -1,6 +1,7 @@
-import type { Decimal, Id, PortfolioLogEntry, Timestamp } from "@fpr/contracts";
+import type { Decimal, Id, Timestamp } from "@fpr/contracts";
 import { useMutation } from "@tanstack/react-query";
 import { useApi } from "./api/use-api";
+import type { SavedEntry } from "./log-entry";
 
 /** A log entry's value, as a write sends it. */
 export type EntryValue =
@@ -12,7 +13,7 @@ export type EntryValue =
       effectiveAt: Timestamp;
     };
 
-export function entryValueOf(entry: PortfolioLogEntry): EntryValue {
+export function entryValueOf(entry: SavedEntry): EntryValue {
   return entry.type === "cash"
     ? {
         type: "cash",
@@ -48,11 +49,7 @@ export function useEntryWrites() {
   const all = [addChange, setCash, updateChange, updateCash];
   return {
     pending: all.some((write) => write.isPending),
-    add: (
-      userId: Id,
-      id: Id,
-      value: EntryValue,
-    ): Promise<PortfolioLogEntry> => {
+    add: (userId: Id, id: Id, value: EntryValue): Promise<SavedEntry> => {
       const { effectiveAt } = value;
       return value.type === "cash"
         ? setCash.mutateAsync({
@@ -69,7 +66,7 @@ export function useEntryWrites() {
             effectiveAt,
           });
     },
-    update: (id: Id, value: EntryValue): Promise<PortfolioLogEntry> => {
+    update: (id: Id, value: EntryValue): Promise<SavedEntry> => {
       const { effectiveAt } = value;
       return value.type === "cash"
         ? updateCash.mutateAsync({
@@ -83,7 +80,7 @@ export function useEntryWrites() {
             effectiveAt,
           });
     },
-    remove: ({ type, id }: PortfolioLogEntry): Promise<unknown> =>
+    remove: ({ type, id }: SavedEntry): Promise<unknown> =>
       type === "cash"
         ? deleteCash.mutateAsync({ id })
         : deleteChange.mutateAsync({ id }),

@@ -78,6 +78,7 @@ function fieldsOf(
  * carry, by the first rule its name matches. `undefined` is no mark.
  */
 const nameRules: [name: RegExp, kinds: (AnonymizeKind | undefined)[]][] = [
+  [/At$/, [undefined]],
   [/^(email|displayName|avatarUrl)$/, ["personal"]],
   [/^(percent|weight)$|(Percent|Weight)$/, [undefined]],
   [/^quantity|^cash|^amountEur$/, ["quantity"]],
@@ -178,6 +179,7 @@ describe("an anonymized response", () => {
       sharesWeight: "80",
       cashEur: "200.00",
       cashWeight: "20",
+      cashSetAt: "2026-01-05T09:00:00+01:00",
       gain: { eur: "50.00", percent: "5.26" },
       firstEntryOn: "2026-01-05",
       measuredFrom: null,
@@ -205,6 +207,7 @@ describe("an anonymized response", () => {
       sharesWeight: "80",
       cashEur: "20",
       cashWeight: "20",
+      cashSetAt: "2026-01-05T09:00:00+01:00",
       gain: { percent: "5.26" },
       firstEntryOn: "2026-01-05",
       measuredFrom: null,
