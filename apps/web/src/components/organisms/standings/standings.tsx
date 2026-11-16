@@ -1,7 +1,7 @@
 import { type ComponentProps, type ReactNode, useId, useState } from "react";
 import { cn } from "../../../lib/cn";
 import { Card } from "../../atoms/card/card";
-import { LaneNotStarted } from "../../molecules/lane/lane";
+import * as Lane from "../../molecules/lane/lane";
 import {
   type StandingsBoard,
   StandingsEmpty,
@@ -110,7 +110,7 @@ export function Standings({
           panel={panel}
         />
       )}
-      <LaneNotStarted names={notStarted} />
+      <Lane.NotStarted names={notStarted} />
     </Card>
   );
 }

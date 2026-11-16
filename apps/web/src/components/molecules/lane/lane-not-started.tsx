@@ -5,7 +5,7 @@ import { formatList } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
 
 /** The line writes its own words, so it takes no `children`. */
-export type LaneNotStartedProps = {
+export type NotStartedProps = {
   /** The names of the members with no entry yet. Renders nothing when empty. */
   names: readonly string[];
 } & Omit<ComponentProps<"p">, "names" | "children">;
@@ -15,11 +15,7 @@ export type LaneNotStartedProps = {
  * haven’t started yet.” Every other prop goes to the `<p>`, `className`
  * included.
  */
-export function LaneNotStarted({
-  names,
-  className,
-  ...props
-}: LaneNotStartedProps) {
+export function NotStarted({ names, className, ...props }: NotStartedProps) {
   const { t } = useTranslation();
   const language = useLanguage();
 

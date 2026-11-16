@@ -6,7 +6,7 @@ import { cn } from "../../../lib/cn";
 import { laneScale } from "../../../lib/lane";
 import type { PictureMedal } from "../../atoms/picture/picture";
 import * as Segment from "../../atoms/segment/segment";
-import { Lane, type LaneProps } from "../../molecules/lane/lane";
+import * as Lane from "../../molecules/lane/lane";
 import { useRankSlide } from "./rank-slide";
 
 /** The standings shown: by gain over the period, or by balance. */
@@ -17,7 +17,7 @@ export type StandingsBoard = LeaderboardBoard;
  * names the board it was measured on, so pass the rows of the board shown.
  */
 export type StandingsMember = Pick<
-  LaneProps,
+  Lane.LaneProps,
   "name" | "color" | "photo" | "best" | "value" | "measuredFrom" | "incomplete"
 > & {
   /** The member's id: what `focusedId`, `viewerId` and `onFocusMember` name. */
@@ -123,7 +123,7 @@ export function StandingsLanes({
       {members.map(({ id, ...member }, index) => (
         // The card's surface, so lanes crossing as they slide read as rows over each other.
         <li key={id} data-member={id} className="rounded-m bg-surface">
-          <Lane
+          <Lane.Basic
             {...member}
             you={id === viewerId}
             medal={MEDALS[index] ?? null}
@@ -132,7 +132,7 @@ export function StandingsLanes({
             onOpenChange={(open) => onFocus(open ? id : null)}
           >
             {panel?.({ id, ...member })}
-          </Lane>
+          </Lane.Basic>
         </li>
       ))}
     </ol>

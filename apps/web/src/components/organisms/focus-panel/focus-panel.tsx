@@ -9,7 +9,7 @@ import { Card } from "../../atoms/card/card";
 import { GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture } from "../../atoms/picture/picture";
 import { TextLink, type TextLinkProps } from "../../atoms/text-link/text-link";
-import { YouSuffix } from "../../molecules/lane/lane";
+import * as Lane from "../../molecules/lane/lane";
 import { type Mover, MoverList } from "../mover-row/mover-row";
 
 /** The member the panel shows, as the race and the standings send them. */
@@ -142,7 +142,7 @@ function FocusHeader({
       <div className="min-w-0 flex-1">
         <h2 id={nameId} className="truncate text-m font-semibold">
           {member.name}
-          {you ? <YouSuffix /> : null}
+          {you ? <Lane.YouSuffix /> : null}
         </h2>
         <p className="text-xs text-secondary">
           {t(`focusPanel.period.${you ? "you" : "them"}.${period}`)}

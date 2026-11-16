@@ -6,25 +6,55 @@ import { cn, stateClassName } from "../../../lib/cn";
 import type { LaneValue } from "../../../lib/lane";
 import type { MemberColor } from "../../../lib/member-color";
 import { Picture, type PictureMedal } from "../../atoms/picture/picture";
-import {
-  LaneBar,
-  type LaneBest,
-  LaneFigure,
-  LaneName,
-  LanePanel,
-} from "./lane-parts";
+import { type LaneBest, Name } from "./lane-name";
+import { Panel } from "./lane-panel";
+import { Bar, Figure } from "./lane-value";
 
-export {
-  LaneNotStarted,
-  type LaneNotStartedProps,
-} from "./lane-not-started";
-export { type LaneBest, YouSuffix } from "./lane-parts";
+export { type LaneBest, Name, YouSuffix } from "./lane-name";
+export { NotStarted } from "./lane-not-started";
+export { Panel } from "./lane-panel";
+export { Bar, Figure } from "./lane-value";
+
+/** The lane, Base UI's collapsible root: `open`, `defaultOpen` and `onOpenChange` hold whether it is open. */
+export function Root({
+  className,
+  ...props
+}: ComponentProps<typeof Collapsible.Root>) {
+  return (
+    <Collapsible.Root
+      {...props}
+      className={stateClassName("rounded-m", className)}
+    />
+  );
+}
+
+const row = cn(
+  "grid w-full cursor-pointer items-center rounded-m bg-transparent text-start text-primary transition-colors duration-s ease-soft",
+  "grid-cols-[auto_minmax(0,1fr)_3.5rem_4.25rem] gap-[0.625rem] px-s py-[0.4375rem]",
+  "tablet:grid-cols-[auto_11.25rem_minmax(0,1fr)_5.5rem] tablet:gap-[0.875rem] tablet:px-[0.75rem] tablet:py-s",
+  "desktop:grid-cols-[auto_14.375rem_minmax(0,1fr)_5.5rem] desktop:gap-[0.875rem] desktop:px-[0.75rem] desktop:py-s",
+  // A light charcoal veil, so it reads on a white lane and on the viewer's tinted one.
+  "hover:bg-primary/5",
+  "focus-visible:focus-ring",
+);
+
+/** The row that opens the lane, Base UI's collapsible trigger, in four columns: the picture, `Name`, `Bar`, then `Figure`. */
+export function Row({
+  className,
+  ...props
+}: ComponentProps<typeof Collapsible.Trigger>) {
+  return (
+    <Collapsible.Trigger
+      {...props}
+      className={stateClassName(row, className)}
+    />
+  );
+}
 
 /**
- * The lane's own props, then every prop of Base UI's collapsible root:
- * `open`, `defaultOpen` and `onOpenChange`, called when the lane is pressed
- * with the state it asks for, `className`, a string or a function of its
- * state.
+ * The lane's own props, then every prop of `Root`: `open`, `defaultOpen` and
+ * `onOpenChange`, called when the lane is pressed with the state it asks for,
+ * and `className`, a string or a function of its state.
  */
 export type LaneProps = {
   /** The member's display name, or an anonymous viewer's pseudonym. */
@@ -75,25 +105,14 @@ export type LaneProps = {
   | "children"
 >;
 
-const trigger = cn(
-  "grid w-full cursor-pointer items-center rounded-m bg-transparent text-start text-primary transition-colors duration-s ease-soft",
-  "grid-cols-[auto_minmax(0,1fr)_3.5rem_4.25rem] gap-[0.625rem] px-s py-[0.4375rem]",
-  "tablet:grid-cols-[auto_11.25rem_minmax(0,1fr)_5.5rem] tablet:gap-[0.875rem] tablet:px-[0.75rem] tablet:py-s",
-  "desktop:grid-cols-[auto_14.375rem_minmax(0,1fr)_5.5rem] desktop:gap-[0.875rem] desktop:px-[0.75rem] desktop:py-s",
-  // A light charcoal veil, so it reads on a white lane and on the viewer's tinted one.
-  "hover:bg-primary/5",
-  "focus-visible:focus-ring",
-);
-
 /**
  * One member in the standings: their picture, name and best share, a bar from
  * the zero line, and their value. Gains go right of the zero line and losses
  * left; the order and the bars show the ranking, with no rank numbers. The
  * whole row is a button that opens the lane in place: on phone, the opened
- * lane shows the best share under the row, then `children`. Every other prop
- * goes to Base UI's collapsible root, `className` included.
+ * lane shows the best share under the row, then `children`.
  */
-export function Lane({
+export function Basic({
   name,
   color,
   photo = null,
@@ -109,14 +128,11 @@ export function Lane({
   ...props
 }: LaneProps) {
   return (
-    <Collapsible.Root
+    <Root
       {...props}
-      className={stateClassName(
-        cn("rounded-m", you ? "bg-highlight" : ""),
-        className,
-      )}
+      className={stateClassName(you ? "bg-highlight" : "", className)}
     >
-      <Collapsible.Trigger className={trigger}>
+      <Row>
         <Picture
           name={name}
           color={color}
@@ -125,17 +141,17 @@ export function Lane({
           medal={medal}
           aria-hidden
         />
-        <LaneName
+        <Name
           name={name}
           you={you}
           best={best}
           measuredFrom={measuredFrom}
           incomplete={incomplete}
         />
-        <LaneBar value={value} scale={scale} color={color} />
-        <LaneFigure value={value} />
-      </Collapsible.Trigger>
-      <LanePanel best={best}>{children}</LanePanel>
-    </Collapsible.Root>
+        <Bar value={value} scale={scale} color={color} />
+        <Figure value={value} />
+      </Row>
+      <Panel best={best}>{children}</Panel>
+    </Root>
   );
 }
