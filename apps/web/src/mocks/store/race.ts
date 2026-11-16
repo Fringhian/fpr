@@ -63,7 +63,8 @@ function topHoldings(store: MockStore, userId: Id) {
 /**
  * Every member with their closes over the period and their gain and balance
  * at the last close, and their largest holdings now. A member with no close
- * yet has no gain, balance, or series.
+ * yet has no gain, balance, or series. As the API lists them: those with a
+ * close, then those not started, each in the order they were added.
  */
 export function membersView(store: MockStore, period: Period): Members {
   const { window, standings, notStarted } = standingsAt(store, period);
