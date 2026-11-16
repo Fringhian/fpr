@@ -8,8 +8,8 @@ import { TextLink } from "../../../../components/atoms/text-link/text-link";
 import { editPortfolioLink } from "../../../../lib/edit-portfolio";
 import { formatDate, formatTime } from "../../../../lib/format/date";
 import { useLanguage } from "../../../../lib/i18n";
+import { mayEnter } from "../../../../lib/session/access";
 import type { SecretContent } from "./dialog-steps";
-import { hasPortfolio } from "./people-model";
 
 /**
  * The link to a member's page in edit mode, where the admin records their
@@ -49,7 +49,7 @@ export function useAccessSecrets() {
       value: accessLink,
       hint: t("adminPeople.link.hint", { name: person.displayName }),
       start:
-        !replaced && hasPortfolio(person.role) ? (
+        !replaced && mayEnter("portfolio", person.role) ? (
           <PrepareLink person={person} />
         ) : undefined,
     }),

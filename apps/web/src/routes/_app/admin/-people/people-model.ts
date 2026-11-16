@@ -1,5 +1,5 @@
 import type { AdminPerson, AdminUpdatePerson, Role } from "@fpr/contracts";
-import { roles, writerRoles } from "@fpr/contracts/values";
+import { roles } from "@fpr/contracts/values";
 import { dayOf, endOfDay } from "../../../../lib/date-field";
 
 /** The one dialog People shows at a time, and who or what it is for. */
@@ -52,11 +52,6 @@ export function isLastAdmin(
         other.accessStatus === "active",
     )
   );
-}
-
-/** Whether the role has a portfolio, which the admin can prepare. */
-export function hasPortfolio(role: Role): boolean {
-  return (writerRoles as readonly Role[]).includes(role);
 }
 
 /**

@@ -9,7 +9,7 @@ import { useToast } from "../../../../components/molecules/toast/use-toast";
 import { useErrorText } from "../../../../lib/api/errors";
 import { useApi } from "../../../../lib/api/use-api";
 import type { DialogRootState } from "../../../../lib/dialog-state";
-import { hasPortfolio } from "./people-model";
+import { mayEnter } from "../../../../lib/session/access";
 
 /**
  * Deletes the person, then says so in a toast. A refusal is kept to show in
@@ -69,7 +69,7 @@ export function DeletePersonDialog({
           <ConfirmDialog.Close />
         </ConfirmDialog.Header>
         <ConfirmDialog.Description>
-          {hasPortfolio(person.role)
+          {mayEnter("portfolio", person.role)
             ? t("adminPeople.delete.withPortfolio", { name })
             : t("adminPeople.delete.withoutPortfolio", { name })}
         </ConfirmDialog.Description>

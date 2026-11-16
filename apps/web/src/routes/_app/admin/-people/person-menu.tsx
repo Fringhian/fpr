@@ -3,7 +3,8 @@ import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import * as Menu from "../../../../components/molecules/menu/menu";
 import { editPortfolioLink } from "../../../../lib/edit-portfolio";
-import { hasPassword, hasPortfolio, type PeopleActions } from "./people-model";
+import { mayEnter } from "../../../../lib/session/access";
+import { hasPassword, type PeopleActions } from "./people-model";
 
 /**
  * The ⋯ menu's items for a person: Edit, Edit portfolio for someone with a
@@ -32,7 +33,7 @@ export function PersonMenu({
   return (
     <>
       <Menu.Item onClick={open("edit")}>{t("adminPeople.menu.edit")}</Menu.Item>
-      {hasPortfolio(person.role) ? (
+      {mayEnter("portfolio", person.role) ? (
         <Menu.LinkItem render={editPortfolioLink(person.id)}>
           {t("adminPeople.menu.editPortfolio")}
         </Menu.LinkItem>
