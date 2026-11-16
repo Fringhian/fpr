@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { type HeldMarketShare, prices } from "@fpr/db";
+import { type HeldMarketShare, lastTradingDay, prices } from "@fpr/db";
 import type { Logger } from "pino";
-import { lastTradingDay } from "../market/trading-day.js";
 import {
   type ClosesJob,
   closesJobs,

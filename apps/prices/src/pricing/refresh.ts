@@ -1,9 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { RefreshRun, RefreshState } from "@fpr/contracts";
-import type { HeldMarketShare } from "@fpr/db";
+import { type HeldMarketShare, lastTradingDay } from "@fpr/db";
 import type { Cron } from "croner";
 import { dayIn } from "../market/time.js";
-import { lastTradingDay } from "../market/trading-day.js";
 import type { ProviderErrorReason } from "../providers/index.js";
 import { closesJobs, fetchCloses, recordHistoryStarts } from "./closes.js";
 import type { PricingDeps } from "./deps.js";
