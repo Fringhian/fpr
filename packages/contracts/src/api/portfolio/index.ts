@@ -1,6 +1,7 @@
 import { getPortfolioBalanceHistory } from "./balance-history.js";
 import {
   deletePortfolioCash,
+  getPortfolioCashAt,
   setPortfolioCash,
   updatePortfolioCash,
 } from "./cash.js";
@@ -10,7 +11,7 @@ import {
   updatePortfolioChange,
 } from "./changes.js";
 import { getPortfolio, getPortfolioHoldingAt } from "./holdings.js";
-import { getPortfolioLog } from "./log.js";
+import { getPortfolioLog, getPortfolioLogEntry } from "./log.js";
 
 export type * from "./balance-history.js";
 export type * from "./cash.js";
@@ -24,6 +25,8 @@ export const portfolioContract = {
   get: getPortfolio,
   holdingAt: getPortfolioHoldingAt,
   log: getPortfolioLog,
+  logEntry: getPortfolioLogEntry,
+  cashAt: getPortfolioCashAt,
   addChange: addPortfolioChange,
   updateChange: updatePortfolioChange,
   deleteChange: deletePortfolioChange,

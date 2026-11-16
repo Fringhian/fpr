@@ -58,3 +58,24 @@ export const getPortfolioLog = signedInRoute(roles)
   .input(portfolioLogQuerySchema)
   .output(portfolioLogSchema)
   .errors(errorMap("invalid_request", "not_found"));
+
+/** `GET /users/{userId}/log/{entryId}`: a share change's or a cash balance's id. */
+export const portfolioLogEntryQuerySchema = z.object({
+  userId: idSchema,
+  entryId: idSchema,
+});
+
+export type PortfolioLogEntryQuery = z.input<
+  typeof portfolioLogEntryQuerySchema
+>;
+
+/** Answers `not_found` for an entry of another member. */
+export const getPortfolioLogEntry = signedInRoute(roles)
+  .route({
+    method: "GET",
+    path: "/users/{userId}/log/{entryId}",
+    summary: "One entry of a member's log",
+  })
+  .input(portfolioLogEntryQuerySchema)
+  .output(portfolioLogEntrySchema)
+  .errors(errorMap("invalid_request", "not_found"));

@@ -128,7 +128,9 @@ A person without a picture is drawn by the web app as their initial on their col
 | --- | --- | --- |
 | `GET /users/:userId/portfolio?period=` | all | Holdings with their position and price series, cash, balance, gain over the period |
 | `GET /users/:userId/holdings/:shareId?at=` | all | The quantity of a share held at a moment |
-| `GET /users/:userId/log` | all | Share changes and cash balances, newest first, paged |
+| `GET /users/:userId/log` | all | Share changes and cash balances, newest first, paged, each with who made it and what it changed |
+| `GET /users/:userId/log/:entryId` | all | One share change or cash balance of the log |
+| `GET /users/:userId/cash-at?at=` | all | The cash held at a moment, and when it was set |
 | `GET /users/:userId/balance-history?period=` | all | Balance and gain at each close of the period, then each refresh today, with the entries for chart markers |
 | `POST /users/:userId/changes` | writers | Add or remove shares |
 | `PATCH /changes/:id`, `DELETE /changes/:id` | writers | Edit or delete a share change |
