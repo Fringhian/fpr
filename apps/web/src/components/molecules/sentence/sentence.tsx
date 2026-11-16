@@ -1,7 +1,6 @@
 import type { Period } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
 import { type Decimal, formatMoney, formatPercent } from "../../../lib/format";
 import {
   type GainInput,
@@ -17,67 +16,9 @@ import { Chip } from "../../atoms/chip/chip";
 import { GAIN_TONE_TEXT, GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture } from "../../atoms/picture/picture";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
+import { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 
-/**
- * The header sentence's block: the greeting, the headline, then the story
- * line. It goes in `Sky.Header`, after the page bar. Every prop goes to the
- * `<div>`.
- */
-export function Root(props: ComponentProps<"div">) {
-  return <div {...props} />;
-}
-
-/** The greeting, in the sky's ink: “Good evening, Alex”. Every prop goes to the `<p>`, `className` included. */
-export function Greeting({ className, ...props }: ComponentProps<"p">) {
-  return <p {...props} className={cn("text-m text-on-sky", className)} />;
-}
-
-/**
- * The headline, the page's heading: display size on tablet and desktop,
- * headline size on phone. Every prop goes to the `<h1>`, `className`
- * included.
- */
-export function Headline({ className, ...props }: ComponentProps<"h1">) {
-  return (
-    <h1
-      {...props}
-      className={cn(
-        "mt-xs font-semibold text-balance text-primary",
-        "text-xl",
-        "tablet:text-display",
-        "desktop:text-display",
-        className,
-      )}
-    />
-  );
-}
-
-/**
- * The story line, with room for trail signs and chips: its lines are 1.8
- * times its text apart, so signs on two lines never touch. Every prop goes to
- * the `<p>`, `className` included.
- */
-export function Story({ className, ...props }: ComponentProps<"p">) {
-  return (
-    <p
-      {...props}
-      className={cn("mt-s text-m leading-[1.8] text-primary", className)}
-    />
-  );
-}
-
-/**
- * A part of the story line shown from tablet up: the phone keeps the leader
- * only. Every prop goes to the `<span>`, `className` included.
- */
-export function Wide({ className, ...props }: ComponentProps<"span">) {
-  return (
-    <span
-      {...props}
-      className={cn("", "hidden", "tablet:inline", "desktop:inline", className)}
-    />
-  );
-}
+export { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 
 /** A person the sentence draws with their picture. */
 export interface SentencePerson {
@@ -241,6 +182,47 @@ function YouLead({ you }: { you: SentencePerson }) {
 }
 
 /**
+ * The headline: your result for the period, or, for a guest or an anonymous
+ * viewer, the leader's, named. Nothing when the gain has no value.
+ */
+function RaceHeadline({
+  gain,
+  leaderName,
+  period,
+  unit,
+}: {
+  gain: GainInput;
+  leaderName: string | null;
+  period: Period;
+  unit: GainUnit;
+}) {
+  const { t } = useTranslation();
+  const language = useLanguage();
+
+  const watching = leaderName !== null;
+  const tone = gainDisplay(gain, unit, language)?.tone ?? null;
+  const amount = headlineAmount(gain, language, watching);
+
+  return amount === null || tone === null ? null : (
+    <Headline>
+      <Trans
+        i18nKey={
+          watching
+            ? "sentence.headline.leader"
+            : `sentence.headline.${HEADLINE_KEY[tone]}`
+        }
+        values={{
+          period: t(`sentence.period.${period}.start`),
+          name: leaderName ?? undefined,
+          amount,
+        }}
+        components={{ gain: <span className={GAIN_TONE_TEXT[tone]} /> }}
+      />
+    </Headline>
+  );
+}
+
+/**
  * Home's header sentence, written from the race: a greeting, your result for
  * the period, and a story line with who leads and the star share. It adapts
  * to where you stand: someone else leads, you lead, everyone is down (read
@@ -267,37 +249,22 @@ export function Race({
   const language = useLanguage();
 
   const watching = standing === "watching";
-  const headlineGain = watching ? leader.gain : gain;
-  const tone = gainDisplay(headlineGain, unit, language)?.tone ?? null;
-  const amount = headlineAmount(headlineGain, language, watching);
   const leadingGain = standing === "youLead" ? gain : (leader?.gain ?? null);
   const everyoneDown =
     leadingGain !== null &&
     gainDisplay(leadingGain, unit, language)?.tone === "negative";
   const hasLead = !watching;
   const hasStory = everyoneDown || hasLead || Boolean(starShare);
-  const separator = t("sentence.story.separator");
 
   return (
     <Root {...props}>
       <Greeting>{t(`sentence.greeting.${timeOfDay}`, { name })}</Greeting>
-      {amount === null || tone === null ? null : (
-        <Headline>
-          <Trans
-            i18nKey={
-              watching
-                ? "sentence.headline.leader"
-                : `sentence.headline.${HEADLINE_KEY[tone]}`
-            }
-            values={{
-              period: t(`sentence.period.${period}.start`),
-              name: leader?.name,
-              amount,
-            }}
-            components={{ gain: <span className={GAIN_TONE_TEXT[tone]} /> }}
-          />
-        </Headline>
-      )}
+      <RaceHeadline
+        gain={watching ? leader.gain : gain}
+        leaderName={watching ? leader.name : null}
+        period={period}
+        unit={unit}
+      />
       {hasStory ? (
         <Story>
           {everyoneDown ? (
@@ -305,7 +272,7 @@ export function Race({
               {t("sentence.story.everyoneDown", {
                 period: t(`sentence.period.${period}.inline`),
               })}
-              {hasLead || starShare ? separator : null}
+              {hasLead || starShare ? t("sentence.story.separator") : null}
             </Wide>
           ) : null}
           {standing === "theyLead" ? (
@@ -316,22 +283,41 @@ export function Race({
           ) : null}
           {standing === "alone" ? t("sentence.story.alone") : null}
           {starShare ? (
-            <Wide>
-              {hasLead ? separator : null}
-              <Trans
-                i18nKey={
-                  everyoneDown || hasLead
-                    ? "sentence.story.starShare"
-                    : "sentence.story.starShareFirst"
-                }
-                components={{
-                  chip: <Chip gain={starShare.gain}>{starShare.name}</Chip>,
-                }}
-              />
-            </Wide>
+            <StarShareLine
+              starShare={starShare}
+              separated={hasLead}
+              first={!everyoneDown && !hasLead}
+            />
           ) : null}
         </Story>
       ) : null}
     </Root>
+  );
+}
+
+/** The star share, from tablet up, after what comes before it on the story line or opening it. */
+function StarShareLine({
+  starShare,
+  separated,
+  first,
+}: {
+  starShare: StarShare;
+  separated: boolean;
+  first: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Wide>
+      {separated ? t("sentence.story.separator") : null}
+      <Trans
+        i18nKey={
+          first ? "sentence.story.starShareFirst" : "sentence.story.starShare"
+        }
+        components={{
+          chip: <Chip gain={starShare.gain}>{starShare.name}</Chip>,
+        }}
+      />
+    </Wide>
   );
 }

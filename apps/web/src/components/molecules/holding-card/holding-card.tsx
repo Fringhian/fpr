@@ -5,33 +5,19 @@ import {
   type ReactNode,
   useId,
 } from "react";
-import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import {
-  type Decimal,
-  formatDate,
-  formatMoney,
-  formatQuantity,
-  formatTime,
-  type Timestamp,
-} from "../../../lib/format";
-import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
-import { useLanguage } from "../../../lib/i18n";
-import { Badge } from "../../atoms/badge/badge";
+import type { Decimal, Timestamp } from "../../../lib/format";
+import type { GainInput, GainUnit } from "../../../lib/gain";
 import { Card } from "../../atoms/card/card";
-import { GainChip } from "../../atoms/gain-chip/gain-chip";
-import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
 import type { IconProps } from "../../foundations/icon/icon";
-import type { ChartColor, ChartPoint } from "../chart/chart";
-import * as Menu from "../menu/menu";
+import type { ChartPoint } from "../chart/chart";
+import { card } from "./holding-card-parts";
 import {
-  CardFigure,
-  Curve,
-  caption,
-  card,
-  foot,
-  NameLink,
-} from "./holding-card-parts";
+  HoldingDetails,
+  HoldingHeader,
+  PendingFoot,
+  PricedFoot,
+} from "./holding-card-sections";
 
 export { CashCard, type CashCardProps } from "./cash-card";
 
@@ -96,109 +82,6 @@ export type HoldingCardProps = {
   | "children"
 >;
 
-const CURVE_COLORS = {
-  positive: "positive",
-  negative: "negative",
-  flat: "muted",
-} as const satisfies Record<string, ChartColor>;
-
-/** The name, linked or not, the Manual badge, and the ⋯ menu. */
-function HoldingHeader({
-  nameId,
-  name,
-  kind,
-  link,
-  linkIcon,
-  actions,
-  actionsIcon,
-}: Pick<
-  HoldingCardProps,
-  "name" | "kind" | "link" | "actions" | "actionsIcon"
-> & { nameId: string; linkIcon: IconProps["icon"] }) {
-  return (
-    <div className="flex min-h-l items-center gap-s">
-      <p id={nameId} className="min-w-0 flex-1 text-s font-semibold">
-        {link === undefined ? (
-          <span className="block truncate">{name}</span>
-        ) : (
-          <NameLink name={name} link={link} icon={linkIcon} />
-        )}
-      </p>
-      {kind === "manual" ? <Badge state="manual" /> : null}
-      {actions === undefined ? null : (
-        <Menu.Root>
-          <Menu.MoreTrigger
-            subject={name}
-            icon={actionsIcon}
-            size="s"
-            className="relative"
-          />
-          <Menu.Popup>{actions}</Menu.Popup>
-        </Menu.Root>
-      )}
-    </div>
-  );
-}
-
-/** The quantity as entered, the latest price, and its time or day: “74.328 units · €40.10 · as of 14:30”. */
-function HoldingDetails({
-  quantity,
-  latestPrice,
-  anonymous,
-  timeZone,
-}: {
-  quantity: Decimal;
-  latestPrice: HoldingPrice | null;
-  anonymous: boolean;
-  timeZone: string | undefined;
-}) {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  const priceTime =
-    latestPrice === null
-      ? null
-      : latestPrice.source === "intraday"
-        ? t("holdingCard.asOfTime", {
-            time: formatTime(latestPrice.at, language, { timeZone }),
-          })
-        : t(
-            latestPrice.source === "manual"
-              ? "holdingCard.asOfDate"
-              : "holdingCard.closeOf",
-            { date: formatDate(latestPrice.at, language, { timeZone }) },
-          );
-  const details = [
-    anonymous
-      ? null
-      : t("holdingCard.units", {
-          count: Number(quantity),
-          quantity: formatQuantity(quantity, language),
-        }),
-    latestPrice === null ? null : formatMoney(latestPrice.priceEur, language),
-    priceTime,
-  ].filter((part) => part !== null);
-
-  return details.length === 0 ? null : (
-    <p className={caption}>{details.join(" · ")}</p>
-  );
-}
-
-/** While the prices are pending: a loading line, and the holding said not counted yet. */
-function PendingFoot() {
-  const { t } = useTranslation();
-
-  return (
-    <>
-      <LoadingPlaceholder>{t("holdingCard.loadingPrices")}</LoadingPlaceholder>
-      <div className={foot}>
-        <Badge state="pricePending" />
-        <span className={caption}>{t("holdingCard.notCounted")}</span>
-      </div>
-    </>
-  );
-}
-
 /**
  * One share someone holds: its name, the quantity as entered with the latest
  * price and its time, a curve over the period, the value and the gain. A
@@ -225,15 +108,7 @@ export function HoldingCard({
   className,
   ...props
 }: HoldingCardProps) {
-  const language = useLanguage();
   const nameId = useId();
-
-  const shownGain: GainInput | null =
-    gain === null || !anonymous ? gain : { percent: gain.percent };
-  const tone =
-    shownGain === null
-      ? "flat"
-      : (gainDisplay(shownGain, unit, language)?.tone ?? "flat");
 
   return (
     <Card
@@ -260,21 +135,15 @@ export function HoldingCard({
       {latestPrice === null ? (
         <PendingFoot />
       ) : (
-        <>
-          {curve.length > 1 ? (
-            <Curve name={name} points={curve} color={CURVE_COLORS[tone]} />
-          ) : null}
-          <div className={foot}>
-            <CardFigure
-              anonymous={anonymous}
-              amountEur={valueEur}
-              weight={weight}
-            />
-            {shownGain === null ? null : (
-              <GainChip gain={shownGain} unit={unit} />
-            )}
-          </div>
-        </>
+        <PricedFoot
+          name={name}
+          curve={curve}
+          valueEur={valueEur}
+          weight={weight}
+          gain={gain}
+          unit={unit}
+          anonymous={anonymous}
+        />
       )}
     </Card>
   );

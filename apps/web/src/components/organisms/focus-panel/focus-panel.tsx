@@ -75,16 +75,10 @@ export function FocusPanel({
   ...props
 }: FocusPanelProps) {
   const { t } = useTranslation();
-  const language = useLanguage();
   const nameId = useId();
   const movedId = useId();
 
   const who = you ? "you" : "them";
-  const otherUnit = unit === "eur" ? "percent" : "eur";
-  const shown = gainDisplay(gain, unit, language, { precision: "euros" });
-  const other = gainDisplay(gain, otherUnit, language, { precision: "euros" });
-  const beside = shown !== null && other?.unit !== shown.unit ? other : null;
-  const back = you ? null : (backLink ?? null);
 
   return (
     <Card
@@ -93,42 +87,14 @@ export function FocusPanel({
       {...props}
       className={cn("flex min-w-0 flex-col gap-m p-m", className)}
     >
-      <header className="flex items-center gap-s">
-        <Picture
-          name={member.name}
-          color={member.color}
-          photo={member.photo ?? null}
-          size="m"
-          aria-hidden="true"
-        />
-        <div className="min-w-0 flex-1">
-          <h2 id={nameId} className="truncate text-m font-semibold">
-            {member.name}
-            {you ? <YouSuffix /> : null}
-          </h2>
-          <p className="text-xs text-secondary">
-            {t(`focusPanel.period.${who}.${period}`)}
-          </p>
-        </div>
-        {back === null ? null : (
-          <TextLink {...back} className={cn("shrink-0 text-s", back.className)}>
-            {t("focusPanel.backToYou")}
-          </TextLink>
-        )}
-      </header>
-      <p className="flex flex-wrap items-baseline gap-x-s">
-        <GainValue
-          gain={gain}
-          unit={unit}
-          precision="euros"
-          className="text-xl"
-        />
-        {beside === null ? null : (
-          <span className="text-s text-secondary tabular-nums">
-            {beside.text}
-          </span>
-        )}
-      </p>
+      <FocusHeader
+        nameId={nameId}
+        member={member}
+        you={you}
+        period={period}
+        backLink={you ? null : (backLink ?? null)}
+      />
+      <FocusGain gain={gain} unit={unit} />
       <div className="flex flex-col gap-s">
         <p id={movedId} className="text-xs font-semibold text-secondary">
           {t(`focusPanel.moved.${who}`)}
@@ -145,5 +111,77 @@ export function FocusPanel({
           : t("focusPanel.open.them", { name: member.name })}
       </TextLink>
     </Card>
+  );
+}
+
+/** The member's picture and name, the span of the period, and “Back to you” when another member is focused. */
+function FocusHeader({
+  nameId,
+  member,
+  you,
+  period,
+  backLink,
+}: {
+  nameId: string;
+  member: FocusMember;
+  you: boolean;
+  period: Period;
+  backLink: FocusPanelLink | null;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <header className="flex items-center gap-s">
+      <Picture
+        name={member.name}
+        color={member.color}
+        photo={member.photo ?? null}
+        size="m"
+        aria-hidden="true"
+      />
+      <div className="min-w-0 flex-1">
+        <h2 id={nameId} className="truncate text-m font-semibold">
+          {member.name}
+          {you ? <YouSuffix /> : null}
+        </h2>
+        <p className="text-xs text-secondary">
+          {t(`focusPanel.period.${you ? "you" : "them"}.${period}`)}
+        </p>
+      </div>
+      {backLink === null ? null : (
+        <TextLink
+          {...backLink}
+          className={cn("shrink-0 text-s", backLink.className)}
+        >
+          {t("focusPanel.backToYou")}
+        </TextLink>
+      )}
+    </header>
+  );
+}
+
+/** The gain in the unit setting, with the other unit beside it when the viewer has both. */
+function FocusGain({ gain, unit }: { gain: GainInput; unit: GainUnit }) {
+  const language = useLanguage();
+
+  const otherUnit = unit === "eur" ? "percent" : "eur";
+  const shown = gainDisplay(gain, unit, language, { precision: "euros" });
+  const other = gainDisplay(gain, otherUnit, language, { precision: "euros" });
+  const beside = shown !== null && other?.unit !== shown.unit ? other : null;
+
+  return (
+    <p className="flex flex-wrap items-baseline gap-x-s">
+      <GainValue
+        gain={gain}
+        unit={unit}
+        precision="euros"
+        className="text-xl"
+      />
+      {beside === null ? null : (
+        <span className="text-s text-secondary tabular-nums">
+          {beside.text}
+        </span>
+      )}
+    </p>
   );
 }

@@ -102,18 +102,9 @@ export function PeriodControl({
   className,
   ...props
 }: PeriodControlProps) {
-  const { t } = useTranslation();
-
   const setting: PeriodSetting = anonymous
     ? { ...value, unit: "percent" }
     : value;
-  const period = t(`periodControl.period.${setting.period}`);
-  const summary = anonymous
-    ? period
-    : t("periodControl.summary", {
-        period,
-        unit: t(`controls.unit.${UNIT_KEYS[setting.unit]}`),
-      });
 
   return (
     <div {...props} className={cn("flex items-center", className)}>
@@ -132,35 +123,67 @@ export function PeriodControl({
           onChange={onChange}
         />
       </div>
-      <Dialog.Root>
-        <Dialog.Trigger
-          className={cn(
-            "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full bg-surface/75 py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
-            "inline-flex",
-            "tablet:hidden",
-            "desktop:hidden",
-            "hover:bg-surface",
-            "popup-open:bg-surface",
-            "focus-visible:focus-ring",
-          )}
-        >
-          {summary}
-          {icon ? <Icon icon={icon} size="s" /> : null}
-        </Dialog.Trigger>
-        <Dialog.Popup>
-          <Dialog.Header>
-            <Dialog.Title>{t("periodControl.title")}</Dialog.Title>
-            <Dialog.Close />
-          </Dialog.Header>
-          <Segments
-            setting={setting}
-            anonymous={anonymous}
-            backdrop="snow"
-            onChange={onChange}
-            className="self-start"
-          />
-        </Dialog.Popup>
-      </Dialog.Root>
+      <PhoneSheet
+        setting={setting}
+        anonymous={anonymous}
+        onChange={onChange}
+        icon={icon}
+      />
     </div>
+  );
+}
+
+/** On phone: one capsule naming the period and the unit, which opens a sheet holding both rows. */
+function PhoneSheet({
+  setting,
+  anonymous,
+  onChange,
+  icon,
+}: {
+  setting: PeriodSetting;
+  anonymous: boolean;
+  onChange: (setting: PeriodSetting) => void;
+  icon: IconProps["icon"] | undefined;
+}) {
+  const { t } = useTranslation();
+
+  const period = t(`periodControl.period.${setting.period}`);
+  const summary = anonymous
+    ? period
+    : t("periodControl.summary", {
+        period,
+        unit: t(`controls.unit.${UNIT_KEYS[setting.unit]}`),
+      });
+
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger
+        className={cn(
+          "cursor-pointer items-center gap-xs whitespace-nowrap rounded-full bg-surface/75 py-s pr-[0.625rem] pl-[0.75rem] text-s font-semibold text-primary",
+          "inline-flex",
+          "tablet:hidden",
+          "desktop:hidden",
+          "hover:bg-surface",
+          "popup-open:bg-surface",
+          "focus-visible:focus-ring",
+        )}
+      >
+        {summary}
+        {icon ? <Icon icon={icon} size="s" /> : null}
+      </Dialog.Trigger>
+      <Dialog.Popup>
+        <Dialog.Header>
+          <Dialog.Title>{t("periodControl.title")}</Dialog.Title>
+          <Dialog.Close />
+        </Dialog.Header>
+        <Segments
+          setting={setting}
+          anonymous={anonymous}
+          backdrop="snow"
+          onChange={onChange}
+          className="self-start"
+        />
+      </Dialog.Popup>
+    </Dialog.Root>
   );
 }

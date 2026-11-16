@@ -51,6 +51,92 @@ export function PersonList({ className, ...props }: PersonListProps) {
   );
 }
 
+/** The name, and the email under it on phone and tablet or in its own column on desktop. */
+function PersonName({ name, email }: { name: string; email: string | null }) {
+  return (
+    <>
+      <span
+        className={cn(
+          "col-2 truncate text-s font-semibold text-primary",
+          "row-1",
+          // Alone in its column on tablet, the name centres on the row.
+          email === null ? "tablet:row-[1/span_2]" : "tablet:row-1",
+          "desktop:row-1",
+        )}
+      >
+        {name}
+      </span>
+      {email === null ? null : (
+        <span
+          className={cn(
+            "truncate text-xs text-secondary",
+            "col-2 row-2",
+            "tablet:col-2 tablet:row-2",
+            "desktop:col-3 desktop:row-1",
+          )}
+        >
+          {email}
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
+ * The access status's badge and the end date, under the name on phone and in
+ * their own columns from tablet up.
+ */
+function PersonAccess({
+  status,
+  accessUntil,
+}: {
+  status: AccessStatus;
+  accessUntil: IsoDate | Timestamp | null;
+}) {
+  const { t } = useTranslation();
+  const language = useLanguage();
+
+  return (
+    <span
+      className={cn(
+        "",
+        "col-2 row-3 mt-xs flex flex-wrap items-center gap-x-s gap-y-xs",
+        "tablet:contents",
+        "desktop:contents",
+      )}
+    >
+      <Badge
+        state={BADGES[status]}
+        className={cn(
+          "justify-self-start",
+          "col-auto row-auto",
+          "tablet:col-3 tablet:row-[1/span_2]",
+          "desktop:col-4 desktop:row-1",
+        )}
+      />
+      <span
+        className={cn(
+          "text-xs whitespace-nowrap text-secondary",
+          "col-auto row-auto",
+          "tablet:col-4 tablet:row-[1/span_2]",
+          "desktop:col-5 desktop:row-1",
+        )}
+      >
+        {accessUntil === null ? (
+          <>
+            <span aria-hidden>–</span>
+            <span className="sr-only">{t("personRow.noEnd")}</span>
+          </>
+        ) : (
+          t("personRow.until", {
+            date: formatDate(accessUntil, language, { year: true }),
+          })
+        )}
+      </span>
+    </span>
+  );
+}
+
 interface PersonRowOwnProps {
   /** The person's display name, or the pseudonym an anonymous viewer sees in its place. */
   name: string;
@@ -91,16 +177,6 @@ export function PersonRow({
   className,
   ...props
 }: PersonRowProps) {
-  const { t } = useTranslation();
-  const language = useLanguage();
-
-  const until =
-    accessUntil === null
-      ? null
-      : t("personRow.until", {
-          date: formatDate(accessUntil, language, { year: true }),
-        });
-
   return (
     <li
       {...props}
@@ -125,62 +201,8 @@ export function PersonRow({
           "desktop:row-1",
         )}
       />
-      <span
-        className={cn(
-          "col-2 truncate text-s font-semibold text-primary",
-          "row-1",
-          // Alone in its column on tablet, the name centres on the row.
-          email === null ? "tablet:row-[1/span_2]" : "tablet:row-1",
-          "desktop:row-1",
-        )}
-      >
-        {name}
-      </span>
-      {email === null ? null : (
-        <span
-          className={cn(
-            "truncate text-xs text-secondary",
-            "col-2 row-2",
-            "tablet:col-2 tablet:row-2",
-            "desktop:col-3 desktop:row-1",
-          )}
-        >
-          {email}
-        </span>
-      )}
-      <span
-        className={cn(
-          "",
-          "col-2 row-3 mt-xs flex flex-wrap items-center gap-x-s gap-y-xs",
-          "tablet:contents",
-          "desktop:contents",
-        )}
-      >
-        <Badge
-          state={BADGES[status]}
-          className={cn(
-            "justify-self-start",
-            "col-auto row-auto",
-            "tablet:col-3 tablet:row-[1/span_2]",
-            "desktop:col-4 desktop:row-1",
-          )}
-        />
-        <span
-          className={cn(
-            "text-xs whitespace-nowrap text-secondary",
-            "col-auto row-auto",
-            "tablet:col-4 tablet:row-[1/span_2]",
-            "desktop:col-5 desktop:row-1",
-          )}
-        >
-          {until ?? (
-            <>
-              <span aria-hidden>–</span>
-              <span className="sr-only">{t("personRow.noEnd")}</span>
-            </>
-          )}
-        </span>
-      </span>
+      <PersonName name={name} email={email} />
+      <PersonAccess status={status} accessUntil={accessUntil} />
       {actions === undefined ? null : (
         <Menu.Root>
           <Menu.MoreTrigger

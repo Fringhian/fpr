@@ -46,9 +46,6 @@ export function LaneName({
   incomplete: boolean;
 }) {
   const { t } = useTranslation();
-  const language = useLanguage();
-
-  const hasMarkers = incomplete || measuredFrom !== null;
 
   return (
     <span className="flex min-w-0 flex-col">
@@ -75,18 +72,32 @@ export function LaneName({
           {t("lane.best", { share: best.share })}
         </span>
       ) : null}
-      {hasMarkers ? (
-        <span className="flex flex-wrap items-center gap-x-s gap-y-xs pt-xs">
-          {measuredFrom === null ? null : (
-            <span className="text-xs text-secondary">
-              {t("lane.since", { date: formatDate(measuredFrom, language) })}
-            </span>
-          )}
-          {incomplete ? <Badge state="incomplete" /> : null}
-        </span>
-      ) : null}
+      <LaneMarkers measuredFrom={measuredFrom} incomplete={incomplete} />
     </span>
   );
+}
+
+/** “since 12 Feb” and “Incomplete”, when they apply. */
+function LaneMarkers({
+  measuredFrom,
+  incomplete,
+}: {
+  measuredFrom: IsoDate | null;
+  incomplete: boolean;
+}) {
+  const { t } = useTranslation();
+  const language = useLanguage();
+
+  return incomplete || measuredFrom !== null ? (
+    <span className="flex flex-wrap items-center gap-x-s gap-y-xs pt-xs">
+      {measuredFrom === null ? null : (
+        <span className="text-xs text-secondary">
+          {t("lane.since", { date: formatDate(measuredFrom, language) })}
+        </span>
+      )}
+      {incomplete ? <Badge state="incomplete" /> : null}
+    </span>
+  ) : null;
 }
 
 /** The bar of the lane's value, on the standings' scale of the unit it reads in, or on its own. */
