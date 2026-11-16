@@ -382,6 +382,53 @@
     "closedDescription": "It has an admin. Sign in with your email and password.",
     "closedAction": "Go to sign-in"
   },
+  "onboarding": {
+    "saving": "Saving…",
+    "retry": "Retry",
+    "preview": "How the others see you",
+    "name": {
+      "question": "What should the others call you?",
+      "label": "Your name",
+      "help": "Shown on Home, your page, and the charts.",
+      "action": "Choose your colour"
+    },
+    "look": {
+      "question": "Pick your colour",
+      "description": "It’s your curve on the chart, your bar in the standings, and your picture.",
+      "taken": "Faded colours are taken: the initial shows who has it.",
+      "usePhoto": "Use a photo instead",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove photo",
+      "uploading": "Uploading…",
+      "action": {
+        "portfolio": "See your portfolio",
+        "welcome": "Meet everyone"
+      }
+    },
+    "portfolio": {
+      "question": "Here’s your portfolio",
+      "description": "The admin set it up for you. You can change it later in Portfolio.",
+      "total": "Total",
+      "preparing": {
+        "question": "Your portfolio is being prepared",
+        "description": "The admin is entering your shares. They’ll show up in Portfolio."
+      },
+      "empty": {
+        "question": "Your portfolio is empty",
+        "description": "Add your shares and cash in Portfolio."
+      },
+      "action": "Meet everyone"
+    },
+    "welcome": {
+      "question": "Welcome, {{name}}",
+      "others_one": "{{names}} is already here.",
+      "others_other": "{{names}} are already here.",
+      "more_one": "{{count}} other",
+      "more_other": "{{count}} others",
+      "first": "You’re the first one here.",
+      "action": "Go to Home"
+    }
+  },
   "pages": {
     "home": "Home",
     "members": "Members",

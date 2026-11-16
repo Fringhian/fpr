@@ -387,6 +387,55 @@
   "appLayout": {
     "skip": "Aller au contenu"
   },
+  "onboarding": {
+    "saving": "Enregistrement…",
+    "retry": "Réessayer",
+    "preview": "Ce que voient les autres",
+    "name": {
+      "question": "Comment les autres doivent-ils vous appeler ?",
+      "label": "Votre nom",
+      "help": "Affiché sur l’accueil, votre page et les graphiques.",
+      "action": "Choisir votre couleur"
+    },
+    "look": {
+      "question": "Choisissez votre couleur",
+      "description": "C’est votre courbe sur le graphique, votre barre dans le classement et votre avatar.",
+      "taken": "Les couleurs pâles sont prises : l’initiale montre qui l’a.",
+      "usePhoto": "Utiliser une photo",
+      "changePhoto": "Changer de photo",
+      "removePhoto": "Retirer la photo",
+      "uploading": "Envoi…",
+      "action": {
+        "portfolio": "Voir votre portefeuille",
+        "welcome": "Rencontrer les autres"
+      }
+    },
+    "portfolio": {
+      "question": "Voici votre portefeuille",
+      "description": "L’admin l’a préparé pour vous. Vous pourrez le modifier dans Portefeuille.",
+      "total": "Total",
+      "preparing": {
+        "question": "Votre portefeuille est en préparation",
+        "description": "L’admin saisit vos titres. Ils apparaîtront dans Portefeuille."
+      },
+      "empty": {
+        "question": "Votre portefeuille est vide",
+        "description": "Ajoutez vos titres et vos liquidités dans Portefeuille."
+      },
+      "action": "Rencontrer les autres"
+    },
+    "welcome": {
+      "question": "Bienvenue, {{name}}",
+      "others_one": "{{names}} est déjà là.",
+      "others_many": "{{names}} sont déjà là.",
+      "others_other": "{{names}} sont déjà là.",
+      "more_one": "{{count}} autre",
+      "more_many": "{{count}} autres",
+      "more_other": "{{count}} autres",
+      "first": "Vous êtes le premier arrivé.",
+      "action": "Aller à l’accueil"
+    }
+  },
   "pages": {
     "home": "Accueil",
     "members": "Membres",
