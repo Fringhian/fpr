@@ -52,6 +52,7 @@ export function toChange(
     share: toShareSummary(share),
     quantityDelta: change.quantityDelta,
     effectiveAt: change.effectiveAt,
+    madeBy: null,
   };
 }
 
@@ -61,6 +62,7 @@ export function toCash(cash: StoredCash): PortfolioCashBalance {
     id: cash.id,
     amountEur: cash.amountEur,
     effectiveAt: cash.effectiveAt,
+    madeBy: null,
   };
 }
 

@@ -3919,6 +3919,32 @@
                               "effectiveAt": {
                                 "type": "string",
                                 "format": "date-time"
+                              },
+                              "madeBy": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                      },
+                                      "displayName": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 40,
+                                        "x-anonymize": "personal"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "displayName"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
@@ -3926,7 +3952,8 @@
                               "id",
                               "share",
                               "quantityDelta",
-                              "effectiveAt"
+                              "effectiveAt",
+                              "madeBy"
                             ]
                           },
                           {
@@ -3947,13 +3974,40 @@
                               "effectiveAt": {
                                 "type": "string",
                                 "format": "date-time"
+                              },
+                              "madeBy": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                      },
+                                      "displayName": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 40,
+                                        "x-anonymize": "personal"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "displayName"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
                               "type",
                               "id",
                               "amountEur",
-                              "effectiveAt"
+                              "effectiveAt",
+                              "madeBy"
                             ]
                           }
                         ]
@@ -4262,6 +4316,32 @@
                     "effectiveAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "madeBy": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "displayName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40,
+                              "x-anonymize": "personal"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "displayName"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -4269,7 +4349,8 @@
                     "id",
                     "share",
                     "quantityDelta",
-                    "effectiveAt"
+                    "effectiveAt",
+                    "madeBy"
                   ]
                 }
               }
@@ -4539,6 +4620,32 @@
                                         "effectiveAt": {
                                           "type": "string",
                                           "format": "date-time"
+                                        },
+                                        "madeBy": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "format": "uuid"
+                                                },
+                                                "displayName": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 40,
+                                                  "x-anonymize": "personal"
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "displayName"
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
                                         }
                                       },
                                       "required": [
@@ -4546,7 +4653,8 @@
                                         "id",
                                         "share",
                                         "quantityDelta",
-                                        "effectiveAt"
+                                        "effectiveAt",
+                                        "madeBy"
                                       ]
                                     },
                                     {
@@ -4723,6 +4831,32 @@
                     "effectiveAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "madeBy": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "displayName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40,
+                              "x-anonymize": "personal"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "displayName"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -4730,7 +4864,8 @@
                     "id",
                     "share",
                     "quantityDelta",
-                    "effectiveAt"
+                    "effectiveAt",
+                    "madeBy"
                   ]
                 }
               }
@@ -5000,6 +5135,32 @@
                                         "effectiveAt": {
                                           "type": "string",
                                           "format": "date-time"
+                                        },
+                                        "madeBy": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "id": {
+                                                  "type": "string",
+                                                  "format": "uuid"
+                                                },
+                                                "displayName": {
+                                                  "type": "string",
+                                                  "minLength": 1,
+                                                  "maxLength": 40,
+                                                  "x-anonymize": "personal"
+                                                }
+                                              },
+                                              "required": [
+                                                "id",
+                                                "displayName"
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
                                         }
                                       },
                                       "required": [
@@ -5007,7 +5168,8 @@
                                         "id",
                                         "share",
                                         "quantityDelta",
-                                        "effectiveAt"
+                                        "effectiveAt",
+                                        "madeBy"
                                       ]
                                     },
                                     {
@@ -5338,6 +5500,32 @@
                                     "effectiveAt": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "madeBy": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "string",
+                                              "format": "uuid"
+                                            },
+                                            "displayName": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 40,
+                                              "x-anonymize": "personal"
+                                            }
+                                          },
+                                          "required": [
+                                            "id",
+                                            "displayName"
+                                          ]
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -5345,7 +5533,8 @@
                                     "id",
                                     "share",
                                     "quantityDelta",
-                                    "effectiveAt"
+                                    "effectiveAt",
+                                    "madeBy"
                                   ]
                                 },
                                 {
@@ -5487,13 +5676,40 @@
                     "effectiveAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "madeBy": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "displayName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40,
+                              "x-anonymize": "personal"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "displayName"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
                     "type",
                     "id",
                     "amountEur",
-                    "effectiveAt"
+                    "effectiveAt",
+                    "madeBy"
                   ]
                 }
               }
@@ -5792,13 +6008,40 @@
                     "effectiveAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "madeBy": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "displayName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40,
+                              "x-anonymize": "personal"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "displayName"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
                     "type",
                     "id",
                     "amountEur",
-                    "effectiveAt"
+                    "effectiveAt",
+                    "madeBy"
                   ]
                 }
               }
@@ -6417,6 +6660,32 @@
                               "effectiveAt": {
                                 "type": "string",
                                 "format": "date-time"
+                              },
+                              "madeBy": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                      },
+                                      "displayName": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 40,
+                                        "x-anonymize": "personal"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "displayName"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
@@ -6424,7 +6693,8 @@
                               "id",
                               "share",
                               "quantityDelta",
-                              "effectiveAt"
+                              "effectiveAt",
+                              "madeBy"
                             ]
                           },
                           {
@@ -6445,13 +6715,40 @@
                               "effectiveAt": {
                                 "type": "string",
                                 "format": "date-time"
+                              },
+                              "madeBy": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                      },
+                                      "displayName": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 40,
+                                        "x-anonymize": "personal"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "displayName"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "required": [
                               "type",
                               "id",
                               "amountEur",
-                              "effectiveAt"
+                              "effectiveAt",
+                              "madeBy"
                             ]
                           }
                         ]

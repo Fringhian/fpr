@@ -6,6 +6,7 @@ import { writerRoles } from "../../roles.js";
 import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { shareSummarySchema } from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
+import { portfolioMadeBySchema } from "./made-by.js";
 
 /** Shares added, above zero, or removed, below zero: never zero. */
 export const portfolioQuantityDeltaSchema = decimalSchema.refine(
@@ -20,6 +21,7 @@ export const portfolioChangeSchema = z.object({
   share: shareSummarySchema,
   quantityDelta: quantity(portfolioQuantityDeltaSchema),
   effectiveAt: timestampSchema,
+  madeBy: portfolioMadeBySchema,
 });
 
 export type PortfolioChange = z.infer<typeof portfolioChangeSchema>;

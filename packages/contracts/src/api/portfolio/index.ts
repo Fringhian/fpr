@@ -17,6 +17,7 @@ export type * from "./cash.js";
 export type * from "./changes.js";
 export type * from "./holdings.js";
 export type * from "./log.js";
+export type * from "./made-by.js";
 
 /** A member's holdings, share changes, cash balances, and log. */
 export const portfolioContract = {
