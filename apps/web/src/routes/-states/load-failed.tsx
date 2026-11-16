@@ -2,10 +2,11 @@ import { WarningCircleIcon } from "@phosphor-icons/react/WarningCircle";
 import { WifiSlashIcon } from "@phosphor-icons/react/WifiSlash";
 import { onlineManager } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useSyncExternalStore } from "react";
+import { type ReactNode, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../components/atoms/button/button";
 import type { PageMessageProps } from "../../components/templates/page-message/page-message";
+import { useOnline } from "../../lib/api/use-online";
 import { MessagePage } from "./message-page";
 
 /**
@@ -18,10 +19,7 @@ export function useLoadFailedMessage(
   title?: ReactNode,
 ): PageMessageProps {
   const { t } = useTranslation();
-  const offline = useSyncExternalStore(
-    (onChange) => onlineManager.subscribe(onChange),
-    () => !onlineManager.isOnline(),
-  );
+  const offline = !useOnline();
 
   return {
     icon: offline ? WifiSlashIcon : WarningCircleIcon,

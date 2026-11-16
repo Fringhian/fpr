@@ -4,6 +4,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { TextLink } from "../../../components/atoms/text-link/text-link";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
+import { useUnreachableText } from "../../../lib/api/errors";
 import type { SignInOutcome } from "../../../lib/session/better-auth";
 import { CurrentPasswordField, EmailField } from "../../-account/access-fields";
 import { type Refusal, useRefusal } from "../../-account/use-refusal";
@@ -57,6 +58,7 @@ export function SignInForm() {
   const { redirect } = route.useSearch();
   const { formError, refuse, edited } = useRefusal();
   const signIn = usePasswordSignIn(redirect);
+  const unreachableText = useUnreachableText();
 
   const refusals: Record<SignInOutcome, Refusal<never> | null> = {
     signedIn: null,
@@ -64,7 +66,7 @@ export function SignInForm() {
     wrongPair: { text: t("signIn.wrongPair"), untilEdit: true },
     rateLimited: { text: t("errors.rateLimited") },
     failed: { text: t("errors.internalError") },
-    unreachable: { text: t("errors.unreachable") },
+    unreachable: { text: unreachableText },
   };
   const submit = ({ email, password }: Credentials) => {
     refuse(null);

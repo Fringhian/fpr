@@ -10,6 +10,7 @@ import { onlineManager } from "@tanstack/react-query";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useOnline } from "./use-online";
 
 /**
  * The text each error code is written with, in `en.json` and `fr.json`. A
@@ -111,11 +112,25 @@ export function changedPrice(error: unknown): Decimal | null {
  */
 export function errorTextKey(error: unknown): ParseKeys {
   if (!(error instanceof ORPCError)) {
-    return onlineManager.isOnline() ? "errors.unreachable" : "errors.offline";
+    return unreachableTextKey(onlineManager.isOnline());
   }
   return isErrorCode(error.code)
     ? errorTexts[error.code]
     : errorTexts.internal_error;
+}
+
+function unreachableTextKey(online: boolean): ParseKeys {
+  return online ? "errors.unreachable" : "errors.offline";
+}
+
+/**
+ * The text of a call no answer came back to, for a flow that gets no error to
+ * pass to `useErrorText`, such as Better Auth's: “You’re offline” with no
+ * network, “FPR can’t be reached” otherwise.
+ */
+export function useUnreachableText(): string {
+  const { t } = useTranslation();
+  return t(unreachableTextKey(useOnline()));
 }
 
 /** Writes any error a call throws in the person's language. */
