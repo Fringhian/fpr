@@ -55,20 +55,6 @@ export function isLastAdmin(
 }
 
 /**
- * Whether `person` has a password to reset: an anonymous viewer never does,
- * and someone whose key is waiting or expired hasn't claimed it to set one.
- * The admin list doesn't say whether a password exists, so a person waiting
- * on a replaced link reads as having none.
- */
-export function hasPassword(person: AdminPerson): boolean {
-  return (
-    person.role !== "anonymous" &&
-    person.accessStatus !== "waiting" &&
-    person.accessStatus !== "expired"
-  );
-}
-
-/**
  * What the edit form changes on `person`: each field that differs from what
  * they have, so an end date already past, left as it is, isn't sent again.
  * Access lasts through its end day.
