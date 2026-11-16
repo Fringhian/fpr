@@ -60,7 +60,8 @@ export function SecretStep({
 
 /**
  * A question before an action: what happens next, why it was refused when it
- * was, then Cancel and the action, which loads while it runs.
+ * was, then Cancel and the action, which loads while it runs. While `busy`,
+ * Cancel and the close button are disabled.
  */
 export function ConfirmStep({
   title,
@@ -81,11 +82,11 @@ export function ConfirmStep({
 }) {
   return (
     <>
-      <DialogHeading>{title}</DialogHeading>
+      <DialogHeading locked={busy}>{title}</DialogHeading>
       <Dialog.Description>{description}</Dialog.Description>
       <FormError>{error}</FormError>
       <Dialog.Footer>
-        <Dialog.Cancel />
+        <Dialog.Cancel disabled={busy} />
         <Button
           intent="primary"
           loading={busy}

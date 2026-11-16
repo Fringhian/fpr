@@ -8,7 +8,7 @@ import * as Dialog from "../../../../components/molecules/dialog/dialog";
 import { FormError } from "../../../../components/molecules/form-error/form-error";
 import { useApi } from "../../../../lib/api/use-api";
 import { endOfDay } from "../../../../lib/date-field";
-import type { DialogRootState } from "../../../../lib/dialog-state";
+import { type DialogRootState, lockedRoot } from "../../../../lib/dialog-state";
 import { DisplayNameField, EmailField } from "../../../-account/access-fields";
 import { useRefusal } from "../../../-account/use-refusal";
 import { DialogHeading } from "../-shared/dialog-heading";
@@ -20,18 +20,26 @@ type AddValues = { displayName: string; email?: string; accessUntil: string };
 
 const blame = { email_taken: "email" } as const;
 
-/** The new person's name, email (none for an anonymous viewer) and end date, then Create access link. */
+function useAddPerson() {
+  const api = useApi();
+  return useMutation(api.admin.addPerson.mutationOptions());
+}
+
+/**
+ * The new person's name, email (none for an anonymous viewer) and end date,
+ * then Create access link. While `add` runs, the close button is disabled.
+ */
 function AddForm({
   role,
+  add,
   onAdded,
 }: {
   role: Role;
+  add: ReturnType<typeof useAddPerson>;
   onAdded: (secret: SecretContent) => void;
 }) {
   const { t } = useTranslation();
-  const api = useApi();
   const secrets = useAccessSecrets();
-  const add = useMutation(api.admin.addPerson.mutationOptions());
   const { errors, formError, refuseError } = useRefusal(blame);
 
   const submit = ({ displayName, email = "", accessUntil }: AddValues) => {
@@ -51,7 +59,9 @@ function AddForm({
 
   return (
     <Form<AddValues> errors={errors} onFormSubmit={submit} className="contents">
-      <DialogHeading>{t(`adminPeople.add.${role}`)}</DialogHeading>
+      <DialogHeading locked={add.isPending}>
+        {t(`adminPeople.add.${role}`)}
+      </DialogHeading>
       {role === "anonymous" ? (
         <Dialog.Description>
           {t("adminPeople.addDialog.anonymous")}
@@ -80,8 +90,8 @@ function AddForm({
 
 /**
  * Adding a person in `role`: the form, then their access link in its place,
- * shown once. Once the link shows, a press on the dimmed page no longer
- * closes the dialog.
+ * shown once. Nothing closes the dialog while the person is being added, and
+ * once the link shows, a press on the dimmed page no longer does.
  */
 export function AddPersonDialog({
   role,
@@ -91,12 +101,16 @@ export function AddPersonDialog({
   root: DialogRootState;
 }) {
   const [secret, setSecret] = useState<SecretContent | null>(null);
+  const add = useAddPerson();
 
   return (
-    <Dialog.Root {...root} disablePointerDismissal={secret !== null}>
+    <Dialog.Root
+      {...lockedRoot(root, add.isPending)}
+      disablePointerDismissal={secret !== null}
+    >
       <Dialog.Popup>
         {secret === null ? (
-          <AddForm role={role} onAdded={setSecret} />
+          <AddForm role={role} add={add} onAdded={setSecret} />
         ) : (
           <SecretStep {...secret} />
         )}

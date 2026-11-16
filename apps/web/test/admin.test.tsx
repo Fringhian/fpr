@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from "vitest";
+import { act } from "react";
+import { describe, expect, it, vi } from "vitest";
 import fr from "../src/locales/fr.json";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { buttonNamed, click, fill, screenText } from "./interact.ts";
@@ -74,6 +75,44 @@ describe("Admin, people", () => {
       () => expect(screenText()).not.toContain(link),
     );
     expect(screenText()).toContain("Rui Costa");
+  });
+
+  it("keep the dialog open while a new link is created, then show it", async () => {
+    const { release } = await visit("/admin/people", "admin", {
+      hold: (url) => url.pathname.endsWith("/replace-link"),
+    });
+    await openMenu("Charlie Moreau");
+    await click(
+      () => buttonNamed(texts.menu.replaceLink),
+      () => expect(dialog()).not.toBeNull(),
+    );
+    await click(
+      () => loadingButton(texts.replace.action),
+      () =>
+        expect(
+          loadingButton(texts.replace.action)?.getAttribute("aria-busy"),
+        ).toBe("true"),
+    );
+
+    await act(async () => {
+      dialog()?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+      buttonNamed(fr.dialog.cancel)?.click();
+      document.body
+        .querySelector<HTMLElement>(`button[aria-label="${fr.dialog.close}"]`)
+        ?.click();
+    });
+    expect(dialog()?.textContent).toContain(texts.replace.action);
+
+    await release();
+    await vi.waitFor(() =>
+      expect(
+        document.body.querySelector<HTMLInputElement>(
+          "[role=dialog] input[readonly]",
+        )?.value,
+      ).toMatch(/\/access\/[\w-]{43}$/),
+    );
   });
 
   it("keep the last admin an admin, with their access", async () => {

@@ -8,6 +8,24 @@ export type DialogRootState = {
 };
 
 /**
+ * `root`, held open while `locked`: Escape, a press on the dimmed page and
+ * every close button do nothing, so a request in flight can't lose its answer.
+ */
+export function lockedRoot(
+  root: DialogRootState,
+  locked: boolean,
+): DialogRootState {
+  return locked
+    ? {
+        ...root,
+        onOpenChange: (open) => {
+          if (open) root.onOpenChange(open);
+        },
+      }
+    : root;
+}
+
+/**
  * One dialog of a screen at a time, and what it acts on: `show(subject)`
  * opens it, and `subject` stays until the dialog has finished closing, so its
  * content doesn't vanish as it fades out. Spread `root` on the dialog's root.

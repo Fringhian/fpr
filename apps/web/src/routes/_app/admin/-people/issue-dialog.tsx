@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as Dialog from "../../../../components/molecules/dialog/dialog";
 import { useErrorText } from "../../../../lib/api/errors";
-import type { DialogRootState } from "../../../../lib/dialog-state";
+import { type DialogRootState, lockedRoot } from "../../../../lib/dialog-state";
 import { ConfirmStep, type SecretContent, SecretStep } from "./dialog-steps";
 
 /**
  * A dialog that creates a secret, such as a new access link or a reset key:
- * it asks first, then shows the secret once in its place. A press on the
- * dimmed page doesn't close it, so the secret isn't lost by a stray click.
+ * it asks first, then shows the secret once in its place. Nothing closes it
+ * while the secret is being created, and a press on the dimmed page never
+ * does, so the secret isn't lost before it shows or by a stray click.
  */
 export function IssueDialog({
   root,
@@ -43,7 +44,7 @@ export function IssueDialog({
   };
 
   return (
-    <Dialog.Root {...root} disablePointerDismissal>
+    <Dialog.Root {...lockedRoot(root, busy)} disablePointerDismissal>
       <Dialog.Popup>
         {secret === null ? (
           <ConfirmStep
