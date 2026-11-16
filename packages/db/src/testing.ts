@@ -10,7 +10,6 @@ export const TEST_DATABASE_PREFIX = "fpr_test_";
 export interface TestDatabase {
   /** The pool on the test database, migrated to the latest schema. */
   db: Db;
-  /** The test database's name. */
   name: string;
   /** Closes the pool and drops the database. */
   drop: () => Promise<void>;
@@ -28,7 +27,7 @@ export interface CreateTestDatabaseOptions {
 
 /**
  * Creates a fresh database for one test file, on the server at `DATABASE_URL`,
- * and migrates it. The database is only the test's: call `drop` in the file's
+ * and migrates it. The database belongs to that file alone, which drops it in
  * `afterAll`.
  */
 export async function createTestDatabase(

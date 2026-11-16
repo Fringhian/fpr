@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
+import { errorMap, signedInRoute } from "../../contract.js";
 import { periodSchema } from "../../period.js";
 import { roles, writerRoles } from "../../roles.js";
 import { personSchema } from "../../schemas/person.js";
 import {
   isinSchema,
-  isinTakenDetailsSchema,
+  isinTakenError,
   lookupQuerySchema,
   lookupResultSchema,
   pricePointSchema,
@@ -84,4 +84,4 @@ export const lookUpShares = signedInRoute(writerRoles)
       "provider_unavailable",
     ),
   )
-  .errors(errorWithDetails("isin_taken", isinTakenDetailsSchema));
+  .errors(isinTakenError);

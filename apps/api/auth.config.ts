@@ -3,7 +3,7 @@
 // auth:schema`. On an empty database, that is the whole schema.
 import { existsSync } from "node:fs";
 import { createDb } from "@fpr/db";
-import { createAuth } from "./src/auth.ts";
+import { createAuth } from "./src/auth/auth.ts";
 
 // DATABASE_URL comes from the environment, or else from the root .env.
 const rootEnv = new URL("../../.env", import.meta.url);

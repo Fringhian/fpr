@@ -13,7 +13,6 @@ export type ShareChanges = Pick<
   | "historyStartsOn"
 >;
 
-/** The share with this id. */
 export async function findById(db: Db, id: string): Promise<Share | undefined> {
   return db
     .selectFrom("shares")
@@ -22,7 +21,6 @@ export async function findById(db: Db, id: string): Promise<Share | undefined> {
     .executeTakeFirst();
 }
 
-/** The share with this ISIN. */
 export async function findByIsin(
   db: Db,
   isin: string,
@@ -34,7 +32,6 @@ export async function findByIsin(
     .executeTakeFirst();
 }
 
-/** Stores a share. */
 export async function insert(db: Db, share: NewShare): Promise<Share> {
   return db
     .insertInto("shares")
