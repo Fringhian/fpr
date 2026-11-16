@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import type en from "../locales/en.json";
 
 /**
- * A screen not built yet: its name as the page's heading. Each route's own
- * screen replaces it.
+ * A focused screen not built yet: its name as the page's heading. Each
+ * route's own screen replaces it.
  */
 export function Placeholder({ page }: { page: keyof typeof en.pages }) {
   const { t } = useTranslation();

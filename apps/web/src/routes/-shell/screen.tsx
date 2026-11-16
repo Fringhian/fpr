@@ -1,0 +1,125 @@
+import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import type * as Segment from "../../components/atoms/segment/segment";
+import { PeriodControl } from "../../components/molecules/period-control/period-control";
+import * as Navigation from "../../components/organisms/navigation/navigation";
+import * as PageBar from "../../components/organisms/page-bar/page-bar";
+import * as AppLayout from "../../components/templates/app-layout/app-layout";
+import { useViewState } from "../../lib/view-state/use-view-state";
+
+/** The item a page leads back to from below it. */
+type Parent = "members" | "portfolio" | "shares";
+
+/**
+ * The bar's controls: the shared period and unit on a page that shows them,
+ * then the account menu, which shows on phone only.
+ */
+function Controls({
+  period,
+  backdrop,
+}: {
+  period: boolean;
+  backdrop: Segment.Backdrop;
+}) {
+  const { setting, setSetting, anonymous } = useViewState();
+
+  return (
+    <PageBar.Controls>
+      {period ? (
+        <PeriodControl
+          value={setting}
+          onChange={setSetting}
+          backdrop={backdrop}
+          anonymous={anonymous}
+        />
+      ) : null}
+      <Navigation.AccountMenu />
+    </PageBar.Controls>
+  );
+}
+
+/**
+ * The bar's left end: the page's title, its heading with `heading`, or below
+ * `back`, the link back to that item, then the page's name from tablet up.
+ */
+function Start({
+  title,
+  back,
+  heading,
+}: {
+  title: string;
+  back: Parent | undefined;
+  heading: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return back ? (
+    <>
+      <PageBar.Back render={<Link to={Navigation.HREFS[back]} />}>
+        {t(`navigation.items.${back}`)}
+      </PageBar.Back>
+      <PageBar.Current>{title}</PageBar.Current>
+    </>
+  ) : (
+    <PageBar.Title render={heading ? (props) => <h1 {...props} /> : undefined}>
+      {title}
+    </PageBar.Title>
+  );
+}
+
+export type ScreenProps = {
+  /** The page's name, in the bar and the compact bar. None leaves the bar's start empty and the compact bar out, for a page that is only a message. */
+  title?: string | undefined;
+  /** The item the page sits below, which the bar links back to in place of the title. */
+  back?: Parent | undefined;
+  /** Shows the shared period and unit in both bars. */
+  period?: boolean | undefined;
+  /** The bar's title is the page's heading. By default, on a page without a header sentence. */
+  heading?: boolean | undefined;
+  /** The header sentence, on the sky. None starts the page on snow. */
+  header?: ReactNode;
+  children?: ReactNode;
+};
+
+/**
+ * One everyday page inside the app shell: the page bar with the title or the
+ * back link, the period and unit, and on phone the account menu; the compact
+ * bar with the same controls once it has scrolled past; then the sky and the
+ * header sentence when there is one, and the page's regions.
+ */
+export function Screen({
+  title,
+  back,
+  period = false,
+  header,
+  heading = header === undefined,
+  children,
+}: ScreenProps) {
+  const start =
+    title === undefined ? null : (
+      <Start title={title} back={back} heading={heading} />
+    );
+
+  return (
+    <AppLayout.Page
+      bar={
+        <>
+          {start}
+          <Controls period={period} backdrop={header ? "sky" : "snow"} />
+        </>
+      }
+      compactBar={
+        title === undefined ? undefined : (
+          <>
+            <PageBar.Title>{title}</PageBar.Title>
+            <Controls period={period} backdrop="snow" />
+          </>
+        )
+      }
+      header={header}
+    >
+      {children}
+    </AppLayout.Page>
+  );
+}

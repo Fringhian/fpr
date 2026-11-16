@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Placeholder } from "../-placeholder";
+import { ScreenPlaceholder } from "../-shell/screen-placeholder";
 
 export const Route = createFileRoute("/_app/help")({
-  component: () => <Placeholder page="help" />,
+  component: () => <ScreenPlaceholder page="help" />,
 });

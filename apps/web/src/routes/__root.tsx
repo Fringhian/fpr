@@ -13,8 +13,8 @@ import { LoadFailed } from "./-states/load-failed.tsx";
  * The guards, in one place: before any route loads, the session from
  * `GET /me`, then the access the deepest matched route names in its
  * `staticData`, decide whether the visitor enters or where they go instead.
- * An address no route answers names no access, and shows the router's
- * Page not found.
+ * An address no route answers falls to the everyday pages' Page not found,
+ * behind the same guard.
  */
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;

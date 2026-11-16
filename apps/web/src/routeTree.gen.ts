@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as FocusedRouteImport } from './routes/_focused'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppAdminRouteRouteImport } from './routes/_app/admin/route'
 import { Route as AppHelpRouteImport } from './routes/_app/help'
 import { Route as AppPortfolioRouteRouteImport } from './routes/_app/portfolio/route'
@@ -43,6 +44,11 @@ const FocusedRoute = FocusedRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSplatRoute = AppSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/admin': typeof AppAdminRouteRouteWithChildren
   '/portfolio': typeof AppPortfolioRouteRouteWithChildren
+  '/$': typeof AppSplatRoute
   '/help': typeof AppHelpRoute
   '/onboarding': typeof FocusedOnboardingRoute
   '/reset-password': typeof FocusedResetPasswordRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/$': typeof AppSplatRoute
   '/help': typeof AppHelpRoute
   '/onboarding': typeof FocusedOnboardingRoute
   '/reset-password': typeof FocusedResetPasswordRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/_focused': typeof FocusedRouteWithChildren
   '/_app/admin': typeof AppAdminRouteRouteWithChildren
   '/_app/portfolio': typeof AppPortfolioRouteRouteWithChildren
+  '/_app/$': typeof AppSplatRoute
   '/_app/help': typeof AppHelpRoute
   '/_focused/onboarding': typeof FocusedOnboardingRoute
   '/_focused/reset-password': typeof FocusedResetPasswordRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/portfolio'
+    | '/$'
     | '/help'
     | '/onboarding'
     | '/reset-password'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/help'
     | '/onboarding'
     | '/reset-password'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/_focused'
     | '/_app/admin'
     | '/_app/portfolio'
+    | '/_app/$'
     | '/_app/help'
     | '/_focused/onboarding'
     | '/_focused/reset-password'
@@ -304,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/$': {
+      id: '/_app/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof AppSplatRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin': {
@@ -474,6 +493,7 @@ const AppPortfolioRouteRouteWithChildren =
 interface AppRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppPortfolioRouteRoute: typeof AppPortfolioRouteRouteWithChildren
+  AppSplatRoute: typeof AppSplatRoute
   AppHelpRoute: typeof AppHelpRoute
   AppIndexRoute: typeof AppIndexRoute
   AppSharesShareIdRoute: typeof AppSharesShareIdRoute
@@ -485,6 +505,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppPortfolioRouteRoute: AppPortfolioRouteRouteWithChildren,
+  AppSplatRoute: AppSplatRoute,
   AppHelpRoute: AppHelpRoute,
   AppIndexRoute: AppIndexRoute,
   AppSharesShareIdRoute: AppSharesShareIdRoute,

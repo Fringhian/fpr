@@ -3,6 +3,7 @@ export { AccountMenu } from "./navigation-account";
 export {
   type Account,
   type Destination,
+  destinationAt,
   destinationsFor,
   HREFS,
   type LinkTarget,

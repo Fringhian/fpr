@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Placeholder } from "../-placeholder";
+import { validateHomeSearch } from "../../lib/view-state/view-search";
+import { ScreenPlaceholder } from "../-shell/screen-placeholder";
 
+/** Home's search: the member kept in focus and the standings' board. */
 export const Route = createFileRoute("/_app/")({
-  component: () => <Placeholder page="home" />,
+  validateSearch: validateHomeSearch,
+  component: () => <ScreenPlaceholder page="home" period />,
 });
