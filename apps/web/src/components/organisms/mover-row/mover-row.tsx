@@ -16,7 +16,6 @@ import { GainValue } from "../../atoms/gain-value/gain-value";
 export interface Mover {
   /** The share's id, which keys the row. */
   id: string;
-  /** The share's name. */
   name: string;
   /**
    * The holding's gain over the period, as the API sends it: `{ eur, percent }`.
@@ -26,8 +25,7 @@ export interface Mover {
   gain: GainInput;
 }
 
-export interface MoverRowOwnProps {
-  /** The share's name. */
+export type MoverRowProps = {
   name: string;
   /** The holding's gain over the period: `{ eur, percent }`, decimal strings. */
   gain: GainInput;
@@ -35,11 +33,7 @@ export interface MoverRowOwnProps {
   unit: GainUnit;
   /** The span of the list's movers in each unit, from `unitScale`: the bar is drawn against the biggest mover of the unit it reads in. */
   scale: UnitScale;
-}
-
-/** Its own props, and every prop of the `<li>` it renders but its content. */
-export type MoverRowProps = MoverRowOwnProps &
-  Omit<ComponentProps<"li">, keyof MoverRowOwnProps | "children">;
+} & Omit<ComponentProps<"li">, "name" | "gain" | "unit" | "scale" | "children">;
 
 /**
  * One holding's effect on the period: its name, a bar from the zero line, to
@@ -88,16 +82,11 @@ export function MoverRow({
   );
 }
 
-export interface MoverListOwnProps {
+export type MoverListProps = {
   /** The holdings that moved the period, biggest effect first. */
   movers: readonly Mover[];
-  /** The unit setting, `eur` or `percent`. */
   unit: GainUnit;
-}
-
-/** Its own props, and every prop of the `<ul>` it renders but its content. */
-export type MoverListProps = MoverListOwnProps &
-  Omit<ComponentProps<"ul">, keyof MoverListOwnProps | "children">;
+} & Omit<ComponentProps<"ul">, "movers" | "unit" | "children">;
 
 /**
  * The holdings that moved a member's period, one `MoverRow` each, in the

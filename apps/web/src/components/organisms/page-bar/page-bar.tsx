@@ -53,13 +53,10 @@ export function Title({
   });
 }
 
-interface BackOwnProps {
+export type BackProps = {
   /** The icon leading the link, any Phosphor icon. A caret pointing left by default. */
   icon?: IconProps["icon"] | undefined;
-}
-
-export type BackProps = BackOwnProps &
-  Omit<useRender.ComponentProps<"a">, keyof BackOwnProps>;
+} & Omit<useRender.ComponentProps<"a">, "icon">;
 
 /**
  * The back link, on the left in place of the title: the caret, then the
