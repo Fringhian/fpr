@@ -635,6 +635,7 @@
       "label": "Quantité",
       "help": "Les décimales sont acceptées : 74,328.",
       "loadingHeld": "Vérification de la quantité détenue ce jour-là…",
+      "heldFailed": "Impossible de vérifier la quantité détenue ce jour-là.",
       "held": {
         "you": "Vous en déteniez {{quantity}} le {{date}}.",
         "member": "{{name}} en détenait {{quantity}} le {{date}}."
@@ -649,6 +650,7 @@
       },
       "label": "Liquidités en euros",
       "loadingBefore": "Vérification des liquidités fixées avant…",
+      "beforeFailed": "Impossible de vérifier les liquidités fixées avant.",
       "noneBefore": "Aucune liquidité fixée avant ce jour.",
       "before": "Avant : {{amount}}, fixé le {{date}}."
     },

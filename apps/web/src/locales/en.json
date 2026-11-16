@@ -623,6 +623,7 @@
       "label": "Quantity",
       "help": "Decimals are fine: 74.328.",
       "loadingHeld": "Checking how many were held that day…",
+      "heldFailed": "Can’t check how many were held that day.",
       "held": {
         "you": "You held {{quantity}} on {{date}}.",
         "member": "{{name}} held {{quantity}} on {{date}}."
@@ -637,6 +638,7 @@
       },
       "label": "Cash in euros",
       "loadingBefore": "Checking the cash set before…",
+      "beforeFailed": "Can’t check the cash set before.",
       "noneBefore": "No cash set before this day.",
       "before": "Before: {{amount}}, set on {{date}}."
     },

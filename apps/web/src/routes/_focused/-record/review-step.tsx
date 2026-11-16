@@ -10,13 +10,30 @@ import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
 import { useEntryRefusalText } from "../../_app/-portfolio-sections/use-entry-refusal";
 import { useFlow } from "./flow";
+import { ReadLine } from "./read-line";
 import { RecordPage } from "./record-page";
-import { useCashBefore, useHeldOn } from "./use-before";
+import { type BeforeRead, useCashBefore, useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
 import { useSave } from "./use-save";
 
-/** What the change does: the holding from 50 to 60, or the cash it replaces. */
-function useOutcome(): string | null {
+function OutcomeLine<T>({
+  read,
+  failed,
+  done,
+}: {
+  read: BeforeRead<T>;
+  failed: string;
+  done: (value: T) => string;
+}) {
+  return read.failed || read.value !== undefined ? (
+    <p className="mt-xs text-s">
+      <ReadLine read={read} loading={null} failed={failed} done={done} />
+    </p>
+  ) : null;
+}
+
+// What the change does: the holding from 50 to 60, or the cash it replaces.
+function Outcome() {
   const { t } = useTranslation();
   const language = useLanguage();
   const { draft, owner } = useFlow();
@@ -24,34 +41,49 @@ function useOutcome(): string | null {
   const cash = useCashBefore();
 
   const who = owner.own ? "you" : "member";
+  const { amount } = draft;
   if (draft.kind === "cash") {
-    if (cash === undefined) return null;
-    return cash === null
-      ? t(`recordChange.review.firstCash.${who}`, { name: owner.name })
-      : t(`recordChange.review.cashWas.${who}`, {
-          amount: formatMoney(cash.amountEur, language),
+    return (
+      <OutcomeLine
+        read={cash}
+        failed={t("recordChange.cash.beforeFailed")}
+        done={(before) =>
+          before === null
+            ? t(`recordChange.review.firstCash.${who}`, { name: owner.name })
+            : t(`recordChange.review.cashWas.${who}`, {
+                amount: formatMoney(before.amountEur, language),
+                name: owner.name,
+              })
+        }
+      />
+    );
+  }
+  if (amount === undefined) return null;
+  const delta = new Big(amount).times(draft.kind === "sell" ? -1 : 1);
+  return (
+    <OutcomeLine
+      read={held}
+      failed={t("recordChange.quantity.heldFailed")}
+      done={(before) => {
+        // The holding after keeps as many decimals as the amount typed: 40 + 10.50 is 50.50.
+        const digits = Math.max(
+          ...[before, amount].map((value) => value.split(".")[1]?.length ?? 0),
+        );
+        const after = new Big(before).plus(delta).toFixed(digits);
+        return t(`recordChange.review.holding.${who}`, {
+          before: formatQuantity(before, language),
+          after: formatQuantity(after, language),
           name: owner.name,
         });
-  }
-  if (held === undefined || draft.amount === undefined) return null;
-  const delta = new Big(draft.amount).times(draft.kind === "sell" ? -1 : 1);
-  // The holding after keeps as many decimals as the amount typed: 40 + 10.50 is 50.50.
-  const digits = Math.max(
-    ...[held, draft.amount].map((value) => value.split(".")[1]?.length ?? 0),
+      }}
+    />
   );
-  return t(`recordChange.review.holding.${who}`, {
-    before: formatQuantity(held, language),
-    after: formatQuantity(new Big(held).plus(delta).toFixed(digits), language),
-    name: owner.name,
-  });
 }
 
-/** The change as it will be saved, on a tinted card. */
 function ReviewCard() {
   const { t } = useTranslation();
   const text = useDraftText();
   const { draft } = useFlow();
-  const outcome = useOutcome();
 
   return (
     <Card className="grid gap-xs bg-highlight p-m">
@@ -67,7 +99,7 @@ function ReviewCard() {
       <p className="text-s text-secondary">
         {t("recordChange.review.on", { date: text.day })}
       </p>
-      {outcome ? <p className="mt-xs text-s">{outcome}</p> : null}
+      <Outcome />
     </Card>
   );
 }

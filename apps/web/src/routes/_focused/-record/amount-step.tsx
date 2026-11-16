@@ -1,3 +1,4 @@
+import type { Decimal } from "@fpr/contracts";
 import { CurrencyEurIcon } from "@phosphor-icons/react/CurrencyEur";
 import Big from "big.js";
 import { useState } from "react";
@@ -11,6 +12,7 @@ import { RACE_TIME_ZONE } from "../../../lib/race-day";
 import { amountText } from "./amount";
 import { AmountForm } from "./amount-form";
 import { useFlow } from "./flow";
+import { ReadLine } from "./read-line";
 import { RecordPage } from "./record-page";
 import { useCashBefore, useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
@@ -39,14 +41,13 @@ function QuantityStep() {
 
   const sale = draft.kind === "sell";
   const who = owner.own ? "you" : "member";
-  const heldText =
-    held === undefined
-      ? t("recordChange.quantity.loadingHeld")
-      : t(`recordChange.quantity.held.${who}`, {
-          quantity: formatQuantity(held, language),
-          date: text.day,
-          name: owner.name,
-        });
+  const most = sale ? held.value : undefined;
+  const heldText = (quantity: Decimal) =>
+    t(`recordChange.quantity.held.${who}`, {
+      quantity: formatQuantity(quantity, language),
+      date: text.day,
+      name: owner.name,
+    });
   return (
     <AmountForm
       caption={text.caption(text.what, text.share, text.day)}
@@ -57,20 +58,31 @@ function QuantityStep() {
         },
       )}
       label={t("recordChange.quantity.label")}
-      help={sale ? heldText : t("recordChange.quantity.help")}
+      help={
+        sale ? (
+          <ReadLine
+            read={held}
+            loading={t("recordChange.quantity.loadingHeld")}
+            failed={t("recordChange.quantity.heldFailed")}
+            done={heldText}
+          />
+        ) : (
+          t("recordChange.quantity.help")
+        )
+      }
       value={typed}
       onValueChange={setTyped}
       check={(amount) =>
-        sale && held !== undefined && new Big(amount).gt(held)
+        most !== undefined && new Big(amount).gt(most)
           ? t("recordChange.quantity.tooMany", {
-              held: heldText,
-              quantity: formatQuantity(held, language),
+              held: heldText(most),
+              quantity: formatQuantity(most, language),
             })
           : null
       }
       end={
-        sale && held !== undefined && new Big(held).gt(0) ? (
-          <AllButton onClick={() => setTyped(amountText(held, language))} />
+        most !== undefined && new Big(most).gt(0) ? (
+          <AllButton onClick={() => setTyped(amountText(most, language))} />
         ) : null
       }
     />
@@ -103,18 +115,24 @@ function CashStep() {
   const before = useCashBefore();
   const [typed, setTyped] = useTyped();
 
-  const help =
-    before === undefined
-      ? t("recordChange.cash.loadingBefore")
-      : before === null
-        ? t("recordChange.cash.noneBefore")
-        : t("recordChange.cash.before", {
-            amount: formatMoney(before.amountEur, language),
-            date: formatDate(before.effectiveAt, language, {
-              style: "long",
-              timeZone: RACE_TIME_ZONE,
-            }),
-          });
+  const help = (
+    <ReadLine
+      read={before}
+      loading={t("recordChange.cash.loadingBefore")}
+      failed={t("recordChange.cash.beforeFailed")}
+      done={(cash) =>
+        cash === null
+          ? t("recordChange.cash.noneBefore")
+          : t("recordChange.cash.before", {
+              amount: formatMoney(cash.amountEur, language),
+              date: formatDate(cash.effectiveAt, language, {
+                style: "long",
+                timeZone: RACE_TIME_ZONE,
+              }),
+            })
+      }
+    />
+  );
   return (
     <AmountForm
       caption={text.caption(text.what, text.day)}
