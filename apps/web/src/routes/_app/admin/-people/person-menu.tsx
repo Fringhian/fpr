@@ -3,7 +3,7 @@ import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import * as Menu from "../../../../components/molecules/menu/menu";
 import { EditPortfolioLink } from "./edit-portfolio-link";
-import { hasPortfolio, type PeopleActions } from "./people-model";
+import { hasPassword, hasPortfolio, type PeopleActions } from "./people-model";
 
 /**
  * The ⋯ menu's items for a person: Edit, Edit portfolio for someone with a
@@ -40,11 +40,11 @@ export function PersonMenu({
       <Menu.Item {...locked} onClick={open("replaceLink")}>
         {t("adminPeople.menu.replaceLink")}
       </Menu.Item>
-      {person.role === "anonymous" ? null : (
+      {hasPassword(person) ? (
         <Menu.Item onClick={open("resetKey")}>
           {t("adminPeople.menu.resetKey")}
         </Menu.Item>
-      )}
+      ) : null}
       <Menu.Separator />
       {person.accessStatus === "revoked" ? (
         <Menu.Item onClick={() => actions.restore(person)}>
