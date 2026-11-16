@@ -10,6 +10,7 @@ import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request, Response } from "express";
 import type { Auth } from "./auth/auth.js";
+import { logRefusal } from "./errors.js";
 import type { RateLimiter } from "./pipeline/index.js";
 import type { PricesClient } from "./prices/prices-client.js";
 import type { AvatarStore } from "./storage/avatar-store.js";
@@ -97,6 +98,21 @@ export function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
 }
 
 /**
+ * Logs a failed request: a refusal with a declared code, `invalid_request`
+ * included, at `info`; anything else at `error`, with its stack.
+ */
+function logFailure(req: Request, error: unknown): void {
+  if (
+    error instanceof ORPCError &&
+    (isErrorCode(error.code) || error.code === "BAD_REQUEST")
+  ) {
+    logRefusal(req, toErrorBody(error).error);
+    return;
+  }
+  req.log.error({ err: error, requestId: req.id }, "unexpected error");
+}
+
+/**
  * Mounts an oRPC router under `/api`. A request no route matches goes on to
  * the next Express handler, so the not-found answer stays Express's.
  */
@@ -110,13 +126,7 @@ export function mountRouter(
     // validation is 400, and an unexpected failure 500.
     customErrorResponseBodyEncoder: toErrorBody,
     clientInterceptors: [
-      onError((error, { context }) => {
-        const expected = error instanceof ORPCError && isErrorCode(error.code);
-        context.req.log.error(
-          { err: error, requestId: context.req.id },
-          expected ? "request failed" : "unexpected error",
-        );
-      }),
+      onError((error, { context }) => logFailure(context.req, error)),
     ],
   });
 

@@ -1,4 +1,6 @@
+import { Cron } from "croner";
 import { z } from "zod";
+import { defaultRefreshSchedule } from "./pricing/pricing.js";
 import { providerNames } from "./providers/index.js";
 
 /** The variables this process reads. `docs/architecture/prices.md` lists them all. */
@@ -12,12 +14,29 @@ export const envSchema = z.object({
   /** The exchange-rate API, Frankfurter. */
   RATES_URL: z.url().default("https://api.frankfurter.dev"),
   PROVIDER_DAILY_CALL_LIMIT: z.coerce.number().int().min(1).default(1000),
+  /** The intraday refresh, as a cron expression in `RACE_TIMEZONE`. */
+  REFRESH_SCHEDULE: z
+    .string()
+    .refine(
+      isCronPattern,
+      "Expected a cron expression, such as */30 9-22 * * 1-5",
+    )
+    .default(defaultRefreshSchedule),
   /** The race's time zone: the schedules and the call count's day follow it. */
   RACE_TIMEZONE: z
     .string()
     .refine(isTimeZone, "Expected an IANA time zone, such as Europe/Paris")
     .default("Europe/Paris"),
 });
+
+function isCronPattern(pattern: string): boolean {
+  try {
+    new Cron(pattern);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function isTimeZone(name: string): boolean {
   try {

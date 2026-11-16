@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { errorMap } from "../contract.js";
 import { internalRoute } from "./base.js";
+import { pricesRefreshRunSchema, pricesRefreshStateSchema } from "./schemas.js";
 
 export const pricesRefresh = internalRoute
   .route({
@@ -8,7 +8,15 @@ export const pricesRefresh = internalRoute
     path: "/refresh",
     summary: "Run the intraday refresh now",
   })
-  .output(z.void())
+  .output(pricesRefreshRunSchema)
   .errors(
     errorMap("refresh_running", "call_budget_used", "provider_unavailable"),
   );
+
+export const pricesRefreshState = internalRoute
+  .route({
+    method: "GET",
+    path: "/refresh",
+    summary: "Read the intraday refresh's state",
+  })
+  .output(pricesRefreshStateSchema);

@@ -1,6 +1,11 @@
-import { type ErrorBody, type ErrorCode, errorStatus } from "@fpr/contracts";
+import {
+  type ErrorBody,
+  type ErrorCode,
+  errorStatus,
+  type InvalidRequestDetails,
+} from "@fpr/contracts";
 import { ORPCError } from "@orpc/server";
-import type { ErrorRequestHandler, RequestHandler } from "express";
+import type { ErrorRequestHandler, Request, RequestHandler } from "express";
 
 /**
  * An error a contract route answers on purpose, sent with its code's
@@ -26,6 +31,23 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Logs a refusal with a declared code, an ordinary answer, at `info`: its
+ * code and, for `invalid_request`, its issue paths, never the values sent.
+ */
+export function logRefusal(req: Request, answer: ErrorBody["error"]): void {
+  const issues =
+    answer.code === "invalid_request"
+      ? (answer.details as InvalidRequestDetails | undefined)?.issues?.map(
+          ({ path }) => path,
+        )
+      : undefined;
+  req.log.info(
+    { requestId: req.id, code: answer.code, issues },
+    "request refused",
+  );
+}
+
 /** Answers every unknown route with `not_found`. */
 export const notFound: RequestHandler = (_req, _res, next) => {
   next(new ApiError("not_found"));
@@ -49,7 +71,7 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
           ? { code: error.code }
           : { code: error.code, details: error.details },
     };
-    req.log.error({ err: error, requestId: req.id }, "request failed");
+    logRefusal(req, body.error);
     res.status(errorStatus[error.code]).json(body);
     return;
   }

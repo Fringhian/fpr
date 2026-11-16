@@ -10,6 +10,7 @@ import type { Db } from "@fpr/db";
 import { OpenAPIHandler } from "@orpc/openapi/node";
 import { type AnyRouter, implement, ORPCError, onError } from "@orpc/server";
 import type { Express, Request } from "express";
+import type { Pricing } from "./pricing/pricing.js";
 
 /** What every handler receives. */
 export interface PricesContext {
@@ -19,6 +20,7 @@ export interface PricesContext {
   timeZone: string;
   /** The current moment. Tests replace it. */
   now: () => Date;
+  pricing: Pricing;
 }
 
 /**
@@ -78,6 +80,30 @@ function toErrorBody(error: ORPCError<string, unknown>): ErrorBody {
 }
 
 /**
+ * Logs a failed request. A refusal with a declared code, `invalid_request`
+ * included, is an ordinary answer: `info`, with its code and an invalid
+ * request's issue paths, never the values sent. Anything else is `error`,
+ * with its stack.
+ */
+function logFailure(req: Request, error: unknown): void {
+  if (
+    error instanceof ORPCError &&
+    (isErrorCode(error.code) || error.code === "BAD_REQUEST")
+  ) {
+    const { code, details } = toErrorBody(error).error;
+    const issues =
+      code === "invalid_request"
+        ? (details as InvalidRequestDetails | undefined)?.issues.map(
+            ({ path }) => path,
+          )
+        : undefined;
+    req.log.info({ requestId: req.id, code, issues }, "request refused");
+    return;
+  }
+  req.log.error({ err: error, requestId: req.id }, "unexpected error");
+}
+
+/**
  * Mounts the oRPC router of `pricesContract` at the root. A request no route
  * matches goes on to the next Express handler, so the not-found answer stays
  * Express's.
@@ -92,13 +118,7 @@ export function mountRouter(
     // validation is 400, and an unexpected failure 500.
     customErrorResponseBodyEncoder: toErrorBody,
     clientInterceptors: [
-      onError((error, { context }) => {
-        const expected = error instanceof ORPCError && isErrorCode(error.code);
-        context.req.log.error(
-          { err: error, requestId: context.req.id },
-          expected ? "request failed" : "unexpected error",
-        );
-      }),
+      onError((error, { context }) => logFailure(context.req, error)),
     ],
   });
 

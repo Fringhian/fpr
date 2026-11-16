@@ -103,7 +103,7 @@ describe("lookup", () => {
         isin: "FR0000000001",
         name: "Example Industries SA",
         exchange: "PA",
-        country: "France",
+        countryCode: "FR",
         tradingCurrency: "EUR",
         type: "Common Stock",
         primary: true,
@@ -113,7 +113,7 @@ describe("lookup", () => {
         isin: null,
         name: "Sample World Fund",
         exchange: "XETRA",
-        country: "Germany",
+        countryCode: "DE",
         tradingCurrency: "EUR",
         type: "FUND",
         primary: null,
@@ -218,6 +218,31 @@ describe("closes", () => {
     expect(closes).toEqual([
       { date: "2026-02-27", close: "74.3280" },
       { date: "2026-03-02", close: "75.1" },
+    ]);
+  });
+
+  it("skips a close at or below zero with a warning naming the symbol and the day", async () => {
+    fetchMock.mockResolvedValue(
+      json(
+        '[{"date":"2026-02-27","close":0},{"date":"2026-03-02","close":-1.5},{"date":"2026-03-03","close":75.1}]',
+      ),
+    );
+
+    const closes = await provider().closes(
+      "EXA.PA",
+      "2026-02-23",
+      "2026-03-03",
+    );
+
+    expect(closes).toEqual([{ date: "2026-03-03", close: "75.1" }]);
+    const warnings = rawLines
+      .join("")
+      .split("\n")
+      .filter((line) => line.includes("not above zero"))
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    expect(warnings).toMatchObject([
+      { level: "warn", symbol: "EXA.PA", day: "2026-02-27" },
+      { level: "warn", symbol: "EXA.PA", day: "2026-03-02" },
     ]);
   });
 
