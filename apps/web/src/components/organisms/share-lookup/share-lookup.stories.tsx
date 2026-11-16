@@ -96,14 +96,20 @@ export const Found: Story = {
     const [, listing] = canvas.getAllByRole("button", { name: "Add" });
     if (listing) await userEvent.click(listing);
     const field = canvas.getByRole("textbox", { name: /ISIN of/ });
+    const add = () =>
+      userEvent.click(canvas.getByRole("button", { name: "Add share" }));
     await userEvent.type(field, "ie00fprpac2");
-    await userEvent.click(canvas.getByRole("button", { name: "Add share" }));
-    await expect(canvas.getByText(/Enter an ISIN/)).toBeVisible();
+    await add();
+    await expect(canvas.getByText(/Enter the ISIN/)).toBeVisible();
+    // A wrong check digit is refused like a short ISIN.
     await userEvent.type(field, "9");
-    await userEvent.click(canvas.getByRole("button", { name: "Add share" }));
+    await add();
+    await expect(canvas.getByText(/Enter the ISIN/)).toBeVisible();
+    await userEvent.type(field, "{Backspace}8");
+    await add();
     await expect(args.onAddListing).toHaveBeenCalledWith(
       FOUND.listings[0],
-      "IE00FPRPAC29",
+      "IE00FPRPAC28",
     );
   },
 };
@@ -126,7 +132,7 @@ export const IsinTaken: Story = {
     if (listing) await userEvent.click(listing);
     await userEvent.type(
       canvas.getByRole("textbox", { name: /ISIN of/ }),
-      "IE00FPRWLD01",
+      "IE00FPRWLD09",
     );
     await userEvent.click(canvas.getByRole("button", { name: "Add share" }));
     await expect(
@@ -138,7 +144,7 @@ export const IsinTaken: Story = {
 /** Nothing found: Create a manual share is the main action. */
 export const NothingFound: Story = {
   name: "Nothing found",
-  args: { query: "LU00FPRNEW08", state: { status: "none", others: false } },
+  args: { query: "LU00FPRNEW01", state: { status: "none", others: false } },
 };
 
 /** FPR's own shares matched, and the provider found nothing else. */

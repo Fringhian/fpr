@@ -31,25 +31,25 @@ describe("Shares", () => {
       () => button(/^Add$/),
       () => expect(field("isin")).toBeTruthy(),
     );
-    typeInto(field("isin"), "ie00 fprspc11");
+    typeInto(field("isin"), "ie00 fprspc10");
     await click(
       () => button(/^Add share/),
       () => expect(router.state.location.pathname).not.toBe("/shares"),
     );
 
-    const stored = store.shares.find((share) => share.isin === "IE00FPRSPC11");
+    const stored = store.shares.find((share) => share.isin === "IE00FPRSPC10");
     expect(stored).toMatchObject({ name: "Space Economy Fund" });
     expect(router.state.location.pathname).toBe(`/shares/${stored?.id}`);
   });
 
   it("looks a full ISIN up by itself, and adding what it finds opens it", async () => {
-    const { router, store } = await visit("/shares?q=IE00FPRWTR10", "member");
+    const { router, store } = await visit("/shares?q=IE00FPRWTR13", "member");
 
     await click(
       () => button(/^Add$/),
       () => expect(router.state.location.pathname).not.toBe("/shares"),
     );
-    const stored = store.shares.find((share) => share.isin === "IE00FPRWTR10");
+    const stored = store.shares.find((share) => share.isin === "IE00FPRWTR13");
     expect(router.state.location.pathname).toBe(`/shares/${stored?.id}`);
   });
 
@@ -80,7 +80,7 @@ describe("Shares", () => {
 
   it("refuses a manual share whose ISIN FPR has, with a link to that share", async () => {
     const { page, store } = await visit(
-      "/shares/new?isin=IE00FPRWLD01",
+      "/shares/new?isin=IE00FPRWLD09",
       "member",
     );
     const before = store.shares.length;
@@ -99,7 +99,7 @@ describe("Shares", () => {
 
   it("creates a manual share and opens its page", async () => {
     const { page, router, store } = await visit(
-      "/shares/new?isin=LU00FPRNEW08",
+      "/shares/new?isin=LU00FPRNEW01",
       "member",
     );
 
@@ -108,7 +108,7 @@ describe("Shares", () => {
     await submit(page, () =>
       expect(router.state.location.pathname).not.toBe("/shares/new"),
     );
-    const stored = store.shares.find((share) => share.isin === "LU00FPRNEW08");
+    const stored = store.shares.find((share) => share.isin === "LU00FPRNEW01");
     expect(stored).toMatchObject({ name: "Example Fund", kind: "manual" });
     expect(stored?.prices[0]?.priceEur).toBe("40.10");
     expect(router.state.location.pathname).toBe(`/shares/${stored?.id}`);

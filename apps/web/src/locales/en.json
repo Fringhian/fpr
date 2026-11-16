@@ -664,7 +664,7 @@
     "isin": {
       "label": "ISIN of {{name}}",
       "help": "The price provider didn’t send it. It’s on your statement.",
-      "invalid": "Enter an ISIN: two letters, nine letters or digits, then a digit."
+      "invalid": "Enter the ISIN as on your statement: two letters, nine letters or digits, then a check digit."
     },
     "openTaken": "Open that share",
     "isinTaken": "Another share in FPR already has this ISIN.",
@@ -685,7 +685,7 @@
     "description": "For a share the price provider doesn’t track: members enter its value.",
     "isin": {
       "label": "ISIN",
-      "invalid": "Enter an ISIN: two letters, nine letters or digits, then a digit."
+      "invalid": "Enter the ISIN as on your statement: two letters, nine letters or digits, then a check digit."
     },
     "name": {
       "label": "Name",

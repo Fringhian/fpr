@@ -29,7 +29,7 @@ const TEXTS = {
       description: "Sam hasn’t recorded any shares yet.",
     },
     notFound: {
-      title: "No share found for LU00EXMPL008",
+      title: "No share found for LU00EXMPL002",
       description:
         "The price provider doesn’t track it. Create it and enter its value yourself.",
       action: "Create a manual share",
@@ -47,7 +47,7 @@ const TEXTS = {
       description: "Sam n’a encore enregistré aucune part.",
     },
     notFound: {
-      title: "Aucune part trouvée pour LU00EXMPL008",
+      title: "Aucune part trouvée pour LU00EXMPL002",
       description:
         "Le fournisseur de cours ne la suit pas. Créez-la et saisissez vous-même sa valeur.",
       action: "Créer une part manuelle",

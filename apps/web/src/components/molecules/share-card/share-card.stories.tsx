@@ -24,7 +24,7 @@ const UP = {
   size: "m",
   name: "World Index ETF",
   kind: "market",
-  isin: "IE00FPRWLD10",
+  isin: "IE00FPRWLD17",
   symbol: "WRLD.DE",
   latestPrice: {
     at: "2026-03-31T14:30:00Z",
@@ -88,7 +88,7 @@ export const Up: Story = {};
 export const Down: Story = {
   args: {
     name: "Euro Bank SA",
-    isin: "FR00FPRBNK30",
+    isin: "FR00FPRBNK35",
     symbol: "EBNK.PA",
     latestPrice: {
       at: "2026-03-30T17:30:00Z",
@@ -107,7 +107,7 @@ export const Manual: Story = {
   args: {
     name: "Global Tech Fund",
     kind: "manual",
-    isin: "LU00FPRTEC20",
+    isin: "LU00FPRTEC25",
     symbol: null,
     latestPrice: {
       at: "2026-03-03T09:00:00Z",
@@ -125,7 +125,7 @@ export const PricePending: Story = {
   name: "Price pending",
   args: {
     name: "Nordic Wind AG",
-    isin: "DE00FPRWND30",
+    isin: "DE00FPRWND36",
     symbol: "NWND.DE",
     latestPrice: null,
     change: null,

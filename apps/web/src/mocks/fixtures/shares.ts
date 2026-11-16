@@ -73,7 +73,7 @@ function manual<const Key extends string>(
 export const fixtureShares = [
   market(201, {
     key: "world",
-    isin: "IE00FPRWLD01",
+    isin: "IE00FPRWLD09",
     name: "World Index ETF",
     symbol: "WRLD.PA",
     exchange: "PA",
@@ -86,7 +86,7 @@ export const fixtureShares = [
   }),
   market(202, {
     key: "tech",
-    isin: "LU0FPRTECH02",
+    isin: "LU0FPRTECH04",
     name: "Global Tech Fund",
     symbol: "GTEC.DE",
     exchange: "DE",
@@ -112,7 +112,7 @@ export const fixtureShares = [
   }),
   market(204, {
     key: "emerging",
-    isin: "IE00FPREMK04",
+    isin: "IE00FPREMK01",
     name: "Emerging Markets ETF",
     symbol: "EMKT.AS",
     exchange: "AS",
@@ -125,7 +125,7 @@ export const fixtureShares = [
   }),
   market(205, {
     key: "energy",
-    isin: "US0FPRCLEN05",
+    isin: "US0FPRCLEN09",
     name: "Clean Energy Fund",
     symbol: "CLEN.US",
     exchange: "US",
@@ -139,7 +139,7 @@ export const fixtureShares = [
   }),
   market(206, {
     key: "health",
-    isin: "DE000FPRHLC6",
+    isin: "DE000FPRHLC2",
     name: "Healthcare Leaders",
     symbol: "HLTH.DE",
     exchange: "DE",
@@ -152,7 +152,7 @@ export const fixtureShares = [
   }),
   market(207, {
     key: "smallcaps",
-    isin: "FR00FPRSMC07",
+    isin: "FR00FPRSMC03",
     name: "Small Caps Europe",
     symbol: "SMCE.PA",
     exchange: "PA",
@@ -166,7 +166,7 @@ export const fixtureShares = [
   }),
   market(208, {
     key: "robotics",
-    isin: "IE00FPRROB08",
+    isin: "IE00FPRROB05",
     name: "Robotics ETF",
     symbol: "ROBO.AS",
     exchange: "AS",
@@ -174,7 +174,7 @@ export const fixtureShares = [
   }),
   market(209, {
     key: "gold",
-    isin: "JE00FPRGLD09",
+    isin: "JE00FPRGLD08",
     name: "Gold Tracker",
     symbol: "GOLD.LSE",
     exchange: "LSE",
@@ -188,7 +188,7 @@ export const fixtureShares = [
   }),
   manual(210, {
     key: "vineyard",
-    isin: "FR00FPRVIN00",
+    isin: "FR00FPRVIN01",
     name: "Vineyard Estate Shares",
     values: [
       { daysAgo: 390, priceEur: "120.00", by: "alex" },
@@ -200,7 +200,7 @@ export const fixtureShares = [
   }),
   manual(211, {
     key: "wind",
-    isin: "FR00FPRWND01",
+    isin: "FR00FPRWND05",
     name: "Community Wind Farm",
     values: [
       { daysAgo: 280, priceEur: "50.00", by: "robin" },
