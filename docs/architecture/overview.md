@@ -27,7 +27,7 @@ flowchart LR
 | Price service | Internal. The only block that calls the price provider and the exchange-rate API, and the only writer of shares, prices, and manual price events. | `prices.md`: provider, schedule, call budget, currency, endpoints |
 | Postgres | Every table, reached through the shared `@fpr/db` package. | `database.md`: schema, writers, valuation, deletion, retention |
 | Auth | Better Auth inside the API, FPR's access keys, and roles. | `auth.md`: roles, access keys, sign-in flows, rate limits, admin rules |
-| Deployment | Docker images, `compose.yaml`, configuration, logs, CI. | `deployment.md` |
+| Deployment | Docker images, `compose.yaml`, configuration, logs, backups, CI. | `deployment.md` |
 
 ## Stack-wide conventions
 
@@ -59,7 +59,7 @@ fpr/
 ├── packages/
 │   ├── contracts/        # @fpr/contracts: route contracts, with /prices and /openapi
 │   └── db/               # @fpr/db: pool, migrations, row types, queries
-├── deploy/               # the vector image and its log collection
+├── deploy/               # the vector and backup images
 ├── docs/
 │   ├── architecture/
 │   └── product/
