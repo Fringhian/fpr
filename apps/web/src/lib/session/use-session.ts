@@ -14,7 +14,9 @@ export type Session = {
 /**
  * The signed-in person on a route the guards let in only with a session. The
  * root route has loaded it already, so it never suspends there, and it follows
- * every write that invalidates `me`.
+ * every write that invalidates `me`. A session that ends mid-visit keeps the
+ * person in the cache while sign-in replaces the page, so the shell never
+ * reads `null` here: only a route outside the guards would.
  */
 export function useSession(): Session {
   const api = useRouteContext({

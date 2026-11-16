@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+import { act } from "react";
 import { describe, expect, it } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import type { Persona } from "../src/mocks/personas.ts";
+import { setSession } from "../src/mocks/store/session.ts";
 import { visit } from "./visit-app.tsx";
 
 const userId = fixturePersonId("sam");
@@ -106,6 +108,29 @@ describe("the route guards", () => {
     const { text } = await visit("/sign-in?access=ended", "signedOut");
     expect(text).toContain("Your access has ended");
     expect(text).toContain("Ask the admin if you think this is a mistake.");
+  });
+
+  it("send a person whose session expires mid-visit to sign-in, keeping the shell until then", async () => {
+    const { router, page, queryClient, store, onSessionExpired } = await visit(
+      "/shares?q=world",
+      "member",
+    );
+    setSession(store, null);
+    await act(() => queryClient.invalidateQueries());
+    expect(onSessionExpired).toHaveBeenCalled();
+    expect(page.querySelector("nav")).not.toBeNull();
+    expect(page.textContent).not.toContain("Can’t load this page");
+
+    await act(() => router.navigate({ to: "/members" }));
+    expect(router.state.location.pathname).toBe("/sign-in");
+    expect(router.state.location.search).toEqual({
+      redirect: "/members?period=1M&unit=percent",
+    });
+  });
+
+  it("leave a signed-out visitor's session alone", async () => {
+    const { onSessionExpired } = await visit("/shares", "signedOut");
+    expect(onSessionExpired).not.toHaveBeenCalled();
   });
 
   it("open the admin area on People", async () => {

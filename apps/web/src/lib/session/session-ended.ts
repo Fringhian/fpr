@@ -29,3 +29,17 @@ export const accessEndedHref = "/sign-in?access=ended";
 export function signOutOnAccessEnded(): void {
   leaveApp(accessEndedHref);
 }
+
+/**
+ * Sends a person whose session expired mid-visit to sign-in, which leads back
+ * to the page they were on once they sign in again.
+ */
+export function signInAgain(): void {
+  const { pathname, search, hash } = window.location;
+  const here = `${pathname}${search}${hash}`;
+  leaveApp(
+    here === "/"
+      ? "/sign-in"
+      : `/sign-in?${new URLSearchParams({ redirect: here })}`,
+  );
+}

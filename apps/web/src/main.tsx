@@ -7,6 +7,7 @@ import { api } from "./lib/api/api.ts";
 import { createQueryClient } from "./lib/api/query-client.ts";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
 import { languageOf } from "./lib/language-choice.ts";
+import { signInAgain } from "./lib/session/session-ended.ts";
 import { createAppRouter } from "./router.ts";
 import "./index.css";
 
@@ -21,7 +22,7 @@ if (import.meta.env.MODE === "mock") {
 const i18n = createI18n(languageOf(null));
 syncDocumentLanguage(i18n);
 
-const queryClient = createQueryClient();
+const queryClient = createQueryClient({ onSessionExpired: signInAgain });
 
 const router = createAppRouter({ queryClient, api, i18n });
 

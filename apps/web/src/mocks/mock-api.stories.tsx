@@ -69,7 +69,9 @@ const meta = {
   tags: ["!autodocs"],
   decorators: [
     (Story) => {
-      const [queryClient] = useState(createQueryClient);
+      const [queryClient] = useState(() =>
+        createQueryClient({ onSessionExpired: () => undefined }),
+      );
       return (
         <QueryClientProvider client={queryClient}>
           <Story />

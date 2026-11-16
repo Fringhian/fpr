@@ -49,8 +49,9 @@ export async function visit(
   } else {
     localStorage.setItem(LANGUAGE_KEY, language);
   }
-  const { handlers } = createMockHandlers({ origin, session });
+  const { handlers, store } = createMockHandlers({ origin, session });
   const onAccessEnded: Mock<() => void> = vi.fn();
+  const onSessionExpired: Mock<() => void> = vi.fn();
   const api = createTanstackQueryUtils(
     createApiClient({
       url: `${origin}/api`,
@@ -61,7 +62,7 @@ export async function visit(
       onAccessEnded,
     }),
   );
-  const queryClient = createQueryClient();
+  const queryClient = createQueryClient({ onSessionExpired });
   queryClient.setDefaultOptions({ queries: { retry: false } });
   const i18n = createI18n(languageOf(null));
   syncDocumentLanguage(i18n);
@@ -93,5 +94,9 @@ export async function visit(
     search: router.state.matches.at(-1)?.search,
     text: page.textContent ?? "",
     onAccessEnded,
+    onSessionExpired,
+    queryClient,
+    /** The mock API's store, to change what it answers mid-visit. */
+    store,
   };
 }

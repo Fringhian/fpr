@@ -1,17 +1,31 @@
-import { MutationCache, QueryClient } from "@tanstack/react-query";
-import { isRefusal } from "./errors.ts";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { holdsSession } from "../session/session-query.ts";
+import { isApiError, isRefusal } from "./errors.ts";
 import { invalidateAfter } from "./invalidation.ts";
 
 /**
  * The app's TanStack Query cache. Every successful write invalidates the
  * reads its row of `invalidations` names, and settles once they are fetched
- * again. A read the API refused isn't retried.
+ * again. A read the API refused isn't retried. A read or a write answered
+ * `401 unauthenticated` while the cache holds a signed-in person means the
+ * session expired mid-visit, and runs `onSessionExpired`.
  */
-export function createQueryClient(): QueryClient {
+export function createQueryClient({
+  onSessionExpired,
+}: {
+  onSessionExpired: () => void;
+}): QueryClient {
+  const endExpiredSession = (error: unknown) => {
+    if (isApiError(error, "unauthenticated") && holdsSession(queryClient)) {
+      onSessionExpired();
+    }
+  };
   const queryClient: QueryClient = new QueryClient({
+    queryCache: new QueryCache({ onError: endExpiredSession }),
     mutationCache: new MutationCache({
       onSuccess: (_data, _variables, _result, mutation) =>
         invalidateAfter(queryClient, mutation.options.mutationKey),
+      onError: endExpiredSession,
     }),
     defaultOptions: {
       queries: {

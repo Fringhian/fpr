@@ -142,7 +142,7 @@ describe("the query client", () => {
   it("invalidates the portfolio, log, leaderboards, members and race after a portfolio write", async () => {
     const { client } = stubbedClient(() => Response.json({}, { status: 201 }));
     const api = createTanstackQueryUtils(client);
-    const queryClient = createQueryClient();
+    const queryClient = createQueryClient({ onSessionExpired: vi.fn() });
     const reads: Record<string, QueryKey> = {
       portfolio: api.portfolio.get.queryKey({
         input: { userId, period: "1M" },
