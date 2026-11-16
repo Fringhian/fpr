@@ -1,29 +1,27 @@
 # User stories
 
-Everything people do in FPR, grouped by activity. Each path, with its edge cases, is drawn in `user-flows.md`. **Version** is `v1` for the first version, `later` for what comes after it.
+Everything people do in FPR, grouped by activity, with every case to cover. Each path is drawn in `user-flows.md`. **Version** is `v1` for the first version, `later` for what comes after it.
 
-FPR has four roles:
+FPR has four roles, detailed in `../architecture/auth.md`:
 
-| Role | Sees | Own portfolio | Admin area | Changes data |
-| --- | --- | --- | --- | --- |
-| Admin | Everything, real names and amounts | Yes | Yes | Own portfolio, any member's portfolio, people, access, and shares |
-| Member | Everything outside the admin area, real names and amounts | Yes | No | Own portfolio, manual shares |
-| Guest | Everything outside the admin area, real names and amounts | No | No | Own profile |
-| Anonymous | Everything, with pseudonyms, initials instead of photos, and no euro amounts | No | Yes, read-only | Nothing |
+- **Admin**: everything, real names and amounts. Records their own portfolio and any member's, and manages people, access and shares.
+- **Member**: everything outside the admin area. Records their own portfolio, and creates and edits manual shares.
+- **Guest**: what a member sees, read-only, with no portfolio. Edits their own profile.
+- **Anonymous viewer**: everything, the admin area included, read-only, with pseudonyms, initials instead of photos, and no euro amounts.
 
 Members and the admin are ranked. Guests and anonymous viewers are never ranked.
 
-The race is closed: no new money enters it. Adding or removing shares moves no money in FPR. A member records what they hold, and sets their cash themselves when it changes.
+The race is closed: no money enters or leaves it. Adding or removing shares moves no money in FPR. A member records what they hold, and sets their cash themselves when it changes.
 
-Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and one unit (€ or %). They are a single setting shared by every screen, kept across visits.
+Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and one unit (€ or %): a single setting shared by every screen, kept across visits.
 
 ## Access — get in and stay in
 
 | ID | As a person given access, I want to… | So that… | Version |
 | --- | --- | --- | --- |
-| ACC-1 | open the link I was sent, see who it's for, and choose my password in one field I can reveal | my account is ready without filling a sign-up form | v1 |
+| ACC-1 | open the link I was sent, see who it's for, and choose my password in one field I can reveal | my account is ready without a sign-up form | v1 |
 | ACC-2 | sign in with my email and password | I get back to the race from any browser | v1 |
-| ACC-3 | reset a forgotten password: my email and the reset key I was given, then my new password | I recover my account without any email being sent | v1 |
+| ACC-3 | reset a forgotten password with my email and the reset key I was given, then my new password | I recover my account without any email being sent | v1 |
 | ACC-4 | change my display name, photo, and colour in Settings | the others recognise me on every chart | v1 |
 | ACC-5 | sign out | nobody else uses my session on a shared device | v1 |
 | ACC-6 | change my password with my current one | I replace a password I typed in a hurry | v1 |
@@ -32,20 +30,20 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 **Cases to cover**
 
-- A link opened after its first-use deadline (7 days after creation) shows that it has expired and to ask the admin for a new one.
-- A link already used for setup leads to the sign-in page.
-- A link the admin replaced says so, and to use the latest link.
-- Leaving before the password is set keeps the link valid until its deadline.
+- An access link must be used within 7 days of its creation. After that it says it has expired and to ask the admin for a new one. Leaving before the password is set keeps it valid until then.
+- A link already used leads to sign-in. A link the admin replaced says so, and to use the latest one.
+- A password has at least 12 characters.
 - Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
-- Five sign-in attempts from one address within a minute pause sign-in from that address for a minute, and from no other address.
-- A wrong email or reset key gives one generic error that does not say which of the two is wrong.
-- A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
+- Five sign-in attempts from one address within a minute pause sign-in from that address, and no other, for a minute.
+- A session that expires sends the person to sign-in, then back to the page they were on.
+- A wrong email or reset key gives one generic error that doesn't say which is wrong. A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
 - A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
-- Each person has one of ten colours, set when they are added to the first colour nobody has. A colour someone else has can't be chosen, unless all ten are taken.
-- Each setting is saved as soon as it changes, the name when the field is left. Settings has no Save button.
+- Each person has one of ten colours, given when they are added: the first nobody has. A colour someone else has can't be chosen, unless all ten are taken.
+- Settings has no Save button: each setting is saved as soon as it changes, the name when the field is left.
 - FPR is in French until a person picks a language, whatever their browser's language. Pages before sign-in are in French.
+- A page that doesn't exist offers Go to Home. A failed load offers Retry, and a form keeps what was typed.
 - Installed FPR opens without a connection and says it is offline, with Retry. It never shows data it doesn't have.
-- A new version of FPR shows "A new version is ready" with Reload, and never reloads by itself.
+- A new version of FPR offers Reload, and never reloads by itself.
 - An app installed on iOS asks to sign in once, since it doesn't share Safari's session. An anonymous viewer signs in there by pasting their access link on the sign-in page.
 
 ## Onboarding — the first steps
@@ -60,9 +58,11 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 **Cases to cover**
 
 - Onboarding runs once, right after the first password. Guests skip ONB-3. Anonymous viewers have none.
+- A display name has 1 to 40 characters.
 - Every step has a default: the admin's name and the person's colour. No step can be skipped, and none blocks.
+- A colour taken by someone else meanwhile is refused, and the choices refresh.
 - Closing onboarding midway starts it again at the first step next time, with what was already chosen kept.
-- An empty portfolio shows "Your portfolio is being prepared". For the first admin, who prepares their own, it shows "Your portfolio is empty: add your shares in Portfolio".
+- An empty portfolio shows "Your portfolio is being prepared". For the first admin, who prepares their own, it says to add their shares in Portfolio.
 - Onboarding never mentions the race. The welcome step ends with Go to Home.
 
 ## Portfolio — record what I hold
@@ -71,7 +71,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 | --- | --- | --- | --- |
 | POR-1 | see my portfolio: my balance with the time of the latest prices, my gain over the period, how it splits between shares and cash, and each share with its quantity, value, and gain over the period | I know where I stand right now | v1 |
 | POR-2 | record a purchase: what changed, which share, when (today by default), how many, then a review | recording a purchase takes a few seconds | v1 |
-| POR-3 | record a sale, seeing how many I held on that day, with an "all" option, read from `GET /users/:userId/holdings/:shareId?at=` | recording a sale is as quick as a purchase | v1 |
+| POR-3 | record a sale, seeing how many I held on that day, with an "all" option | recording a sale is as quick as a purchase | v1 |
 | POR-4 | set my cash on a day: "from that day, I have €X" | the money I hold outside shares counts in the race | v1 |
 | POR-5 | see every share change and cash balance I recorded, and edit or delete any entry | a typo or a forgotten entry is fixed, and every leaderboard follows | v1 |
 | POR-6 | see my balance over time as a chart, with my purchases and sales marked | I see my own progress, not only my rank | v1 |
@@ -81,17 +81,17 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 - No portfolio yet: an empty state that explains recording a change with its date, and "Record a change".
 - The date is chosen before the quantity: what can be sold depends on what was held that day.
-- A sale, edit, or deletion that would take a holding below zero at any moment is refused, and the message names the entry it would break.
-- Two removals sent at the same time on the same holding: the second sees the first. If the holding no longer covers it, it is refused.
-- A moment in the future is refused. A quantity of zero or below is refused.
+- A sale, edit, deletion, or undo that would take a holding below zero at any moment is refused, and the message names the entry it would break.
+- Two removals on the same holding at the same time: the second sees the first, and is refused if the holding no longer covers it.
+- A day in the future is refused, and so is a quantity or a share value of zero or below. Cash can't be below zero.
 - Quantities keep their decimals as entered: 74.328 units.
-- The first holding of a market share, or an entry dated before its stored history, is saved at once, and its prices are fetched right after. Until they arrive, the share shows "price pending" and the member's total is marked incomplete, never counted at €0. A failed fetch is retried every 30 minutes.
+- The first holding of a market share, or an entry dated before its stored history, is saved at once, and its prices are fetched right after. Until they arrive, the share shows "price pending" and is left out of the member's balance, which is marked incomplete on every screen, never counted at €0. A failed fetch is retried every 30 minutes.
 - Removing shares doesn't change cash, and adding shares doesn't spend it.
-- Setting cash twice for the same moment keeps both entries in the log, and the one recorded last is the cash from that moment.
-- A manual share shows its value with "as of" the date of its last value point.
+- Setting cash twice for the same moment keeps both entries in the log; the one recorded last is the cash from that moment.
+- A manual share shows its value "as of" the date of its last value point.
 - Leaving the change flow midway asks to confirm. Changes already saved in the session stay.
-- A change or cash balance saved twice by a double press is saved once: the button is disabled while saving, and each save carries an id the web app generates, so a repeated request answers the entry already saved instead of creating a second one.
-- A stock split is recorded as a purchase of the new shares on the split day. A dividend paid in cash is recorded by setting cash. FPR doesn't detect either.
+- A change or cash balance sent twice, by a double press or a retry, is saved once.
+- A stock split is recorded as a purchase of the new shares on the split day. A dividend paid in cash is recorded by setting cash. FPR detects neither.
 
 ## Shares — find and follow them
 
@@ -108,21 +108,20 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 **Cases to cover**
 
 - The Shares page lists the shares held in the race first, most holders first, then the shares nobody holds.
-- Filtering as I type reads FPR's own shares only and costs no provider call.
-- A lookup is one provider call. A lookup that finds nothing offers "Create a manual share" with the ISIN filled in. Manual creation is only offered after a lookup.
-- When the provider is unavailable, or FPR's daily call budget is used, the lookup says so and manual creation is still offered.
-- A listing the provider returns without an ISIN asks the member to type it in before it can be added.
+- Filtering reads FPR's own shares only and costs no provider call. A lookup is one provider call.
+- A lookup that finds nothing offers "Create a manual share" with the ISIN filled in. Manual creation is offered only after a lookup.
+- When the provider is unavailable, or FPR's daily call budget is used, the lookup says so and still offers manual creation.
+- A listing returned without an ISIN asks the member to type it before it can be added. A listing whose ISIN is already in FPR opens that share.
+- An ISIN is stored once, and the filter finds it: creating a second share with it, or giving a manual share an ISIN another share has, is refused with a link to that share. An ISIN listed on several exchanges is stored on its primary listing.
 - A manual share always keeps at least one value point.
-- Changing a manual share's ISIN to one another share already has is refused.
-- An ISIN already in FPR is found by the filter, and creating a second share with it is refused.
-- An ISIN listed on several exchanges is stored once, on its primary listing.
+- Two members editing the same value point: the second save shows the new value and asks to confirm.
+- Every change to a manual share's values is recorded: who changed which value, from what to what.
 - A market share held since before the provider's history starts is valued at its earliest close until that day: it shows no gain before it, and its page says "prices from <date>".
 - A fund has no price during the day: its value is its latest daily price, one or two trading days late, shown with its date.
 - A share quoted in another currency is shown in EUR, converted when its price was fetched.
 - Every price shows its time. Outside trading hours, the latest price is the last close, marked as such.
 - A share's chart starts at its earliest holding in the race, or where the provider's history starts when that is later. A share nobody has held has no chart yet.
 - The gain since I bought values each purchase at the share's price on that day.
-- Two members editing the same value point: the second save shows the new value and asks to confirm.
 - The provider being down never blocks a screen: every screen shows the latest stored prices with their time.
 - The number of people looking at the app never changes the number of provider calls.
 
@@ -142,14 +141,12 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 - Standings show no rank numbers: the order and each member's bar show the ranking. On tablet and desktop the first three are marked gold, silver, and bronze.
 - On a phone, Home's sentence names the leader only; the star share shows in a member's lane when it opens.
+- The sentence adapts: the person leads, everyone is down, or the person is alone in the race. A guest or an anonymous viewer has no result of their own: the sentence names who leads, with their gain.
 - A member with no entries yet is listed under the standings as not started.
 - A member whose history is shorter than the period is measured from their first entry, with a marker.
 - Standings use daily closes only. Removing shares in the morning and adding others in the afternoon never shows on them.
 - A missing close for a held share is valued at its latest stored price, and Home says "prices as of <date>".
-- A share whose prices haven't arrived yet is left out of its holder's balance, and their row is marked "incomplete" until it arrives.
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
-- The sentence adapts: the person leads, everyone is down, or the person is alone in the race.
-- A guest or an anonymous viewer has no result of their own: Home's sentence names who leads, with their gain.
 - Every share change, cash balance, and manual value edit stays recorded with who made it and when. v1 shows no feed.
 
 ## Comparison — side by side
@@ -200,16 +197,17 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 **Cases to cover**
 
-- An access link is shown once. Closing it without copying means generating a new one.
+- An email already used, or an end date in the past, is refused.
+- An access link or a reset key is shown once, with Copy; if the browser refuses to copy, the text is selected to copy by hand. Closing it without copying means generating a new one. A new reset key replaces one not yet used.
+- After adding a member, the link dialog offers to prepare their portfolio: it opens their member page in edit mode.
 - The last admin's access can't be revoked, and the last admin can't be deleted or change role.
 - A person with portfolio entries can't become a guest. Nobody becomes or stops being anonymous.
-- Deleting a person asks for their name to confirm. It deletes their share changes and cash balances. The manual shares and value points they created stay, since others may hold them.
+- A member whose access is revoked or has ended stays in the race with their data. Restoring access lets them sign in again.
+- Deleting a person asks for their name to confirm, and removes them from the race with their share changes and cash balances. The manual shares and value points they created stay, since others may hold them.
 - A share needs attention when it is held and has no price yet, or its latest close is older than the last trading day.
 - A share any share change refers to can't be deleted.
 - Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin.
 - A refresh runs the scheduled job at once: missing histories, then the latest prices in one batch. It is refused while a run is going and once the day's call cap is reached.
-- A member whose access is revoked or has ended stays in the race with their data. Deleting them removes them from it.
-- After adding a member, the link dialog offers to prepare their portfolio: it opens their member page in edit mode.
 - The admin area works on tablet and desktop. On a phone it says so.
 - On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists.
 
@@ -227,13 +225,11 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 **Cases to cover**
 
-- Every change is refused by the API, and the screens hide the controls.
-- The access link works as a password: it disappears from the address bar once opened.
-- No real name, email, photo, euro amount, or quantity held reaches an anonymous viewer's browser: the API replaces them before sending. Holdings show as weights in percent of the portfolio.
-- A pseudonym is the same for the same person on every screen and every visit.
-- A pseudonym is an English adjective and animal, such as Calm Otter, in both languages, like a name.
+- Every change is refused, and a control the viewer can't use is hidden, not disabled: an anonymous viewer has no € / % switch, since every amount is in %, and the standings rank by gain only.
+- The access link works as a password: it leaves the address bar once opened. Opening it again, or pasting it on sign-in, starts a new session when the last one has ended.
+- No real name, email, photo, euro amount, or quantity held reaches an anonymous viewer's browser. Holdings show as weights in percent of the portfolio.
+- A pseudonym is an English adjective and animal, such as Calm Otter, in both languages, and is the same for the same person on every screen and every visit.
 - Two people who would get the same pseudonym are told apart by a number suffix: the person added first keeps it, and the next is Calm Otter 2.
-- A control an anonymous viewer can't use is hidden, not disabled: there is no € / % switch, since every amount is in %, and the standings rank by gain only, with no gain / balance switch.
 - Access ends at its end date or on revocation, even in the middle of a session.
 
 ## Later
