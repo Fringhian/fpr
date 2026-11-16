@@ -6,6 +6,7 @@ import type {
   PortfolioChange,
   PortfolioLogEntry,
 } from "@fpr/contracts";
+import type { PipelineContext } from "../server/implementer.ts";
 import { Big, plain, ratio, zero } from "./decimal.ts";
 import { personOf } from "./people.ts";
 import { toShareSummary } from "./shares.ts";
@@ -130,10 +131,7 @@ export function entryWeight(
 /** Records each entry's weight, which replaces its quantity for an anonymous viewer. */
 export function weighEntries(
   store: MockStore,
-  context: {
-    viewer: { role: string } | null;
-    quantityWeights: Map<Id, string>;
-  },
+  context: PipelineContext,
   entries: readonly StoredEntry[],
 ): void {
   if (context.viewer?.role !== "anonymous") {

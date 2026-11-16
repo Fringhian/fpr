@@ -1,4 +1,4 @@
-import type { PortfolioLog } from "@fpr/contracts";
+import type { PortfolioHoldingAtQuery, PortfolioLog } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, type PipelineContext } from "../../server/implementer.ts";
 import { money, plain, ratio, zero } from "../../store/decimal.ts";
@@ -54,11 +54,7 @@ function logPage(
   };
 }
 
-/** A member's holding of one share at a moment, and its weight in their balance then. */
-function holdingAt(
-  store: MockStore,
-  input: { userId: string; shareId: string; at: string },
-) {
+function holdingAt(store: MockStore, input: PortfolioHoldingAtQuery) {
   const share = requireShare(store, input.shareId, () =>
     mockError("not_found"),
   );
