@@ -6,6 +6,7 @@ import { PeriodControl } from "../../components/molecules/period-control/period-
 import * as Navigation from "../../components/organisms/navigation/navigation";
 import * as PageBar from "../../components/organisms/page-bar/page-bar";
 import * as AppLayout from "../../components/templates/app-layout/app-layout";
+import { HelpInfo, HelpNote } from "../../lib/help-info";
 import { useViewState } from "../../lib/view-state/use-view-state";
 
 type Parent =
@@ -16,7 +17,7 @@ type Parent =
 
 /**
  * The bar's controls: the shared period and unit on a page that shows them,
- * then the account menu, which shows on phone only.
+ * with what € and % mean, then the account menu, which shows on phone only.
  */
 function Controls({
   period,
@@ -25,6 +26,7 @@ function Controls({
   period: boolean;
   backdrop: Segment.Backdrop;
 }) {
+  const { t } = useTranslation();
   const { setting, setSetting, anonymous } = useViewState();
 
   return (
@@ -35,6 +37,18 @@ function Controls({
           onChange={setSetting}
           backdrop={backdrop}
           anonymous={anonymous}
+          unitInfo={
+            <HelpInfo
+              section="periods"
+              title={t("helpInfo.unit.title")}
+              align="end"
+            >
+              {t("helpInfo.unit.body")}
+            </HelpInfo>
+          }
+          unitNote={
+            <HelpNote section="periods">{t("helpInfo.unit.body")}</HelpNote>
+          }
         />
       ) : null}
       <Navigation.AccountMenu />

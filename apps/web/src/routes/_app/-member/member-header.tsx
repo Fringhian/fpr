@@ -5,6 +5,7 @@ import { Badge } from "../../../components/atoms/badge/badge";
 import { Picture } from "../../../components/atoms/picture/picture";
 import { cn } from "../../../lib/cn";
 import { formatDate } from "../../../lib/format/date";
+import { HelpInfo } from "../../../lib/help-info";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
 import { useViewState } from "../../../lib/view-state/use-view-state";
@@ -31,6 +32,20 @@ function InRace({ since, count }: { since: string; count: number }) {
       {" · "}
       {t("memberPage.shares", { count })}
     </p>
+  );
+}
+
+/** The incomplete badge, and ⓘ, which says why. */
+function Incomplete() {
+  const { t } = useTranslation();
+
+  return (
+    <span className="inline-flex items-center gap-xs">
+      <Badge state="incomplete" />
+      <HelpInfo section="missing" title={t("helpInfo.incomplete.title")}>
+        {t("helpInfo.incomplete.body")}
+      </HelpInfo>
+    </span>
   );
 }
 
@@ -90,7 +105,7 @@ export function MemberHeader({
         {row.firstEntryOn === null ? null : (
           <div className="flex flex-wrap items-center gap-x-s gap-y-xs">
             <InRace since={row.firstEntryOn} count={row.holdingCount} />
-            {row.incomplete ? <Badge state="incomplete" /> : null}
+            {row.incomplete ? <Incomplete /> : null}
           </div>
         )}
       </div>

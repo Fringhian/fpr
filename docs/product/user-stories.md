@@ -175,6 +175,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 - Nothing opens by itself: no tour and no pop-up on a first visit.
 - How FPR works is reached from the account menu and Settings.
+- Inside a sheet, where a short explanation would open a second overlay, it is written out with its link instead.
 
 ## Admin — people, access, and shares
 
