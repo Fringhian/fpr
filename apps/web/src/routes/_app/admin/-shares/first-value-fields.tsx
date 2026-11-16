@@ -1,21 +1,23 @@
 import { useTranslation } from "react-i18next";
 import * as Field from "../../../../components/molecules/field/field";
-import { today } from "../../../../lib/date-field";
+import { raceToday } from "../../../../lib/race-day";
 import { typedPrice } from "./shares-model";
 
 /**
  * The first value of a share with no price: the value of one unit, named
- * `priceEur`, and its day, named `on`, today by default and never later.
+ * `priceEur`, and its race day, named `on`, today by default and never later.
  */
 export function FirstValueFields() {
   const { t } = useTranslation();
+
+  const today = raceToday();
 
   const checkPrice = (value: unknown) =>
     typeof value === "string" && typedPrice(value) !== null
       ? null
       : t("adminShares.makeManual.priceInvalid");
   const checkDay = (value: unknown) =>
-    typeof value === "string" && value !== "" && value <= today()
+    typeof value === "string" && value !== "" && value <= today
       ? null
       : t("adminShares.makeManual.dayInvalid");
 
@@ -28,7 +30,7 @@ export function FirstValueFields() {
       </Field.Root>
       <Field.Root name="on" validate={checkDay}>
         <Field.Label>{t("adminShares.makeManual.day")}</Field.Label>
-        <Field.Control type="date" defaultValue={today()} max={today()} />
+        <Field.Control type="date" defaultValue={today} max={today} />
         <Field.Error />
       </Field.Root>
     </div>

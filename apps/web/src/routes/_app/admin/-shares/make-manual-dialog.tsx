@@ -7,13 +7,12 @@ import * as Dialog from "../../../../components/molecules/dialog/dialog";
 import { FormError } from "../../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
 import { useApi } from "../../../../lib/api/use-api";
-import { startOfDay } from "../../../../lib/date-field";
 import type { DialogRootState } from "../../../../lib/dialog-state";
 import { formatMoney } from "../../../../lib/format/money";
 import { formatList } from "../../../../lib/format/text";
 import { useLanguage } from "../../../../lib/i18n";
 import { usePriceTime } from "../../../../lib/price-time";
-import { RACE_TIME_ZONE } from "../../../../lib/race-day";
+import { RACE_TIME_ZONE, raceDayStart } from "../../../../lib/race-day";
 import { useRefusal } from "../../../-account/use-refusal";
 import { DialogHeading } from "../-shared/dialog-heading";
 import { FirstValueFields } from "./first-value-fields";
@@ -65,7 +64,7 @@ function useMakeManual(share: AdminShare, onDone: () => void) {
     const price = typedPrice(priceEur);
     const first =
       share.latestPrice === null && price !== null
-        ? { priceEur: price, at: startOfDay(on) }
+        ? { priceEur: price, at: raceDayStart(on) }
         : {};
     makeManual.mutate(
       { id: share.id, ...first },

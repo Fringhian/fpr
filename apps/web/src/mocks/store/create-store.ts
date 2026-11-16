@@ -1,4 +1,5 @@
 import type { Id } from "@fpr/contracts";
+import { localInstant } from "../../lib/race-day.ts";
 import {
   type FixturePerson,
   fixturePeople,
@@ -20,7 +21,6 @@ import {
   addDays,
   type Calendar,
   createCalendar,
-  localInstant,
   timestamp,
 } from "./calendar.ts";
 import type {
