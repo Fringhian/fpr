@@ -84,20 +84,23 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * Tabs to “Skip to content”, the first stop, which slides in `top` pixels
- * from the top and leads to the page’s `<main>`, which takes focus. The test
- * runner's page can't follow a link, so it checks where the link leads.
+ * from the top, and follows it: the page’s `<main>` takes focus, and is
+ * focusable only until focus leaves it.
  */
 async function skipToContent(canvasElement: HTMLElement, top = 8) {
   const skip = within(canvasElement).getByRole("link", {
     name: "Skip to content",
   });
   const main = within(canvasElement).getByRole("main");
+  await expect(main).not.toHaveAttribute("tabindex");
   await userEvent.tab();
   await expect(skip).toHaveFocus();
   await waitFor(() => expect(skip.getBoundingClientRect().top).toBe(top));
   await expect(skip).toHaveAttribute("href", `#${main.id}`);
-  await expect(main).toHaveAttribute("tabindex", "-1");
-  skip.blur();
+  await userEvent.keyboard("{Enter}");
+  await expect(main).toHaveFocus();
+  main.blur();
+  await expect(main).not.toHaveAttribute("tabindex");
 }
 
 /** The admin on Home: the sidebar with the Admin group, the sky and its sentence, and the main card on the ridge. */

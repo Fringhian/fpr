@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import * as Sky from "../../foundations/sky/sky";
@@ -6,6 +6,21 @@ import * as PageBar from "../../organisms/page-bar/page-bar";
 
 /** The id of the page's `<main>`, which “Skip to content” leads to. */
 export const CONTENT_ID = "content";
+
+/**
+ * Moves focus to the page's `<main>`. It takes focus only while followed
+ * there: a click on its text never moves focus to it.
+ */
+function skipToContent(event: MouseEvent<HTMLAnchorElement>) {
+  const main = event.currentTarget.ownerDocument.getElementById(CONTENT_ID);
+  if (main === null) return;
+  event.preventDefault();
+  main.setAttribute("tabindex", "-1");
+  main.addEventListener("blur", () => main.removeAttribute("tabindex"), {
+    once: true,
+  });
+  main.focus();
+}
 
 /**
  * “Skip to content”, the first thing on the page: out of view until keyboard
@@ -18,6 +33,7 @@ function SkipLink() {
   return (
     <a
       href={`#${CONTENT_ID}`}
+      onClick={skipToContent}
       className={cn(
         "fixed left-s top-[calc(var(--spacing-s)+var(--safe-top))] z-50 rounded-full bg-primary px-m py-[0.625rem] text-s font-semibold text-on-primary no-underline transition-transform duration-s ease-soft -translate-y-[calc(100%+var(--spacing-m)+var(--safe-top))]",
         "",
@@ -69,7 +85,6 @@ export function Main({
   return (
     <main
       id={CONTENT_ID}
-      tabIndex={-1}
       {...props}
       className={cn(
         "flex min-w-0 flex-1 flex-col outline-none scroller:scroll-pb-(--tab-bar-room)",
