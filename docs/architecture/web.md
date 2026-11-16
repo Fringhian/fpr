@@ -77,7 +77,7 @@ The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a sno
 | --- | --- | --- |
 | `/setup` | First-admin setup | Admin, first-admin case |
 | `/sign-in` | Sign in | ACC-2 |
-| `/access/$key` | Access link: set a password, or sign in as an anonymous viewer | ACC-1, ANO-1 |
+| `/access/$key` | Access link, shown at `/access` once its key leaves the address: set a password, or sign in as an anonymous viewer | ACC-1, ANO-1 |
 | `/reset-password` | Email and reset key, then the new password | ACC-3 |
 | `/onboarding` | Name, colour and optional photo, the prepared portfolio, then a welcome | ONB-1 to ONB-4 |
 | `/` | Home: the race, the focused member's panel, the standings | LDB-1 to LDB-3, LDB-7, CMP-1 to CMP-3 |

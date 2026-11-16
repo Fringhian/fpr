@@ -323,6 +323,39 @@
     "label": "Access link",
     "action": "Open the link"
   },
+  "accessLink": {
+    "invited": {
+      "question": "You’re invited, {{name}}",
+      "description": "Your account is ready. Choose a password and you’re in.",
+      "action": "Choose a password"
+    },
+    "password": {
+      "question": "Choose a password",
+      "action": "Create account",
+      "loading": "Creating your account…"
+    },
+    "claimed": {
+      "title": "This link was already used",
+      "description": "Your account exists. Sign in with your email and password.",
+      "action": "Go to sign-in"
+    },
+    "expired": {
+      "title": "This link has expired",
+      "description": "Links work for 7 days. Ask the admin for a new one."
+    },
+    "replaced": {
+      "title": "This link was replaced",
+      "description": "The admin sent you a newer link. Use the latest one."
+    },
+    "unknown": {
+      "title": "This link doesn’t work",
+      "description": "Check that you opened the whole link the admin sent you, or ask them for a new one."
+    },
+    "missing": {
+      "title": "Open your link again",
+      "description": "Your access link leaves the address bar once opened, to keep it private. Open it again from the admin’s message."
+    }
+  },
   "resetPassword": {
     "question": "Reset your password",
     "description": "Enter your email and the reset key the admin gave you.",

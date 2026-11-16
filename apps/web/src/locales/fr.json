@@ -325,6 +325,39 @@
     "label": "Lien d’accès",
     "action": "Ouvrir le lien"
   },
+  "accessLink": {
+    "invited": {
+      "question": "Vous êtes invité, {{name}}",
+      "description": "Votre compte est prêt. Choisissez un mot de passe et c’est parti.",
+      "action": "Choisir un mot de passe"
+    },
+    "password": {
+      "question": "Choisissez un mot de passe",
+      "action": "Créer le compte",
+      "loading": "Création du compte…"
+    },
+    "claimed": {
+      "title": "Ce lien a déjà été utilisé",
+      "description": "Votre compte existe. Connectez-vous avec votre e-mail et votre mot de passe.",
+      "action": "Aller à la connexion"
+    },
+    "expired": {
+      "title": "Ce lien a expiré",
+      "description": "Un lien est valable 7 jours. Demandez-en un nouveau à l’admin."
+    },
+    "replaced": {
+      "title": "Ce lien a été remplacé",
+      "description": "L’admin vous a envoyé un lien plus récent. Utilisez le dernier."
+    },
+    "unknown": {
+      "title": "Ce lien ne fonctionne pas",
+      "description": "Vérifiez que vous avez ouvert le lien entier envoyé par l’admin, ou demandez-lui-en un nouveau."
+    },
+    "missing": {
+      "title": "Rouvrez votre lien",
+      "description": "Votre lien d’accès quitte la barre d’adresse une fois ouvert, pour rester privé. Rouvrez-le depuis le message de l’admin."
+    }
+  },
   "resetPassword": {
     "question": "Réinitialisez votre mot de passe",
     "description": "Saisissez votre e-mail et la clé de réinitialisation donnée par l’admin.",

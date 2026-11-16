@@ -23,7 +23,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 
 **Cases to cover**
 
-- An access link must be used within 7 days of its creation. After that it says it has expired and to ask the admin for a new one. Leaving before the password is set keeps it valid until then.
+- An access link must be used within 7 days of its creation. After that it says it has expired and to ask the admin for a new one. Leaving before the password is set keeps it valid until then. Its key leaves the address bar once opened, so a reload asks to open the link again.
 - A link already used leads to sign-in. A link the admin replaced says so, and to use the latest one.
 - A link the admin revoked, or opened after the access end date, says that access has ended, even before its first use.
 - The latest link of a person who already has a password, after a replacement, asks for no password: opening it leads to sign-in.
