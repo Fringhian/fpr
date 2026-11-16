@@ -2,6 +2,8 @@
 
 `apps/web`, a React app built with Vite and served as static files. It talks only to the API, under `/api` on the same origin.
 
+The UI conventions (tokens and their names, how classes are written, component structure, story rules, interface and copy rules) are in the `fpr-ui` skill, `.claude/skills/fpr-ui/SKILL.md`. This doc covers how the app is put together.
+
 ## Stack
 
 | Concern | Choice |
@@ -11,110 +13,63 @@
 | Server state | TanStack Query |
 | Request and response types | `@fpr/contracts` |
 | Styling | Tailwind v4, registered tokens only, defined in `src/theme.css` |
-| Class helpers | `cn` (`clsx` and `tailwind-merge`) in `src/lib/cn.ts`; component variants with `class-variance-authority` |
 | Components | Base UI, wrapped as the app's own components in `src/components/` |
-| Component workshop | Storybook, one story per component |
+| Component workshop | Storybook |
 | Charts | TradingView Lightweight Charts |
 | Icons | Phosphor, `@phosphor-icons/react` |
-| Breakpoints | phone (default), `tablet:` from 640 px, `desktop:` from 1120 px |
-| Targets | Phone first for everyday screens; desktop complete and polished |
-| Theme | Light only |
 | Languages | English and French, with `react-i18next` |
 | Install | Progressive Web App, with `vite-plugin-pwa` |
 
 TanStack Router's Vite plugin generates `src/routeTree.gen.ts` from `src/routes/` and splits each route into its own chunk. The generated file is committed and left out of Biome.
 
-The fonts ship with the build: Figtree, from `@fontsource-variable/figtree`, imported in `src/index.css`.
-
-The full UI conventions are in the `fpr-ui` skill. The design reference lives in `design/`, kept outside git: the wireframes, the user flows, the final screens, and the design system.
-
 ## Tokens
 
-`src/theme.css` is the only place a design value is defined. It holds two layers:
+`src/theme.css` is the only place a design value is defined. It has three parts, in order:
 
-- The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), as plain CSS variables that generate no classes. Beside it, the ridge's two shapes, `--ridge-far` and `--ridge-near`, also plain variables.
-- The Tailwind `@theme` block: colour roles that point at the palette, the member colours, and the scales. Tailwind's default colour, spacing, text, radius, shadow, inset shadow, and breakpoint scales are reset, so only these tokens generate classes:
+- The palette: every hue, named by what it is (`--palette-charcoal`, `--palette-peach`, …), and the ridge's two shapes, as plain CSS variables that generate no classes.
+- The `@theme` block: colour roles that point at the palette, their soft fills, the member colours, and the text, spacing, radius, shadow, inset shadow and breakpoint scales. Tailwind's default scales are reset, so only these tokens generate classes.
+- The shared utilities, such as `focus-ring`, and one variant per component state.
 
-| Namespace | Tokens | Example |
-| --- | --- | --- |
-| Colour role | `primary`, `on-primary`, `secondary`, `on-sky`, `page`, `surface`, `highlight`, `sky`, `ridge`, `divider`, `muted`, `positive`, `negative`, `success`, `warning`, `error`, `link`, and the medals `gold`, `silver`, `bronze` | `text-secondary`, `bg-surface` |
-| Soft fill | `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`: the pale ground of each state role, under text of that role at 4.5:1 or more | `bg-positive-soft text-positive` |
-| Member colour | `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`, in this order, each with its `-pastel` | `bg-cobalt-pastel` |
-| Text | `xs` 12, `s` 14, `m` 16, `l` 20, `xl` 27, `display` 34 px, each with its line height | `text-l` |
-| Spacing | `0`, `xs` 4, `s` 8, `m` 16, `l` 24, `xl` 40 px | `p-m`, `gap-s`, `inset-0` |
-| Radius | `s` 12, `m` 14, `card` 18, `l` 22, `xl` 24 px, and `full`. `card` is the corner of person rows, option cards and popovers | `rounded-l`, `rounded-card` |
-| Shadow | `outline`, `rest`, `float` | `shadow-rest` |
-| Inset shadow | `outline`, the divider line drawn inside the edge of inputs, options and flat cards; `inset-shadow-<colour>` recolours it | `inset-shadow-outline`, `invalid:inset-shadow-error` |
-| Breakpoint | `tablet` from 40rem, `desktop` from 70rem | `tablet:grid-cols-2` |
+The ten member colours, each with its `-pastel`, are in the order a new person is given them: `vermilion`, `cobalt`, `green`, `violet`, `amber`, `pink`, `cyan`, `lime`, `sienna`, `periwinkle`.
 
-After the tokens, `theme.css` defines the shared utilities and the state variants:
-
-- `focus-ring`, the keyboard focus ring: a 2 px charcoal outline, 2 px off the edge, applied with `focus-visible:focus-ring`.
-- One variant per component state: `open`, `popup-open`, `starting-style`, `ending-style`, `disabled`, `checked`, `pressed`, `selected`, `highlighted`, `current`, `invalid`. Each matches Base UI's data attribute and, where they exist, the native state and its ARIA attribute.
-
-The Foundations stories in `src/foundations/` show every token with the value it has in the page, and the focus ring on the page, surface and sky backgrounds.
+The Foundations stories, in `src/foundations/`, show every token with its value in the page.
 
 ## Type and icons
 
-- Figtree is the one typeface. `@fontsource-variable/figtree`, imported in `src/index.css`, ships it with the build as woff2 files with `font-display: swap`, on a variable weight axis from 300 to 900.
+- Figtree is the one typeface, shipped with the build from `@fontsource-variable/figtree` (imported in `src/index.css`), on a variable weight axis.
 - Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
-- Figures that line up, such as amounts, percentages, ranks, and times, use Tailwind's `tabular-nums`.
-- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon/icon.tsx`:
-
-| Prop | Values |
-| --- | --- |
-| `icon` | A Phosphor icon, imported from its own module: `import { HouseIcon } from "@phosphor-icons/react/House"` |
-| `size` | `s` 16 px in text, `m` 20 px in navigation, `l` 24 px for page actions and state icons |
-| `weight` | `regular` (default), or `fill` for the current navigation item |
-| `label` | Names the icon for screen readers, with `role="img"` and `aria-label`. Without it, the icon is `aria-hidden` |
-
-- Each icon is imported from its own module, never from the package root, so the dev server and the bundle load only the icons in use.
-- An icon takes the current text colour.
-- The `Foundations/Icons` story shows every icon the design system lists, its use, and its Phosphor name, then the sizes and both weights.
+- Figures that line up, such as amounts, percentages, ranks and times, use `tabular-nums`.
+- Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon/icon.tsx`, in three sizes: `s` (16 px) in text, `m` (20 px) in navigation, `l` (24 px) for page actions and state icons. An icon takes the current text colour, and is hidden from screen readers unless it has a label.
+- Each icon is imported from its own module (`@phosphor-icons/react/House`), never from the package root, so the bundle holds only the icons in use.
 
 ## Storybook
 
-- Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`. Its preview loads `src/index.css`: Tailwind, `theme.css`, and the fonts.
-- Stories sit beside what they show, as `*.stories.tsx`, titled under one of the sidebar groups, in this order: Foundations, Atoms, Molecules, Organisms, Templates.
-- Each component lives in its own folder, `src/components/<group>/<component>/`, where the group is its story's sidebar group: `foundations`, `atoms`, `molecules` or `organisms`. The folder holds the component, its stories and any `-model.ts`: `atoms/button/button.tsx` beside `atoms/button/button.stories.tsx`. Components shown in one story file share one folder.
-- Imports name the file itself (`../../atoms/button/button`). There are no barrel files.
-- Components have no unit tests: their stories are their check, run in Chromium with the accessibility checks by `test-storybook`.
-- The viewport menu has the phone (375 px), the tablet (768 px), and the desktop (1280 px).
-- The language menu in the toolbar shows every story in English or French, through the `locale` global; a story can fix its own with `globals: { locale: "fr" }`. "Foundations/Formatting" shows every formatter in the chosen language.
-- The canvas is the page ground (`--palette-snow`), so a story ends on snow below its content.
-- A component's stories configure it through `args` in the Controls panel, and its Docs page, from `tags: ["autodocs"]`, shows its description, the main story with its controls, then the other stories. Stories that only change the viewport stay off the Docs page (`tags: ["!autodocs"]`), since it renders every story at the page's own width.
+Storybook runs in `apps/web` with the Vite builder, on the app's own `vite.config.ts`, and its preview loads `src/index.css`. Stories sit beside what they show, grouped Foundations, Atoms, Molecules, Organisms, Templates; the folder layout and story rules are in `fpr-ui`.
+
+- The viewport menu has the phone (375 px), the tablet (768 px) and the desktop (1280 px). The language menu shows every story in English or French.
+- The canvas is the page ground, so a story ends on snow.
 - The accessibility addon checks every story, and a violation fails it.
-- `pnpm storybook` serves it on port 6006, and `build-storybook` builds it to `apps/web/storybook-static/`. `test-storybook` runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test`. CI builds Storybook and runs these tests.
-- The test run bundles every dependency before the first story runs: Vite scans the stories and the app's `index.html`, and `optimizeDeps.include` in `vitest.storybook.config.ts` lists the libraries the components build on, so the browser never reloads mid-run.
+
+| Command | What it does |
+| --- | --- |
+| `pnpm storybook` | Serves Storybook on port 6006 |
+| `build-storybook` | Builds it to `apps/web/storybook-static/` |
+| `test-storybook` | Runs every story in headless Chromium through Vitest, with `vitest.storybook.config.ts`, apart from `pnpm test` |
+
+CI builds Storybook and runs its tests. The test run bundles every dependency before the first story: a library the components build on is listed in `optimizeDeps.include` of `vitest.storybook.config.ts`, so the browser never reloads mid-run.
 
 ## Design
 
-- Every screen is drawn in the wireframes (`design/wireframes.html`): its layout on phone, tablet, and desktop, its content, and its states. `design/screens.html` shows each in its final look, and `design/design-system.html` names every reusable part.
-- The everyday screens (Home, Members, Portfolio, Shares) are designed for the phone first, then laid out for the tablet and the desktop.
-- The desktop is complete and polished on every screen. It is the full experience.
+The design reference lives in `design/`, outside git: the wireframes draw every screen's layout and states at phone, tablet and desktop widths, the screens show their final look, and the design system names every reusable part. Once a component or screen is built, its code and story are the reference.
+
+- The everyday screens (Home, Members, Portfolio, Shares) are designed for the phone first. The desktop is complete and polished on every screen.
 - Tablet: a navigation rail, cards two per row, and the focused pages (sign-in, onboarding, record a change) in one centred column. Nothing depends on hover.
-- A screen may be limited to tablet and desktop when it has no phone use, such as the admin area. On a phone, it shows a short message to open it on a larger screen.
+- A screen with no phone use, such as the admin area, works on tablet and desktop. On a phone it shows a short message to open it on a larger screen.
 - Light theme only.
 
-The design files fix each screen and component until it is built in `apps/web`. From then on, the code and its Storybook story are the reference.
+### Sky and ridge
 
-## Sky and ridge
-
-The page background is the `Sky` component in `src/components/foundations/sky/sky.tsx`, imported as a namespace (`import * as Sky from "…/sky/sky"`), with its story under Foundations, Sky and ridge.
-
-| Part | What it is |
-| --- | --- |
-| `Sky.Root` | The page ground: warm snow (`bg-page`), and the stacking context the band sits behind |
-| `Sky.Band` | The peach sky (`bg-sky`) behind the top of the page, closed by the ridge |
-| `Sky.Header` | The header sentence's place, over the sky; the page's content starts right under it |
-| `Sky.Ridge` | The ridge alone, for any sky panel that ends in it, such as the desktop step flow's |
-
-- The ridge is one 600 × 64 tile, repeated across and never stretched: 52 px high on phone, 64 px from tablet up. Its width follows its height, so the tile keeps its proportions at every width.
-- The ridge's top sits 206 px below the top safe area on phone, and 200 px from tablet up, on every page that has it.
-- `Sky.Header` is 240 px high on phone and 236 px from tablet up. Its content flows from its top: the page bar, then the header sentence, which ends above the ridge. The first card after it starts just below the near ridge, so the whole ridge shows above it. Its height is fixed: a header sentence that doesn't fit means the page has no sky.
-- The tile is two layers of soft lobes: the far ridge in `ridge` and the near ridge in `page`. Each layer is a box filled with its colour role and masked by its shape. The two shapes are `--ridge-far` and `--ridge-near` in `theme.css`.
-- A page with a header sentence (Home, Portfolio, a member, a share) renders `Sky.Band` and `Sky.Header` inside `Sky.Root`. A page without one renders `Sky.Root` alone and starts on snow.
-- Nothing in the sky moves.
+The page background is `Sky`, in `src/components/foundations/sky/sky.tsx`: a snow ground and, behind the top of the page, a peach sky closed by a two-layer ridge. A page with a header sentence (Home, Portfolio, a member, a share) has the sky, with the sentence above the ridge; a page without one starts on snow. The header has a fixed height below the top safe area, so a sentence that doesn't fit means the page has no sky. Its story, Foundations › Sky and ridge, shows the geometry at each width.
 
 ## Screens
 
@@ -138,113 +93,97 @@ The page background is the `Sky` component in `src/components/foundations/sky/sk
 | `/admin/people` | People and access | ADM-1 to ADM-8 |
 | `/admin/shares` | Tracked shares | ADM-9 to ADM-12 |
 
-Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone, opened from the account menu. Each setting is saved as soon as it changes.
+Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone, opened from the account menu. Share search lives on `/shares`, and the record flow reuses it.
 
 ## Navigation
 
-- Desktop: a sidebar with Home, Members, Portfolio, and Shares, then an Admin group with People and Tracked shares for admins. The account menu at its bottom opens Settings, How FPR works, and Sign out.
-- Tablet: a navigation rail with the same items, each icon above its name, and the account menu at its bottom.
-- Phone: a top bar with the page title or a back link and the account menu, and a floating tab bar with the same four items: a pill above the content, which scrolls under it behind a light blur (`backdrop-filter`, with an opaque fallback). Nothing floats beside it: on Portfolio, Record a change is a full-width button under the chart. The admin area works on tablet and desktop.
+- Desktop: a sidebar with Home, Members, Portfolio and Shares, then an Admin group with People and Tracked shares for admins. The account menu at its bottom opens Settings, How FPR works, and Sign out.
+- Tablet: a navigation rail with the same items and the account menu.
+- Phone: a top bar with the page title or a back link and the account menu, and a floating tab bar with the four items, which the content scrolls under. Nothing floats beside it.
 - Guests and anonymous viewers have no Portfolio item.
-- Every page starts with a page bar: the title or back link on the left, the period and unit on the right, and nothing else.
-- The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL. Tablet and desktop show them as the full bar in the page bar; the phone shows one button in the top bar, which opens a sheet with both.
+- Every page starts with a page bar: the title or back link, then the period and unit. On a phone, the period and unit are one button in the top bar that opens a sheet.
+- The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL.
 - Every view's state is in the URL, so a shared link opens on the same view: `period` and `unit` everywhere, `focus` (the kept member) and `standings` (`gain` or `balance`) on Home, `q` on Shares.
 
 ## Interface
 
-- Icons are Phosphor, regular weight; the current navigation item uses the fill weight. No character or emoji stands in for an icon.
 - A "Skip to content" link comes first. Every control shows a visible focus ring, and every icon-only button has an accessible label.
-- Charts follow the hover with a crosshair and the same values on keyboard focus. The race draws only the person and the focused member in colour; the others are grey, named by the picture at the end of their line.
-- Every chart is `Chart` in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts: the `line` variant with its axes, crosshair and keyboard, or the `sparkline` for cards. Its colours are the tokens of `theme.css`, read at runtime.
-- The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts, with a link to tradingview.com, as the library's licence asks.
-- Leaving a form with unsaved input asks first, through the router's navigation guard. Deleting asks to confirm, or offers Undo.
+- Every chart is `Chart`, in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts, with its colours read from `theme.css` at runtime. Charts follow the hover with a crosshair and give the same values on keyboard focus.
+- The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts with a link to tradingview.com, as the library's licence asks.
+- Leaving a form with unsaved input asks first. Deleting asks to confirm, or offers Undo.
 - Motion respects `prefers-reduced-motion`.
-
-## Search
-
-Share search lives on `/shares`, and the record flow reuses it.
-
-- Typing filters the shares stored in FPR. It costs no provider call.
-- A full valid ISIN is sent to `POST /shares/lookup` by itself. Any other text offers a button that sends it.
-- Each listing the lookup returns can be added. A listing without an ISIN asks for one.
-- When the lookup finds nothing, "Create a manual share" opens the manual form with the ISIN filled in. The same offer appears when the lookup is unavailable.
 
 ## Languages
 
-- Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`. No text is written directly in a component.
-- `react-i18next` translates them. `src/lib/i18n.ts` creates the i18next instance with both files bundled, and `main.tsx` provides it to the app through `I18nextProvider`. The page's `lang` attribute follows its language.
-- Translation keys are typed from `en.json`: an unknown key fails the type check.
-- `test/locales.test.ts`, part of `pnpm test`, fails when a key, at any depth, exists in one file and not the other. Plural forms (`_one`, `_many`, `_other`, …) count as their base key, since each language has the forms its grammar needs. The same test checks the typography below.
-- FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language: `DEFAULT_LANGUAGE` in `src/lib/language.ts`.
-- A signed-in person sees the language they chose in Settings.
-- The API sends codes and data, never sentences: errors as codes. The web app writes the words.
+- Every interface text lives in `src/locales/en.json` and `src/locales/fr.json`, never in a component. Translation keys are typed from `en.json`, so an unknown key fails the type check.
+- The page's `lang` attribute follows its language.
+- FPR is in French until a person picks a language in Settings, before sign-in included, whatever the browser's language.
+- The API sends codes and data, never sentences. The web app writes the words.
+- `test/locales.test.ts`, part of `pnpm test`, fails when a key exists in one file and not the other (plural forms count as their base key), and when a text breaks the typography rules below.
 
 ### Formatting
 
-Numbers, amounts, and dates are formatted with `Intl` by the pure functions of `src/lib/format.ts`, each given the value and the language. English formats as `en-GB` and French as `fr-FR`: the day before the month, and the 24-hour clock.
+Numbers, amounts and dates are formatted with `Intl` by the functions of `src/lib/format.ts`, each given the value and the language. English formats as `en-GB` and French as `fr-FR`: the day before the month, and the 24-hour clock.
 
-| Function | Takes | English | French |
-| --- | --- | --- | --- |
-| `formatMoney` | a decimal string, in cents or whole euros | `€1,234.56`, `€12,374` | `1 234,56 €`, `12 374 €` |
-| `formatMoney`, signed | the same | `+€512.00`, `−€18.30` | `+512,00 €`, `−18,30 €` |
-| `formatPercent` | a decimal string in percent, one decimal | `16.2%`, `+4.2%`, `−1.3%` | `16,2 %`, `+4,2 %`, `−1,3 %` |
-| `formatGain` | a gain: euros and a percentage or `null` | `+€512 (+4.2%)` | `+512 € (+4,2 %)` |
-| `formatQuantity` | a decimal string, with the decimals it was entered with | `74.328`, `10`, `1.50` | `74,328`, `10`, `1,50` |
-| `formatDate` | a day (`YYYY-MM-DD`) or a timestamp | `5 Mar`, `5 March 2026`, `Thu 5 Mar` | `5 mars`, `5 mars 2026`, `jeu. 5 mars` |
-| `formatTime` | a timestamp | `14:30` | `14:30` |
+| Value | English | French |
+| --- | --- | --- |
+| Money, in cents or whole euros | `€1,234.56`, `€12,374` | `1 234,56 €`, `12 374 €` |
+| Signed money | `+€512.00`, `−€18.30` | `+512,00 €`, `−18,30 €` |
+| Percentage, one decimal | `16.2%`, `+4.2%` | `16,2 %`, `+4,2 %` |
+| Gain | `+€512 (+4.2%)` | `+512 € (+4,2 %)` |
+| Quantity | `74.328`, `10`, `1.50` | `74,328`, `10`, `1,50` |
+| Date | `5 Mar`, `5 March 2026`, `Thu 5 Mar` | `5 mars`, `5 mars 2026`, `jeu. 5 mars` |
+| Time | `14:30` | `14:30` |
 
-- Every amount, quantity, and percentage arrives as the decimal string the API sends, and `Intl` formats that string exactly, with no floating-point rounding. A value that isn't a decimal string throws a `RangeError`.
-- A quantity keeps the fractional digits its string has, so it reads as entered.
-- A signed value has a sign unless it rounds to zero. An unsigned one has a minus only when negative, and never shows a negative zero.
-- Every minus is the minus sign `−` (U+2212), never a hyphen.
-- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone, or in the `timeZone` given.
+- Every amount, quantity and percentage arrives as the decimal string the API sends, and is formatted exactly, with no floating-point rounding. A quantity keeps the fractional digits it was entered with.
+- A signed value has a sign unless it rounds to zero. An unsigned one has a minus only when negative, and never shows a negative zero. Every minus is `−` (U+2212).
+- A day is read in UTC, so it never moves to the day before or after. A timestamp is read in the browser's time zone.
 
 ### Typography
 
 - English uses curly quotes and apostrophes (“ ” ’) and the ellipsis `…`.
-- French uses « » and the narrow no-break space U+202F: after «, before ; : ! ? and », and between a number's digit groups, its sign, and its unit. Every space inside a formatted French number is U+202F, whatever the browser's `Intl` data writes.
-- `quote` in `src/lib/typography.ts` quotes a text in the language's marks: “World Index ETF” or « World Index ETF ».
-- The locales' test refuses straight quotes and apostrophes, `...`, « » in English, and a French ; : ! ? « » without its narrow no-break space.
+- French uses « » and the narrow no-break space U+202F: after «, before ; : ! ? and », and between a number's digit groups, its sign and its unit, whatever the browser's `Intl` data writes.
 
 ## Data
 
 - Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query.
-- In development and in Storybook, MSW can answer every route with mock responses built from the contracts, from invented fixtures validated against their schemas.
-- A write invalidates the queries it affects. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list, and the race chart.
-- Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Prices change every 30 minutes at most, and each refetch reads Postgres only.
+- In development and in Storybook, MSW can answer every route with mock responses built from invented fixtures, validated against the contracts.
+- A write invalidates the queries it affects. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
+- Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Each refetch reads Postgres only.
 - Every price shows its time: "as of 14:30", or "close of 5 March".
 - The race chart draws the points after the last close dashed, labelled "today, not final".
-- A `401 access_ended` from any call signs the person out and shows "Your access has ended".
+- An "access ended" answer to any call signs the person out and shows "Your access has ended".
 
 ## Installable app
 
-FPR is a Progressive Web App. It installs to a phone's home screen or a computer's dock, and opens full screen, without the browser's bars.
+FPR is a Progressive Web App: it installs to a phone's home screen or a computer's dock and opens full screen.
 
-- `vite-plugin-pwa` generates the web app manifest and the service worker at build time.
-- The manifest sets the app's name, `display: standalone`, `start_url: /`, `scope: /`, its theme and background colours from the design system, and its icons: 192 and 512 px, a 512 px maskable icon, and a 180 px Apple touch icon.
-- The service worker precaches the app shell: the HTML, scripts, styles, fonts, and icons. It never caches `/api/*`. Data always comes from the API, and TanStack Query holds it in memory.
+- `vite-plugin-pwa` generates the manifest and the service worker at build time. The manifest opens on `/` in standalone mode, with the design system's colours and the app's icons (192 and 512 px, a maskable 512 px, and a 180 px Apple touch icon).
+- The service worker precaches the app shell (HTML, scripts, styles, fonts, icons) and never caches `/api/*`. Data always comes from the API.
 - Offline, the app still opens, and each screen shows "You're offline" with Retry.
-- A new version installs in the background, then the app shows "A new version of FPR is ready" with Reload. It never reloads by itself.
-- Installed, the top and bottom bars pad for the device's safe areas (`viewport-fit=cover` and `env(safe-area-inset-*)`), and the `theme-color` meta tag matches the top bar.
-- An app installed on iOS keeps its own cookies, apart from Safari's, so its first launch shows sign-in. The sign-in page also accepts a pasted access link, which signs an anonymous viewer in, or opens the first-use steps of a waiting link.
-- An access link opened from a message can open in the browser rather than the installed app. Both work.
+- A new version installs in the background, then the app offers Reload. It never reloads by itself.
+- Installed, the top and bottom bars pad for the device's safe areas, and the `theme-color` meta tag matches the top bar.
+- An app installed on iOS keeps its own cookies, apart from Safari's, so its first launch shows sign-in. The sign-in page accepts a pasted access link, which signs an anonymous viewer in or opens the first-use steps of a waiting link.
 
 ## Roles
 
-- The web app reads the role from `GET /me` and hides every control the role can't use. The API refuses those actions anyway.
-- Anonymous viewers receive no euro amounts and no quantities, so every amount component also renders a percentage or a weight.
+Roles and what each may do are in `auth.md`. In the web app:
+
+- The role comes from `GET /me`, and every control the role can't use is hidden. The API refuses those actions anyway.
+- Anonymous viewers receive no euro amounts and no quantities (`api.md` › Anonymization), so every place that shows an amount can also show a percentage or a weight.
 - Guests and anonymous viewers have no `/portfolio`. Anonymous viewers see `/admin/*` read-only.
 - A person whose onboarding isn't finished is sent to `/onboarding` from every other screen.
 
 ## Serving
 
-The web image builds the app and serves it with nginx. nginx serves `index.html` for every unknown path, so routes load directly, and forwards `/api/*` to the API. The browser sees one origin, and session cookies need no cross-site settings.
+The web image builds the app and serves it with nginx, which forwards `/api/*` to the API. The browser sees one origin, so session cookies need no cross-site settings.
 
-nginx takes the client's address from the header the host's reverse proxy sets, `CLIENT_IP_HEADER`, logs it, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address). `apps/web/client-ip.conf.template` holds the `real_ip_header` line, written with `CLIENT_IP_HEADER` when the container starts.
+- Every route path serves `index.html`, so routes load directly. A missing hashed asset answers 404.
+- `index.html`, the service worker and the manifest are served with `Cache-Control: no-cache`; the hashed build assets with a one-year `immutable` cache.
+- Requests to `/access/*` carry an access key in their path and stay out of the access log.
+- nginx takes the client's address from the header named by `CLIENT_IP_HEADER`, which the host's reverse proxy sets, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address).
 
-nginx serves the service worker, `index.html`, and `manifest.webmanifest` with `Cache-Control: no-cache`, and the hashed build assets with a one-year `immutable` cache.
-
-Every response nginx sends, `/api/*` and errors included, carries these security headers, once each. nginx drops the API's own values for them.
+Every response, `/api/*` and errors included, carries these security headers once each; nginx drops the API's own values for them.
 
 | Header | Value |
 | --- | --- |
@@ -255,6 +194,6 @@ Every response nginx sends, `/api/*` and errors included, carries these security
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` |
 | `Cross-Origin-Opener-Policy` | `same-origin` |
 
-Under this policy, every script, font, request, and worker comes from the app's own origin, and no script is inline: the fonts ship with the build, and the service worker registers from a file. Inline styles, `data:` images, and `blob:` images, such as a picture's preview before upload, are allowed.
+Under this policy every script, font, request and worker comes from the app's own origin, and no script is inline. Inline styles and `data:` and `blob:` images, such as a photo's preview before upload, are allowed.
 
-In development, Vite's dev server forwards `/api` to the local API, `http://localhost:3000`, in the same way, keeping the `/api` prefix and sending the client's address in `X-Forwarded-For`.
+In development, Vite's dev server forwards `/api` to the local API on `http://localhost:3000` the same way, keeping the prefix and sending the client's address in `X-Forwarded-For`.
