@@ -1,7 +1,7 @@
 import type { Language } from "@fpr/contracts";
 import { TrashIcon } from "@phosphor-icons/react/Trash";
 import { type ReactNode, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { updateToast } from "../../../lib/app-update";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { Button } from "../../atoms/button/button";
@@ -129,7 +129,6 @@ export function EveryKind() {
 /** A new version of FPR waits, with Reload, kept until pressed or dismissed, as the app shows it. */
 export function NewVersion() {
   const text = TEXTS[useLanguage()];
-  const { t } = useTranslation();
   const toast = useToast();
   const [reloaded, setReloaded] = useState(false);
 
@@ -138,12 +137,7 @@ export function NewVersion() {
       <Button
         intent="primary"
         onClick={() =>
-          toast.offer({
-            title: t("toast.update"),
-            action: t("toast.reload"),
-            onAction: () => setReloaded(true),
-            timeout: 0,
-          })
+          toast.offer({ ...updateToast, onAction: () => setReloaded(true) })
         }
       >
         {text.release}
