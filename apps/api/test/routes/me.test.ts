@@ -1,5 +1,5 @@
 import { apiContract, colorCount, type Me } from "@fpr/contracts";
-import { users } from "@fpr/db";
+import { type Role, users } from "@fpr/db";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { sql } from "kysely";
 import {
@@ -14,11 +14,12 @@ import {
 import type { Auth } from "../../src/auth/auth.js";
 import {
   addPerson,
+  addSignedIn,
   apiRequest,
   createTestAuth,
   parseOutput,
+  pseudonymOf,
   serveApp,
-  signIn,
   TEST_RACE_TIMEZONE,
   type TestPerson,
   type TestServer,
@@ -39,13 +40,7 @@ afterAll(async () => {
   await test.drop();
 });
 
-/** Signs in a new person with this role. */
-async function signedIn(
-  role: "admin" | "member" | "guest" | "anonymous",
-): Promise<TestPerson & { cookie: string }> {
-  const person = await addPerson(test.db, auth, role);
-  return { ...person, cookie: await signIn(server, person) };
-}
+const signedIn = (role: Role) => addSignedIn(server, test.db, auth, role);
 
 /** A body checked against the person `GET /me` answers in its contract. */
 function asMe(body: unknown): Me {
@@ -85,7 +80,7 @@ describe("GET /api/me", () => {
     });
   });
 
-  it("answers an anonymous viewer without a picture or an email", async () => {
+  it("answers an anonymous viewer with their pseudonym, without a picture or an email", async () => {
     const viewer = await signedIn("anonymous");
     await users.update(test.db, viewer.id, { avatarKey: "avatars/x/y.webp" });
 
@@ -94,6 +89,7 @@ describe("GET /api/me", () => {
     expect(response.status).toBe(200);
     expect(asMe(await response.json())).toMatchObject({
       role: "anonymous",
+      displayName: await pseudonymOf(test.db, viewer.id),
       avatarUrl: null,
       email: null,
     });

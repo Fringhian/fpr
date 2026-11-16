@@ -25,6 +25,7 @@ import type { z } from "zod";
 import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
+import { pseudonyms } from "../src/pseudonyms/pseudonyms.js";
 import {
   type AvatarStore,
   createAvatarStore,
@@ -301,6 +302,23 @@ export function testPicture(
   })
     .toFormat(format)
     .toBuffer();
+}
+
+/** The pseudonym an anonymous viewer sees for this person, from everyone on the database. */
+export async function pseudonymOf(db: Db, userId: string): Promise<string> {
+  const names = pseudonyms(TEST_PSEUDONYM_SECRET, await users.listIds(db));
+  return names.get(userId) ?? "";
+}
+
+/** Adds a person with this role, signs them in, and resolves with their session's cookie. */
+export async function addSignedIn(
+  server: TestServer,
+  db: Db,
+  auth: Auth,
+  role: Role,
+): Promise<TestPerson & { cookie: string }> {
+  const person = await addPerson(db, auth, role);
+  return { ...person, cookie: await signIn(server, person) };
 }
 
 /** Signs a person in and resolves with their session's `Cookie` header. */
