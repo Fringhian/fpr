@@ -67,7 +67,7 @@ export async function parseOutput<Route extends AccessRoute>(
  * `details`, parsed with the schema the route declares for them.
  */
 export async function expectError(
-  route: AccessRoute,
+  route: { "~orpc": { errorMap: unknown } },
   response: Response,
   code: ErrorCode,
   details?: Record<string, unknown>,
