@@ -2,6 +2,7 @@ import type { Race, ShareLeaderboard } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { PageMessage } from "../../../components/templates/page-message/page-message";
 import { cn } from "../../../lib/cn";
+import { useSession } from "../../../lib/session/use-session";
 import {
   useHomeView,
   useViewState,
@@ -10,7 +11,7 @@ import { Screen } from "../../-shell/screen";
 import { useLoadFailedMessage } from "../../-states/load-failed";
 import { HomeFocus, HomeFocusLoading } from "./home-focus";
 import { HomeRace } from "./home-race";
-import { HomeGreeting, HomeSentence } from "./home-sentence";
+import { HomeGreeting, HomeSentence, hasRaceHeadline } from "./home-sentence";
 import { HomeStandings } from "./home-standings";
 import { type HomeCast, useHomeCast } from "./use-home-cast";
 import { type GainStandings, useHomeData } from "./use-home-data";
@@ -23,7 +24,7 @@ const TOP = cn(
   "desktop:grid-cols-[minmax(0,1fr)_18.75rem]",
 );
 
-/** The focused member's panel, or its place until the standings load. */
+/** The focused member's panel, or its place until their standing loads. */
 function Focus({
   gains,
   cast,
@@ -35,8 +36,9 @@ function Focus({
 
   const row = gains?.rows.find(({ member }) => member.id === cast.focusId);
 
-  if (gains === undefined) return <HomeFocusLoading />;
-  return row === undefined ? null : (
+  return row === undefined ? (
+    <HomeFocusLoading />
+  ) : (
     <HomeFocus
       member={row.member}
       gain={row.gain}
@@ -64,7 +66,6 @@ function Header({
   );
 }
 
-/** Whether the race has loaded with nobody in it. */
 function isEmpty(race: Race | undefined): boolean {
   return race !== undefined && race.members.length === 0;
 }
@@ -77,15 +78,17 @@ function isEmpty(race: Race | undefined): boolean {
  */
 export function HomeScreen() {
   const { t } = useTranslation();
+  const { person } = useSession();
   const { setting, anonymous } = useViewState();
   const { standings: board, setStandings } = useHomeView();
   const data = useHomeData({ ...setting, board });
-  const cast = useHomeCast(data.race, data.gains?.rows[0]?.member.id);
+  const cast = useHomeCast(data.race, data.gains);
   const failed = useLoadFailedMessage(data.retry);
 
   const title = t("pages.home");
   const period = t(`sentence.period.${setting.period}.inline`);
-  const headline = (data.gains?.rows.length ?? 0) > 0;
+  const headline =
+    data.gains !== undefined && hasRaceHeadline(data.gains.rows, person.id);
 
   if (data.failed) {
     return (

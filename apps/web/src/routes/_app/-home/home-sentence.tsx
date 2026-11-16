@@ -27,6 +27,12 @@ function standingOf(rows: GainRows, viewerId: Id): Sentence.Standing | null {
     : { standing: "theyLead", gain: mine.gain, leader };
 }
 
+/** Whether Home's sentence has a headline, which then is the page's heading. */
+export function hasRaceHeadline(rows: GainRows, viewerId: Id): boolean {
+  const standing = standingOf(rows, viewerId);
+  return standing !== null && Sentence.hasHeadline(standing);
+}
+
 /** The greeting alone, while the race loads or before anyone is in it. */
 export function HomeGreeting() {
   const { t } = useTranslation();

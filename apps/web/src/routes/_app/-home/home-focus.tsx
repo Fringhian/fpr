@@ -59,7 +59,7 @@ const CARD = cn(
   "desktop:shadow-rest",
 );
 
-/** The panel's place while the standings load. */
+/** The panel's place until the focused member's standing loads. */
 export function HomeFocusLoading() {
   return (
     <FocusPanel.Root className={CARD}>

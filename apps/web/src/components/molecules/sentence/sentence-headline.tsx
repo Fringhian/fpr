@@ -4,12 +4,14 @@ import {
   type GainInput,
   type GainTone,
   type GainUnit,
+  gainAmount,
   gainDisplay,
   sentenceAmount,
 } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import { GAIN_TONE_TEXT } from "../../atoms/gain-value/gain-value";
 import { Headline } from "./sentence-parts";
+import type { Standing } from "./sentence-story";
 
 /** The word a headline reads a gain with, by its tone: up, down or flat. */
 export const HEADLINE_KEY = {
@@ -17,6 +19,16 @@ export const HEADLINE_KEY = {
   negative: "down",
   flat: "flat",
 } as const satisfies Record<GainTone, string>;
+
+/**
+ * Whether the race sentence has a headline, which is the page's heading: the
+ * gain it reads, the viewer's or the leader's when watching, has a value.
+ */
+export function hasHeadline(standing: Standing): boolean {
+  const gain =
+    standing.standing === "watching" ? standing.leader.gain : standing.gain;
+  return gainAmount(gain, "percent") !== null;
+}
 
 /**
  * The headline: the viewer's result for the period, or, for a guest or an anonymous
