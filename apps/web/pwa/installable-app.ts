@@ -4,10 +4,6 @@ import { themeColor } from "./theme.ts";
 
 const page = themeColor("page");
 
-/**
- * The page's `theme-color` meta tag, on the page ground until a sky band
- * paints it peach (`src/components/foundations/sky/sky-theme-color.ts`).
- */
 function themeColorMeta(): Plugin {
   return {
     name: "fpr:theme-color",
@@ -26,12 +22,16 @@ function themeColorMeta(): Plugin {
  * precaches the app shell and leaves every `/api` request to the network. A
  * new version waits until the person reloads (`src/lib/app-update.tsx`).
  * `src/main.tsx` registers it outside the mock mode, where MSW's worker holds
- * the scope.
+ * the scope. The `theme-color` meta tag starts on the page ground until a sky
+ * band paints it (`src/components/foundations/sky/sky-theme-color.ts`).
  */
 export function installableApp(): PluginOption[] {
   return [
     themeColorMeta(),
     VitePWA({
+      // Storybook and Vitest, which reuse this config, serve components, not
+      // the app: no service worker, and `virtual:pwa-register` does nothing.
+      disable: Boolean(process.env.STORYBOOK || process.env.VITEST),
       registerType: "prompt",
       injectRegister: false,
       includeManifestIcons: false,
