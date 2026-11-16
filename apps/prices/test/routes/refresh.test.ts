@@ -1,7 +1,4 @@
-import type {
-  PricesRefreshRun,
-  PricesRefreshState,
-} from "@fpr/contracts/prices";
+import type { RefreshRun, RefreshState } from "@fpr/contracts";
 import {
   afterAll,
   afterEach,
@@ -129,11 +126,11 @@ describe("POST /refresh", () => {
     const state = await app.call("GET", "/refresh");
     expect(state.body).toEqual({
       lastRunAt: NOW.toISOString(),
-      lastResult: body as PricesRefreshRun,
+      lastResult: body as RefreshRun,
       nextRunAt: "2026-03-04T09:30:00.000Z",
       runsToday: 1,
       cap: { callLimit: 1000, callsToday: 3, callsLeft: 997 },
-    } satisfies PricesRefreshState);
+    } satisfies RefreshState);
   });
 
   it("is refused while a run is going", async () => {
@@ -174,10 +171,10 @@ describe("POST /refresh", () => {
       body: { error: { code: "provider_unavailable" } },
     });
     const { body } = await app.call("GET", "/refresh");
-    expect((body as PricesRefreshState).lastResult).toMatchObject({
+    expect((body as RefreshState).lastResult).toMatchObject({
       status: "failed",
       failures: 1,
-    } satisfies Partial<PricesRefreshRun>);
+    } satisfies Partial<RefreshRun>);
   });
 
   // Last: it spends the day's calls.
