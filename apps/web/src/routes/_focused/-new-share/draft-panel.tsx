@@ -1,11 +1,12 @@
 import type { IsoDate } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { ChangeSummary } from "../../../components/molecules/change-summary/change-summary";
+import { priceIn } from "../../../lib/amount";
 import { useDayText } from "../../../lib/day-text";
 import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { isinIn } from "../../../lib/isin";
-import { priceOf, type ShareDraft } from "./draft";
+import type { ShareDraft } from "./draft";
 
 /** The sky panel's card: the share as typed so far, a dash for each field still to fill. */
 export function DraftPanel({
@@ -19,7 +20,7 @@ export function DraftPanel({
   const language = useLanguage();
   const dayText = useDayText(today);
 
-  const price = priceOf(draft.price, language);
+  const price = priceIn(draft.price, language);
   const rows = [
     { term: t("newShare.isin.label"), value: isinIn(draft.isin) },
     { term: t("newShare.name.label"), value: draft.name.trim() || null },

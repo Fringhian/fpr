@@ -61,6 +61,12 @@ export function isPositive(amount: Decimal, orZero = false): boolean {
   return orZero ? value.gte(0) : value.gt(0);
 }
 
+/** The value of one unit typed, read in the person's language, or `null` unless it is above zero. */
+export function priceIn(text: string, language: Language): Decimal | null {
+  const price = parseAmount(text, language);
+  return price !== null && isPositive(price) ? price : null;
+}
+
 /** A decimal as the person types it in their language: `74.328`, `74,328`. */
 export function amountText(amount: Decimal, language: Language): string {
   return amount.replace(".", marksOf(language).decimal);
