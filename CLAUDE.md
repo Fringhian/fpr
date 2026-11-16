@@ -46,7 +46,7 @@ How to create and fully wire up a ticket: `.claude/github-project-workflow.md`.
 - Before a multi-file edit batch, state the plan back and check for edge cases (for example, tables with two writers).
 - Challenge the docs and propose better user flows. Record every flow case in `docs/product/user-stories.md`.
 - Tailwind: registered tokens only, arbitrary value otherwise (`pt-[2.5rem]`). Propose a new token instead of inventing one. Full conventions: the `fpr-ui` skill.
-- Docs: affirmative, factual, and standalone. They state what the system is, not why or how it was decided. No decision records in the repository.
+- Docs: affirmative, factual, and standalone. They state what the system is, not why or how it was decided. No decision records in the repository. A doc says what a block is, how its parts fit, and the rules that span files; code-level detail (function names, per-field shapes, wiring) stays in the code and the contracts. Each topic lives in one doc, and the others link to it. A small change edits the sentence it affects rather than adding one.
 - Every ticket has a coverage checklist specific to its problem. It closes only when every item is checked.
 - Load `supabase-postgres-best-practices` before any schema, migration, index, or query work.
 - `.claude/hooks/require-skills.sh` blocks an edit until the session has loaded the skills its file needs: `react-best-practices`, `fpr-ui` and `typescript-advanced-types` for `apps/web` code, `fpr-ui` for its CSS, `typescript-advanced-types` for any other TypeScript, and `supabase-postgres-best-practices` for `packages/db`, SQL and migrations.
