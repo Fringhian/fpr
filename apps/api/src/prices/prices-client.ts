@@ -1,6 +1,6 @@
-import type { IsoDate } from "@fpr/contracts";
+import { errorSchema, type IsoDate } from "@fpr/contracts";
 import { type PricesContract, pricesContract } from "@fpr/contracts/prices";
-import { createORPCClient } from "@orpc/client";
+import { createORPCClient, ORPCError } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import type { Logger } from "pino";
@@ -14,7 +14,19 @@ export type PricesClient = ContractRouterClient<PricesContract>;
  */
 const TIMEOUT_MS = 20_000;
 
-/** The client of the price service at `PRICES_URL`, sending `PRICES_TOKEN`. */
+/**
+ * A refresh asks the provider for missing closes, then for the latest prices,
+ * one call after another, so it gets longer.
+ */
+const timeouts: Partial<Record<keyof PricesContract, number>> = {
+  refresh: 120_000,
+};
+
+/**
+ * The client of the price service at `PRICES_URL`, sending `PRICES_TOKEN`. A
+ * refusal in FPR's error format fails as an `ORPCError` with its code, status
+ * and details; `forwardRefusal` turns it into the API's answer.
+ */
 export function createPricesClient({
   url,
   token,
@@ -27,8 +39,19 @@ export function createPricesClient({
   const link = new OpenAPILink(pricesContract, {
     url,
     headers: { Authorization: `Bearer ${token}` },
-    fetch: (request, init) =>
-      fetch(request, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) }),
+    fetch: (request, init, _options, path) => {
+      const route = path[0] as keyof PricesContract | undefined;
+      const timeout = (route && timeouts[route]) ?? TIMEOUT_MS;
+      return fetch(request, { ...init, signal: AbortSignal.timeout(timeout) });
+    },
+    customErrorResponseBodyDecoder: (body, response) => {
+      const parsed = errorSchema.safeParse(body);
+      if (!parsed.success) {
+        return null;
+      }
+      const { code, details } = parsed.data.error;
+      return new ORPCError(code, { status: response.status, data: details });
+    },
   });
   return createORPCClient(link);
 }

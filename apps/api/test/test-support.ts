@@ -16,8 +16,10 @@ import {
   type PutObjectRequest,
   S3Client,
 } from "@aws-sdk/client-s3";
+import { pricesContract } from "@fpr/contracts/prices";
 import { accessKeys, type Db, type Role, type Share, users } from "@fpr/db";
-import type { AnyRouter } from "@orpc/server";
+import { OpenAPIHandler } from "@orpc/openapi/fetch";
+import { type AnyRouter, implement } from "@orpc/server";
 import { sdkStreamMixin } from "@smithy/util-stream";
 import { type AwsClientStub, mockClient } from "aws-sdk-client-mock";
 import sharp from "sharp";
@@ -25,6 +27,7 @@ import type { z } from "zod";
 import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
+import { toErrorBody } from "../src/orpc.js";
 import {
   createPricesClient,
   type PricesClient,
@@ -114,30 +117,76 @@ export function createTestBucket(): TestBucket {
   return { objects, client, avatars: createAvatarStore(s3, "test-bucket") };
 }
 
-/** A price service in memory, answering every request with `200 {}`. */
+/**
+ * Answers for the price service's routes, by their key in `pricesContract`.
+ * One throws `apiError(code)` to refuse, as the price service does.
+ */
+export type TestPriceRoutes = {
+  [Key in keyof PricesClient]?: (
+    input: Parameters<PricesClient[Key]>[0],
+  ) => Promise<Awaited<ReturnType<PricesClient[Key]>>>;
+};
+
+/**
+ * A price service in memory. A route set in `routes` is served through
+ * oRPC from `pricesContract`, its refusals in FPR's error format; any other
+ * answers `200 {}`.
+ */
 export interface TestPrices {
   prices: PricesClient;
+  routes: TestPriceRoutes;
   /** Each request it got: method, path, and JSON body. */
   requests: { method: string; path: string; body: unknown }[];
+  /** Forgets the routes set and the requests got. */
+  reset(): void;
 }
 
-export function createTestPrices(): TestPrices {
+function fakePricesHandler(routes: TestPriceRoutes) {
+  const fake = implement(pricesContract);
+  const router = Object.fromEntries(
+    Object.entries(routes).map(([key, answer]) => [
+      key,
+      (
+        fake[key as keyof PricesClient] as unknown as {
+          handler(fn: (options: { input: unknown }) => unknown): unknown;
+        }
+      ).handler(({ input }) => (answer as (input: unknown) => unknown)(input)),
+    ]),
+  ) as AnyRouter;
+  return new OpenAPIHandler(router, {
+    customErrorResponseBodyEncoder: toErrorBody,
+  });
+}
+
+export function createTestPrices(routes: TestPriceRoutes = {}): TestPrices {
   const requests: TestPrices["requests"] = [];
   const prices = createPricesClient({
     url: "http://prices.test",
     token: "a-test-prices-token",
     fetch: async (input) => {
       const request = input instanceof Request ? input : new Request(input);
-      const text = await request.text();
+      const text = await request.clone().text();
       requests.push({
         method: request.method,
         path: new URL(request.url).pathname,
         body: text === "" ? undefined : JSON.parse(text),
       });
-      return Response.json({});
+      const { matched, response } =
+        await fakePricesHandler(routes).handle(request);
+      return matched ? response : Response.json({});
     },
   });
-  return { prices, requests };
+  return {
+    prices,
+    routes,
+    requests,
+    reset() {
+      for (const key of Object.keys(routes)) {
+        delete routes[key as keyof TestPriceRoutes];
+      }
+      requests.length = 0;
+    },
+  };
 }
 
 /** Starts the app on a random local port and captures its log lines. */
