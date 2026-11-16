@@ -9,6 +9,10 @@ import { timestampSchema } from "../../schemas/time.js";
 
 /** A stored share as the admin area lists it. */
 export const adminShareSchema = shareSummarySchema.extend({
+  /** The exchange of the listing FPR prices, or `null` for a manual share. */
+  exchange: z.string().nullable(),
+  /** When the share was stored. */
+  addedAt: timestampSchema,
   /** Its latest price with its time and source, or `null` when it has none. */
   latestPrice: latestPriceSchema.nullable(),
   /** The people who hold it now. */

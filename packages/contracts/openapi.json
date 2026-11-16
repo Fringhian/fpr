@@ -16756,6 +16756,20 @@
                               }
                             ]
                           },
+                          "exchange": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "addedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
                           "latestPrice": {
                             "anyOf": [
                               {
@@ -16839,6 +16853,8 @@
                           "name",
                           "kind",
                           "symbol",
+                          "exchange",
+                          "addedAt",
                           "latestPrice",
                           "holders",
                           "hasShareChanges"
@@ -16879,6 +16895,20 @@
                               }
                             ]
                           },
+                          "exchange": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "addedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
                           "latestPrice": {
                             "anyOf": [
                               {
@@ -16962,6 +16992,8 @@
                           "name",
                           "kind",
                           "symbol",
+                          "exchange",
+                          "addedAt",
                           "latestPrice",
                           "holders",
                           "hasShareChanges"
@@ -17002,6 +17034,20 @@
                               }
                             ]
                           },
+                          "exchange": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "addedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
                           "latestPrice": {
                             "anyOf": [
                               {
@@ -17085,6 +17131,8 @@
                           "name",
                           "kind",
                           "symbol",
+                          "exchange",
+                          "addedAt",
                           "latestPrice",
                           "holders",
                           "hasShareChanges"
@@ -17125,6 +17173,20 @@
                               }
                             ]
                           },
+                          "exchange": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "addedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
                           "latestPrice": {
                             "anyOf": [
                               {
@@ -17208,6 +17270,8 @@
                           "name",
                           "kind",
                           "symbol",
+                          "exchange",
+                          "addedAt",
                           "latestPrice",
                           "holders",
                           "hasShareChanges"
@@ -17436,6 +17500,20 @@
                         }
                       ]
                     },
+                    "exchange": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "addedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
                     "latestPrice": {
                       "anyOf": [
                         {
@@ -17519,6 +17597,8 @@
                     "name",
                     "kind",
                     "symbol",
+                    "exchange",
+                    "addedAt",
                     "latestPrice",
                     "holders",
                     "hasShareChanges"

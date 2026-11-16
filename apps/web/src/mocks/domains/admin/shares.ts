@@ -29,6 +29,8 @@ function holdersOf(store: MockStore, share: StoredShare) {
 function toAdminShare(store: MockStore, share: StoredShare): AdminShare {
   return {
     ...toShareSummary(share),
+    exchange: share.exchange,
+    addedAt: timestamp(share.prices[0]?.atMs ?? store.calendar.nowMs),
     latestPrice: latestPrice(share, store.calendar.nowMs),
     holders: holdersOf(store, share).map(toPerson),
     hasShareChanges: store.entries.some(
