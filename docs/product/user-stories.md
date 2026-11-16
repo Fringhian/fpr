@@ -144,6 +144,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A missing close for a held share is valued at its latest stored price, and Home says "prices as of <date>".
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
 - Every share change, cash balance, and manual value edit stays recorded: who made it, when, and from what to what. v1 shows no feed.
+- On every page, scrolling past the page bar brings a compact bar to the top with the page's name and the period, which changes everything as the page bar's does. On a phone it holds the period button and the account button, hides while scrolling down, and comes back on the first scroll up or when keyboard focus reaches it. On tablet and desktop it stays, with the unit too. It never covers the focused element, and on a phone it and the tab bar each keep to their own edge.
 
 ## Comparison — side by side
 
