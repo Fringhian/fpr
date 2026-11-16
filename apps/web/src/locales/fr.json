@@ -916,6 +916,12 @@
       "wrong": "Ce n’est pas votre mot de passe actuel. Vérifiez-le et réessayez.",
       "changed": "Mot de passe changé. Vos autres sessions sont déconnectées."
     },
+    "install": {
+      "open": "Installer l’application",
+      "ios": "Ouvrez le menu « Partager » de votre navigateur, puis choisissez « Sur l’écran d’accueil ».",
+      "mac": "Dans Safari, ouvrez le menu « Fichier », puis choisissez « Ajouter au Dock ».",
+      "signIn": "L’application vous demande de vous connecter une fois, avec votre mot de passe ou votre lien d’accès."
+    },
     "saved": "Chaque changement est enregistré aussitôt"
   },
   "helpPage": {

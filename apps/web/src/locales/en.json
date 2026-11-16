@@ -902,6 +902,12 @@
       "wrong": "This isn’t your current password. Check it and try again.",
       "changed": "Password changed. Your other sessions are signed out."
     },
+    "install": {
+      "open": "Install the app",
+      "ios": "Open your browser’s Share menu, then choose Add to Home Screen.",
+      "mac": "In Safari, open the File menu, then choose Add to Dock.",
+      "signIn": "The app asks you to sign in once, with your password or your access link."
+    },
     "saved": "Changes are saved as you make them"
   },
   "helpPage": {
