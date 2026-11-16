@@ -115,6 +115,54 @@ describe("Record a change", () => {
     expect(store.entries).toHaveLength(before + 1);
   });
 
+  it("lets the admin record for a member from their page in edit mode, then returns there", async () => {
+    const { page, router, store } = await visit(
+      `/members/${SAM}?edit=true`,
+      "admin",
+    );
+    const before = samsChanges(store.entries).length;
+    const link = (href: string) =>
+      page.querySelector<HTMLAnchorElement>(`a[href^="${href}"]`);
+
+    await click(
+      () => link(`/members/${SAM}/record`),
+      () =>
+        expect(router.state.location.pathname).toBe(`/members/${SAM}/record`),
+    );
+    const world = fixtureShareId("world");
+    await act(() =>
+      router.navigate({
+        to: "/members/$userId/record",
+        params: { userId: SAM },
+        search: {
+          kind: "buy",
+          share: world,
+          step: "review",
+          start: "when",
+          day: daysAgo(1),
+          amount: "4",
+        },
+      }),
+    );
+    await vi.waitFor(() => expect(text()).toContain("4 World Index ETF"));
+    await submit(page, () =>
+      expect(samsChanges(store.entries)).toHaveLength(before + 1),
+    );
+    expect(samsChanges(store.entries).at(-1)).toMatchObject({
+      shareId: world,
+      quantityDelta: "4",
+    });
+
+    await click(
+      () => link(`/members/${SAM}?edit=true`),
+      () => expect(router.state.location.pathname).toBe(`/members/${SAM}`),
+    );
+    expect(router.state.location.search).toMatchObject({ edit: true });
+    await vi.waitFor(() =>
+      expect(link(`/members/${SAM}/history`)).toBeTruthy(),
+    );
+  });
+
   it("edits an entry in place, from its day to its quantity", async () => {
     const { store } = await visit("/", "member");
     const entry = samsChanges(store.entries).find(

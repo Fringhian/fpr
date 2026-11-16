@@ -476,6 +476,12 @@
       "body": "Les membres apparaissent ici dès que l’admin les ajoute."
     }
   },
+  "editPortfolio": {
+    "start": "Modifier le portefeuille",
+    "record": "Enregistrer un mouvement pour {{name}}",
+    "banner": "<strong>Vous modifiez le portefeuille de {{name}}.</strong> Chaque mouvement est enregistré dès que vous le validez.",
+    "done": "Terminer les modifications"
+  },
   "memberPage": {
     "headline": {
       "up": "{{period}}, {{name}} gagne <gain>{{amount}}</gain>.",
@@ -700,7 +706,7 @@
     }
   },
   "historyPage": {
-    "loading": "Chargement de votre historique…",
+    "loading": "Chargement de l’historique…",
     "loadingMore": "Chargement d’autres mouvements…",
     "moreFailed": "Impossible de charger plus de mouvements.",
     "none": "Vous n’avez encore rien enregistré."

@@ -468,6 +468,12 @@
       "body": "Members show here once the admin adds them."
     }
   },
+  "editPortfolio": {
+    "start": "Edit portfolio",
+    "record": "Record a change for {{name}}",
+    "banner": "<strong>You’re editing {{name}}’s portfolio.</strong> Each change is saved when you record it.",
+    "done": "Done editing"
+  },
   "memberPage": {
     "headline": {
       "up": "{{period}}, {{name}} is up <gain>{{amount}}</gain>.",
@@ -688,7 +694,7 @@
     }
   },
   "historyPage": {
-    "loading": "Loading your history…",
+    "loading": "Loading the history…",
     "loadingMore": "Loading more changes…",
     "moreFailed": "Can’t load more changes.",
     "none": "You haven’t recorded anything yet."

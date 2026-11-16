@@ -34,6 +34,7 @@ import { Route as FocusedAccessIndexRouteImport } from './routes/_focused/access
 import { Route as FocusedAccessKeyRouteImport } from './routes/_focused/access.$key'
 import { Route as FocusedPortfolioRecordRouteImport } from './routes/_focused/portfolio/record'
 import { Route as AppMembersUserIdIndexRouteImport } from './routes/_app/members/$userId/index'
+import { Route as AppMembersUserIdHistoryRouteImport } from './routes/_app/members/$userId/history'
 import { Route as FocusedMembersUserIdRecordRouteImport } from './routes/_focused/members/$userId/record'
 
 const AppRoute = AppRouteImport.update({
@@ -159,6 +160,11 @@ const AppMembersUserIdIndexRoute = AppMembersUserIdIndexRouteImport.update({
   path: '/members/$userId/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMembersUserIdHistoryRoute = AppMembersUserIdHistoryRouteImport.update({
+  id: '/members/$userId/history',
+  path: '/members/$userId/history',
+  getParentRoute: () => AppRoute,
+} as any)
 const FocusedMembersUserIdRecordRoute =
   FocusedMembersUserIdRecordRouteImport.update({
     id: '/members/$userId/record',
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/': typeof AppPortfolioIndexRoute
   '/shares/': typeof AppSharesIndexRoute
   '/access/': typeof FocusedAccessIndexRoute
+  '/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
   '/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof AppPortfolioIndexRoute
   '/shares': typeof AppSharesIndexRoute
   '/access': typeof FocusedAccessIndexRoute
+  '/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
   '/members/$userId': typeof AppMembersUserIdIndexRoute
 }
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/shares/': typeof AppSharesIndexRoute
   '/_focused/access/': typeof FocusedAccessIndexRoute
+  '/_app/members/$userId/history': typeof AppMembersUserIdHistoryRoute
   '/_focused/members/$userId/record': typeof FocusedMembersUserIdRecordRoute
   '/_app/members/$userId/': typeof AppMembersUserIdIndexRoute
 }
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/portfolio/'
     | '/shares/'
     | '/access/'
+    | '/members/$userId/history'
     | '/members/$userId/record'
     | '/members/$userId/'
   fileRoutesByTo: FileRoutesByTo
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/shares'
     | '/access'
+    | '/members/$userId/history'
     | '/members/$userId/record'
     | '/members/$userId'
   id:
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/'
     | '/_app/shares/'
     | '/_focused/access/'
+    | '/_app/members/$userId/history'
     | '/_focused/members/$userId/record'
     | '/_app/members/$userId/'
   fileRoutesById: FileRoutesById
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMembersUserIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/members/$userId/history': {
+      id: '/_app/members/$userId/history'
+      path: '/members/$userId/history'
+      fullPath: '/members/$userId/history'
+      preLoaderRoute: typeof AppMembersUserIdHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_focused/members/$userId/record': {
       id: '/_focused/members/$userId/record'
       path: '/members/$userId/record'
@@ -560,6 +579,7 @@ interface AppRouteChildren {
   AppSharesShareIdRoute: typeof AppSharesShareIdRoute
   AppMembersIndexRoute: typeof AppMembersIndexRoute
   AppSharesIndexRoute: typeof AppSharesIndexRoute
+  AppMembersUserIdHistoryRoute: typeof AppMembersUserIdHistoryRoute
   AppMembersUserIdIndexRoute: typeof AppMembersUserIdIndexRoute
 }
 
@@ -572,6 +592,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSharesShareIdRoute: AppSharesShareIdRoute,
   AppMembersIndexRoute: AppMembersIndexRoute,
   AppSharesIndexRoute: AppSharesIndexRoute,
+  AppMembersUserIdHistoryRoute: AppMembersUserIdHistoryRoute,
   AppMembersUserIdIndexRoute: AppMembersUserIdIndexRoute,
 }
 

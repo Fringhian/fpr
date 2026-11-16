@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { editPortfolioLink } from "../../../lib/edit-portfolio";
 import { LeaveGuard } from "../../../lib/leave-guard";
 import { raceDayOf } from "../../../lib/race-day";
 import type { RecordSearch, RecordStep } from "../../../lib/record-search";
@@ -13,13 +14,20 @@ import { STEPS } from "./steps-screens";
 import { useLogFind } from "./use-log-find";
 import { useSessionChanges } from "./use-session-changes";
 
-/** Where Close and Done go: Portfolio, or History for an edit; the member's page for the admin. */
+/**
+ * Where Close and Done go: Portfolio, or History for an edit; for the admin,
+ * the member's page in edit mode, or the member's history for an edit.
+ */
 export function closeLink(
   owner: Pick<Owner, "id" | "own">,
   editing: boolean,
 ): ReactElement {
   if (!owner.own) {
-    return <Link to="/members/$userId" params={{ userId: owner.id }} />;
+    return editing ? (
+      <Link to="/members/$userId/history" params={{ userId: owner.id }} />
+    ) : (
+      editPortfolioLink(owner.id)
+    );
   }
   return editing ? <Link to="/portfolio/history" /> : <Link to="/portfolio" />;
 }

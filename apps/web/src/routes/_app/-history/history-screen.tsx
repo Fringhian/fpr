@@ -1,3 +1,4 @@
+import type { Id } from "@fpr/contracts";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/atoms/button/button";
@@ -7,7 +8,7 @@ import { PageMessage } from "../../../components/templates/page-message/page-mes
 import { neededReads } from "../../../lib/api/needed-reads";
 import { cn } from "../../../lib/cn";
 import { useSession } from "../../../lib/session/use-session";
-import { Screen } from "../../-shell/screen";
+import { Screen, type ScreenProps } from "../../-shell/screen";
 import { useLoadFailedMessage } from "../../-states/load-failed";
 import { EntryList } from "../-portfolio-sections/entry-list";
 import type { LogRow } from "../-portfolio-sections/log-rows";
@@ -51,12 +52,21 @@ function ListEnd({ log }: { log: Log }) {
 }
 
 /** Every entry, newest first, in one card, the next page loading as the end nears. */
-function Entries({ rows, log }: { rows: readonly LogRow[]; log: Log }) {
+function Entries({
+  userId,
+  rows,
+  log,
+  none,
+}: {
+  userId: Id;
+  rows: readonly LogRow[];
+  log: Log;
+  none: string;
+}) {
   const { t } = useTranslation();
-  const { person } = useSession();
 
   return rows.length === 0 ? (
-    <p className="text-m text-secondary">{t("historyPage.none")}</p>
+    <p className="text-m text-secondary">{none}</p>
   ) : (
     <Card
       className={cn(
@@ -67,7 +77,7 @@ function Entries({ rows, log }: { rows: readonly LogRow[]; log: Log }) {
       )}
     >
       <EntryList
-        userId={person.id}
+        userId={userId}
         rows={rows}
         aria-label={t("pages.portfolioHistory")}
       />
@@ -77,22 +87,29 @@ function Entries({ rows, log }: { rows: readonly LogRow[]; log: Log }) {
 }
 
 /**
- * History: every share change and cash balance the viewer recorded, newest
- * first, loading more as the page scrolls, each with ⋯ to edit or delete it.
- * No period bar.
+ * Every share change and cash balance of `userId`'s portfolio, newest first,
+ * loading more as the page scrolls, each with ⋯ to edit or delete it, below
+ * `back`; `none` says there is nothing yet. No period bar.
  */
-export function HistoryScreen() {
+export function HistoryView({
+  userId,
+  back,
+  none,
+}: {
+  userId: Id;
+  back: ScreenProps["back"];
+  none: string;
+}) {
   const { t } = useTranslation();
-  const { person } = useSession();
-  const { portfolio } = usePortfolioReads(person.id);
-  const { log, rows } = useLog(person.id, portfolio.data);
+  const { portfolio } = usePortfolioReads(userId);
+  const { log, rows } = useLog(userId, portfolio.data);
   const reads = neededReads([portfolio, log]);
   const failed = useLoadFailedMessage(reads.retry);
 
   const title = t("pages.portfolioHistory");
 
   return (
-    <Screen title={title} back="portfolio">
+    <Screen title={title} back={back}>
       {reads.failed ? (
         <PageMessage {...failed} />
       ) : (
@@ -112,10 +129,24 @@ export function HistoryScreen() {
               {t("historyPage.loading")}
             </LoadingPlaceholder>
           ) : (
-            <Entries rows={rows} log={log} />
+            <Entries userId={userId} rows={rows} log={log} none={none} />
           )}
         </div>
       )}
     </Screen>
+  );
+}
+
+/** History: every change the viewer recorded, below Portfolio. */
+export function HistoryScreen() {
+  const { t } = useTranslation();
+  const { person } = useSession();
+
+  return (
+    <HistoryView
+      userId={person.id}
+      back="portfolio"
+      none={t("historyPage.none")}
+    />
   );
 }
