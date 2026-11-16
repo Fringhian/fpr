@@ -1,5 +1,6 @@
-import type { Id, IsoDate, PortfolioLogEntry } from "@fpr/contracts";
+import type { Id, IsoDate } from "@fpr/contracts";
 import { type EntryValue, useEntryWrites } from "../../../lib/entry-writes";
+import type { SavedEntry } from "../../../lib/log-entry";
 import { type Draft, momentOf } from "./draft";
 import { useFlow } from "./flow";
 
@@ -55,7 +56,7 @@ export function useSave() {
   const { owner, draft, draftId, today } = useFlow();
   const writes = useEntryWrites();
 
-  const save = async (): Promise<PortfolioLogEntry> => {
+  const save = async (): Promise<SavedEntry> => {
     const value = draftValue(draft, today);
     return draft.entry
       ? writes.update(draft.entry.id, value)

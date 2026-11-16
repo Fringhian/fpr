@@ -1,14 +1,20 @@
 import type {
   Decimal,
   Language,
+  PortfolioCashBalance,
   PortfolioChange,
-  PortfolioLogEntry,
 } from "@fpr/contracts";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { formatMoney } from "./format/money";
 import { formatQuantity } from "./format/number";
 import { useLanguage } from "./i18n";
+
+/**
+ * A share change or cash balance as a write answers it. A row of the log is
+ * one too, with the log's running figures beside it.
+ */
+export type SavedEntry = PortfolioChange | PortfolioCashBalance;
 
 /** What a share change records: shares bought or sold, the units above zero. */
 export type ChangeSummary = {
@@ -29,7 +35,7 @@ export function changeSummaryOf(change: PortfolioChange): ChangeSummary {
   };
 }
 
-export function entrySummaryOf(entry: PortfolioLogEntry): EntrySummary {
+export function entrySummaryOf(entry: SavedEntry): EntrySummary {
   return entry.type === "cash"
     ? { kind: "cashSet", amount: entry.amountEur }
     : changeSummaryOf(entry);
@@ -50,7 +56,7 @@ export function entryTitle(
 }
 
 /** `entryTitle` of a log entry, in the reader's language. */
-export function useEntryTitle(): (entry: PortfolioLogEntry) => string {
+export function useEntryTitle(): (entry: SavedEntry) => string {
   const { t } = useTranslation();
   const language = useLanguage();
 
