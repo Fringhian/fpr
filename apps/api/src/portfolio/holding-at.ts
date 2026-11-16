@@ -1,52 +1,60 @@
 import {
+  type Decimal,
   type PortfolioHoldingAt,
   type PortfolioHoldingAtQuery,
   Role,
 } from "@fpr/contracts";
-import { shares, shareValues, valuation } from "@fpr/db";
-import { apiError } from "../errors.js";
+import { type Db, type HoldingAtMoment, shareValues, valuation } from "@fpr/db";
 import { toShareSummary } from "../shares/share-summary.js";
 import { Big, plain, ratio } from "../valuation/decimal.js";
 import type { LogContext } from "./log.js";
-import { findPortfolioOwner } from "./owner.js";
+import { findOwnerShare } from "./owner.js";
 
 /**
- * `GET /users/{userId}/holdings/{shareId}?at=`: the quantity of the share the
- * member held at the moment, zero when none. For an anonymous viewer, its
- * weight in the member's balance at that moment replaces it, or nothing while
- * the share or the balance has no value.
+ * The holding's weight in the member's balance at the moment, which replaces
+ * its quantity for an anonymous viewer: `0` for none, and `null` while the
+ * share has no price or the balance is zero.
+ */
+async function holdingWeight(
+  db: Db,
+  userId: string,
+  { at, quantity, priceEur }: HoldingAtMoment,
+): Promise<Decimal | null> {
+  if (new Big(quantity).eq(0)) {
+    return "0";
+  }
+  const balance = (await valuation.balancesAt(db, at)).get(userId);
+  return priceEur === null || balance === undefined
+    ? null
+    : ratio(new Big(quantity).times(priceEur), new Big(balance.balanceEur));
+}
+
+/**
+ * `GET /users/{userId}/holdings/{shareId}?at=`: the sum of the member's
+ * changes on the share up to the moment, zero before the first.
  */
 export async function readHoldingAt(
   { db, viewer, quantityWeights }: LogContext,
   input: PortfolioHoldingAtQuery,
 ): Promise<PortfolioHoldingAt> {
-  const at = new Date(input.at);
-  const [, share] = await Promise.all([
-    findPortfolioOwner(db, input.userId),
-    shares.findById(db, input.shareId),
-  ]);
-  if (share === undefined) {
-    throw apiError("not_found");
-  }
+  const share = await findOwnerShare(db, input);
   const [held] = await shareValues.holdingAtMoments(db, {
     userId: input.userId,
     shareId: share.id,
-    moments: [at],
+    moments: [new Date(input.at)],
   });
-  const quantity = new Big(held?.quantity ?? 0);
-  if (viewer.role === Role.anonymous && held?.priceEur != null) {
-    const balance = (await valuation.balancesAt(db, at)).get(input.userId);
-    const weight =
-      balance === undefined
-        ? null
-        : ratio(quantity.times(held.priceEur), new Big(balance.balanceEur));
+  if (held === undefined) {
+    throw new Error("A holding at one moment has one row");
+  }
+  if (viewer.role === Role.anonymous) {
+    const weight = await holdingWeight(db, input.userId, held);
     if (weight !== null) {
       quantityWeights.set(share.id, weight);
     }
   }
   return {
     share: toShareSummary(share),
-    at: at.toISOString(),
-    quantity: plain(quantity),
+    at: held.at.toISOString(),
+    quantity: plain(new Big(held.quantity)),
   };
 }

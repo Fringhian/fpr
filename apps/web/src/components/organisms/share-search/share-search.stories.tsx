@@ -9,10 +9,10 @@ const AT = "2026-03-04T14:30:00+01:00";
 
 /** Invented shares: two market listings, a manual fund, and one whose prices haven’t arrived. */
 const ROWS: readonly [string, string, string | null, string | null][] = [
-  ["World Index ETF", "IE00FPRWLD10", "WRLD.DE", "98.40"],
-  ["Global Tech Fund", "LU00FPRTEC20", null, "40.10"],
-  ["Nordic Wind AG", "DE00FPRWND30", "NWND.DE", "15.17"],
-  ["Ocean Freight SA", "FR00FPROCN40", "OCNF.PA", null],
+  ["World Index ETF", "IE00FPRWLD17", "WRLD.DE", "98.40"],
+  ["Global Tech Fund", "LU00FPRTEC25", null, "40.10"],
+  ["Nordic Wind AG", "DE00FPRWND36", "NWND.DE", "15.17"],
+  ["Ocean Freight SA", "FR00FPROCN48", "OCNF.PA", null],
 ];
 
 const SHARES: readonly ShareQuote[] = ROWS.map(

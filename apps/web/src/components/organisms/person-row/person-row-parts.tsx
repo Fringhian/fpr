@@ -1,4 +1,4 @@
-import type { IsoDate, Timestamp } from "@fpr/contracts";
+import type { AdminAccessStatus, IsoDate, Timestamp } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn, stateClassName } from "../../../lib/cn";
@@ -16,12 +16,7 @@ import * as Menu from "../../molecules/menu/menu";
  * link's first use, active, expired (never used before its deadline), ended
  * (past its end date), or revoked.
  */
-export type AccessStatus =
-  | "waiting"
-  | "active"
-  | "expired"
-  | "ended"
-  | "revoked";
+export type AccessStatus = AdminAccessStatus;
 
 const BADGES = {
   waiting: "waitingForFirstUse",

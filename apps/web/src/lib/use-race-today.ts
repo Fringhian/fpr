@@ -1,6 +1,6 @@
 import type { IsoDate } from "@fpr/contracts";
 import { useSyncExternalStore } from "react";
-import { raceDayOf } from "./race-day";
+import { raceToday } from "./race-day";
 
 // Read again every minute and whenever the page shows again: a page left open
 // past midnight, or woken from sleep, moves to the new day.
@@ -13,9 +13,7 @@ function subscribe(onChange: () => void) {
   };
 }
 
-const today = () => raceDayOf(Date.now());
-
 /** The race's day now, which turns at midnight in the race's zone while the page stays open. */
 export function useRaceToday(): IsoDate {
-  return useSyncExternalStore(subscribe, today);
+  return useSyncExternalStore(subscribe, raceToday);
 }

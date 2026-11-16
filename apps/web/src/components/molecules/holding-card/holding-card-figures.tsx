@@ -1,11 +1,11 @@
 import type { Decimal, LatestPrice } from "@fpr/contracts";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
+import { usePriceTime } from "../../../lib/price-time";
 import { Badge } from "../../atoms/badge/badge";
 import { GainChip } from "../../atoms/gain-chip/gain-chip";
 import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
@@ -41,20 +41,10 @@ export function Details({
 }) {
   const { t } = useTranslation();
   const language = useLanguage();
+  const priceTimeOf = usePriceTime();
 
   const priceTime =
-    latestPrice === null
-      ? null
-      : latestPrice.source === "intraday"
-        ? t("holdingCard.asOfTime", {
-            time: formatTime(latestPrice.at, language, { timeZone }),
-          })
-        : t(
-            latestPrice.source === "manual"
-              ? "holdingCard.asOfDate"
-              : "holdingCard.closeOf",
-            { date: formatDate(latestPrice.at, language, { timeZone }) },
-          );
+    latestPrice === null ? null : priceTimeOf(latestPrice, timeZone);
   const details = [
     anonymous
       ? null
@@ -84,30 +74,43 @@ export function Pending() {
   );
 }
 
-/** The share's price over the period, as a sparkline in the colour of the gain. */
-function Curve({
+/**
+ * The share's price over the period, as a sparkline in the colour of `gain`
+ * read in `unit`: green up, red down, grey flat or unknown. Nothing with
+ * fewer than two points.
+ */
+export function Curve({
   name,
   points,
-  color,
+  gain,
+  unit,
 }: {
   name: string;
   points: readonly ChartPoint[];
-  color: ChartColor;
+  gain: GainInput | null;
+  unit: GainUnit;
 }) {
   const { t } = useTranslation();
+  const language = useLanguage();
+
+  const tone =
+    gain === null
+      ? "flat"
+      : (gainDisplay(gain, unit, language)?.tone ?? "flat");
+  const color = CURVE_COLORS[tone];
   const lines = useMemo<readonly ChartLine[]>(
     () => [{ id: "price", label: name, color, points }],
     [name, color, points],
   );
 
-  return (
+  return points.length > 1 ? (
     <Chart
       variant="sparkline"
       unit="money"
       lines={lines}
       label={t("holdingCard.curve", { name })}
     />
-  );
+  ) : null;
 }
 
 /**
@@ -131,20 +134,12 @@ export function Value({
   unit: GainUnit;
   anonymous: boolean;
 }) {
-  const language = useLanguage();
-
   const shownGain: GainInput | null =
     gain === null || !anonymous ? gain : { percent: gain.percent };
-  const tone =
-    shownGain === null
-      ? "flat"
-      : (gainDisplay(shownGain, unit, language)?.tone ?? "flat");
 
   return (
     <>
-      {curve.length > 1 ? (
-        <Curve name={name} points={curve} color={CURVE_COLORS[tone]} />
-      ) : null}
+      <Curve name={name} points={curve} gain={shownGain} unit={unit} />
       <Foot>
         <Figure anonymous={anonymous} amountEur={valueEur} weight={weight} />
         {shownGain === null ? null : <GainChip gain={shownGain} unit={unit} />}

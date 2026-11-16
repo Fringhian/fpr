@@ -2,6 +2,8 @@
   "badge": {
     "manual": "Manual",
     "pricePending": "Price pending",
+    "priceLate": "Price late",
+    "upToDate": "Up to date",
     "incomplete": "Incomplete",
     "active": "Active",
     "waitingForFirstUse": "Waiting for first use",
@@ -9,6 +11,7 @@
     "ended": "Ended",
     "expired": "Link expired",
     "heldBefore": "Held before",
+    "neverHeld": "Never held",
     "saved": "Saved"
   },
   "lane": {
@@ -207,6 +210,7 @@
     "cashSet": "Cash set to {{amount}}",
     "valueAdded": "Value of {{price}} added",
     "valueEdited": "Value changed to {{price}}",
+    "valueDeleted": "Value of {{price}} deleted",
     "held": "{{before}} → {{after}}",
     "heldSpoken": "from {{before}} to {{after}} units held",
     "newHolding": "New holding",
@@ -221,12 +225,14 @@
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, not final"
   },
+  "priceTime": {
+    "asOfTime": "as of {{time}}",
+    "asOfDate": "as of {{date}}",
+    "closeOf": "close of {{date}}"
+  },
   "holdingCard": {
     "units_one": "{{quantity}} unit",
     "units_other": "{{quantity}} units",
-    "asOfTime": "as of {{time}}",
-    "asOfDate": "as of {{date}}",
-    "closeOf": "close of {{date}}",
     "curve": "{{name}}, price over the period",
     "loadingPrices": "Loading its prices…",
     "notCounted": "not counted yet",
@@ -410,9 +416,6 @@
       "description": "It’s your curve on the chart, your bar in the standings, and your picture.",
       "taken": "Faded colours are taken: the initial shows who has it.",
       "usePhoto": "Use a photo instead",
-      "changePhoto": "Change photo",
-      "removePhoto": "Remove photo",
-      "uploading": "Uploading…",
       "action": {
         "portfolio": "See your portfolio",
         "welcome": "Meet everyone"
@@ -533,6 +536,79 @@
     "title": "Latest changes",
     "seeAll": "See all changes"
   },
+  "sharePage": {
+    "loading": "Loading the share…",
+    "enteredBy": "on {{date}}, entered by <person/>",
+    "enteredOn": "on {{date}}",
+    "position": {
+      "title": "Your position",
+      "sinceBought": "since you bought",
+      "none": "You don’t hold it",
+      "sell": "Sell",
+      "buy": "Buy"
+    },
+    "addValue": "Add a value",
+    "marks": {
+      "bought": "{{name}} bought {{quantity}}",
+      "sold": "{{name}} sold {{quantity}}",
+      "changed": "{{name}} changed their holding"
+    },
+    "chart": "{{name}}, price {{period}}",
+    "pricesFrom": "Prices from {{date}}",
+    "nobody": "Nobody holds this share yet. Its chart starts with the first holding.",
+    "loadingHistory": "Loading this share’s history…",
+    "holders": {
+      "title": "Who holds it · {{count}}",
+      "weight": "{{weight}} of their portfolio",
+      "since": "since {{date}}"
+    },
+    "values": {
+      "title": "Values"
+    },
+    "events": {
+      "title": "Changes",
+      "of": "for {{date}}, {{time}}"
+    }
+  },
+  "valueActions": {
+    "keepOne": "A manual share keeps at least one value",
+    "deleted": "Value deleted",
+    "deleteRefused": "Can’t delete this value",
+    "undoRefused": "Can’t restore this value",
+    "changed": {
+      "title": "Delete this value?",
+      "description": "Someone changed it to {{price}} in the meantime.",
+      "confirm": "Delete {{price}}",
+      "keep": "Keep it"
+    }
+  },
+  "editShare": {
+    "open": "Edit name or ISIN",
+    "title": "Edit name or ISIN",
+    "description": "Every holder sees the change.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Changes saved"
+  },
+  "valueForm": {
+    "addTitle": "Add a value",
+    "summary": "This value",
+    "share": "Share",
+    "before": "Value before",
+    "editTitle": "Edit the value of {{date}}, {{time}}",
+    "day": "Date",
+    "time": "Time",
+    "future": "Enter a time that has passed, such as 09:30.",
+    "last": "Last value: {{price}} on {{date}}.",
+    "updates": "Every holder’s balance updates.",
+    "changed": "Someone changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
+    "taken": "There’s already a value of {{price}} on {{date}} at {{time}}.",
+    "editTaken": "Edit that value",
+    "save": "Save value",
+    "confirm": "Save my value",
+    "saving": "Saving…",
+    "saved": "Value saved"
+  },
   "entryActions": {
     "edit": "Edit",
     "delete": "Delete",
@@ -562,6 +638,78 @@
     "loading": "Loading the shares…",
     "empty": "FPR has no shares yet.",
     "none": "No share in FPR matches {{q}}."
+  },
+  "pictureStack": {
+    "others_one": "and {{count}} other",
+    "others_other": "and {{count}} others"
+  },
+  "shareCard": {
+    "manual": "Value entered by members",
+    "holders": "Who holds it",
+    "heldBy_zero": "Nobody holds it",
+    "heldBy_one": "Held by {{count}}",
+    "heldBy_other": "Held by {{count}}"
+  },
+  "sharesPage": {
+    "held": "In the race",
+    "notHeld": "Not held by anyone"
+  },
+  "shareLookup": {
+    "notHere": "Not here?",
+    "lookUp": "Look up {{q}} at the price provider",
+    "looking": "Looking up {{q}} at the price provider…",
+    "found": "Not in FPR yet. Found at the price provider:",
+    "add": "Add",
+    "addShare": "Add share",
+    "adding": "Adding…",
+    "cancel": "Cancel",
+    "isin": {
+      "label": "ISIN of {{name}}",
+      "help": "The price provider didn’t send it. It’s on your statement.",
+      "invalid": "Enter the ISIN as on your statement: two letters, nine letters or digits, then a check digit."
+    },
+    "openTaken": "Open that share",
+    "isinTaken": "Another share in FPR already has this ISIN.",
+    "none": "No share found for {{q}}",
+    "noneOther": "Nothing else found for {{q}}",
+    "noneHelp": "The price provider doesn’t track it. Create it and enter its value yourself.",
+    "noneOtherHelp": "If your share isn’t above, create it and enter its value yourself.",
+    "failed": "Can’t search the price provider right now",
+    "failedHelp": "You can still create the share by hand.",
+    "create": "Create a manual share"
+  },
+  "dayField": {
+    "today": "Today",
+    "pick": "Pick a day"
+  },
+  "shareFields": {
+    "isin": {
+      "label": "ISIN",
+      "openTaken": "Open that share",
+      "invalid": "Enter the ISIN as on your statement: two letters, nine letters or digits, then a check digit."
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Name as on your statement",
+      "missing": "Enter the share’s name."
+    },
+    "price": {
+      "label": "Value of one unit",
+      "invalid": "Enter a value above zero, such as 40.10."
+    },
+    "day": {
+      "label": "On",
+      "invalid": "Pick today or an earlier day."
+    }
+  },
+  "newShare": {
+    "question": "Create a manual share",
+    "description": "For a share the price provider doesn’t track: members enter its value.",
+    "help": "Everyone can update its value later.",
+    "summary": "The new share",
+    "create": "Create share",
+    "creating": "Creating…",
+    "created": "{{name}} created"
   },
   "recordChange": {
     "leave": "This change isn’t saved yet. The changes saved before it stay.",
@@ -690,6 +838,11 @@
         "failed": "Can’t load this member",
         "missing": "This member isn’t in the race"
       },
+      "value": {
+        "loading": "Loading the value…",
+        "failed": "Can’t load this value",
+        "missing": "This value no longer exists"
+      },
       "failedLine": "Check your connection and try again.",
       "missingLine": "It may have been deleted. Close this page to go back.",
       "retry": "Try again"
@@ -700,6 +853,248 @@
     "loadingMore": "Loading more changes…",
     "moreFailed": "Can’t load more changes.",
     "none": "You haven’t recorded anything yet."
+  },
+  "photoControl": {
+    "change": "Change photo",
+    "remove": "Remove photo",
+    "uploading": "Uploading…",
+    "retry": "Retry"
+  },
+  "settings": {
+    "title": "Settings",
+    "addPhoto": "Upload a photo",
+    "colour": "Colour",
+    "name": "Display name",
+    "language": "Language",
+    "languageKept": "Kept on this device.",
+    "password": {
+      "open": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "action": "Change password",
+      "loading": "Changing…",
+      "wrong": "This isn’t your current password. Check it and try again.",
+      "changed": "Password changed. Your other sessions are signed out."
+    },
+    "saved": "Changes are saved as you make them"
+  },
+  "helpPage": {
+    "contents": "On this page",
+    "sections": {
+      "race": {
+        "title": "The race",
+        "body": "Everyone’s gain since the start of the period you pick, on one chart. Your line and the member you focus on are in colour, the others in grey."
+      },
+      "periods": {
+        "title": "Periods and € / %",
+        "body": "The period sets where every gain starts, from today to all time. € counts the money earned. % lets a small portfolio win on performance."
+      },
+      "today": {
+        "title": "Today and closes",
+        "body": "Today moves every 30 minutes and stays dashed until the market closes. The standings use closing prices only."
+      },
+      "record": {
+        "title": "Recording a change",
+        "body": "Bought something last week? Record it with that day: FPR replays it from then."
+      },
+      "cash": {
+        "title": "Cash",
+        "body": "Your cash only changes when you set it. Buying or selling never moves it, so set it again when money comes in or goes out."
+      },
+      "search": {
+        "title": "Finding a share",
+        "body": "Type a name, or paste an ISIN: FPR looks it up at its price provider."
+      },
+      "manual": {
+        "title": "Manual shares",
+        "body": "A share nobody tracks gets its value from members. Anyone can update it."
+      },
+      "missing": {
+        "title": "Missing prices",
+        "body": "A share whose prices haven’t arrived isn’t counted, never at €0, and the total says “incomplete”."
+      },
+      "splits": {
+        "title": "Splits and dividends",
+        "body": "A split: record the new shares as a purchase on the split day. A dividend paid in cash: set your cash."
+      },
+      "credits": {
+        "title": "Credits",
+        "body": "The charts are drawn with TradingView Lightweight Charts™, made by TradingView.",
+        "notice": "TradingView Lightweight Charts™ Copyright (c) 2023 TradingView, Inc.",
+        "link": "tradingview.com"
+      }
+    }
+  },
+  "helpInfo": {
+    "race": {
+      "title": "What the race shows",
+      "body": "Each line is one member’s gain since the start of the period you picked. In %, a small portfolio can beat a big one. The dashed end is today: it becomes final at the market close."
+    },
+    "unit": {
+      "title": "€ or %",
+      "body": "€ counts the money each member earned over the period. % compares their performance, so a small portfolio can beat a big one."
+    },
+    "cash": {
+      "title": "Cash",
+      "body": "Cash only changes when it’s set. Buying or selling never moves it."
+    },
+    "incomplete": {
+      "title": "Incomplete",
+      "body": "Some shares are still waiting for their prices. Until they arrive, they aren’t counted, never at €0."
+    },
+    "manual": {
+      "title": "A manual share’s value",
+      "body": "No price provider tracks this share, so members enter its value by hand. Each value holds until someone adds the next one."
+    }
+  },
+  "oneTimeSecret": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "onClipboard": "It’s on your clipboard.",
+    "copyByHand": "Your browser didn’t copy it. It’s selected: copy it by hand."
+  },
+  "adminPeople": {
+    "loading": "Loading everyone…",
+    "empty": "Nobody yet.",
+    "groups": {
+      "admin": "Admins",
+      "member": "Members",
+      "guest": "Guests",
+      "anonymous": "Anonymous viewers"
+    },
+    "add": {
+      "admin": "Add an admin",
+      "member": "Add a member",
+      "guest": "Add a guest",
+      "anonymous": "Add a viewer"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Member",
+      "guest": "Guest"
+    },
+    "fields": {
+      "name": "Display name",
+      "role": "Role",
+      "endDate": "Access ends (optional)",
+      "endDateHelp": "Access lasts through that day. Leave it empty for no end date.",
+      "endDatePast": "This day has passed. Pick today or a later day."
+    },
+    "addDialog": {
+      "anonymous": "An anonymous viewer has no email: their link alone lets them in, and they see everyone under pseudonyms, read-only.",
+      "create": "Create access link"
+    },
+    "secret": {
+      "creating": "Creating…",
+      "done": "Done"
+    },
+    "link": {
+      "title": "{{name}}’s access link",
+      "newTitle": "{{name}}’s new access link",
+      "description": "Copy it now: it won’t be shown again. It works until {{date}}.",
+      "label": "Access link",
+      "hint": "Lost it? Use Replace link in {{name}}’s ⋯ menu.",
+      "prepare": "Prepare {{name}}’s portfolio"
+    },
+    "replace": {
+      "title": "Replace {{name}}’s link?",
+      "description": "The current link stops working at once, and {{name}} can’t get in until they open the new one. It works for 7 days.",
+      "action": "Replace link"
+    },
+    "resetKey": {
+      "title": "Create a reset key for {{name}}?",
+      "description": "{{name}} enters it with their email to choose a new password. It replaces any key they haven’t used.",
+      "action": "Create reset key",
+      "secretTitle": "{{name}}’s reset key",
+      "secretDescription": "Copy it now: it won’t be shown again. It works until {{date}} at {{time}}.",
+      "label": "Reset key",
+      "hint": "{{name}} enters it on the sign-in page, under “reset your password”."
+    },
+    "menu": {
+      "edit": "Edit",
+      "editPortfolio": "Edit portfolio",
+      "replaceLink": "Replace link",
+      "resetKey": "Reset password",
+      "revoke": "Revoke access",
+      "restore": "Restore access",
+      "delete": "Delete",
+      "lastAdmin": "FPR needs at least one admin, so {{name}} keeps their access and can’t be deleted."
+    },
+    "access": {
+      "revoked": "Access revoked",
+      "restored": "Access restored",
+      "refused": "Access didn’t change"
+    },
+    "edit": {
+      "title": "Edit {{name}}",
+      "save": "Save changes",
+      "saved": "Changes saved",
+      "lastAdmin": "FPR needs at least one admin, so {{name}} stays admin. Make someone else admin first.",
+      "lastAdminEnd": "The only admin’s access has no end date.",
+      "hasPortfolio": "{{name}} has a portfolio, so they can’t become a guest."
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "withPortfolio": "{{name}}’s share changes and cash balances are deleted with them, and they leave the race. Manual shares and values they entered stay.",
+      "withoutPortfolio": "{{name}} loses their access and leaves FPR.",
+      "typeName": "Type {{name}} to confirm",
+      "action": "Delete {{name}}",
+      "deleting": "Deleting…",
+      "deleted": "Person deleted"
+    }
+  },
+  "adminShares": {
+    "loading": "Loading the shares…",
+    "neverPriced": "Never priced",
+    "groups": {
+      "needsAttention": {
+        "title": "Needs attention",
+        "description": "Held, with no price yet or no close in the last 5 trading days. FPR keeps trying every 30 minutes.",
+        "empty": "Every held share has its prices."
+      },
+      "tracked": {
+        "title": "Tracked",
+        "description": "Held market shares, refreshed every 30 minutes on trading days.",
+        "empty": "Nobody holds a market share yet."
+      },
+      "manual": {
+        "title": "Manual",
+        "description": "Valued by hand by members. FPR doesn’t refresh them.",
+        "empty": "No manual share yet."
+      },
+      "notHeld": {
+        "title": "Not held",
+        "description": "Nobody holds them now, so FPR doesn’t refresh them.",
+        "empty": "Every share is held."
+      }
+    },
+    "actions": {
+      "makeManual": "Make manual",
+      "delete": "Delete"
+    },
+    "refresh": {
+      "schedule": "Prices refresh every 30 minutes on trading days.",
+      "action": "Refresh prices now",
+      "running": "Refreshing…",
+      "done_one": "Refreshed at {{time}}: {{count}} share priced.",
+      "done_other": "Refreshed at {{time}}: {{count}} shares priced."
+    },
+    "makeManual": {
+      "title": "Make {{name}} manual?",
+      "description": "FPR stops asking the price provider for its price, and members enter its value by hand, like any manual share. This can’t be undone.",
+      "fromPrice": "Its latest price, {{price}} {{when}}, becomes its first value.",
+      "noPrice_one": "It has no price yet, so it needs a first value. {{holders}} holds it.",
+      "noPrice_other": "It has no price yet, so it needs a first value. {{holders}} hold it.",
+      "done": "Made manual"
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "description": "Nobody has held it, so it simply leaves FPR’s list of shares. Looking it up again brings it back.",
+      "action": "Delete share",
+      "deleting": "Deleting…",
+      "deleted": "Share deleted",
+      "refused": "Share not deleted"
+    }
   },
   "pageStates": {
     "notFound": {

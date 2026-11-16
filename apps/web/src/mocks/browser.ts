@@ -34,6 +34,7 @@ export async function startMockApi(): Promise<void> {
     origin: window.location.origin,
     session,
     empty,
+    conflicts: takeUrlSwitch(urlSwitches.conflict) !== null,
     faults: readFaults(),
     onSessionChange: writeSession,
   });

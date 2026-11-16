@@ -43,7 +43,7 @@ function PortfolioBody() {
   const { t } = useTranslation();
   const api = useApi();
   const errorText = useErrorText();
-  const { person, role } = useSession();
+  const { person, admin } = useSession();
   const portfolio = useQuery(
     api.portfolio.get.queryOptions({
       input: { userId: person.id, period: "1M" },
@@ -51,7 +51,7 @@ function PortfolioBody() {
   );
 
   if (portfolio.data?.firstEntryOn === null) {
-    return <NoPortfolio admin={role === "admin"} />;
+    return <NoPortfolio admin={admin} />;
   }
   return (
     <>

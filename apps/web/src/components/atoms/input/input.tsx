@@ -3,7 +3,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
-const box = cn(
+/** The outlined box an input sits in, for a control drawn as one, such as a day field's button. */
+export const inputBox = cn(
   "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-shadow-outline",
   "",
   "",
@@ -54,7 +55,7 @@ export function Input({
   const fieldClasses = cn(field, decimal ? "tabular-nums" : null);
 
   return (
-    <div className={cn(box, className)}>
+    <div className={cn(inputBox, className)}>
       {icon ? <Icon icon={icon} size="s" /> : null}
       <BaseInput
         aria-invalid={invalid || undefined}

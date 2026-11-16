@@ -1,4 +1,5 @@
 import type { Id } from "@fpr/contracts";
+import { localInstant } from "../../lib/race-day.ts";
 import {
   type FixturePerson,
   fixturePeople,
@@ -20,7 +21,6 @@ import {
   addDays,
   type Calendar,
   createCalendar,
-  localInstant,
   timestamp,
 } from "./calendar.ts";
 import type {
@@ -40,6 +40,8 @@ export type MockStoreOptions = {
   onSessionChange?: (session: Id | null) => void;
   /** An instance with nobody yet, where `/setup` is open. */
   empty?: boolean;
+  /** Another member changes each manual value point just before its first edit or deletion. */
+  conflicts?: boolean;
 };
 
 function mockPerson(fixture: FixturePerson, calendar: Calendar): MockPerson {
@@ -178,6 +180,8 @@ export function createMockStore(options: MockStoreOptions = {}): MockStore {
     entries: empty ? [] : storedEntries(calendar),
     accessKeys: empty ? new Map() : seededAccessKeys(),
     resetKeys: new Map(),
+    conflicted: options.conflicts ? new Set() : null,
+    refreshes: { running: false, count: 0 },
     session: options.session ?? null,
     onSessionChange: options.onSessionChange ?? (() => {}),
   };

@@ -6,9 +6,9 @@ import { FormError } from "../../../components/molecules/form-error/form-error";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useApi } from "../../../lib/api/use-api";
-import { HiddenEmail, NewPasswordField } from "../-access/access-fields";
+import { HiddenEmail, NewPasswordField } from "../../-account/access-fields";
+import { useRefusal } from "../../-account/use-refusal";
 import { AccessPage } from "../-access/access-page";
-import { useRefusal } from "../-access/use-refusal";
 import type { ResetPair } from "./check-step";
 
 /**

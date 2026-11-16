@@ -7,9 +7,10 @@ import { StateIcon } from "../../../components/atoms/state-icon/state-icon";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 
 /**
- * Record a change before its first step shows, while what it is about
- * loads: the entry it edits, or the member the admin records for. Then its
- * load failed, with Try again, or it is no longer there.
+ * A focused page before its first step shows, while what it is about
+ * loads: the entry Record a change edits, the member the admin records for,
+ * or a manual share's value. Then its load failed, with Try again, or it is
+ * no longer there.
  */
 export function LoadState({
   subject,
@@ -17,7 +18,7 @@ export function LoadState({
   onRetry,
   close,
 }: {
-  subject: "entry" | "member";
+  subject: "entry" | "member" | "value";
   state: "loading" | "failed" | "missing";
   onRetry: () => void;
   close: ReactElement;

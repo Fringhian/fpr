@@ -1,7 +1,13 @@
 import { Field as BaseField } from "@base-ui/react/field";
-import { type ComponentProps, createContext, use, useState } from "react";
+import {
+  type ComponentProps,
+  createContext,
+  type ReactNode,
+  use,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
-import { stateClassName } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { Button } from "../../atoms/button/button";
 import { Input, type InputProps } from "../../atoms/input/input";
 
@@ -31,20 +37,25 @@ export function Root({
   );
 }
 
+const label = "mb-[0.375rem] text-s font-medium text-primary";
+
 /** The label, always visible above the control, which it names. Sentence case, no colon. */
 export function Label({
   className,
   ...props
 }: ComponentProps<typeof BaseField.Label>) {
   return (
-    <BaseField.Label
-      {...props}
-      className={stateClassName(
-        "mb-[0.375rem] text-s font-medium text-primary",
-        className,
-      )}
-    />
+    <BaseField.Label {...props} className={stateClassName(label, className)} />
   );
+}
+
+/**
+ * The label of a group of buttons that isn't a text field, such as swatches
+ * or a segment, outside `Root`: the look of `Label` on a `<p>`, which the
+ * group names with `aria-labelledby` its `id`.
+ */
+export function GroupLabel({ className, ...props }: ComponentProps<"p">) {
+  return <p {...props} className={cn(label, className)} />;
 }
 
 /** The control: the Input atom, which is Base UI's field control. */
@@ -108,6 +119,48 @@ function FieldError({
 }
 
 export { FieldError as Error };
+
+export type BasicProps = {
+  /** The field's name in its form, which an error from outside names. */
+  name: string;
+  label: string;
+  /** Whether the text typed is valid, checked as the form is submitted. */
+  check?: ((text: string) => boolean) | undefined;
+  /** What `check` refusing the text says: what went wrong and what to do next. */
+  error?: string | undefined;
+  /** Under the error, such as a link that helps fix it. */
+  children?: ReactNode;
+} & Omit<InputProps, "name" | "children">;
+
+/**
+ * A text field from props: its label, the control, the error, then
+ * `children`. It checks the text with `check` as its form is submitted, and
+ * says `error` when it fails. Every other prop goes to the control.
+ */
+export function Basic({
+  name,
+  label,
+  check,
+  error,
+  children,
+  ...control
+}: BasicProps) {
+  return (
+    <Root
+      name={name}
+      validate={(value) =>
+        check === undefined || (typeof value === "string" && check(value))
+          ? null
+          : (error ?? null)
+      }
+    >
+      <Label>{label}</Label>
+      <Input autoComplete="off" {...control} />
+      <FieldError />
+      {children}
+    </Root>
+  );
+}
 
 /** Every prop of the Input atom but `type` and `end`, which the password sets: its type follows Show, and Show holds its end. */
 export type PasswordProps = Omit<InputProps, "type" | "end">;

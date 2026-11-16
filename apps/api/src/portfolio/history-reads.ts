@@ -4,8 +4,7 @@ import type {
   PortfolioHoldingHistory,
   PortfolioHoldingHistoryQuery,
 } from "@fpr/contracts";
-import { portfolioLog, shares, shareValues } from "@fpr/db";
-import { apiError } from "../errors.js";
+import { portfolioLog, shareValues } from "@fpr/db";
 import type { ApiServices } from "../orpc.js";
 import { toShareSummary } from "../shares/share-summary.js";
 import { Big, money, plain, ratio } from "../valuation/decimal.js";
@@ -16,7 +15,7 @@ import {
 } from "../valuation/race-window.js";
 import { toLogEntry } from "./entries.js";
 import { type LogContext, weighEntries } from "./log.js";
-import { findPortfolioOwner } from "./owner.js";
+import { findOwnerShare, findPortfolioOwner } from "./owner.js";
 
 type ReadServices = Pick<ApiServices, "db" | "series" | "raceTimeZone">;
 
@@ -57,14 +56,10 @@ export async function readHoldingHistory(
   input: Required<PortfolioHoldingHistoryQuery>,
 ): Promise<PortfolioHoldingHistory> {
   const { db } = context;
-  const [, share, window] = await Promise.all([
-    findPortfolioOwner(db, input.userId),
-    shares.findById(db, input.shareId),
+  const [share, window] = await Promise.all([
+    findOwnerShare(db, input),
     raceWindow(context, input.period),
   ]);
-  if (share === undefined) {
-    throw apiError("not_found");
-  }
   const points = windowPoints(window, input.userId, { closesOnly: false });
   const held = await shareValues.holdingAtMoments(db, {
     userId: input.userId,

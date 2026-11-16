@@ -149,7 +149,7 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 
 - Every API call goes through one client typed by `@fpr/contracts`, and every read through TanStack Query. The client finds each route's method and path in `src/lib/api/contract.gen.json`, generated from the contracts without their schemas: a web test fails when it is out of date, and `pnpm test --project @fpr/web -u` rewrites it.
 - The mock API in `src/mocks/` answers every route of the contracts through MSW, from an in-memory store seeded with invented fixtures, validated against the contracts and anonymized for an anonymous viewer as the API does. `pnpm dev:mock` runs the app on it, with a role switch in that mode only, and a story runs on it with `parameters: { msw: mockApi({ session }) }`. Production builds hold none of it.
-- A write invalidates the queries it affects, from one table that names every write route. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
+- A write invalidates the queries it affects, from one table that names every write route, and so does a write refused with `value_changed`. A portfolio write invalidates the portfolio, the log, the leaderboards, the members list and the race chart.
 - Screens showing prices refetch every 5 minutes while visible, and when the window regains focus. Each refetch reads Postgres only.
 - Every price shows its time: "as of 14:30", or "close of 5 March".
 - The race chart draws the points after the last close dashed, labelled "today, not final".

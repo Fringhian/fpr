@@ -1,6 +1,7 @@
 import type { Me, Role } from "@fpr/contracts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useApi } from "../api/use-api.ts";
+import { mayEnter } from "./access.ts";
 import { sessionQuery } from "./session-query.ts";
 
 /** The signed-in person, as a screen reads them. */
@@ -9,6 +10,14 @@ export type Session = {
   role: Role;
   /** An anonymous viewer: every screen, the admin area included, shows no control that changes anything. */
   readOnly: boolean;
+  /**
+   * A member or the admin, who has a portfolio and changes shares: Buy and
+   * Sell, a manual share's values, the lookup. A guest and an anonymous
+   * viewer read the same screens without those controls.
+   */
+  writer: boolean;
+  /** The admin, who also edits another member's portfolio and prepares their own in Portfolio. */
+  admin: boolean;
 };
 
 /**
@@ -29,5 +38,7 @@ export function useSession(): Session {
     person,
     role: person.role,
     readOnly: person.role === "anonymous",
+    writer: mayEnter("portfolio", person.role),
+    admin: mayEnter("admin", person.role),
   };
 }

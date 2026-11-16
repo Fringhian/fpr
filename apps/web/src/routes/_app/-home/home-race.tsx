@@ -1,21 +1,33 @@
 import type { Id, Race } from "@fpr/contracts";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { MarketStatus } from "../../../components/atoms/market-status/market-status";
 import * as RaceCard from "../../../components/organisms/race-card/race-card";
 import type { GainUnit } from "../../../lib/gain";
+import { HelpInfo } from "../../../lib/help-info";
 import { raceMembers } from "./race-members";
 import type { HomeCast } from "./use-home-cast";
 
-/** The race card's header: the market status, with the time of the prices or the day of the close they are from. */
+/**
+ * The race card's header: the market status, with the time of the prices or
+ * the day of the close they are from, then ⓘ, which says what the race shows.
+ */
 function Header({ race }: { race: Race | undefined }) {
+  const { t } = useTranslation();
+
   return (
     <RaceCard.Header>
-      {race?.latestPricesAt == null ? null : (
-        <MarketStatus
-          status={race.refreshesRunning ? "open" : "closed"}
-          pricedAt={race.latestPricesAt}
-        />
-      )}
+      <div className="flex items-center gap-s">
+        {race?.latestPricesAt == null ? null : (
+          <MarketStatus
+            status={race.refreshesRunning ? "open" : "closed"}
+            pricedAt={race.latestPricesAt}
+          />
+        )}
+        <HelpInfo section="race" title={t("helpInfo.race.title")} align="end">
+          {t("helpInfo.race.body")}
+        </HelpInfo>
+      </div>
     </RaceCard.Header>
   );
 }

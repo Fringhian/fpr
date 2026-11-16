@@ -95,6 +95,14 @@ export type MockStore = {
   /** Every access key ever made, by key. A replaced one names its successor. */
   accessKeys: Map<string, { userId: Id; replaced: boolean }>;
   resetKeys: Map<string, { userId: Id; expiresAtMs: number; used: boolean }>;
+  /**
+   * With `?mock-conflict`, the value points another member has changed
+   * already, by their moment: the first edit or deletion of each finds it
+   * changed. `null` when off.
+   */
+  conflicted: Set<number> | null;
+  /** The price refreshes the admin ran: whether one is going, and how many have run. */
+  refreshes: { running: boolean; count: number };
   /** The signed-in person, or `null`. */
   session: Id | null;
   onSessionChange: (session: Id | null) => void;

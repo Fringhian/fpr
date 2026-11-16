@@ -6,7 +6,7 @@ import * as TimelineRow from "../../../components/molecules/timeline-row/timelin
 import { describe } from "../../../components/molecules/timeline-row/timeline-row-entry";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE, raceDayOf } from "../../../lib/race-day";
+import { inThisYear, RACE_TIME_ZONE } from "../../../lib/race-day";
 import type { LogRow } from "./log-rows";
 import { type RecordLink, useRecord } from "./record-link";
 import { useDeleteEntry } from "./use-delete-entry";
@@ -46,8 +46,7 @@ function EntryRow({
   const language = useLanguage();
 
   const date = entry.effectiveAt;
-  const year =
-    raceDayOf(date).slice(0, 4) !== raceDayOf(Date.now()).slice(0, 4);
+  const year = !inThisYear(date);
   const subject = t("timelineRow.subject", {
     title: describe(row, t, language).title,
     date: formatDate(date, language, { timeZone: RACE_TIME_ZONE, year }),

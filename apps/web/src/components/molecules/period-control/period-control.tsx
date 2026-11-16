@@ -1,6 +1,6 @@
 import type { Period } from "@fpr/contracts";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 import type { GainUnit } from "../../../lib/gain";
 import type * as Segment from "../../atoms/segment/segment";
@@ -25,6 +25,10 @@ export type PeriodControlProps = {
   icon?: IconProps["icon"] | undefined;
   /** What the control sits on: the sky, by default, or snow on a page without a header sentence. */
   backdrop?: Segment.Backdrop;
+  /** From tablet up, after the € / % capsules: an ⓘ that explains them. */
+  unitInfo?: ReactNode;
+  /** On phone, under the rows of the sheet, where an ⓘ would open a second overlay: the same explanation written out. */
+  unitNote?: ReactNode;
 } & Omit<
   ComponentProps<"div">,
   "value" | "onChange" | "anonymous" | "icon" | "backdrop"
@@ -35,7 +39,7 @@ export type PeriodControlProps = {
  * capsules and the € / % capsules in a row; on phone, one capsule naming
  * both (“This month · %”) that opens a sheet holding the two rows. CSS picks
  * the layout. Controlled: the owner keeps the setting. An anonymous viewer
- * gets the period alone, in %.
+ * gets the period alone, in %, and no explanation of the units.
  */
 export function PeriodControl({
   value,
@@ -43,6 +47,8 @@ export function PeriodControl({
   anonymous = false,
   icon = CaretDownIcon,
   backdrop = "sky",
+  unitInfo,
+  unitNote,
   className,
   ...props
 }: PeriodControlProps) {
@@ -66,12 +72,14 @@ export function PeriodControl({
           backdrop={backdrop}
           onChange={onChange}
         />
+        {anonymous ? null : unitInfo}
       </div>
       <PhoneSheet
         setting={setting}
         anonymous={anonymous}
         backdrop={backdrop}
         icon={icon}
+        note={anonymous ? undefined : unitNote}
         onChange={onChange}
       />
     </div>

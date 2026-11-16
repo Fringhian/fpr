@@ -1,11 +1,10 @@
 import type { Portfolio, Timestamp } from "@fpr/contracts";
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import * as Popover from "../../../components/molecules/popover/popover";
 import { formatDate, formatTime } from "../../../lib/format/date";
 import { formatList } from "../../../lib/format/text";
+import { HelpInfo } from "../../../lib/help-info";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE, raceDayOf } from "../../../lib/race-day";
+import { RACE_TIME_ZONE, raceDayOf, raceToday } from "../../../lib/race-day";
 
 /** “Prices as of 14:30” today, “Prices as of 3 Mar” on an older day. */
 function PricesAsOf({ at }: { at: Timestamp }) {
@@ -13,7 +12,7 @@ function PricesAsOf({ at }: { at: Timestamp }) {
   const language = useLanguage();
 
   const timeZone = RACE_TIME_ZONE;
-  const today = raceDayOf(at) === raceDayOf(Date.now());
+  const today = raceDayOf(at) === raceToday();
 
   return (
     <span>
@@ -40,22 +39,12 @@ function Incomplete({ pending }: { pending: readonly string[] }) {
       <span className="text-negative">
         {t("portfolioPage.incomplete.note", { count: pending.length })}
       </span>
-      <Popover.Root>
-        <Popover.InfoTrigger label={title} />
-        <Popover.Popup>
-          <Popover.Title>{title}</Popover.Title>
-          <Popover.Description>
-            {t("portfolioPage.incomplete.description", {
-              count: pending.length,
-              names: formatList(pending, language),
-            })}
-          </Popover.Description>
-          <Popover.HelpLink
-            section="missing"
-            render={<Link to="/help" hash="missing" />}
-          />
-        </Popover.Popup>
-      </Popover.Root>
+      <HelpInfo section="missing" title={title}>
+        {t("portfolioPage.incomplete.description", {
+          count: pending.length,
+          names: formatList(pending, language),
+        })}
+      </HelpInfo>
     </span>
   );
 }

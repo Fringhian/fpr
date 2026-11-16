@@ -3,6 +3,7 @@ import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useId } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
@@ -17,6 +18,7 @@ const TEXTS = {
     editPortfolio: "Edit portfolio",
     replaceLink: "Replace link",
     delete: "Delete",
+    note: "FPR needs at least one admin, so Sam keeps their access.",
     account: "Your account",
     settings: "Settings",
     help: "How FPR works",
@@ -29,6 +31,7 @@ const TEXTS = {
     editPortfolio: "Modifier le portefeuille",
     replaceLink: "Remplacer le lien",
     delete: "Supprimer",
+    note: "FPR a besoin d’au moins un admin, Sam garde donc son accès.",
     account: "Votre compte",
     settings: "Réglages",
     help: "Comment fonctionne FPR",
@@ -48,6 +51,8 @@ interface MenuArgs {
   side: NonNullable<Menu.PopupProps["side"]>;
   align: NonNullable<Menu.PopupProps["align"]>;
   separator: boolean;
+  /** Disables Replace link and Delete, and says why under the items. */
+  note: boolean;
   moreIcon: keyof typeof MORE_ICONS;
   /** Opens the menu as the story loads, so the Docs page and the canvas show it open. */
   defaultOpen: boolean;
@@ -58,10 +63,14 @@ function MoreActions({
   side,
   align,
   separator,
+  note,
   moreIcon,
   defaultOpen,
 }: MenuArgs) {
   const text = TEXTS[useLanguage()];
+  const noteId = useId();
+
+  const why = note ? { disabled: true, "aria-describedby": noteId } : {};
 
   return (
     <div className="flex max-w-[24rem] items-center justify-between gap-s rounded-m bg-surface py-s ps-m pe-s font-sans shadow-outline">
@@ -74,9 +83,12 @@ function MoreActions({
         <Menu.Popup side={side} align={align}>
           <Menu.Item>{text.edit}</Menu.Item>
           <Menu.Item>{text.editPortfolio}</Menu.Item>
-          <Menu.Item>{text.replaceLink}</Menu.Item>
+          <Menu.Item {...why}>{text.replaceLink}</Menu.Item>
           {separator ? <Menu.Separator /> : null}
-          <Menu.Item intent="danger">{text.delete}</Menu.Item>
+          <Menu.Item intent="danger" {...why}>
+            {text.delete}
+          </Menu.Item>
+          {note ? <Menu.Note id={noteId}>{text.note}</Menu.Note> : null}
         </Menu.Popup>
       </Menu.Root>
     </div>
@@ -125,6 +137,7 @@ A list of actions that opens from a button: the ⋯ menu of a card or a row, and
 | \`Menu.Item\` | An action. \`intent="danger"\` writes it in red, for deleting, revoking, or signing out. |
 | \`Menu.LinkItem\` | An item that goes to another page, such as How FPR works. \`render\` composes it with the router’s link. |
 | \`Menu.Separator\` | A line between groups, such as before the danger item. |
+| \`Menu.Note\` | A short line under the items, such as why some are disabled; the items it explains point at it with \`aria-describedby\`. |
 
 - The popup has Base UI’s keyboard and screen-reader behaviour: Enter, Space or the down arrow opens the menu on its first item, the arrows and Home and End move through the items, typing a letter jumps to an item, Enter chooses one, and Escape closes the menu and puts focus back on its trigger.
 - The sheet is a dialog of buttons, each at least 48px tall: choosing one, Cancel, Escape or a tap on the dimmed page closes it.
@@ -148,6 +161,7 @@ const meta = {
     side: "bottom",
     align: "end",
     separator: true,
+    note: false,
     moreIcon: "dots-three",
     defaultOpen: true,
   },
@@ -178,6 +192,12 @@ const meta = {
       description: "Draws the line before the danger item.",
       control: { type: "boolean" },
     },
+    note: {
+      name: "Menu.Note",
+      description:
+        "A line under the items, here saying why Replace link and Delete are disabled.",
+      control: { type: "boolean" },
+    },
     defaultOpen: {
       name: "Menu.Root defaultOpen",
       description:
@@ -195,6 +215,12 @@ type Story = StoryObj<typeof meta>;
 /** The ⋯ menu of a person’s row, with its danger item last. */
 export const MoreActionsMenu: Story = {
   name: "More actions",
+};
+
+/** Items that can't be used, disabled, with a note under them saying why. */
+export const DisabledWithNote: Story = {
+  name: "Disabled items, with why",
+  args: { note: true },
 };
 
 /** The account menu, opened from your picture. How FPR works is a link item. */

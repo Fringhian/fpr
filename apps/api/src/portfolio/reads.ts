@@ -10,6 +10,10 @@ export const portfolioReads = {
     .use(signedIn)
     .handler(({ context, input }) => readPortfolio(context, input)),
 
+  holdingAt: api.portfolio.holdingAt
+    .use(signedIn)
+    .handler(({ context, input }) => readHoldingAt(context, input)),
+
   balanceHistory: api.portfolio.balanceHistory
     .use(signedIn)
     .handler(({ context, input }) => readBalanceHistory(context, input)),
@@ -17,8 +21,4 @@ export const portfolioReads = {
   holdingHistory: api.portfolio.holdingHistory
     .use(signedIn)
     .handler(({ context, input }) => readHoldingHistory(context, input)),
-
-  holdingAt: api.portfolio.holdingAt
-    .use(signedIn)
-    .handler(({ context, input }) => readHoldingAt(context, input)),
 };

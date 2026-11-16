@@ -2,6 +2,8 @@
   "badge": {
     "manual": "Saisie manuelle",
     "pricePending": "Cours en attente",
+    "priceLate": "Cours en retard",
+    "upToDate": "À jour",
     "incomplete": "Incomplet",
     "active": "Actif",
     "waitingForFirstUse": "Pas encore utilisé",
@@ -9,19 +11,20 @@
     "ended": "Terminé",
     "expired": "Lien expiré",
     "heldBefore": "Détenue auparavant",
+    "neverHeld": "Jamais détenue",
     "saved": "Enregistré"
   },
   "lane": {
     "you": "· vous",
     "best": "Meilleure : {{share}}",
-    "bestShare": "Meilleure action",
+    "bestShare": "Meilleur titre",
     "since": "depuis le {{date}}",
     "notStarted_one": "{{names}} n’a pas encore commencé.",
     "notStarted_many": "{{names}} n’ont pas encore commencé.",
     "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
   "memberStrip": {
-    "noShares": "Pas encore d’actions",
+    "noShares": "Pas encore de titres",
     "noGain": "Pas encore de gain",
     "more_one": "+{{count}} autre",
     "more_many": "+{{count}} autres",
@@ -36,7 +39,7 @@
     "loading": "Chargement du classement…",
     "empty": {
       "title": "Personne n’est encore dans la course",
-      "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
+      "body": "Le classement se remplit dès que quelqu’un enregistre son premier titre."
     }
   },
   "foundations": {
@@ -212,6 +215,7 @@
     "cashSet": "Liquidités fixées à {{amount}}",
     "valueAdded": "Valeur de {{price}} ajoutée",
     "valueEdited": "Valeur corrigée à {{price}}",
+    "valueDeleted": "Valeur de {{price}} supprimée",
     "held": "{{before}} → {{after}}",
     "heldSpoken": "de {{before}} à {{after}} parts détenues",
     "newHolding": "Nouvelle ligne",
@@ -226,13 +230,15 @@
     "lineValue": "{{label}} {{value}}",
     "notFinal": "{{date}}, provisoire"
   },
+  "priceTime": {
+    "asOfTime": "à {{time}}",
+    "asOfDate": "au {{date}}",
+    "closeOf": "clôture du {{date}}"
+  },
   "holdingCard": {
     "units_one": "{{quantity}} part",
     "units_many": "{{quantity}} de parts",
     "units_other": "{{quantity}} parts",
-    "asOfTime": "à {{time}}",
-    "asOfDate": "au {{date}}",
-    "closeOf": "clôture du {{date}}",
     "curve": "{{name}}, cours sur la période",
     "loadingPrices": "Chargement de ses cours…",
     "notCounted": "pas encore compté",
@@ -416,9 +422,6 @@
       "description": "C’est votre courbe sur le graphique, votre barre dans le classement et votre avatar.",
       "taken": "Les couleurs pâles sont prises : l’initiale montre qui l’a.",
       "usePhoto": "Utiliser une photo",
-      "changePhoto": "Changer de photo",
-      "removePhoto": "Retirer la photo",
-      "uploading": "Envoi…",
       "action": {
         "portfolio": "Voir votre portefeuille",
         "welcome": "Rencontrer les autres"
@@ -497,10 +500,10 @@
     "points_many": "{{points}} de points",
     "points_other": "{{points}} points",
     "inRace": "Dans la course depuis le {{date}}",
-    "shares_one": "{{count}} action",
-    "shares_many": "{{count}} d’actions",
-    "shares_other": "{{count}} actions",
-    "notStarted": "{{name}} n’a encore enregistré aucune action.",
+    "shares_one": "{{count}} titre",
+    "shares_many": "{{count}} de titres",
+    "shares_other": "{{count}} titres",
+    "notStarted": "{{name}} n’a encore enregistré aucun titre.",
     "chart": "Le gain de {{name}} sur la période",
     "chartVsYou": "Le gain de {{name}} sur la période, face au vôtre",
     "holdings": "Les positions de {{name}}",
@@ -545,6 +548,79 @@
     "title": "Derniers mouvements",
     "seeAll": "Voir tous les mouvements"
   },
+  "sharePage": {
+    "loading": "Chargement du titre…",
+    "enteredBy": "le {{date}}, saisie par <person/>",
+    "enteredOn": "le {{date}}",
+    "position": {
+      "title": "Votre position",
+      "sinceBought": "depuis votre achat",
+      "none": "Vous ne la détenez pas",
+      "sell": "Vendre",
+      "buy": "Acheter"
+    },
+    "addValue": "Ajouter une valeur",
+    "marks": {
+      "bought": "{{name}} a acheté {{quantity}}",
+      "sold": "{{name}} a vendu {{quantity}}",
+      "changed": "{{name}} a modifié sa position"
+    },
+    "chart": "{{name}}, cours {{period}}",
+    "pricesFrom": "Cours depuis le {{date}}",
+    "nobody": "Personne ne détient encore ce titre. Son graphique commence avec la première position.",
+    "loadingHistory": "Chargement de l’historique de ce titre…",
+    "holders": {
+      "title": "Qui la détient · {{count}}",
+      "weight": "{{weight}} de son portefeuille",
+      "since": "depuis le {{date}}"
+    },
+    "values": {
+      "title": "Valeurs"
+    },
+    "events": {
+      "title": "Modifications",
+      "of": "pour le {{date}}, {{time}}"
+    }
+  },
+  "valueActions": {
+    "keepOne": "Un titre manuel garde au moins une valeur",
+    "deleted": "Valeur supprimée",
+    "deleteRefused": "Impossible de supprimer cette valeur",
+    "undoRefused": "Impossible de rétablir cette valeur",
+    "changed": {
+      "title": "Supprimer cette valeur ?",
+      "description": "Quelqu’un l’a modifiée à {{price}} entre-temps.",
+      "confirm": "Supprimer {{price}}",
+      "keep": "La garder"
+    }
+  },
+  "editShare": {
+    "open": "Modifier le nom ou l’ISIN",
+    "title": "Modifier le nom ou l’ISIN",
+    "description": "Tous les détenteurs voient la modification.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Modifications enregistrées"
+  },
+  "valueForm": {
+    "addTitle": "Ajouter une valeur",
+    "summary": "Cette valeur",
+    "share": "Titre",
+    "before": "Valeur avant",
+    "editTitle": "Modifier la valeur du {{date}}, {{time}}",
+    "day": "Date",
+    "time": "Heure",
+    "future": "Saisissez une heure passée, par exemple 09:30.",
+    "last": "Dernière valeur : {{price}} le {{date}}.",
+    "updates": "Le solde de chaque détenteur est mis à jour.",
+    "changed": "Quelqu’un a modifié cette valeur à {{price}} pendant votre saisie. Enregistrez de nouveau pour la remplacer par la vôtre, ou fermez pour garder la sienne.",
+    "taken": "Il y a déjà une valeur de {{price}} le {{date}} à {{time}}.",
+    "editTaken": "Modifier cette valeur",
+    "save": "Enregistrer la valeur",
+    "confirm": "Enregistrer ma valeur",
+    "saving": "Enregistrement…",
+    "saved": "Valeur enregistrée"
+  },
   "entryActions": {
     "edit": "Modifier",
     "delete": "Supprimer",
@@ -571,9 +647,83 @@
     "label": "Rechercher par nom, ISIN ou symbole",
     "clear": "Effacer la recherche",
     "retry": "Réessayer",
-    "loading": "Chargement des actions…",
-    "empty": "FPR n’a encore aucune action.",
-    "none": "Aucune action de FPR ne correspond à {{q}}."
+    "loading": "Chargement des titres…",
+    "empty": "FPR n’a encore aucun titre.",
+    "none": "Aucun titre de FPR ne correspond à {{q}}."
+  },
+  "pictureStack": {
+    "others_one": "et {{count}} autre",
+    "others_many": "et {{count}} autres",
+    "others_other": "et {{count}} autres"
+  },
+  "shareCard": {
+    "manual": "Valeur saisie par les membres",
+    "holders": "Qui la détient",
+    "heldBy_zero": "Personne ne la détient",
+    "heldBy_one": "Détenue par {{count}}",
+    "heldBy_many": "Détenue par {{count}}",
+    "heldBy_other": "Détenue par {{count}}"
+  },
+  "sharesPage": {
+    "held": "Dans la course",
+    "notHeld": "Que personne ne détient"
+  },
+  "shareLookup": {
+    "notHere": "Pas dans la liste ?",
+    "lookUp": "Chercher {{q}} chez le fournisseur de cours",
+    "looking": "Recherche de {{q}} chez le fournisseur de cours…",
+    "found": "Pas encore dans FPR. Trouvé chez le fournisseur de cours :",
+    "add": "Ajouter",
+    "addShare": "Ajouter le titre",
+    "adding": "Ajout…",
+    "cancel": "Annuler",
+    "isin": {
+      "label": "ISIN de {{name}}",
+      "help": "Le fournisseur de cours ne l’a pas envoyé. Il figure sur votre relevé.",
+      "invalid": "Saisissez l’ISIN de votre relevé : deux lettres, neuf lettres ou chiffres, puis un chiffre de contrôle."
+    },
+    "openTaken": "Ouvrir ce titre",
+    "isinTaken": "Un autre titre de FPR a déjà cet ISIN.",
+    "none": "Aucun titre trouvé pour {{q}}",
+    "noneOther": "Rien d’autre trouvé pour {{q}}",
+    "noneHelp": "Le fournisseur de cours ne le suit pas. Créez-le et saisissez sa valeur vous-même.",
+    "noneOtherHelp": "Si votre titre n’est pas ci-dessus, créez-le et saisissez sa valeur vous-même.",
+    "failed": "Impossible de chercher chez le fournisseur de cours pour l’instant",
+    "failedHelp": "Vous pouvez quand même créer le titre à la main.",
+    "create": "Créer un titre manuel"
+  },
+  "dayField": {
+    "today": "Aujourd’hui",
+    "pick": "Choisir un jour"
+  },
+  "newShare": {
+    "question": "Créer un titre manuel",
+    "description": "Pour un titre que le fournisseur de cours ne suit pas : les membres saisissent sa valeur.",
+    "help": "Tout le monde peut mettre à jour sa valeur ensuite.",
+    "summary": "Le nouveau titre",
+    "create": "Créer le titre",
+    "creating": "Création…",
+    "created": "{{name}} créé"
+  },
+  "shareFields": {
+    "isin": {
+      "label": "ISIN",
+      "openTaken": "Ouvrir ce titre",
+      "invalid": "Saisissez l’ISIN de votre relevé : deux lettres, neuf lettres ou chiffres, puis un chiffre de contrôle."
+    },
+    "name": {
+      "label": "Nom",
+      "placeholder": "Nom comme sur votre relevé",
+      "missing": "Saisissez le nom du titre."
+    },
+    "price": {
+      "label": "Valeur d’une part",
+      "invalid": "Saisissez une valeur supérieure à zéro, comme 40,10."
+    },
+    "day": {
+      "label": "Le",
+      "invalid": "Choisissez aujourd’hui ou un jour précédent."
+    }
   },
   "recordChange": {
     "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
@@ -595,7 +745,7 @@
       }
     },
     "actions": {
-      "share": "Choisir l’action",
+      "share": "Choisir le titre",
       "date": "Choisir la date",
       "quantity": "Saisir la quantité",
       "amount": "Saisir le montant",
@@ -607,8 +757,8 @@
       "missing": "Choisissez ce qui a changé."
     },
     "share": {
-      "question": "Quelle action ?",
-      "missing": "Choisissez une action dans la liste."
+      "question": "Quel titre ?",
+      "missing": "Choisissez un titre dans la liste."
     },
     "when": {
       "question": "Quand ?",
@@ -686,7 +836,7 @@
     "summary": {
       "title": "Ce mouvement",
       "what": "Quoi",
-      "share": "Action",
+      "share": "Titre",
       "when": "Quand",
       "quantity": "Combien",
       "amount": "Montant"
@@ -702,6 +852,11 @@
         "failed": "Impossible de charger ce membre",
         "missing": "Ce membre ne fait pas partie de la course"
       },
+      "value": {
+        "loading": "Chargement de la valeur…",
+        "failed": "Impossible de charger cette valeur",
+        "missing": "Cette valeur n’existe plus"
+      },
       "failedLine": "Vérifiez votre connexion et réessayez.",
       "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",
       "retry": "Réessayer"
@@ -712,6 +867,250 @@
     "loadingMore": "Chargement d’autres mouvements…",
     "moreFailed": "Impossible de charger plus de mouvements.",
     "none": "Vous n’avez encore rien enregistré."
+  },
+  "photoControl": {
+    "change": "Changer de photo",
+    "remove": "Retirer la photo",
+    "uploading": "Envoi…",
+    "retry": "Réessayer"
+  },
+  "settings": {
+    "title": "Réglages",
+    "addPhoto": "Ajouter une photo",
+    "colour": "Couleur",
+    "name": "Nom affiché",
+    "language": "Langue",
+    "languageKept": "Gardée sur cet appareil.",
+    "password": {
+      "open": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "action": "Changer le mot de passe",
+      "loading": "Changement…",
+      "wrong": "Ce n’est pas votre mot de passe actuel. Vérifiez-le et réessayez.",
+      "changed": "Mot de passe changé. Vos autres sessions sont déconnectées."
+    },
+    "saved": "Chaque changement est enregistré aussitôt"
+  },
+  "helpPage": {
+    "contents": "Sur cette page",
+    "sections": {
+      "race": {
+        "title": "La course",
+        "body": "Le gain de chacun depuis le début de la période choisie, sur un seul graphique. Votre courbe et celle du membre mis en avant sont en couleur, les autres en gris."
+      },
+      "periods": {
+        "title": "Périodes et € / %",
+        "body": "La période fixe le départ de chaque gain, d’aujourd’hui à depuis le début. En €, on compte l’argent gagné. En %, un petit portefeuille peut gagner à la performance."
+      },
+      "today": {
+        "title": "Aujourd’hui et clôtures",
+        "body": "Aujourd’hui bouge toutes les 30 minutes et reste en pointillés jusqu’à la clôture du marché. Le classement n’utilise que les cours de clôture."
+      },
+      "record": {
+        "title": "Enregistrer un mouvement",
+        "body": "Un achat de la semaine dernière s’enregistre à son jour, et FPR le rejoue depuis ce jour-là."
+      },
+      "cash": {
+        "title": "Liquidités",
+        "body": "Vos liquidités ne changent que quand vous les définissez. Acheter ou vendre ne les modifie jamais, alors redéfinissez-les quand de l’argent entre ou sort."
+      },
+      "search": {
+        "title": "Trouver un titre",
+        "body": "Tapez un nom ou collez un ISIN, FPR le cherche chez son fournisseur de cours."
+      },
+      "manual": {
+        "title": "Titres manuels",
+        "body": "Un titre que personne ne suit prend sa valeur auprès des membres. Tout le monde peut la mettre à jour."
+      },
+      "missing": {
+        "title": "Cours manquants",
+        "body": "Un titre dont les cours ne sont pas arrivés n’est pas compté, jamais à zéro, et le total est marqué incomplet."
+      },
+      "splits": {
+        "title": "Divisions et dividendes",
+        "body": "Une division de titres s’enregistre comme un achat des nouveaux titres le jour de la division. Un dividende versé en espèces se reporte dans vos liquidités."
+      },
+      "credits": {
+        "title": "Crédits",
+        "body": "Les graphiques sont dessinés avec TradingView Lightweight Charts™, conçu par TradingView.",
+        "notice": "TradingView Lightweight Charts™ Copyright (c) 2023 TradingView, Inc.",
+        "link": "tradingview.com"
+      }
+    }
+  },
+  "helpInfo": {
+    "race": {
+      "title": "Ce que montre la course",
+      "body": "Chaque ligne est le gain d’un membre depuis le début de la période choisie. En %, un petit portefeuille peut battre un gros. La fin en pointillés, c’est aujourd’hui, définitive à la clôture du marché."
+    },
+    "unit": {
+      "title": "€ ou %",
+      "body": "En €, on compte l’argent gagné par chacun sur la période. En %, on compare la performance, et un petit portefeuille peut battre un gros."
+    },
+    "cash": {
+      "title": "Liquidités",
+      "body": "Les liquidités ne changent que quand on les définit. Acheter ou vendre ne les modifie jamais."
+    },
+    "incomplete": {
+      "title": "Incomplet",
+      "body": "Certains titres attendent encore leurs cours. D’ici là, ils ne sont pas comptés, jamais à zéro."
+    },
+    "manual": {
+      "title": "La valeur d’un titre manuel",
+      "body": "Aucun fournisseur de cours ne suit ce titre : les membres saisissent sa valeur à la main. Chaque valeur tient jusqu’à ce que quelqu’un ajoute la suivante."
+    }
+  },
+  "oneTimeSecret": {
+    "copy": "Copier",
+    "copied": "Copié",
+    "onClipboard": "C’est dans votre presse-papiers.",
+    "copyByHand": "Votre navigateur ne l’a pas copié. Il est sélectionné : copiez-le à la main."
+  },
+  "adminPeople": {
+    "loading": "Chargement de tout le monde…",
+    "empty": "Personne pour l’instant.",
+    "groups": {
+      "admin": "Admins",
+      "member": "Membres",
+      "guest": "Invités",
+      "anonymous": "Visiteurs anonymes"
+    },
+    "add": {
+      "admin": "Ajouter un admin",
+      "member": "Ajouter un membre",
+      "guest": "Ajouter un invité",
+      "anonymous": "Ajouter un visiteur"
+    },
+    "roles": {
+      "admin": "Admin",
+      "member": "Membre",
+      "guest": "Invité"
+    },
+    "fields": {
+      "name": "Nom affiché",
+      "role": "Rôle",
+      "endDate": "Fin de l’accès (facultatif)",
+      "endDateHelp": "L’accès dure jusqu’à la fin de ce jour. Laissez vide pour un accès sans fin.",
+      "endDatePast": "Ce jour est passé. Choisissez aujourd’hui ou un jour suivant."
+    },
+    "addDialog": {
+      "anonymous": "Un visiteur anonyme n’a pas d’e-mail : son lien suffit pour entrer, et il voit tout le monde sous un pseudonyme, en lecture seule.",
+      "create": "Créer le lien d’accès"
+    },
+    "secret": {
+      "creating": "Création…",
+      "done": "Terminé"
+    },
+    "link": {
+      "title": "Lien d’accès de {{name}}",
+      "newTitle": "Nouveau lien d’accès de {{name}}",
+      "description": "Copiez-le maintenant : il ne sera plus affiché. Il fonctionne jusqu’au {{date}}.",
+      "label": "Lien d’accès",
+      "hint": "Perdu ? Utilisez Remplacer le lien dans le menu ⋯ de {{name}}.",
+      "prepare": "Préparer le portefeuille de {{name}}"
+    },
+    "replace": {
+      "title": "Remplacer le lien de {{name}} ?",
+      "description": "Le lien actuel cesse aussitôt de fonctionner, et {{name}} ne peut plus entrer avant d’ouvrir le nouveau. Il fonctionne 7 jours.",
+      "action": "Remplacer le lien"
+    },
+    "resetKey": {
+      "title": "Créer une clé de réinitialisation pour {{name}} ?",
+      "description": "{{name}} la saisit avec son e-mail pour choisir un nouveau mot de passe. Elle remplace toute clé pas encore utilisée.",
+      "action": "Créer la clé",
+      "secretTitle": "Clé de réinitialisation de {{name}}",
+      "secretDescription": "Copiez-la maintenant : elle ne sera plus affichée. Elle fonctionne jusqu’au {{date}} à {{time}}.",
+      "label": "Clé de réinitialisation",
+      "hint": "{{name}} la saisit sur la page de connexion, sous « réinitialiser votre mot de passe »."
+    },
+    "menu": {
+      "edit": "Modifier",
+      "editPortfolio": "Modifier le portefeuille",
+      "replaceLink": "Remplacer le lien",
+      "resetKey": "Réinitialiser le mot de passe",
+      "revoke": "Révoquer l’accès",
+      "restore": "Rétablir l’accès",
+      "delete": "Supprimer",
+      "lastAdmin": "FPR a besoin d’au moins un admin : {{name}} garde son accès et ne peut pas être supprimé."
+    },
+    "access": {
+      "revoked": "Accès révoqué",
+      "restored": "Accès rétabli",
+      "refused": "L’accès n’a pas changé"
+    },
+    "edit": {
+      "title": "Modifier {{name}}",
+      "save": "Enregistrer",
+      "saved": "Modifications enregistrées",
+      "lastAdmin": "FPR a besoin d’au moins un admin : {{name}} reste admin. Nommez d’abord quelqu’un d’autre admin.",
+      "lastAdminEnd": "L’accès du seul admin n’a pas de fin.",
+      "hasPortfolio": "{{name}} a un portefeuille, et ne peut donc pas devenir invité."
+    },
+    "delete": {
+      "title": "Supprimer {{name}} ?",
+      "withPortfolio": "Les mouvements et les liquidités de {{name}} sont supprimés avec son compte, et {{name}} quitte la course. Les titres manuels et les valeurs saisis restent.",
+      "withoutPortfolio": "{{name}} perd son accès et quitte FPR.",
+      "typeName": "Saisissez {{name}} pour confirmer",
+      "action": "Supprimer {{name}}",
+      "deleting": "Suppression…",
+      "deleted": "Personne supprimée"
+    }
+  },
+  "adminShares": {
+    "loading": "Chargement des titres…",
+    "neverPriced": "Jamais coté",
+    "groups": {
+      "needsAttention": {
+        "title": "À surveiller",
+        "description": "Détenus, sans cours pour l’instant ou sans clôture depuis 5 jours de bourse. FPR réessaie toutes les 30 minutes.",
+        "empty": "Chaque titre détenu a ses cours."
+      },
+      "tracked": {
+        "title": "Suivis",
+        "description": "Titres de marché détenus, actualisés toutes les 30 minutes les jours de bourse.",
+        "empty": "Personne ne détient encore de titre de marché."
+      },
+      "manual": {
+        "title": "Manuels",
+        "description": "Valorisés à la main par les membres. FPR ne les actualise pas.",
+        "empty": "Aucun titre manuel pour l’instant."
+      },
+      "notHeld": {
+        "title": "Non détenus",
+        "description": "Personne ne les détient, FPR ne les actualise donc pas.",
+        "empty": "Chaque titre est détenu."
+      }
+    },
+    "actions": {
+      "makeManual": "Passer en manuel",
+      "delete": "Supprimer"
+    },
+    "refresh": {
+      "schedule": "Les cours sont actualisés toutes les 30 minutes les jours de bourse.",
+      "action": "Actualiser les cours",
+      "running": "Actualisation…",
+      "done_one": "Actualisé à {{time}} : {{count}} titre coté.",
+      "done_many": "Actualisé à {{time}} : {{count}} de titres cotés.",
+      "done_other": "Actualisé à {{time}} : {{count}} titres cotés."
+    },
+    "makeManual": {
+      "title": "Passer {{name}} en manuel ?",
+      "description": "FPR cesse de demander son cours au fournisseur, et les membres saisissent sa valeur à la main, comme pour tout titre manuel. C’est définitif.",
+      "fromPrice": "Son dernier cours, {{price}} {{when}}, devient sa première valeur.",
+      "noPrice_one": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détient.",
+      "noPrice_many": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
+      "noPrice_other": "Il n’a pas encore de cours, il lui faut donc une première valeur. {{holders}} le détiennent.",
+      "done": "Passé en manuel"
+    },
+    "delete": {
+      "title": "Supprimer {{name}} ?",
+      "description": "Personne ne l’a détenu, il quitte donc simplement la liste des titres de FPR. Le rechercher à nouveau le fait revenir.",
+      "action": "Supprimer le titre",
+      "deleting": "Suppression…",
+      "deleted": "Titre supprimé",
+      "refused": "Titre non supprimé"
+    }
   },
   "pageStates": {
     "notFound": {
@@ -743,9 +1142,9 @@
     "adminExists": "FPR a déjà un admin. Connectez-vous plutôt.",
     "colorTaken": "Quelqu’un vient de prendre cette couleur. Choisissez-en une autre.",
     "emailTaken": "Quelqu’un d’autre utilise déjà cet e-mail. Saisissez-en un autre.",
-    "isinTaken": "Une autre action a déjà cet ISIN. Ouvrez plutôt cette action.",
-    "shareInUse": "Quelqu’un détient ou a détenu cette action, elle ne peut donc pas être supprimée.",
-    "shareNotNeedingAttention": "Les cours de cette action arrivent de nouveau, elle reste donc une action de marché.",
+    "isinTaken": "Un autre titre a déjà cet ISIN. Ouvrez plutôt ce titre.",
+    "shareInUse": "Quelqu’un détient ou a détenu ce titre, il ne peut donc pas être supprimé.",
+    "shareNotNeedingAttention": "Les cours de ce titre arrivent de nouveau, il reste donc un titre de marché.",
     "valueChanged": "Quelqu’un a modifié cette valeur entre-temps. Vérifiez la nouvelle valeur, puis confirmez de nouveau.",
     "refreshRunning": "Les cours sont déjà en cours d’actualisation. Réessayez dans une minute.",
     "avatarTooLarge": "Cette photo est trop lourde. Choisissez-en une de moins de 2 Mo.",
@@ -758,7 +1157,7 @@
     "lastAdmin": "FPR a besoin d’au moins un admin. Nommez d’abord quelqu’un d’autre admin.",
     "hasPortfolioEntries": "Cette personne a un portefeuille et ne peut pas devenir invitée. Supprimez d’abord ses entrées.",
     "anonymousRoleFixed": "Un lecteur anonyme reste anonyme. Ajoutez une nouvelle personne avec le rôle voulu.",
-    "lastValuePoint": "Une action manuelle garde au moins une valeur. Ajoutez-en une autre avant de supprimer celle-ci.",
+    "lastValuePoint": "Un titre manuel garde au moins une valeur. Ajoutez-en une autre avant de supprimer celle-ci.",
     "rateLimited": "Trop de tentatives. Attendez une minute et réessayez.",
     "callBudgetUsed": "Les recherches de cours du jour sont épuisées. Réessayez demain.",
     "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",

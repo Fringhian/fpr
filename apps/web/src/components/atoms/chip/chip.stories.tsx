@@ -85,7 +85,7 @@ export const Uses: FixedStory = {
       <Chip gain="12.4">Swiss Pharma AG</Chip>
       <Chip gain="-1.3">Nordic Wind AG</Chip>
       <Chip picture={<PlaceholderPicture initial="L" />}>Lea</Chip>
-      <Chip>IE00EXMPL001</Chip>
+      <Chip>IE00EXMPL002</Chip>
     </div>
   ),
 };

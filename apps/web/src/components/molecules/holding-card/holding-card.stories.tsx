@@ -11,6 +11,7 @@ import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { walk } from "../../../mocks/story-curves";
 import * as Menu from "../menu/menu";
+import * as Popover from "../popover/popover";
 import * as HoldingCard from "./holding-card";
 
 /** Invented shares, held by an invented member. */
@@ -180,7 +181,7 @@ One share someone holds: its name, the quantity as entered with the latest price
 - **Manual** share (\`kind="manual"\`): a badge, and the price “as of” the day of its last value point.
 - **Price pending** (\`latestPrice={null}\`): its prices are loading, and it is not counted yet.
 - **anonymous**: the weight in percent replaces the quantity and the value, and the gain reads in percent.
-- **Cash**, the last card: the cash, the day it was set, and Update cash, ended by \`updateCashIcon\`, a caret by default.
+- **Cash**, the last card: the cash, the day it was set, and Update cash, ended by \`updateCashIcon\`, a caret by default. \`info\` sits beside the name, such as an ⓘ that explains cash.
 
 Every other prop goes to the \`<article>\`. The **Phone** and **Tablet** stories in the sidebar show the cards in a grid at the narrower widths.
 
@@ -325,7 +326,35 @@ const CASH_PROPS = [
   "onUpdateCash",
   "updateCashIcon",
   "timeZone",
+  "info",
 ] as const satisfies readonly (keyof HoldingCard.CashProps)[];
+
+/** The ⓘ's words, in the toolbar's language. They are the story's content, not the card's. */
+const CASH_INFO = {
+  en: {
+    title: "Cash",
+    body: "Your cash only changes when you set it. Buying or selling never moves it.",
+  },
+  fr: {
+    title: "Liquidités",
+    body: "Vos liquidités ne changent que quand vous les définissez. Acheter ou vendre ne les modifie jamais.",
+  },
+} as const satisfies Record<Language, { title: string; body: string }>;
+
+/** The ⓘ a page puts beside the name. */
+function CashInfo() {
+  const text = CASH_INFO[useLanguage()];
+
+  return (
+    <Popover.Root>
+      <Popover.InfoTrigger label={text.title} />
+      <Popover.Popup>
+        <Popover.Title>{text.title}</Popover.Title>
+        <Popover.Description>{text.body}</Popover.Description>
+      </Popover.Popup>
+    </Popover.Root>
+  );
+}
 
 const CASH_ARGS = {
   amountEur: "2000.00",
@@ -336,15 +365,17 @@ const CASH_ARGS = {
   timeZone: "UTC",
 } as const satisfies HoldingCard.CashProps;
 
-/** The Cash story’s args: the cash card’s props, its Update cash icon picked by name. */
-type CashArgs = Omit<HoldingCard.CashProps, "updateCashIcon"> & {
+/** The Cash story’s args: the cash card’s props, its Update cash icon picked by name, and whether an ⓘ sits beside the name. */
+type CashArgs = Omit<HoldingCard.CashProps, "updateCashIcon" | "info"> & {
   updateCashIcon: keyof typeof LINK_ICONS;
+  info: boolean;
 };
 
-/** The cash card, last after the holdings: the amount, the day it was set, and Update cash, which opens the cash step of Record a change. */
+/** The cash card, last after the holdings: the amount, the day it was set, and Update cash, which opens the cash step of Record a change. Your own card has an ⓘ beside the name. */
 export const Cash: StoryObj<CashArgs> = {
-  args: { ...CASH_ARGS, updateCashIcon: "caret-right" },
+  args: { ...CASH_ARGS, updateCashIcon: "caret-right", info: true },
   argTypes: {
+    info: { control: { type: "boolean" }, name: "info (ⓘ)" },
     amountEur: { control: { type: "text" } },
     weight: { control: { type: "text" } },
     setOn: { control: { type: "text" } },
@@ -364,6 +395,7 @@ export const Cash: StoryObj<CashArgs> = {
     onUpdateCash,
     updateCashIcon,
     timeZone,
+    info,
   }) => (
     <div className="max-w-[17rem]">
       <HoldingCard.Cash
@@ -374,6 +406,7 @@ export const Cash: StoryObj<CashArgs> = {
         onUpdateCash={onUpdateCash}
         updateCashIcon={LINK_ICONS[updateCashIcon]}
         timeZone={timeZone}
+        info={info ? <CashInfo /> : undefined}
       />
     </div>
   ),

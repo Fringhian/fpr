@@ -4,6 +4,8 @@ import { Badge, type BadgeState } from "./badge";
 const STATES = [
   "manual",
   "pricePending",
+  "priceLate",
+  "upToDate",
   "incomplete",
   "active",
   "waitingForFirstUse",
@@ -11,6 +13,7 @@ const STATES = [
   "ended",
   "expired",
   "heldBefore",
+  "neverHeld",
   "saved",
 ] as const satisfies readonly BadgeState[];
 

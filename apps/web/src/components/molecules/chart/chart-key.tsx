@@ -5,14 +5,16 @@ import type { ChartMark } from "./chart-types";
 
 /**
  * A mark's arrow and what it stands for, “Purchase” or “Sale”, drawn as the
- * chart draws it. Every prop goes to the `<span>`, `children` its words.
+ * chart draws it, in the mark's `color`. Every prop goes to the `<span>`,
+ * `children` its words.
  */
 export function MarkKey({
   direction,
+  color,
   className,
   children,
   ...props
-}: Pick<ChartMark, "direction"> & ComponentProps<"span">) {
+}: Pick<ChartMark, "direction" | "color"> & ComponentProps<"span">) {
   const up = direction === "up";
 
   return (
@@ -25,7 +27,9 @@ export function MarkKey({
         width="10"
         height="10"
         viewBox="0 0 10 10"
-        className={up ? "fill-positive" : "fill-negative"}
+        style={{
+          fill: `var(--color-${color ?? (up ? "positive" : "negative")})`,
+        }}
       >
         <path d={up ? "M5 0 10 5H7v5H3V5H0Z" : "M5 10 0 5h3V0h4v5h3Z"} />
       </svg>
