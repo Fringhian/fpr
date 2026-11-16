@@ -92,6 +92,8 @@ export type StoredEntry = StoredChange | StoredCash;
  */
 export type MockStore = {
   calendar: Calendar;
+  /** The instance's race time zone, as `GET /me` names it. */
+  raceTimeZone: string;
   people: MockPerson[];
   shares: StoredShare[];
   entries: StoredEntry[];

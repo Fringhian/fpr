@@ -1,11 +1,24 @@
 import type { IsoDate, Period, Timestamp } from "@fpr/contracts";
-import { addDays, localInstant, raceDayOf } from "../../lib/race-day.ts";
+import {
+  addDays,
+  DEFAULT_RACE_TIME_ZONE,
+  dayIn,
+  instantIn,
+} from "../../lib/race-day.ts";
 
-export { addDays, localInstant } from "../../lib/race-day.ts";
+export { addDays } from "../../lib/race-day.ts";
+
+/** The mock instance's race time zone: the store dates its days there. */
+export const MOCK_RACE_TIME_ZONE = DEFAULT_RACE_TIME_ZONE;
 
 /** The day an instant falls on in the race's zone. */
 export function dayOf(atMs: number): IsoDate {
-  return raceDayOf(atMs);
+  return dayIn(MOCK_RACE_TIME_ZONE, atMs);
+}
+
+/** The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. */
+export function localInstant(day: IsoDate, time: string): number {
+  return instantIn(MOCK_RACE_TIME_ZONE, day, time);
 }
 
 export function timestamp(atMs: number): Timestamp {

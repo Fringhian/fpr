@@ -1,5 +1,4 @@
 import type { Id } from "@fpr/contracts";
-import { localInstant } from "../../lib/race-day.ts";
 import {
   type FixturePerson,
   fixturePeople,
@@ -19,6 +18,8 @@ import {
   addDays,
   type Calendar,
   createCalendar,
+  localInstant,
+  MOCK_RACE_TIME_ZONE,
   timestamp,
 } from "./calendar.ts";
 import { storedShare } from "./seed-shares.ts";
@@ -36,6 +37,8 @@ export type MockStoreOptions = {
   empty?: boolean;
   /** Another member changes each manual value point just before its first edit or deletion. */
   conflicts?: boolean;
+  /** The time zone `GET /me` names, `MOCK_RACE_TIME_ZONE` by default. The store's own days stay in `MOCK_RACE_TIME_ZONE`. */
+  raceTimeZone?: string;
 };
 
 function mockPerson(fixture: FixturePerson, calendar: Calendar): MockPerson {
@@ -138,6 +141,7 @@ export function createMockStore(options: MockStoreOptions = {}): MockStore {
   const entries = empty ? [] : storedEntries(calendar);
   return {
     calendar,
+    raceTimeZone: options.raceTimeZone ?? MOCK_RACE_TIME_ZONE,
     people: empty
       ? []
       : fixturePeople.map((person) => mockPerson(person, calendar)),

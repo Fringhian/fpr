@@ -11,6 +11,10 @@ import { createApiClient } from "../src/lib/api/client.ts";
 import { createQueryClient } from "../src/lib/api/query-client.ts";
 import { createI18n, syncDocumentLanguage } from "../src/lib/i18n.ts";
 import { languageOf } from "../src/lib/language-choice.ts";
+import {
+  DEFAULT_RACE_TIME_ZONE,
+  setRaceTimeZone,
+} from "../src/lib/race-day.ts";
 import { createMockHandlers } from "../src/mocks/handlers.ts";
 import type { Persona } from "../src/mocks/personas.ts";
 import { createAppRouter } from "../src/router.ts";
@@ -35,6 +39,8 @@ afterEach(() => {
     act(() => root.unmount());
   }
   document.body.replaceChildren();
+  // The session's zone lives in the module, which every visit of a file shares.
+  setRaceTimeZone(DEFAULT_RACE_TIME_ZONE);
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -49,7 +55,7 @@ afterEach(() => {
  * `hold` matches waits for `release()`, to look at the page mid-load.
  * `failPath` answers a server error to every route whose path starts with
  * it, as `?mock-fail=` does. `offline` opens the app with no network, until
- * `setOnline(true)`.
+ * `setOnline(true)`. `raceTimeZone` is the zone the session names.
  */
 export async function visit(
   path: string,
@@ -61,6 +67,7 @@ export async function visit(
     hold = () => false,
     failPath,
     offline = false,
+    raceTimeZone,
   }: {
     failMe?: boolean;
     language?: Language | null;
@@ -68,6 +75,7 @@ export async function visit(
     hold?: (url: URL) => boolean;
     failPath?: string;
     offline?: boolean;
+    raceTimeZone?: string;
   } = {},
 ) {
   const { promise: released, resolve: release } = Promise.withResolvers();
@@ -83,6 +91,7 @@ export async function visit(
     session,
     empty,
     faults: { failPath },
+    ...(raceTimeZone === undefined ? {} : { raceTimeZone }),
   });
   vi.stubGlobal(
     "fetch",
