@@ -1,6 +1,8 @@
-import type { ComponentProps } from "react";
+import { useRender } from "@base-ui/react/use-render";
+import { type ComponentProps, useRef } from "react";
 import { cn } from "../../../lib/cn";
 import { Button, type ButtonProps } from "../../atoms/button/button";
+import { useBottomScrollRoom } from "./use-bottom-scroll-room";
 
 /**
  * The step itself, under the progress: the caption, the question, then what
@@ -52,13 +54,19 @@ export function Description({ className, ...props }: ComponentProps<"p">) {
  * The step's buttons, kept in view at the bottom while the step scrolls: the
  * main button first. On phone they stack at full width, the main button on
  * top; from tablet up they sit bottom right, fitted to their labels, the main
- * button at the right end.
+ * button at the right end. The page's scroll padding keeps their height, so a
+ * focused field never sits under them.
  */
-export function Actions({ className, ...props }: ComponentProps<"div">) {
-  return (
-    <div
-      {...props}
-      className={cn(
+export function Actions({ ref, className, ...props }: ComponentProps<"div">) {
+  const bar = useRef<HTMLDivElement>(null);
+  useBottomScrollRoom(bar);
+
+  return useRender({
+    ref: [ref ?? null, bar],
+    defaultTagName: "div",
+    props: {
+      ...props,
+      className: cn(
         // The snow fades in over its top 12px, so content scrolling under it
         // fades out, and the outline of a card ending above it still shows.
         "sticky bottom-0 z-10 flex gap-s bg-linear-to-b from-transparent to-page to-[0.75rem]",
@@ -66,9 +74,9 @@ export function Actions({ className, ...props }: ComponentProps<"div">) {
         "tablet:flex-row-reverse tablet:pt-[1.75rem] tablet:pb-[calc(2.25rem+env(safe-area-inset-bottom,0px))]",
         "desktop:flex-row-reverse desktop:pt-[1.25rem] desktop:pb-[2rem]",
         className,
-      )}
-    />
-  );
+      ),
+    },
+  });
 }
 
 /** Every prop of `Button` but its intent and size, which the main button fixes. */

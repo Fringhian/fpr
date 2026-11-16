@@ -58,7 +58,8 @@ export function Root({ className, children, ...props }: ComponentProps<"div">) {
  * The page's column, its `<main>`, on the page ground of `Sky.Root`: first
  * `CompactBar`, then on a page with a header sentence `Sky.Band`, then
  * `Content`. Its end clears the phone's tab bar by `--tab-bar-room`, and from
- * tablet up leaves 40px above the bottom safe area.
+ * tablet up leaves 40px above the bottom safe area; the page's scroll padding
+ * keeps the same room, so a focused element never sits under the tab bar.
  */
 export function Main({
   className,
@@ -70,7 +71,10 @@ export function Main({
       id={CONTENT_ID}
       tabIndex={-1}
       {...props}
-      className={cn("flex min-w-0 flex-1 flex-col outline-none", className)}
+      className={cn(
+        "flex min-w-0 flex-1 flex-col outline-none scroller:scroll-pb-(--tab-bar-room)",
+        className,
+      )}
     >
       <Sky.Root
         className={cn(
@@ -108,15 +112,16 @@ export function Content({ className, ...props }: ComponentProps<"div">) {
 
 /**
  * `PageBar.Compact`, first in `Main`, outside the gutters: it spans the
- * column, and its title and controls line up with `Content`'s edges.
- * `anchor` is the same ref as the page's `PageBar.Root`.
+ * column, and its title and controls line up with `Content`'s edges. The
+ * page's scroll padding keeps a focused element clear of it. `anchor` is the
+ * same ref as the page's `PageBar.Root`.
  */
 export function CompactBar({ className, ...props }: PageBar.CompactProps) {
   return (
     <PageBar.Compact
       {...props}
       className={cn(
-        "",
+        "scroller:scroll-pt-[calc(var(--compact-bar)+var(--safe-top))]",
         "px-m",
         "tablet:px-l",
         "desktop:px-[max(var(--spacing-l),calc((var(--column-width,100%)-var(--content-width))/2))]",

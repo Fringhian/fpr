@@ -152,6 +152,7 @@ cn(
 - `dimmed` is the look of a control that can't be used: the not-allowed cursor at 45 % opacity, applied with `disabled:dimmed`.
 - `popup-motion` is a menu's or a popover's popup fading and scaling in from its trigger and out to it, still under reduced motion.
 - `frosted` is a bar floating over the page, such as the tab bar or the compact page bar: 80% white over a blur, opaque where the browser can't blur.
+- `scroller:` styles the page's scrolling element, `<html>`, while the element is on the page. A bar over the page sets the scroll padding that keeps a focused element clear of it with it, `scroller:scroll-pt-[…]`, never a global rule; a bar whose height follows its content measures itself instead, like `StepFlow.Actions`.
 
 ## Components
 

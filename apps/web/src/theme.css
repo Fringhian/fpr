@@ -44,14 +44,11 @@
 /*
  * The fixed bars at the page's edges: the compact page bar at the top, below
  * the safe area, and on phone the floating tab bar, which the page's end clears
- * by 92px above the bottom safe area. The page's scroll padding keeps a
- * focused or scrolled-to element clear of both (WCAG 2.4.11).
+ * by 92px above the bottom safe area.
  */
 :root {
   --compact-bar: 3.5rem;
   --tab-bar-room: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-  scroll-padding-top: calc(var(--compact-bar) + var(--safe-top));
-  scroll-padding-bottom: var(--tab-bar-room);
 
   @variant tablet {
     --compact-bar: 4rem;
@@ -259,3 +256,7 @@
 /* A field its validation marks invalid. Native `:invalid` is left out: it
    matches an empty required field before anyone types. */
 @custom-variant invalid (&:is([data-invalid], [aria-invalid="true"]));
+/* The page's scrolling element, `<html>`, while the element is on the page:
+   a bar over the page sets the scroll padding that keeps a focused or
+   scrolled-to element clear of it (WCAG 2.4.11). */
+@custom-variant scroller (:root:has(&));

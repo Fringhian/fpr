@@ -225,8 +225,17 @@ export const LongStepPhone: Story = {
     await expect(documentElement.scrollHeight).toBeGreaterThan(
       window.innerHeight,
     );
-    const button = mainButton(canvasElement).getBoundingClientRect();
-    await expect(button.bottom).toBeLessThanOrEqual(window.innerHeight);
+    const button = mainButton(canvasElement);
+    await expect(button.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      window.innerHeight,
+    );
+    // The page's scroll padding clears the buttons at the bottom, and nothing
+    // at the top, where the step has no bar.
+    const root = getComputedStyle(documentElement);
+    await expect(Number.parseFloat(root.scrollPaddingBottom)).toBe(
+      button.parentElement?.offsetHeight,
+    );
+    await expect(root.scrollPaddingTop).toBe("auto");
   },
 };
 
