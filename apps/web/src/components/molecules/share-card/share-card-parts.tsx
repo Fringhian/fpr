@@ -12,8 +12,9 @@ import { caption, Foot } from "../holding-card/holding-card-parts";
 import { PictureStack } from "../picture-stack/picture-stack";
 
 /**
- * The price line at the card's foot: the latest price with its time, then
- * the change of one unit's price over the period, when known.
+ * The price line at the card's foot: the latest price with its time under
+ * it, then the change of one unit's price over the period, when known, on
+ * the same row whatever the price's length.
  */
 export function Price({
   latestPrice,
@@ -33,12 +34,14 @@ export function Price({
   const priceTime = usePriceTime();
 
   return (
-    <Foot {...props} className={className}>
-      <span className="flex flex-wrap items-baseline gap-x-s">
-        <span className="text-l font-semibold tabular-nums">
+    <Foot {...props} className={cn("flex-nowrap", className)}>
+      <span className="grid min-w-0">
+        <span className="truncate text-l font-semibold tabular-nums">
           {formatMoney(latestPrice.priceEur, language)}
         </span>
-        <span className={caption}>{priceTime(latestPrice, timeZone)}</span>
+        <span className={cn(caption, "truncate")}>
+          {priceTime(latestPrice, timeZone)}
+        </span>
       </span>
       {change === null ? null : <GainChip gain={change} unit={unit} />}
     </Foot>
