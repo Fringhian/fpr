@@ -3,8 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import * as ConfirmDialog from "../../../../components/molecules/confirm-dialog/confirm-dialog";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
-import { useErrorText } from "../../../../lib/api/errors";
 import { useApi } from "../../../../lib/api/use-api";
+import { useRefusedToast } from "../../../../lib/api/use-refused-toast";
 import type { DialogRootState } from "../../../../lib/dialog-state";
 
 /**
@@ -22,18 +22,14 @@ export function DeleteShareDialog({
   const { t } = useTranslation();
   const api = useApi();
   const toast = useToast();
-  const errorText = useErrorText();
+  const refused = useRefusedToast();
   const remove = useMutation(api.shares.delete.mutationOptions());
 
   const confirm = async () => {
     try {
       await remove.mutateAsync({ id: share.id });
     } catch (refusal) {
-      toast.show({
-        title: t("adminShares.delete.refused"),
-        description: errorText(refusal),
-        timeout: 0,
-      });
+      refused(t("adminShares.delete.refused"), refusal);
       throw refusal;
     }
     toast.show({
