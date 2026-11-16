@@ -1,12 +1,11 @@
+import {
+  accessKeyPattern,
+  displayNameMaxLength,
+  passwordLength,
+} from "@fpr/contracts/values";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-// The contracts' limits, which `@fpr/contracts/values` doesn't export: a
-// password of 12 to 128 characters, a display name of 1 to 40 once trimmed,
-// and an access key of 43 base64url characters.
-export const PASSWORD = { min: 12, max: 128 } as const;
-const DISPLAY_NAME_MAX = 40;
-const ACCESS_KEY = /(?:^|\/access\/)([A-Za-z0-9_-]{43})(?:[/?#]|$)/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
@@ -14,7 +13,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * the key alone, or nothing when the text holds neither.
  */
 export function accessKeyIn(text: string): string | undefined {
-  return ACCESS_KEY.exec(text.trim())?.[1];
+  const trimmed = text.trim();
+  const key = /\/access\/([^/?#]+)/.exec(trimmed)?.[1] ?? trimmed;
+  return accessKeyPattern.test(key) ? key : undefined;
 }
 
 function text(value: unknown): string {
@@ -42,18 +43,18 @@ export function useAccessChecks() {
       /** A password being chosen. */
       newPassword: (value: unknown) => {
         const { length } = text(value);
-        if (length < PASSWORD.min) {
-          return t("accessChecks.passwordShort", { min: PASSWORD.min });
+        if (length < passwordLength.min) {
+          return t("accessChecks.passwordShort", { min: passwordLength.min });
         }
-        return length > PASSWORD.max
-          ? t("accessChecks.passwordLong", { max: PASSWORD.max })
+        return length > passwordLength.max
+          ? t("accessChecks.passwordLong", { max: passwordLength.max })
           : null;
       },
       displayName: (value: unknown) => {
         const name = text(value).trim();
         if (name === "") return t("accessChecks.nameMissing");
-        return name.length > DISPLAY_NAME_MAX
-          ? t("accessChecks.nameLong", { max: DISPLAY_NAME_MAX })
+        return name.length > displayNameMaxLength
+          ? t("accessChecks.nameLong", { max: displayNameMaxLength })
           : null;
       },
       /** A key pasted from the admin or the server's configuration. */

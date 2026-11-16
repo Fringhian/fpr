@@ -1,3 +1,4 @@
+import { avatarMediaTypes } from "@fpr/contracts/values";
 import { type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../components/atoms/button/button";
@@ -52,7 +53,7 @@ export function PhotoControl({
       <input
         ref={input}
         type="file"
-        accept="image/*"
+        accept={avatarMediaTypes.join(",")}
         hidden
         onChange={photo.choose}
       />

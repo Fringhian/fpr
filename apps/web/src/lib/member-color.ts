@@ -1,6 +1,9 @@
+import { colorCount } from "@fpr/contracts/values";
+
 /**
- * The ten member colours, in order: colour 1 is `vermilion`, colour 10 is
- * `periwinkle`. Each is a token in `theme.css`, with its `-pastel`.
+ * The member colours, `colorCount` of them, in order: colour 1 is
+ * `vermilion`, colour 10 is `periwinkle`. Each is a token in `theme.css`,
+ * with its `-pastel`.
  */
 export const MEMBER_COLORS = [
   "vermilion",
@@ -13,7 +16,7 @@ export const MEMBER_COLORS = [
   "lime",
   "sienna",
   "periwinkle",
-] as const;
+] as const satisfies { length: typeof colorCount };
 
 export type MemberColor = (typeof MEMBER_COLORS)[number];
 
@@ -62,13 +65,15 @@ export const MEMBER_TONES = {
 } as const satisfies Record<MemberColor, `[--tone:${string}]`>;
 
 /**
- * The member colour the API's `color`, from 1 to 10, names. Anything else
- * throws a `RangeError`.
+ * The member colour the API's `color`, from 1 to `colorCount`, names.
+ * Anything else throws a `RangeError`.
  */
 export function memberColor(color: number): MemberColor {
   const name = Number.isInteger(color) ? MEMBER_COLORS[color - 1] : undefined;
   if (name === undefined) {
-    throw new RangeError(`A member colour is from 1 to 10, not ${color}`);
+    throw new RangeError(
+      `A member colour is from 1 to ${colorCount}, not ${color}`,
+    );
   }
   return name;
 }

@@ -1,7 +1,8 @@
+import { passwordLength } from "@fpr/contracts/values";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import * as Field from "../../components/molecules/field/field";
-import { PASSWORD, useAccessChecks } from "../../lib/access-checks";
+import { useAccessChecks } from "../../lib/access-checks";
 
 /**
  * The email a person signs in with, named `email`. `autoComplete` is
@@ -114,7 +115,7 @@ export function NewPasswordField({ label }: { label?: string }) {
       <Field.Label>{label ?? t("accessFields.password")}</Field.Label>
       <Field.Password autoComplete="new-password" />
       <Field.Description>
-        {t("accessFields.passwordHelp", { min: PASSWORD.min })}
+        {t("accessFields.passwordHelp", { min: passwordLength.min })}
       </Field.Description>
       <Field.Error />
     </Field.Root>

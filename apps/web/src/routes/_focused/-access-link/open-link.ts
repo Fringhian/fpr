@@ -1,4 +1,5 @@
 import type { AccessKeyState } from "@fpr/contracts";
+import { accessKeyStates } from "@fpr/contracts/values";
 import { MutationObserver, type QueryClient } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { accessKeyIn } from "../../../lib/access-checks";
@@ -14,14 +15,9 @@ import { forgetAccessKey, heldAccessKey } from "./held-key";
  */
 export type LinkState = Exclude<AccessKeyState, "waiting"> | "missing";
 
-const refusedStates = [
-  "claimed",
-  "expired",
-  "replaced",
-  "revoked",
-  "ended",
-  "unknown",
-] as const satisfies readonly LinkState[];
+const refusedStates = accessKeyStates.filter(
+  (state): state is Exclude<AccessKeyState, "waiting"> => state !== "waiting",
+);
 
 /** What the access link page shows: a password user's first use, or where the link stops. */
 export type OpenedLink =

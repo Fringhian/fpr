@@ -1,5 +1,4 @@
-// The contracts' `isinSchema` pattern, which `@fpr/contracts/values` doesn't export.
-const ISIN = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/;
+import { isinPattern } from "@fpr/contracts/values";
 
 /**
  * Whether an ISIN's last digit is its check digit: the Luhn sum over its
@@ -24,5 +23,5 @@ function checks(isin: string): boolean {
  */
 export function isinIn(text: string): string | null {
   const isin = text.replace(/\s/g, "").toUpperCase();
-  return ISIN.test(isin) && checks(isin) ? isin : null;
+  return isinPattern.test(isin) && checks(isin) ? isin : null;
 }

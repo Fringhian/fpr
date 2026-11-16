@@ -5,11 +5,13 @@ import type {
   IsinTakenDetails,
   ValueChangedDetails,
 } from "@fpr/contracts";
+import { errorCodes } from "@fpr/contracts/values";
 import { ORPCError } from "@orpc/client";
 import { onlineManager } from "@tanstack/react-query";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { oneOf } from "../one-of";
 import { useOnline } from "./use-online";
 
 /**
@@ -48,7 +50,7 @@ const errorTexts = {
 } as const satisfies Record<ErrorCode, ParseKeys>;
 
 function isErrorCode(code: unknown): code is ErrorCode {
-  return typeof code === "string" && Object.hasOwn(errorTexts, code);
+  return oneOf(errorCodes, code) !== undefined;
 }
 
 /**
