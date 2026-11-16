@@ -3,7 +3,6 @@ import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { Auth } from "../../src/auth/auth.js";
 import { apiError } from "../../src/errors.js";
-import { createPricesClient } from "../../src/prices/prices-client.js";
 import { expectError } from "../access-support.js";
 import {
   addSignedIn,
@@ -14,6 +13,7 @@ import {
   serveApp,
   type TestPrices,
   type TestServer,
+  unreachablePrices,
 } from "../test-support.js";
 
 let test: TestDatabase;
@@ -159,12 +159,11 @@ describe("POST /api/shares/lookup", () => {
 
 describe("POST /api/shares/lookup with the price service out of reach", () => {
   it("answers provider_unavailable", async () => {
-    const unreachable = createPricesClient({
-      url: "http://prices.test",
-      token: "a-test-prices-token",
-      fetch: () => Promise.reject(new TypeError("fetch failed")),
+    const other = await serveApp({
+      db: test.db,
+      auth,
+      prices: unreachablePrices(),
     });
-    const other = await serveApp({ db: test.db, auth, prices: unreachable });
     try {
       const member = await addSignedIn(other, test.db, auth, "member");
       const response = await apiRequest(other, "/shares/lookup", {

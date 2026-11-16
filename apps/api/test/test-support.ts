@@ -189,6 +189,15 @@ export function createTestPrices(routes: TestPriceRoutes = {}): TestPrices {
   };
 }
 
+/** A price service out of reach: every call fails as an unreachable host does. */
+export function unreachablePrices(): PricesClient {
+  return createPricesClient({
+    url: "http://prices.test",
+    token: "a-test-prices-token",
+    fetch: () => Promise.reject(new TypeError("fetch failed")),
+  });
+}
+
 /** Starts the app on a random local port and captures its log lines. */
 export async function serveApp(options: {
   db: Db;

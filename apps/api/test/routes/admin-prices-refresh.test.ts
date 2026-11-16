@@ -24,6 +24,7 @@ import {
   TEST_RACE_TIMEZONE,
   type TestPrices,
   type TestServer,
+  unreachablePrices,
 } from "../test-support.js";
 
 let test: TestDatabase;
@@ -129,6 +130,26 @@ describe("GET /api/admin/prices/refresh", () => {
       });
       expect(response.status).toBe(200);
       expect(parseOutput(refreshState, await response.json())).toEqual(state);
+    }
+  });
+
+  it("answers provider_unavailable while the price service is out of reach", async () => {
+    const other = await serveApp({
+      db: test.db,
+      auth,
+      prices: unreachablePrices(),
+    });
+    try {
+      const admin = await addSignedIn(other, test.db, auth, "admin");
+      await expectError(
+        refreshState,
+        await apiRequest(other, "/admin/prices/refresh", {
+          cookie: admin.cookie,
+        }),
+        "provider_unavailable",
+      );
+    } finally {
+      await other.close();
     }
   });
 
