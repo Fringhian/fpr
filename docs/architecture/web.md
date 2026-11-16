@@ -101,7 +101,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - Tablet: a navigation rail with the same items and the account menu.
 - Phone: the account menu at the end of the page bar, and a floating tab bar with the four items, which the content scrolls under. Nothing floats beside it.
 - Guests and anonymous viewers have no Portfolio item.
-- Every page starts with a page bar: the title or back link, then the period and unit. On a phone, the period and unit are one button in the page bar that opens a sheet.
+- Every page starts with a page bar: the title or back link, then the period and unit. Once it scrolls past the top, a compact bar with the title, period and unit takes its place there, pinned on tablet and desktop, and on a phone hidden on scroll down and back on the first scroll up. On a phone, the period and unit are one button in the page bar that opens a sheet.
 - The period and unit are one setting shared by every page, kept in `localStorage` and written in the URL.
 - Every view's state is in the URL, so a shared link opens on the same view: `period` and `unit` everywhere, `focus` (the kept member) and `standings` (`gain` or `balance`) on Home, `q` on Shares.
 

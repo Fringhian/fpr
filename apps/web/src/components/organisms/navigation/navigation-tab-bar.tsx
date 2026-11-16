@@ -8,10 +8,9 @@ import { useNavigation } from "./navigation-root";
 export type TabBarProps = ComponentProps<"nav">;
 
 /**
- * The phone's floating tab bar: a capsule 16px above the bottom edge and the
- * safe area, 80% white over a blur, opaque where the browser can't blur. The
- * page scrolls under it and leaves room for it at its end. Nothing floats
- * beside it. Hidden from tablet up.
+ * The phone's floating tab bar: a frosted capsule 16px above the bottom edge
+ * and the safe area. The page scrolls under it and leaves `--tab-bar-room`
+ * for it at its end. Nothing floats beside it. Hidden from tablet up.
  */
 export function TabBar({ className, ...props }: TabBarProps) {
   const { t } = useTranslation();
@@ -31,15 +30,7 @@ export function TabBar({ className, ...props }: TabBarProps) {
         className,
       )}
     >
-      <ul
-        className={cn(
-          "flex rounded-full bg-surface/80 p-[0.375rem] shadow-float backdrop-blur-[1.125rem] backdrop-saturate-[1.4]",
-          "",
-          "",
-          "",
-          "not-supports-[backdrop-filter:blur(0)]:bg-surface",
-        )}
-      >
+      <ul className="frosted flex rounded-full p-[0.375rem] shadow-float">
         {main.map((destination) => (
           <Item key={destination} destination={destination} place="tab" />
         ))}

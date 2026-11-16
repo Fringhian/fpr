@@ -41,6 +41,26 @@
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
+/*
+ * The fixed bars at the page's edges: the compact page bar at the top, below
+ * the safe area, and on phone the floating tab bar, which the page's end clears
+ * by 92px above the bottom safe area.
+ */
+:root {
+  --compact-bar: 3.5rem;
+  --tab-bar-room: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+
+  @variant tablet {
+    --compact-bar: 4rem;
+    --tab-bar-room: 0px;
+  }
+}
+
+/* The widest the page's content grows beside the sidebar: 1120px. */
+:root {
+  --content-width: 70rem;
+}
+
 @theme {
   /* Tailwind's default scales are reset: only the tokens below generate classes. */
   --color-*: initial;
@@ -203,6 +223,12 @@
   @apply transition-[opacity,scale] duration-s ease-soft motion-reduce:transition-none starting-style:scale-[0.96] starting-style:opacity-0 ending-style:scale-[0.96] ending-style:opacity-0;
 }
 
+/* A bar floating over the page, which scrolls under it: 80% white over a
+   blur, opaque where the browser can't blur. */
+@utility frosted {
+  @apply bg-surface/80 backdrop-blur-[1.125rem] backdrop-saturate-[1.4] not-supports-[backdrop-filter:blur(0)]:bg-surface;
+}
+
 /* Dialogs, sheets, popovers, menus and disclosures that are open */
 @custom-variant open (&:is([open], :popover-open, :open, [data-open]));
 /* A trigger whose popup is open */
@@ -230,3 +256,7 @@
 /* A field its validation marks invalid. Native `:invalid` is left out: it
    matches an empty required field before anyone types. */
 @custom-variant invalid (&:is([data-invalid], [aria-invalid="true"]));
+/* The page's scrolling element, `<html>`, while the element is on the page:
+   a bar over the page sets the scroll padding that keeps a focused or
+   scrolled-to element clear of it (WCAG 2.4.11). */
+@custom-variant scroller (:root:has(&));

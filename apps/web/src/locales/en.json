@@ -266,5 +266,12 @@
   },
   "pageBar": {
     "back": "Back to"
+  },
+  "stepFlow": {
+    "back": "Back",
+    "close": "Close"
+  },
+  "appLayout": {
+    "skip": "Skip to content"
   }
 }
