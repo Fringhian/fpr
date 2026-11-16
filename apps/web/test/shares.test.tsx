@@ -85,7 +85,7 @@ describe("Shares", () => {
     const before = store.shares.length;
 
     typeInto(field("name"), "Example Fund");
-    typeInto(field("price"), "40,10");
+    typeInto(field("price"), "40.10");
     await submit(page, () =>
       expect(text()).toContain("Another share in FPR already has this ISIN."),
     );
@@ -103,7 +103,7 @@ describe("Shares", () => {
     );
 
     typeInto(field("name"), "Example Fund");
-    typeInto(field("price"), "40,10");
+    typeInto(field("price"), "40.10");
     await submit(page, () =>
       expect(router.state.location.pathname).not.toBe("/shares/new"),
     );
