@@ -52,6 +52,11 @@ export const adminPersonSchema = personSchema.extend({
   accessUntil: timestampSchema.nullable(),
   /** Whether the person has a share change or cash balance: they can't become a guest. */
   hasPortfolioEntries: z.boolean(),
+  /**
+   * Whether the person has set a password, so a reset key helps them: a
+   * person whose link was replaced has one while their new link waits.
+   */
+  hasPassword: z.boolean().optional(),
 });
 
 export type AdminPerson = z.infer<typeof adminPersonSchema>;

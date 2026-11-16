@@ -12867,6 +12867,9 @@
                       },
                       "hasPortfolioEntries": {
                         "type": "boolean"
+                      },
+                      "hasPassword": {
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -13188,6 +13191,9 @@
                           ]
                         },
                         "hasPortfolioEntries": {
+                          "type": "boolean"
+                        },
+                        "hasPassword": {
                           "type": "boolean"
                         }
                       },
@@ -13555,6 +13561,9 @@
                       ]
                     },
                     "hasPortfolioEntries": {
+                      "type": "boolean"
+                    },
+                    "hasPassword": {
                       "type": "boolean"
                     }
                   },
@@ -14245,6 +14254,9 @@
                     },
                     "hasPortfolioEntries": {
                       "type": "boolean"
+                    },
+                    "hasPassword": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -14594,6 +14606,9 @@
                     },
                     "hasPortfolioEntries": {
                       "type": "boolean"
+                    },
+                    "hasPassword": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -14912,6 +14927,9 @@
                           ]
                         },
                         "hasPortfolioEntries": {
+                          "type": "boolean"
+                        },
+                        "hasPassword": {
                           "type": "boolean"
                         }
                       },
