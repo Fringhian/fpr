@@ -13,11 +13,7 @@ import { formatMoney } from "../../../../lib/format/money";
 import { formatList } from "../../../../lib/format/text";
 import { useLanguage } from "../../../../lib/i18n";
 import { usePriceTime } from "../../../../lib/price-time";
-import {
-  momentOfDay,
-  RACE_TIME_ZONE,
-  raceToday,
-} from "../../../../lib/race-day";
+import { RACE_TIME_ZONE, raceDayStart } from "../../../../lib/race-day";
 import { useRefusal } from "../../../-account/use-refusal";
 import { DialogHeading } from "../-shared/dialog-heading";
 import { FirstValueFields } from "./first-value-fields";
@@ -69,7 +65,7 @@ function useMakeManual(share: AdminShare, onDone: () => void) {
     const priceEur = priceIn(price, language);
     const first =
       share.latestPrice === null && priceEur !== null
-        ? { priceEur, at: momentOfDay(on, raceToday()) }
+        ? { priceEur, at: raceDayStart(on) }
         : {};
     makeManual.mutate(
       { id: share.id, ...first },

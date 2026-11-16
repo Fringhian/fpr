@@ -64,6 +64,14 @@ export function localInstant(day: IsoDate, time: string): number {
 }
 
 /**
+ * The first moment of a race day, midnight there: a manual share's first
+ * value dated then values every holding recorded that day.
+ */
+export function raceDayStart(day: IsoDate): Timestamp {
+  return new Date(localInstant(day, "00:00:00")).toISOString();
+}
+
+/**
  * The last second of a race day, 23:59:59 there: an entry dated on a past
  * day counts in that day's close and every holding read on that day.
  */
