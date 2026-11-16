@@ -7,19 +7,19 @@ import {
 } from "../src/api/access/access-keys.js";
 import { adminAccessStatuses } from "../src/api/admin/people.js";
 import { shareValueActions } from "../src/api/shares/values.js";
-import { roles } from "../src/roles.js";
 import {
   languages,
   leaderboardBoards,
   periods,
   priceSources,
+  roles,
   shareKinds,
   units,
 } from "../src/values.js";
 
 /** Each shared list, and the file that defines it, relative to `src/`. */
 const lists: [values: readonly string[], definedIn: string][] = [
-  [roles, "roles.ts"],
+  [roles, "values.ts"],
   [periods, "values.ts"],
   [units, "values.ts"],
   [leaderboardBoards, "values.ts"],
