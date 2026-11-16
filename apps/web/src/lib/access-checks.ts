@@ -43,17 +43,17 @@ export function useAccessChecks() {
       newPassword: (value: unknown) => {
         const { length } = text(value);
         if (length < PASSWORD.min) {
-          return t("accessChecks.passwordShort", { count: PASSWORD.min });
+          return t("accessChecks.passwordShort", { min: PASSWORD.min });
         }
         return length > PASSWORD.max
-          ? t("accessChecks.passwordLong", { count: PASSWORD.max })
+          ? t("accessChecks.passwordLong", { max: PASSWORD.max })
           : null;
       },
       displayName: (value: unknown) => {
         const name = text(value).trim();
         if (name === "") return t("accessChecks.nameMissing");
         return name.length > DISPLAY_NAME_MAX
-          ? t("accessChecks.nameLong", { count: DISPLAY_NAME_MAX })
+          ? t("accessChecks.nameLong", { max: DISPLAY_NAME_MAX })
           : null;
       },
       /** A key pasted from the admin or the server's configuration. */
