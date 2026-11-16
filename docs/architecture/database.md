@@ -36,7 +36,7 @@ Each table has one writer. Every process can read any table.
 
 | Table | Written by |
 | --- | --- |
-| `user`, `account`, `session`, `verification` | API, through Better Auth. Setup, claims, and password resets also write `account`, setup the first admin's `user`, and resets delete `session` rows, each in its own transaction |
+| `user`, `account`, `session`, `verification` | API, through Better Auth. The `/me` routes also write a person's profile and picture; setup, claims, and password resets write `account`, setup the first admin's `user`, and resets delete `session` rows, each in its own transaction |
 | `access_keys`, `reset_keys` | API |
 | `portfolio_changes`, `cash_balances` | API |
 | `shares`, `prices`, `manual_price_events` | Price service. A manual share or value a member enters reaches it through the API. |
@@ -66,6 +66,7 @@ One row per person the admin added: Better Auth's table, extended. Better Auth's
 - `email` is unique and stored in lowercase. An anonymous viewer has a generated address nobody sees. `email_verified` is always `false`.
 - `role` is `admin`, `member`, `guest`, or `anonymous`. `display_name` is 1 to 40 characters. `color` is 1 to 10. `locale` is `fr` or `en`, and empty until the person picks one.
 - `avatar_key` is the picture's object key in S3-compatible storage, empty for none. `onboarded_at` is empty until onboarding ends.
+- A write that sets a colour first takes an advisory lock, then reads the colours in use, so two people can't take the same free colour at once.
 
 Pseudonyms are derived from the `id` and a server secret, and not stored (`api.md`).
 

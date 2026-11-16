@@ -182,6 +182,7 @@ The web image builds the app and serves it with nginx, which forwards `/api/*` t
 - `index.html`, the service worker and the manifest are served with `Cache-Control: no-cache`; the hashed build assets with a one-year `immutable` cache.
 - Requests to `/access/*` carry an access key in their path and stay out of the access log.
 - nginx takes the client's address from the header named by `CLIENT_IP_HEADER`, which the host's reverse proxy sets, and forwards it to the API as the only value of `X-Forwarded-For` (`auth.md` › Client address).
+- Request bodies are capped at 1 MB, and at 2 MB on `PUT /api/me/avatar`, the API's picture limit. nginx answers a larger picture with `413 avatar_too_large` in the API's error format.
 
 Every response, `/api/*` and errors included, carries these security headers once each; nginx drops the API's own values for them.
 

@@ -17,6 +17,13 @@ export const envSchema = z.object({
     .default("Europe/Paris"),
   /** The key pseudonyms are derived with. Changing it changes every pseudonym. */
   PSEUDONYM_SECRET: z.string().min(32),
+  /** Picture storage: an S3-compatible endpoint, such as `http://rustfs:9000`. */
+  S3_ENDPOINT: z.url(),
+  /** The bucket's region, `auto` for Cloudflare R2. */
+  S3_REGION: z.string().min(1),
+  S3_BUCKET: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
 });
 
 function isTimeZone(name: string): boolean {

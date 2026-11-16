@@ -7,7 +7,7 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 - Served at `/api/auth/*`, built in `apps/api/src/auth/`. Email and password only: no OAuth, and its sign-up and user-update endpoints are disabled. A person changes their profile through `PATCH /me`, the admin through the admin area.
 - Sessions are HTTP-only, `Secure`, `SameSite=Lax` cookies on the instance's origin, with the `__Secure-` prefix in every environment. A session lasts 30 days and is extended on use, at most once a day.
 - It accepts writes from `PUBLIC_URL` alone.
-- Passwords are 12 to 128 characters, hashed with Better Auth's default hasher. Changing one takes the current password and ends the person's other sessions.
+- Passwords are 12 to 128 characters, hashed with Better Auth's default hasher. Changing one takes the current password and always ends the person's other sessions, whatever the request asks. Anonymous viewers have no password, and are refused with `403 forbidden`.
 - A session starts only for a person whose access key gives access: a correct password for a person whose access ended is `401 access_ended`. A wrong password gets the same answer whatever the person's access.
 - Setup, claims, and anonymous sign-ins start their session through a server-only endpoint of a Better Auth plugin, never reachable over HTTP, so the same cookie and access check apply.
 - It writes `user`, `account`, `session`, and `verification`. FPR's own columns on `user` are additional fields no Better Auth endpoint accepts as input. See `database.md`.

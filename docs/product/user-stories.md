@@ -31,8 +31,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Revoked access, or access past its end date, refuses sign-in with "Your access has ended", and ends any open session at its next request, a password change included. A wrong password says only that the email or password is wrong, whatever the person's access.
 - Five sign-in attempts from one address within a minute pause sign-in from that address, and no other, for a minute. Link checks, claims, anonymous sign-ins, and password resets are paused the same way, each on its own.
 - A session that expires sends the person to sign-in, then back to the page they were on.
-- A wrong email or reset key gives one generic error that doesn't say which is wrong. A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends.
-- A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB). Removing the photo goes back to the initial.
+- A wrong email or reset key gives one generic error that doesn't say which is wrong. A reset key works once, for one person, for 24 hours. After the reset, every other session of that person ends. Changing the password also ends every other session.
+- A person's picture is their initial on their colour, or an uploaded photo (JPEG, PNG, or WebP, up to 2 MB), kept upright, at most 512 pixels a side, without the location, camera, or other details the file carried. Removing the photo goes back to the initial.
 - Each person has one of ten colours, given when they are added: the first nobody has. A colour someone else has can't be chosen, unless all ten are taken.
 - Settings has no Save button: each setting is saved as soon as it changes, the name when the field is left.
 - FPR is in French until a person picks a language, whatever their browser's language. Pages before sign-in are in French.

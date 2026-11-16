@@ -11,11 +11,17 @@ import { type AnyRouter, ORPCError, onError } from "@orpc/server";
 import type { Express, Request, Response } from "express";
 import type { Auth } from "./auth/auth.js";
 import type { RateLimiter } from "./pipeline/index.js";
+import type { AvatarStore } from "./storage/avatar-store.js";
 
-/** What the process gives every request: its pool, Better Auth, and its origin. */
+/**
+ * What the process gives every request: its pool, Better Auth, picture
+ * storage, and its origin.
+ */
 export interface ApiServices {
   db: Db;
   auth: Auth;
+  /** The bucket profile pictures are kept in. */
+  avatars: AvatarStore;
   /** `PUBLIC_URL`'s origin, such as `https://fpr.example.com`. */
   publicOrigin: string;
   /** `ADMIN_BOOTSTRAP_KEY`: the key `POST /setup` asks for. */

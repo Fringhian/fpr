@@ -6,12 +6,29 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import { Writable } from "node:stream";
+import { Readable, Writable } from "node:stream";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  type GetObjectRequest,
+  NoSuchKey,
+  PutObjectCommand,
+  type PutObjectRequest,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { accessKeys, type Db, type Role, users } from "@fpr/db";
 import type { AnyRouter } from "@orpc/server";
+import { sdkStreamMixin } from "@smithy/util-stream";
+import { type AwsClientStub, mockClient } from "aws-sdk-client-mock";
+import sharp from "sharp";
+import type { z } from "zod";
 import { createApp } from "../src/app.js";
 import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
+import {
+  type AvatarStore,
+  createAvatarStore,
+} from "../src/storage/avatar-store.js";
 
 export const TEST_PUBLIC_URL = "https://fpr.example.test";
 
@@ -39,11 +56,58 @@ export interface TestServer {
   close(): Promise<void>;
 }
 
+/** A bucket in memory, behind a mocked S3 client. */
+export interface TestBucket {
+  /** The pictures it holds, by object key. */
+  objects: Map<string, { body: Uint8Array; contentType: string }>;
+  /** The mocked client, to make a call fail or read the calls made. */
+  client: AwsClientStub<S3Client>;
+  avatars: AvatarStore;
+}
+
+/**
+ * An `AvatarStore` on a mocked S3 client that keeps objects in memory, so
+ * the API's S3 calls run without a bucket.
+ */
+export function createTestBucket(): TestBucket {
+  const objects: TestBucket["objects"] = new Map();
+  const s3 = new S3Client({ region: "auto" });
+  const client = mockClient(s3);
+  client.on(PutObjectCommand).callsFake(async (input: PutObjectRequest) => {
+    const body = input.Body;
+    if (!(body instanceof Uint8Array) || input.Key === undefined) {
+      throw new Error("The test bucket takes bytes at a key");
+    }
+    objects.set(input.Key, {
+      body,
+      contentType: input.ContentType ?? "application/octet-stream",
+    });
+    return {};
+  });
+  client.on(GetObjectCommand).callsFake(async (input: GetObjectRequest) => {
+    const object = objects.get(input.Key ?? "");
+    if (object === undefined) {
+      throw new NoSuchKey({ message: "No such key", $metadata: {} });
+    }
+    return {
+      Body: sdkStreamMixin(Readable.from([object.body])),
+      ContentType: object.contentType,
+    };
+  });
+  client.on(DeleteObjectCommand).callsFake(async (input) => {
+    objects.delete(input.Key ?? "");
+    return {};
+  });
+  return { objects, client, avatars: createAvatarStore(s3, "test-bucket") };
+}
+
 /** Starts the app on a random local port and captures its log lines. */
 export async function serveApp(options: {
   db: Db;
   auth: Auth;
   router?: AnyRouter;
+  /** The picture storage. Defaults to an empty test bucket. */
+  avatars?: AvatarStore;
 }): Promise<TestServer> {
   const chunks: string[] = [];
   const destination = new Writable({
@@ -54,6 +118,7 @@ export async function serveApp(options: {
   });
   const app = createApp({
     ...options,
+    avatars: options.avatars ?? createTestBucket().avatars,
     publicUrl: TEST_PUBLIC_URL,
     bootstrapKey: TEST_BOOTSTRAP_KEY,
     logger: createLogger({ destination }),
@@ -158,6 +223,75 @@ export function cookieFrom(response: Response): string {
     .getSetCookie()
     .map((cookie) => cookie.split(";")[0])
     .join("; ");
+}
+
+/**
+ * A request to an API route as the instance's pages send it: from
+ * `PUBLIC_URL`, with the session `cookie` when given, and a JSON body unless
+ * `body` is bytes, sent with `contentType`.
+ */
+export function apiRequest(
+  server: TestServer,
+  path: string,
+  init: {
+    method?: string;
+    cookie?: string;
+    body?: unknown;
+    contentType?: string;
+  } = {},
+): Promise<Response> {
+  const { method = "GET", cookie, body, contentType } = init;
+  const raw = body instanceof Uint8Array;
+  const headers: Record<string, string> = {
+    Origin: TEST_PUBLIC_URL,
+    "X-Forwarded-For": newClientAddress(),
+    ...(cookie === undefined ? {} : { Cookie: cookie }),
+    ...(body === undefined
+      ? {}
+      : { "Content-Type": contentType ?? "application/json" }),
+  };
+  return fetch(`${server.url}/api${path}`, {
+    method,
+    headers,
+    ...(body === undefined
+      ? {}
+      : { body: raw ? new Blob([body]) : JSON.stringify(body) }),
+  });
+}
+
+/**
+ * A response body, parsed with its route's output schema in
+ * `@fpr/contracts`, such as `parseOutput(apiContract.me.get, body)`.
+ */
+export function parseOutput<Schema extends z.ZodType>(
+  procedure: { "~orpc": { outputSchema?: Schema } },
+  body: unknown,
+): z.output<Schema> {
+  const schema = procedure["~orpc"].outputSchema;
+  if (schema === undefined) {
+    throw new Error("The route declares no response");
+  }
+  return schema.parse(body);
+}
+
+/**
+ * A generated picture of one colour, `width` by `height`, in a format the
+ * API takes. Never a photo of anyone.
+ */
+export function testPicture(
+  format: "jpeg" | "png" | "webp",
+  { width = 64, height = 48 }: { width?: number; height?: number } = {},
+): Promise<Buffer> {
+  return sharp({
+    create: {
+      width,
+      height,
+      channels: 3,
+      background: { r: 40, g: 120, b: 200 },
+    },
+  })
+    .toFormat(format)
+    .toBuffer();
 }
 
 /** Signs a person in and resolves with their session's `Cookie` header. */

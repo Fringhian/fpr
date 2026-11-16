@@ -13,6 +13,7 @@ import { type HttpLogger, pinoHttp } from "pino-http";
 import { type Auth, authBasePath } from "./auth/auth.js";
 import { docsPath, docsRouter } from "./docs.js";
 import { errorHandler, notFound } from "./errors.js";
+import { avatarUploadPath, readAvatarBody } from "./me/avatar-body.js";
 import { mountRouter } from "./orpc.js";
 import {
   authAccessCheck,
@@ -20,6 +21,7 @@ import {
   publicWriteRateLimit,
 } from "./pipeline/index.js";
 import { apiRouter } from "./router.js";
+import type { AvatarStore } from "./storage/avatar-store.js";
 
 export interface AppOptions {
   /** The contract routes served under `/api`. Defaults to every API route. */
@@ -27,6 +29,8 @@ export interface AppOptions {
   db: Db;
   /** Better Auth, served at `/api/auth/*`. */
   auth: Auth;
+  /** The bucket profile pictures are kept in. */
+  avatars: AvatarStore;
   /** `PUBLIC_URL`: the only origin a write is accepted from. */
   publicUrl: string;
   /** `ADMIN_BOOTSTRAP_KEY`: the key that creates the first admin. */
@@ -46,6 +50,7 @@ export interface AppOptions {
 export function createApp({
   db,
   auth,
+  avatars,
   publicUrl,
   bootstrapKey,
   logger,
@@ -74,9 +79,12 @@ export function createApp({
 
   // Better Auth reads its own bodies, so it comes before any body parser.
   mountAuth(app, { db, auth });
+  // A picture is the one raw body: read here, with its size limit.
+  app.put(avatarUploadPath, readAvatarBody);
   mountRouter(app, router, {
     db,
     auth,
+    avatars,
     publicOrigin: new URL(publicUrl).origin,
     bootstrapKey,
     rateLimits: createRateLimiter(publicWriteRateLimit),

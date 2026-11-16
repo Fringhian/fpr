@@ -74,8 +74,8 @@ Every error is `{ "error": { "code", "details" } }`. The web app turns the code 
 | `409` | `share_not_needing_attention` | Making manual a share that doesn't need attention |
 | `409` | `value_changed` | A value point isn't the expected value, or one exists at that moment. `details`: `{ priceEur }` |
 | `409` | `refresh_running` | A price refresh while a run is going |
-| `413` | `avatar_too_large` | A picture over 2 MB |
-| `415` | `avatar_type_unsupported` | A picture that isn't JPEG, PNG, or WebP |
+| `413` | `avatar_too_large` | A picture over 2 MB or 40 megapixels |
+| `415` | `avatar_type_unsupported` | A picture whose type or content isn't JPEG, PNG, or WebP |
 | `422` | `invalid_access_key` | A key that isn't waiting, doesn't give access, or is for the other kind of person. `details`: `{ state }` |
 | `422` | `invalid_reset_key` | A wrong, used, or expired email and reset key pair |
 | `422` | `invalid_bootstrap_key` | `POST /setup` with the wrong bootstrap key |
@@ -118,7 +118,7 @@ Every public write is rate-limited per client address: see `auth.md`.
 | `PUT /me/avatar`, `DELETE /me/avatar` | profile | Upload a picture, stored in S3-compatible storage, or remove it |
 | `GET /users/:userId/avatar` | profile | A person's uploaded picture |
 
-A person without a picture is drawn by the web app as their initial on their colour.
+A person without a picture is drawn by the web app as their initial on their colour. An upload is stored as WebP, upright, at most 512 pixels a side and without metadata, under a new version that its URL carries, so a browser caches each version for good.
 
 ### Portfolio
 
@@ -227,5 +227,5 @@ A pseudonym is an English adjective and animal, such as `Calm Otter`, picked fro
 | `ADMIN_BOOTSTRAP_KEY` | The first admin's setup key. 32 characters or more |
 | `PSEUDONYM_SECRET` | Pseudonyms. 32 characters or more |
 | `PRICES_URL`, `PRICES_TOKEN` | The price service |
-| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage |
+| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Picture storage, any S3-compatible service. `S3_REGION` is `auto` for Cloudflare R2 |
 | `RACE_TIMEZONE` | Where a day starts. Default `Europe/Paris` |
