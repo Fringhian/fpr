@@ -13,9 +13,10 @@ function paint() {
 }
 
 /**
- * The browser's bar above the page, an installed app's status bar included,
- * takes the colour of the page's top: the sky while a band shows, the page
- * ground otherwise, as `index.html` starts.
+ * The page's `theme-color` follows its top: the sky while a band shows, the
+ * page ground otherwise, as `index.html` starts. A browser or an installed
+ * app that tints its bar above the page with it matches the top bar; an app
+ * installed on iOS keeps its default status bar.
  */
 export function useSkyThemeColor() {
   useEffect(() => {
