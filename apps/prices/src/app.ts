@@ -52,7 +52,10 @@ function logRequests(logger: Logger): HttpLogger<Request, Response> {
       req: (req) => ({ id: req.id, method: req.method }),
       res: (res) => ({ statusCode: res.statusCode }),
     },
-    customProps: (req) => ({ route: req.route?.path ?? null }),
+    // pino-http also calls this before the route is matched; the key is left
+    // out then, so it appears once in each line.
+    customProps: (req, res) =>
+      res.writableFinished ? { route: req.route?.path ?? null } : {},
     customAttributeKeys: { responseTime: "duration" },
   });
 }
