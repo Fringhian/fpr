@@ -28,7 +28,7 @@ const item = cn(
   "",
   "not-disabled:hover:bg-highlight",
   "focus-visible:focus-ring",
-  "checked:inset-shadow-[inset_0_0_0_2.5px_var(--color-primary)]",
+  "checked:inset-shadow-[0_0_0_2.5px_var(--color-primary)]",
   "disabled:dimmed",
 );
 
