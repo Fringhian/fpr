@@ -1,33 +1,20 @@
 import type { Id } from "@fpr/contracts";
+import { urlSwitches } from "../magic.ts";
 import { type Persona, personaSession, personas } from "../personas.ts";
+import { takeUrlSwitch } from "../url-switch.ts";
 
 const sessionKey = "fpr.mock.session";
 const hiddenKey = "fpr.mock.switchHidden";
 
-/** The persona `?mock-as=<persona>` asks for, removed from the address once read. */
+/** The persona `?mock-as=<persona>` asks for. */
 function askedPersona(): Persona | undefined {
-  const url = new URL(window.location.href);
-  const asked = url.searchParams.get("mock-as");
-  if (asked === null) {
-    return undefined;
-  }
-  url.searchParams.delete("mock-as");
-  window.history.replaceState(window.history.state, "", url);
-  return asked in personas ? (asked as Persona) : undefined;
+  const asked = takeUrlSwitch(urlSwitches.persona);
+  return asked !== null && asked in personas ? (asked as Persona) : undefined;
 }
 
-/**
- * Whether `?mock-empty` asks for an instance with nobody yet, where `/setup`
- * is open, removed from the address once read. It lasts until the next load.
- */
+/** Whether `?mock-empty` asks for an instance with nobody yet, where `/setup` is open. */
 export function readEmpty(): boolean {
-  const url = new URL(window.location.href);
-  if (!url.searchParams.has("mock-empty")) {
-    return false;
-  }
-  url.searchParams.delete("mock-empty");
-  window.history.replaceState(window.history.state, "", url);
-  return true;
+  return takeUrlSwitch(urlSwitches.empty) !== null;
 }
 
 /**
