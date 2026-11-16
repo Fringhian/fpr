@@ -12,12 +12,11 @@ import { useShareLookup } from "./use-share-lookup";
  */
 export function useListedShares(query: string, period: Period) {
   const { role } = useSession();
-  const search = useShareSearch(query, period);
+  const { search, current } = useShareSearch(query, period);
   const shares = search.data?.shares;
   const lookup = useShareLookup({
     query: query.trim(),
-    period,
-    listed: shares,
+    listed: current ? shares : undefined,
     enabled: writerRoles.some((writer) => writer === role),
   });
 

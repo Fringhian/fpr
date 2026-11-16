@@ -1,88 +1,81 @@
-import type { Id, Listing, Period, ShareSummary } from "@fpr/contracts";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import type { Id, Listing, ShareSummary } from "@fpr/contracts";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useEffectEvent, useState } from "react";
 import type * as ShareLookup from "../../components/organisms/share-lookup/share-lookup";
 import { useErrorText } from "../../lib/api/errors";
 import { useApi } from "../../lib/api/use-api";
 import { isinIn } from "../../lib/isin";
 
-/** The shares a text matched in FPR when it was looked up: what the lookup found besides is new. */
-type Known = { subject: string; ids: ReadonlySet<Id> };
-
-/**
- * Whether FPR already has the ISIN typed: the Shares search's own answer for
- * it, from the cache the list fills, so asking costs no other call.
- */
-function useIsinInFpr(isin: string | null, period: Period, enabled: boolean) {
-  const api = useApi();
-
-  return useQuery({
-    ...api.shares.search.queryOptions({ input: { q: isin ?? "", period } }),
-    enabled: enabled && isin !== null,
-    select: ({ shares }) => shares.some((share) => share.isin === isin),
-  });
-}
-
 /**
  * Finding a share FPR doesn't know yet at the price provider, for `query`,
  * the Shares search's text: a full ISIN that isn't in FPR is looked up by
  * itself, any other text when `lookUp` is pressed. One lookup is one
  * provider call, and its answer belongs to the text it was made for.
- * `listed` are the shares FPR matched for the text: the lookup's `found`
- * are the others, which the list leaves to the lookup. `null` state while
- * there is nothing to offer, for a reader who can't look up, or no text.
+ * `listed` are the shares FPR matched for the text, `undefined` until the
+ * search has answered for this very text: the lookup waits for them, and
+ * its `found` are the others, which the list leaves to the lookup. `null`
+ * state while there is nothing to offer, for a reader who can't look up,
+ * or no text.
  */
 export function useShareLookup({
   query,
-  period,
   listed,
   enabled,
 }: {
   query: string;
-  period: Period;
-  listed: readonly { id: Id }[] | undefined;
+  listed: readonly { id: Id; isin: string }[] | undefined;
   enabled: boolean;
 }) {
   const api = useApi();
   const errorText = useErrorText();
   const lookup = useMutation(api.shares.lookup.mutationOptions());
   const listing = useMutation(api.shares.lookup.mutationOptions());
-  const [known, setKnown] = useState<Known | null>(null);
+  // The shares FPR matched when the text was looked up: what the lookup found besides is new.
+  const [known, setKnown] = useState<ReadonlySet<Id>>(new Set());
+  // The text whose lookup was pressed before its matches arrived.
+  const [asked, setAsked] = useState<string | null>(null);
   const isin = isinIn(query);
-  const inFpr = useIsinInFpr(isin, period, enabled);
 
   const subject = isin ?? query;
-  const lookUp = useEffectEvent(() => {
-    setKnown({ subject, ids: new Set(listed?.map(({ id }) => id)) });
+  const inFpr = isin !== null && listed?.some((share) => share.isin === isin);
+  const lookedUp = lookup.variables?.query === subject;
+  const wanted =
+    enabled && (asked === subject || (isin !== null && inFpr === false));
+  const run = useEffectEvent(() => {
+    setAsked(null);
+    setKnown(new Set(listed?.map(({ id }) => id)));
     listing.reset();
     lookup.mutate({ query: subject });
   });
-  const lookedUp = lookup.variables?.query === subject;
 
   useEffect(() => {
-    if (isin !== null && inFpr.data === false && !lookedUp) lookUp();
-  }, [isin, inFpr.data, lookedUp]);
+    if (wanted && listed !== undefined && !lookedUp) run();
+  }, [wanted, listed, lookedUp]);
 
   const found =
     lookedUp && lookup.data
-      ? lookup.data.shares.filter((share) => !known?.ids.has(share.id))
+      ? lookup.data.shares.filter((share) => !known.has(share.id))
       : [];
   const state = stateOf({
     open: enabled && query !== "",
-    waiting: isin !== null && inFpr.data !== false,
-    lookedUp,
-    pending: lookup.isPending,
+    waiting: isin !== null && inFpr !== false,
+    lookedUp: lookedUp || wanted,
+    pending: lookup.isPending || !lookedUp,
     error: lookup.isError ? errorText(lookup.error) : null,
     found,
     listings: lookup.data?.listings ?? [],
-    others: (known?.ids.size ?? 0) > 0,
+    others: known.size > 0,
   });
 
   return {
     state,
     /** The shares only the lookup shows, by id. */
     found: new Set(found.map(({ id }) => id)),
-    lookUp: () => lookUp(),
+    /** Looks the text up once its matches are known, again after a failure. */
+    lookUp: () => {
+      lookup.reset();
+      setAsked(subject);
+    },
     addListing: (
       { symbol }: Listing,
       typed: string,
