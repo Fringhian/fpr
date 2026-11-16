@@ -15,6 +15,7 @@
       "!!**/storybook-static",
       "!**/routeTree.gen.ts",
       "!**/contract.gen.json",
+      "!**/mockServiceWorker.js",
       "!packages/contracts/openapi.json",
       "!.claude"
     ]
