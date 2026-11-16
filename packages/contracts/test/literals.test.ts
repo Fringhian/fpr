@@ -6,26 +6,30 @@ import {
   accessSignInMethods,
 } from "../src/api/access/access-keys.js";
 import { adminAccessStatuses } from "../src/api/admin/people.js";
-import { languages } from "../src/api/me/profile.js";
-import { leaderboardBoards } from "../src/api/race/leaderboards.js";
 import { shareValueActions } from "../src/api/shares/values.js";
 import { roles } from "../src/roles.js";
-import { priceSources, shareKinds } from "../src/schemas/share.js";
-import { periods, units } from "../src/values.js";
+import {
+  languages,
+  leaderboardBoards,
+  periods,
+  priceSources,
+  shareKinds,
+  units,
+} from "../src/values.js";
 
 /** Each shared list, and the file that defines it, relative to `src/`. */
 const lists: [values: readonly string[], definedIn: string][] = [
   [roles, "roles.ts"],
   [periods, "values.ts"],
   [units, "values.ts"],
-  [leaderboardBoards, "api/race/leaderboards.ts"],
-  [shareKinds, "schemas/share.ts"],
-  [priceSources, "schemas/share.ts"],
+  [leaderboardBoards, "values.ts"],
+  [shareKinds, "values.ts"],
+  [priceSources, "values.ts"],
   [shareValueActions, "api/shares/values.ts"],
   [accessKeyStates, "api/access/access-keys.ts"],
   [accessSignInMethods, "api/access/access-keys.ts"],
   [adminAccessStatuses, "api/admin/people.ts"],
-  [languages, "api/me/profile.ts"],
+  [languages, "values.ts"],
 ];
 
 /**
