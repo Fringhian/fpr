@@ -34,16 +34,19 @@ export function placeOf(role: Role, step: OnboardingStep) {
   };
 }
 
+/** The onboarding address's search for `step`: the first step has none. */
+export function searchOf(step: OnboardingStep): {
+  step?: Exclude<OnboardingStep, "name"> | undefined;
+} {
+  return { step: step === "name" ? undefined : step };
+}
+
 /** Opens a step, as a new entry of the history, so the browser's Back returns to the one before. */
 export function useGoToStep(): (step: OnboardingStep) => Promise<void> {
   const navigate = useNavigate();
 
   return useCallback(
-    (step) =>
-      navigate({
-        to: "/onboarding",
-        search: { step: step === "name" ? undefined : step },
-      }),
+    (step) => navigate({ to: "/onboarding", search: searchOf(step) }),
     [navigate],
   );
 }

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useSession } from "../../../lib/session/use-session";
 import { LanguagePage } from "../-access/access-page";
-import { type OnboardingStep, placeOf } from "./steps";
+import { type OnboardingStep, placeOf, searchOf } from "./steps";
 
 /**
  * One onboarding step: Back to the step before, from the second step on, the
@@ -27,14 +27,7 @@ export function OnboardingPage({
       back={
         previous === undefined
           ? null
-          : {
-              render: (
-                <Link
-                  to="/onboarding"
-                  search={{ step: previous === "name" ? undefined : previous }}
-                />
-              ),
-            }
+          : { render: <Link to="/onboarding" search={searchOf(previous)} /> }
       }
       progress={progress}
       panel={panel}

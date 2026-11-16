@@ -3,7 +3,7 @@ import { useSession } from "../../lib/session/use-session";
 import { LookStep } from "./-onboarding/look-step";
 import { NameStep } from "./-onboarding/name-step";
 import { PortfolioStep } from "./-onboarding/portfolio-step";
-import { placeOf, stepIn } from "./-onboarding/steps";
+import { placeOf, searchOf, stepIn } from "./-onboarding/steps";
 import { WelcomeStep } from "./-onboarding/welcome-step";
 
 const screens = {
@@ -21,12 +21,7 @@ const screens = {
  */
 export const Route = createFileRoute("/_focused/onboarding")({
   staticData: { access: "onboarding" },
-  validateSearch: (
-    search,
-  ): { step?: "look" | "portfolio" | "welcome" | undefined } => {
-    const step = stepIn(search.step);
-    return { step: step === "name" ? undefined : step };
-  },
+  validateSearch: (search) => searchOf(stepIn(search.step)),
   component: Onboarding,
 });
 
