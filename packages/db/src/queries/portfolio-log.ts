@@ -1,6 +1,7 @@
 import { type RawBuilder, sql } from "kysely";
 import type { Db } from "../database.js";
 import type { ShareKind } from "../tables/share.js";
+import { valuedMoments } from "./value-moments.js";
 
 /** A share change or a cash balance of a person's log, with what it changed. */
 export type PortfolioLogRow = {
@@ -182,6 +183,57 @@ export async function find(
   );
   const [raw] = rows;
   return raw === undefined ? undefined : toRow(raw);
+}
+
+/**
+ * The weight of each of a person's entries in their balance at its moment,
+ * in percent with two decimals, by entry id: a change's quantity at the
+ * share's price then, or a cash balance's amount. What an anonymous viewer
+ * sees in place of quantities and cash. An entry with no price, or at a
+ * moment the balance is zero, has none.
+ */
+export async function weights(
+  db: Db,
+  userId: string,
+  ids: readonly string[],
+): Promise<Map<string, string>> {
+  if (ids.length === 0) {
+    return new Map();
+  }
+  const balances = valuedMoments(
+    sql`select distinct ${userId}::uuid as user_id, at, false as provisional from entries`,
+  );
+  const { rows } = await sql<{ id: string; weight: string }>`
+    with entries as (
+      select id, effective_at as at, share_id, abs(quantity_delta) as quantity,
+        null::numeric as amount
+      from portfolio_changes
+      where user_id = ${userId} and id = any(${ids}::uuid[])
+      union all
+      select id, effective_at, null, null, amount_eur
+      from cash_balances
+      where user_id = ${userId} and id = any(${ids}::uuid[])
+    ),
+    balances as (${balances}),
+    valued as (
+      select
+        entries.id,
+        coalesce(entries.amount, entries.quantity * price.price_eur) as value,
+        balances.balance_eur
+      from entries
+      join balances on balances.at = entries.at
+      left join lateral (
+        select price_eur from prices
+        where share_id = entries.share_id and at <= entries.at
+        order by at desc
+        limit 1
+      ) price on true
+    )
+    select id::text, round(100 * value / balance_eur, 2)::text as weight
+    from valued
+    where value is not null and balance_eur > 0
+  `.execute(db);
+  return new Map(rows.map(({ id, weight }) => [id, weight]));
 }
 
 /** How many share changes and cash balances a person has. */

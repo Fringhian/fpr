@@ -38,7 +38,17 @@ export async function valueMoments(
   db: Db,
   moments: RawBuilder<unknown>,
 ): Promise<(BalancePoint & { userId: string })[]> {
-  const { rows } = await sql<BalancePoint & { userId: string }>`
+  const { rows } = await valuedMoments(moments).execute(db);
+  return rows;
+}
+
+/**
+ * The query `valueMoments` runs, with columns `user_id`, `at`,
+ * `provisional`, `balance_eur`, `shares_eur`, `cash_eur` and `incomplete`, to
+ * build on in another query.
+ */
+export function valuedMoments(moments: RawBuilder<unknown>) {
+  return sql<BalancePoint & { userId: string }>`
     with moments as (${moments}),
     holding_steps as (
       select
@@ -124,6 +134,5 @@ export async function valueMoments(
       and cash.from_at <= valued.at
       and (cash.to_at is null or valued.at < cash.to_at)
     order by valued.user_id, valued.at
-  `.execute(db);
-  return rows;
+  `;
 }

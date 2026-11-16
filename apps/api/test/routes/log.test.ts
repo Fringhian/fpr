@@ -9,6 +9,7 @@ import {
   apiRequest,
   createTestAuth,
   parseOutput,
+  pseudonymOf,
   serveApp,
   type TestServer,
 } from "../test-support.js";
@@ -28,7 +29,7 @@ afterAll(async () => {
   await test.drop();
 });
 
-const signedIn = (role: "admin" | "member" | "guest") =>
+const signedIn = (role: "admin" | "member" | "guest" | "anonymous") =>
   addSignedIn(server, test.db, auth, role);
 
 const { log, logEntry } = apiContract.portfolio;
@@ -111,6 +112,48 @@ describe("GET /api/users/:userId/log", () => {
       },
     ]);
     expect(second.nextBefore).toBeNull();
+  });
+
+  it("shows an anonymous viewer pseudonyms and each entry's weight, never quantities or cash", async () => {
+    const { admin, member, share } = await memberWithLog();
+    const viewer = await signedIn("anonymous");
+    await test.db
+      .insertInto("prices")
+      .values({
+        shareId: share.id,
+        at: new Date("2026-03-01T22:59:59Z"),
+        priceEur: "10",
+        source: "close",
+      })
+      .execute();
+
+    const response = await apiRequest(server, `/users/${member.id}/log`, {
+      cookie: viewer.cookie,
+    });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { entries: unknown[] };
+    expect(JSON.stringify(body)).not.toContain("Test ");
+    // Each entry's value over the balance at its moment: 50 of 80 €, then
+    // 2 × 10 of 60 €, 30 of 80 €, and 5 × 10 of 50 €.
+    expect(body.entries).toMatchObject([
+      {
+        type: "cash",
+        amountEur: "62.50",
+        previousAmountEur: "62.50",
+        madeBy: {
+          id: member.id,
+          displayName: await pseudonymOf(test.db, member.id),
+        },
+      },
+      { type: "change", quantityDelta: "33.33", quantityAfter: "33.33" },
+      { type: "cash", amountEur: "37.50", previousAmountEur: null },
+      {
+        type: "change",
+        quantityDelta: "100.00",
+        madeBy: { displayName: await pseudonymOf(test.db, admin.id) },
+      },
+    ]);
   });
 
   it("refuses a before the log didn't give, and a guest's log", async () => {

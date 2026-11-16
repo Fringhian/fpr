@@ -12,11 +12,11 @@ import { logEntry, logPage } from "./log.js";
 export const portfolioRouter = {
   log: api.portfolio.log
     .use(signedIn)
-    .handler(({ context, input }) => logPage(context.db, input)),
+    .handler(({ context, input }) => logPage(context, input)),
 
   logEntry: api.portfolio.logEntry
     .use(signedIn)
-    .handler(({ context, input }) => logEntry(context.db, input)),
+    .handler(({ context, input }) => logEntry(context, input)),
 
   cashAt: api.portfolio.cashAt
     .use(signedIn)

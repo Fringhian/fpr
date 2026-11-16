@@ -1,21 +1,49 @@
-import type {
-  PortfolioLog,
-  PortfolioLogEntry,
-  PortfolioLogEntryQuery,
+import {
+  type PortfolioLog,
+  type PortfolioLogEntry,
+  type PortfolioLogEntryQuery,
+  Role,
 } from "@fpr/contracts";
 import { type Db, portfolioLog } from "@fpr/db";
 import { apiError } from "../errors.js";
+import type { Viewer } from "../pipeline/index.js";
 import { toLogEntry } from "./entries.js";
 import { findPortfolioOwner } from "./owner.js";
+
+/** What the log routes read with, and the anonymizer's weights they fill. */
+interface LogContext {
+  db: Db;
+  viewer: Viewer;
+  quantityWeights: Map<string, string>;
+}
+
+/**
+ * For an anonymous viewer, each entry's weight in the balance at its moment,
+ * which replaces its quantities and cash: a log entry has no weight beside
+ * them.
+ */
+async function weighEntries(
+  { db, viewer, quantityWeights }: LogContext,
+  userId: string,
+  ids: string[],
+): Promise<void> {
+  if (viewer.role !== Role.anonymous) {
+    return;
+  }
+  for (const [id, weight] of await portfolioLog.weights(db, userId, ids)) {
+    quantityWeights.set(id, weight);
+  }
+}
 
 /**
  * `GET /users/{userId}/log`: a page of share changes and cash balances,
  * newest first. A `before` the log didn't give is `invalid_request`.
  */
 export async function logPage(
-  db: Db,
+  context: LogContext,
   input: { userId: string; limit: number; before?: string | undefined },
 ): Promise<PortfolioLog> {
+  const { db } = context;
   if (input.before !== undefined && !portfolioLog.isCursor(input.before)) {
     throw apiError("invalid_request", {
       issues: [{ path: ["before"], code: "invalid_format" }],
@@ -31,6 +59,11 @@ export async function logPage(
     portfolioLog.count(db, input.userId),
   ]);
   const entries = rows.slice(0, input.limit);
+  await weighEntries(
+    context,
+    input.userId,
+    entries.map(({ id }) => id),
+  );
   return {
     entries: entries.map(toLogEntry),
     nextBefore:
@@ -41,13 +74,14 @@ export async function logPage(
 
 /** `GET /users/{userId}/log/{entryId}`. */
 export async function logEntry(
-  db: Db,
+  context: LogContext,
   input: PortfolioLogEntryQuery,
 ): Promise<PortfolioLogEntry> {
-  await findPortfolioOwner(db, input.userId);
-  const row = await portfolioLog.find(db, input.userId, input.entryId);
+  await findPortfolioOwner(context.db, input.userId);
+  const row = await portfolioLog.find(context.db, input.userId, input.entryId);
   if (row === undefined) {
     throw apiError("not_found");
   }
+  await weighEntries(context, input.userId, [row.id]);
   return toLogEntry(row);
 }
