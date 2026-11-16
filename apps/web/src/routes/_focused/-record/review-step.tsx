@@ -81,7 +81,7 @@ export function ReviewStep() {
   const { t } = useTranslation();
   const errorText = useErrorText();
   const refusalText = useEntryRefusalText();
-  const { draft, goTo, session, setRefusal } = useFlow();
+  const { draft, goTo, showSaved, session, setRefusal } = useFlow();
   const { save, pending } = useSave();
   const [error, setError] = useState<string | null>(null);
 
@@ -91,7 +91,7 @@ export function ReviewStep() {
     try {
       const entry = await save();
       session.add(entry, draft.entry ?? null);
-      goTo("saved");
+      showSaved();
     } catch (failure) {
       if (!isApiError(failure, "holding_below_zero")) {
         setError(errorText(failure));

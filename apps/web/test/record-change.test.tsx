@@ -165,6 +165,36 @@ describe("Record a change", () => {
     expect(store.entries).toHaveLength(before + 1);
   });
 
+  it("saves a draft once, even when it is saved again after Back from Saved, and a reload there offers no save", async () => {
+    const world = fixtureShareId("world");
+    const { page, router, store } = await visit(
+      `/portfolio/record?kind=buy&share=${world}&step=when&day=${daysAgo(1)}`,
+      "member",
+    );
+    const before = store.entries.length;
+
+    await submit(page, () => expect(amountField(page)).toBeTruthy());
+    typeInto(amountField(page), "5");
+    await submit(page, () => expect(text()).toContain("Check and save"));
+    await submit(page, () => expect(text()).toContain("This session"));
+    const saved = router.state.location.href;
+    expect(store.entries).toHaveLength(before + 1);
+
+    await act(async () => {
+      router.history.back();
+      await vi.waitFor(() => expect(text()).toContain("How many did you buy?"));
+    });
+    typeInto(amountField(page), "5");
+    await submit(page, () => expect(text()).toContain("Check and save"));
+    await submit(page, () => expect(text()).toContain("This session"));
+    expect(store.entries).toHaveLength(before + 1);
+
+    const reload = await visit(saved, "member");
+    await vi.waitFor(() =>
+      expect(reload.page.textContent).toContain("What changed?"),
+    );
+  });
+
   it("lets the admin record for a member from their page in edit mode, then returns there", async () => {
     const { page, router, store } = await visit(
       `/members/${SAM}?edit=true`,

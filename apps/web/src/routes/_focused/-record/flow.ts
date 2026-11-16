@@ -17,6 +17,8 @@ export type Owner = {
 export type Flow = {
   owner: Owner;
   draft: Draft;
+  /** The draft's id, kept in the address from the second step: a new entry's id derives from it and the answers. */
+  draftId: Id;
   today: IsoDate;
   step: RecordStep;
   /** This run's progress and the step Back returns to. */
@@ -27,6 +29,8 @@ export type Flow = {
   close: ReactElement;
   /** Opens `step` with the answers so far, `patch` added to them. */
   goTo: (step: RecordStep, patch?: Partial<RecordSearch>) => void;
+  /** Opens Saved in Review's place, the answers left out of the address, so a reload never offers them again. */
+  showSaved: () => void;
   /** Opens a new change on the same day. */
   recordAnother: () => void;
   session: SessionChanges;

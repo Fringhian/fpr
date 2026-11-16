@@ -47,6 +47,7 @@ export function RecordFlow({
 }) {
   const { t } = useTranslation();
   const [today] = useState(() => raceDayOf(Date.now()));
+  const [firstDraftId] = useState(() => crypto.randomUUID());
   const [refusal, setRefusal] = useState<string | null>(null);
   const session = useSessionChanges();
   const record = useRecord(owner.id);
@@ -74,19 +75,32 @@ export function RecordFlow({
   const shown = shownStep(search, draft);
   const step: RecordStep = shown === "saved" && !session.last ? start : shown;
   const { progress, previous } = placeOf(step, start, draft.kind);
-  const base: RecordSearch = { ...search, step: undefined, start };
+  const draftId = search.draft ?? firstDraftId;
+  const base: RecordSearch = {
+    ...search,
+    step: undefined,
+    start,
+    draft: draftId,
+  };
+  const last = session.last?.entry;
   const flow: Flow = {
     owner,
     draft,
+    draftId,
     today,
     step,
     progress,
     back: previous ? record.link({ ...base, step: previous }) : null,
     close,
     goTo: (next, patch = {}) => record.open({ ...base, ...patch, step: next }),
+    showSaved: () =>
+      record.open({ entry: search.entry, step: "saved" }, { replace: true }),
     recordAnother: () => {
       setRefusal(null);
-      record.open({ day: draft.day });
+      record.open({
+        day: last ? raceDayOf(last.effectiveAt) : draft.day,
+        draft: crypto.randomUUID(),
+      });
     },
     session,
     refusal,

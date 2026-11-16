@@ -27,10 +27,12 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
  * Record a change's search: `entry`, the share change or cash balance it
  * edits; or `kind`, with `share` for a purchase or a sale, the steps it
  * skips. Then the flow's own: `step`, the step shown, `start`, the step it
- * opened on, `day`, the day picked, and `amount`, the quantity or the cash
- * entered. Each is left out when it is not valid.
+ * opened on, `day`, the day picked, `amount`, the quantity or the cash
+ * entered, and `draft`, the draft's id, which a new entry's id derives from.
+ * Each is left out when it is not valid.
  */
 export type RecordSearch = {
+  draft?: Id | undefined;
   entry?: Id | undefined;
   kind?: RecordKind | undefined;
   share?: Id | undefined;
@@ -54,6 +56,7 @@ export function validateRecordSearch(
   } & SearchSchemaInput,
 ): RecordSearch {
   return {
+    draft: idIn(search.draft),
     entry: idIn(search.entry),
     kind: oneOf(recordKinds, search.kind),
     share: idIn(search.share),
