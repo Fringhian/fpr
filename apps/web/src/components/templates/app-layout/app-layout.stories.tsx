@@ -17,6 +17,7 @@ The frame every everyday page sits in: Home, Members, a member, Portfolio, Share
 | \`AppLayout.Main\` | The page’s column, its \`<main>\`, which “Skip to content” leads to, on the page ground of \`Sky.Root\`. Its end clears the tab bar by \`--tab-bar-room\` on phone, 92px above the bottom safe area, and leaves 40px from tablet up. |
 | \`AppLayout.CompactBar\` | \`PageBar.Compact\`, first in \`AppLayout.Main\`, outside the gutters, its title and controls lined up with the content. \`anchor\` is the same ref as the page’s \`PageBar.Root\`. |
 | \`AppLayout.Content\` | The page bar and the page’s regions between the gutters, 16px on phone and 24px from tablet up, up to 1120px wide, centred in the column. On a page with a header sentence, \`Sky.Band\` comes before it and \`Sky.Header\` first in it. |
+| \`AppLayout.Page\` | One page inside \`AppLayout.Main\`, from \`Basic\`’s \`bar\`, \`compactBar\`, \`header\` and \`children\`: the compact bar, the sky when there is a header sentence, then \`Content\`. The app shell keeps the frame and renders a \`Page\` per route. |
 
 - **Desktop**, from 1120px: the sidebar, then the column; past 1120px of content, the content centres and the sky still spans the column.
 - **Tablet**, from 640px: the rail, then the column.
