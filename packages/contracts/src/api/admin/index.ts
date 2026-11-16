@@ -10,7 +10,7 @@ import {
   adminPeople,
   adminUpdatePerson,
 } from "./people.js";
-import { adminRefreshPrices } from "./prices.js";
+import { adminRefreshPrices, adminRefreshState } from "./prices.js";
 import { adminMakeManual, adminShares } from "./shares.js";
 
 export type * from "./access.js";
@@ -31,4 +31,5 @@ export const adminContract = {
   shares: adminShares,
   makeManual: adminMakeManual,
   refreshPrices: adminRefreshPrices,
+  refreshState: adminRefreshState,
 };

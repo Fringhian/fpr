@@ -129,4 +129,12 @@ export const adminShareRoutes = {
       finishedAt: timestamp(store.calendar.nowMs),
     };
   }),
+
+  refreshState: mock.admin.refreshState.handler(({ context }) => ({
+    lastRunAt: timestamp(context.store.calendar.nowMs),
+    lastResult: null,
+    nextRunAt: null,
+    runsToday: 0,
+    cap: { callLimit: 1000, callsToday: 0, callsLeft: 1000 },
+  })),
 };

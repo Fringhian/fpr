@@ -81,6 +81,7 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
     "race.race": () => client.race.race({ period: "1W" }),
     "admin.people": () => client.admin.people(),
     "admin.shares": () => client.admin.shares(),
+    "admin.refreshState": () => client.admin.refreshState(),
   };
 }
 
