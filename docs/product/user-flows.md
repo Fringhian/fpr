@@ -407,7 +407,7 @@ stateDiagram-v2
   Pending --> Tracked: history fetched
   Pending --> Pending: fetch fails, retried every 30 minutes
   Tracked --> Tracked: latest price every 30 minutes, close each morning
-  Tracked --> NeedsAttention: latest close older than the last trading day
+  Tracked --> NeedsAttention: no close in the last 5 trading days
   NeedsAttention --> Tracked: a refresh succeeds
   NeedsAttention --> Manual: the admin makes it manual
   Pending --> Manual: the admin makes it manual

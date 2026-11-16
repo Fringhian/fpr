@@ -11,19 +11,32 @@ import express, {
 import type { Logger } from "pino";
 import { type HttpLogger, pinoHttp } from "pino-http";
 import { requireToken } from "./auth.js";
+import { mountRouter } from "./orpc.js";
+import { pricesRouter } from "./router.js";
 
 export interface AppOptions {
   db: Db;
   logger: Logger;
   /** The bearer token every route except `/health` requires. */
   token: string;
+  /** `RACE_TIMEZONE`. */
+  timeZone: string;
+  /** The current moment. Defaults to the clock; tests replace it. */
+  now?: () => Date;
 }
 
 /**
  * Builds the Express app: request logging, the unauthenticated health check,
- * token authentication for every other route, and error handling.
+ * token authentication for every other route, the `pricesContract` routes,
+ * and error handling.
  */
-export function createApp({ db, logger, token }: AppOptions): Express {
+export function createApp({
+  db,
+  logger,
+  token,
+  timeZone,
+  now = () => new Date(),
+}: AppOptions): Express {
   const app = express();
 
   app.disable("x-powered-by");
@@ -35,6 +48,8 @@ export function createApp({ db, logger, token }: AppOptions): Express {
 
   // Every route mounted after this point requires the bearer token.
   app.use(requireToken(token));
+
+  mountRouter(app, pricesRouter, { db, timeZone, now });
 
   app.use(notFound);
   app.use(errorHandler);
