@@ -199,11 +199,11 @@ The rules on roles, the last admin, and access are in `auth.md`, Admin rules. Ma
 Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each weekday's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
 
 - **Balance**: the series at the last close.
-- **Gain**: the series at the last close minus its value at the period's start, in euros, or divided by it, in percent.
+- **Gain**: the series at the last close minus its value at the period's start minus the flows between them, every share change at its day's price and every change of cash balance, in euros; in percent, divided by the value at the start plus each flow weighted by the fraction of the period left after the point it first shows in (Modified Dietz), with no percentage when that is zero or below.
 - **A holding's gain over a period**: its value at the end, minus its value at the start, minus the shares added, plus the shares removed, each at its day's price.
 - **Gain since bought**: a holding's value minus its cost. A purchase costs its quantity × that day's price. A sale removes cost at the holding's average cost.
 - Leaderboards use closes only. The intraday points serve the race chart's current day, portfolios, and share pages.
-- A member whose first entry is after the period's start is measured from it, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the others, marked incomplete.
+- A member whose first entry is after the period's start is measured from their first balance, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the others, marked incomplete.
 
 The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` or the number of rows in `prices` has changed, which catches the price service's runs, or when a new close has passed.
 

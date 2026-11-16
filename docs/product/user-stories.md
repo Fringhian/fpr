@@ -142,6 +142,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A member with no entries yet is listed under the standings as not started.
 - A member whose history is shorter than the period is measured from their first entry, with a marker.
 - Standings use daily closes only. Removing shares in the morning and adding others in the afternoon never shows on them.
+- Money a member adds or takes out, by buying, selling, or changing their cash, is no gain: only price moves are.
 - A missing close for a held share is valued at its latest stored price, and Home says "prices as of <date>".
 - Editing or deleting a past entry recalculates every leaderboard from that moment.
 - Every share change, cash balance, and manual value edit stays recorded: who made it, when, and from what to what. v1 shows no feed.
