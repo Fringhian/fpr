@@ -44,7 +44,8 @@ afterEach(() => {
  * `fetch`, answer from the same mock. `failMe` answers `GET /me` with a
  * server error. `language` is the one picked on the device before the visit,
  * English by default, or `null` for none; a signed-in person's own language
- * wins. `empty` starts an instance with nobody yet.
+ * wins. `empty` starts an instance with nobody yet. A route call whose URL
+ * `hold` matches waits for `release()`, to look at the page mid-load.
  */
 export async function visit(
   path: string,
@@ -53,8 +54,15 @@ export async function visit(
     failMe = false,
     language = "en",
     empty = false,
-  }: { failMe?: boolean; language?: Language | null; empty?: boolean } = {},
+    hold = () => false,
+  }: {
+    failMe?: boolean;
+    language?: Language | null;
+    empty?: boolean;
+    hold?: (url: URL) => boolean;
+  } = {},
 ) {
+  const { promise: released, resolve: release } = Promise.withResolvers();
   if (language === null) {
     localStorage.removeItem(LANGUAGE_KEY);
   } else {
@@ -72,10 +80,13 @@ export async function visit(
   const api = createTanstackQueryUtils(
     createApiClient({
       url: `${origin}/api`,
-      fetch: async (request) =>
-        failMe && new URL(request.url).pathname === "/api/me"
+      fetch: async (request) => {
+        const url = new URL(request.url);
+        if (hold(url)) await released;
+        return failMe && url.pathname === "/api/me"
           ? new Response(null, { status: 502 })
-          : ((await getResponse(handlers, request)) ?? Response.error()),
+          : ((await getResponse(handlers, request)) ?? Response.error());
+      },
       onAccessEnded,
     }),
   );
@@ -115,5 +126,7 @@ export async function visit(
     queryClient,
     /** The mock API's store, to change what it answers mid-visit. */
     store,
+    /** Lets the held calls through. */
+    release: () => act(async () => release(undefined)),
   };
 }
