@@ -17,14 +17,14 @@
   "lane": {
     "you": "· vous",
     "best": "Meilleure : {{share}}",
-    "bestShare": "Meilleure action",
+    "bestShare": "Meilleur titre",
     "since": "depuis le {{date}}",
     "notStarted_one": "{{names}} n’a pas encore commencé.",
     "notStarted_many": "{{names}} n’ont pas encore commencé.",
     "notStarted_other": "{{names}} n’ont pas encore commencé."
   },
   "memberStrip": {
-    "noShares": "Pas encore d’actions",
+    "noShares": "Pas encore de titres",
     "noGain": "Pas encore de gain",
     "more_one": "+{{count}} autre",
     "more_many": "+{{count}} autres",
@@ -39,7 +39,7 @@
     "loading": "Chargement du classement…",
     "empty": {
       "title": "Personne n’est encore dans la course",
-      "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
+      "body": "Le classement se remplit dès que quelqu’un enregistre son premier titre."
     }
   },
   "foundations": {
@@ -500,10 +500,10 @@
     "points_many": "{{points}} de points",
     "points_other": "{{points}} points",
     "inRace": "Dans la course depuis le {{date}}",
-    "shares_one": "{{count}} action",
-    "shares_many": "{{count}} d’actions",
-    "shares_other": "{{count}} actions",
-    "notStarted": "{{name}} n’a encore enregistré aucune action.",
+    "shares_one": "{{count}} titre",
+    "shares_many": "{{count}} de titres",
+    "shares_other": "{{count}} titres",
+    "notStarted": "{{name}} n’a encore enregistré aucun titre.",
     "chart": "Le gain de {{name}} sur la période",
     "chartVsYou": "Le gain de {{name}} sur la période, face au vôtre",
     "holdings": "Les positions de {{name}}",
@@ -549,7 +549,7 @@
     "seeAll": "Voir tous les mouvements"
   },
   "sharePage": {
-    "loading": "Chargement de l’action…",
+    "loading": "Chargement du titre…",
     "enteredBy": "le {{date}}, saisie par <person/>",
     "enteredOn": "le {{date}}",
     "position": {
@@ -567,8 +567,8 @@
     },
     "chart": "{{name}}, cours {{period}}",
     "pricesFrom": "Cours depuis le {{date}}",
-    "nobody": "Personne ne détient encore cette action. Son graphique commence avec la première position.",
-    "loadingHistory": "Chargement de l’historique de cette action…",
+    "nobody": "Personne ne détient encore ce titre. Son graphique commence avec la première position.",
+    "loadingHistory": "Chargement de l’historique de ce titre…",
     "holders": {
       "title": "Qui la détient · {{count}}",
       "weight": "{{weight}} de son portefeuille",
@@ -583,7 +583,7 @@
     }
   },
   "valueActions": {
-    "keepOne": "Une action manuelle garde au moins une valeur",
+    "keepOne": "Un titre manuel garde au moins une valeur",
     "deleted": "Valeur supprimée",
     "deleteRefused": "Impossible de supprimer cette valeur",
     "undoRefused": "Impossible de rétablir cette valeur",
@@ -647,9 +647,9 @@
     "label": "Rechercher par nom, ISIN ou symbole",
     "clear": "Effacer la recherche",
     "retry": "Réessayer",
-    "loading": "Chargement des actions…",
-    "empty": "FPR n’a encore aucune action.",
-    "none": "Aucune action de FPR ne correspond à {{q}}."
+    "loading": "Chargement des titres…",
+    "empty": "FPR n’a encore aucun titre.",
+    "none": "Aucun titre de FPR ne correspond à {{q}}."
   },
   "pictureStack": {
     "others_one": "et {{count}} autre",
@@ -674,7 +674,7 @@
     "looking": "Recherche de {{q}} chez le fournisseur de cours…",
     "found": "Pas encore dans FPR. Trouvé chez le fournisseur de cours :",
     "add": "Ajouter",
-    "addShare": "Ajouter l’action",
+    "addShare": "Ajouter le titre",
     "adding": "Ajout…",
     "cancel": "Annuler",
     "isin": {
@@ -682,39 +682,39 @@
       "help": "Le fournisseur de cours ne l’a pas envoyé. Il figure sur votre relevé.",
       "invalid": "Saisissez l’ISIN de votre relevé : deux lettres, neuf lettres ou chiffres, puis un chiffre de contrôle."
     },
-    "openTaken": "Ouvrir cette action",
-    "isinTaken": "Une autre action de FPR a déjà cet ISIN.",
-    "none": "Aucune action trouvée pour {{q}}",
+    "openTaken": "Ouvrir ce titre",
+    "isinTaken": "Un autre titre de FPR a déjà cet ISIN.",
+    "none": "Aucun titre trouvé pour {{q}}",
     "noneOther": "Rien d’autre trouvé pour {{q}}",
-    "noneHelp": "Le fournisseur de cours ne la suit pas. Créez-la et saisissez sa valeur vous-même.",
-    "noneOtherHelp": "Si votre action n’est pas ci-dessus, créez-la et saisissez sa valeur vous-même.",
+    "noneHelp": "Le fournisseur de cours ne le suit pas. Créez-le et saisissez sa valeur vous-même.",
+    "noneOtherHelp": "Si votre titre n’est pas ci-dessus, créez-le et saisissez sa valeur vous-même.",
     "failed": "Impossible de chercher chez le fournisseur de cours pour l’instant",
-    "failedHelp": "Vous pouvez quand même créer l’action à la main.",
-    "create": "Créer une action manuelle"
+    "failedHelp": "Vous pouvez quand même créer le titre à la main.",
+    "create": "Créer un titre manuel"
   },
   "dayField": {
     "today": "Aujourd’hui",
     "pick": "Choisir un jour"
   },
   "newShare": {
-    "question": "Créer une action manuelle",
-    "description": "Pour une action que le fournisseur de cours ne suit pas : les membres saisissent sa valeur.",
+    "question": "Créer un titre manuel",
+    "description": "Pour un titre que le fournisseur de cours ne suit pas : les membres saisissent sa valeur.",
     "help": "Tout le monde peut mettre à jour sa valeur ensuite.",
-    "summary": "La nouvelle action",
-    "create": "Créer l’action",
+    "summary": "Le nouveau titre",
+    "create": "Créer le titre",
     "creating": "Création…",
-    "created": "{{name}} créée"
+    "created": "{{name}} créé"
   },
   "shareFields": {
     "isin": {
       "label": "ISIN",
-      "openTaken": "Ouvrir cette action",
+      "openTaken": "Ouvrir ce titre",
       "invalid": "Saisissez l’ISIN de votre relevé : deux lettres, neuf lettres ou chiffres, puis un chiffre de contrôle."
     },
     "name": {
       "label": "Nom",
       "placeholder": "Nom comme sur votre relevé",
-      "missing": "Saisissez le nom de l’action."
+      "missing": "Saisissez le nom du titre."
     },
     "price": {
       "label": "Valeur d’une part",
@@ -745,7 +745,7 @@
       }
     },
     "actions": {
-      "share": "Choisir l’action",
+      "share": "Choisir le titre",
       "date": "Choisir la date",
       "quantity": "Saisir la quantité",
       "amount": "Saisir le montant",
@@ -757,8 +757,8 @@
       "missing": "Choisissez ce qui a changé."
     },
     "share": {
-      "question": "Quelle action ?",
-      "missing": "Choisissez une action dans la liste."
+      "question": "Quel titre ?",
+      "missing": "Choisissez un titre dans la liste."
     },
     "when": {
       "question": "Quand ?",
@@ -836,7 +836,7 @@
     "summary": {
       "title": "Ce mouvement",
       "what": "Quoi",
-      "share": "Action",
+      "share": "Titre",
       "when": "Quand",
       "quantity": "Combien",
       "amount": "Montant"
@@ -929,7 +929,7 @@
       },
       "splits": {
         "title": "Divisions et dividendes",
-        "body": "Une division d’actions s’enregistre comme un achat des nouvelles actions le jour de la division. Un dividende versé en espèces se reporte dans vos liquidités."
+        "body": "Une division de titres s’enregistre comme un achat des nouveaux titres le jour de la division. Un dividende versé en espèces se reporte dans vos liquidités."
       },
       "credits": {
         "title": "Crédits",
@@ -1142,9 +1142,9 @@
     "adminExists": "FPR a déjà un admin. Connectez-vous plutôt.",
     "colorTaken": "Quelqu’un vient de prendre cette couleur. Choisissez-en une autre.",
     "emailTaken": "Quelqu’un d’autre utilise déjà cet e-mail. Saisissez-en un autre.",
-    "isinTaken": "Une autre action a déjà cet ISIN. Ouvrez plutôt cette action.",
-    "shareInUse": "Quelqu’un détient ou a détenu cette action, elle ne peut donc pas être supprimée.",
-    "shareNotNeedingAttention": "Les cours de cette action arrivent de nouveau, elle reste donc une action de marché.",
+    "isinTaken": "Un autre titre a déjà cet ISIN. Ouvrez plutôt ce titre.",
+    "shareInUse": "Quelqu’un détient ou a détenu ce titre, il ne peut donc pas être supprimé.",
+    "shareNotNeedingAttention": "Les cours de ce titre arrivent de nouveau, il reste donc un titre de marché.",
     "valueChanged": "Quelqu’un a modifié cette valeur entre-temps. Vérifiez la nouvelle valeur, puis confirmez de nouveau.",
     "refreshRunning": "Les cours sont déjà en cours d’actualisation. Réessayez dans une minute.",
     "avatarTooLarge": "Cette photo est trop lourde. Choisissez-en une de moins de 2 Mo.",
@@ -1157,7 +1157,7 @@
     "lastAdmin": "FPR a besoin d’au moins un admin. Nommez d’abord quelqu’un d’autre admin.",
     "hasPortfolioEntries": "Cette personne a un portefeuille et ne peut pas devenir invitée. Supprimez d’abord ses entrées.",
     "anonymousRoleFixed": "Un lecteur anonyme reste anonyme. Ajoutez une nouvelle personne avec le rôle voulu.",
-    "lastValuePoint": "Une action manuelle garde au moins une valeur. Ajoutez-en une autre avant de supprimer celle-ci.",
+    "lastValuePoint": "Un titre manuel garde au moins une valeur. Ajoutez-en une autre avant de supprimer celle-ci.",
     "rateLimited": "Trop de tentatives. Attendez une minute et réessayez.",
     "callBudgetUsed": "Les recherches de cours du jour sont épuisées. Réessayez demain.",
     "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",
