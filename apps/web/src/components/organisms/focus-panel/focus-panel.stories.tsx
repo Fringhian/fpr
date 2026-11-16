@@ -3,10 +3,11 @@ import { periods } from "@fpr/contracts/values";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useId } from "react";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { Mover } from "../mover-row/mover-row";
-import { FocusPanel, type FocusPanelProps } from "./focus-panel";
+import * as FocusPanel from "./focus-panel";
 
 const MOVERS: readonly Mover[] = [
   {
@@ -54,12 +55,16 @@ const PAGE_ICONS = {
  * The stories' args: “Back to you” is a part, switched on or off, and the
  * page link's icon is picked by name.
  */
-type PanelArgs = Omit<FocusPanelProps, "backLink" | "pageLink"> & {
+type PanelArgs = Omit<FocusPanel.BasicProps, "backLink" | "pageLink"> & {
   backLink: boolean;
   pageLink: keyof typeof PAGE_ICONS;
 };
 
-function toProps({ backLink, pageLink, ...args }: PanelArgs): FocusPanelProps {
+function toProps({
+  backLink,
+  pageLink,
+  ...args
+}: PanelArgs): FocusPanel.BasicProps {
   return {
     ...args,
     pageLink: { href: "#", toPageIcon: PAGE_ICONS[pageLink] },
@@ -76,14 +81,16 @@ The member the viewer looks at on Home, the viewer by default: their picture and
 - The link opens their page, or the viewer’s portfolio: an \`href\`, or \`render\` for the router’s link, as the Text link takes.
 - It fills the width it is given: a narrow column beside the race on desktop, the full width under it on tablet and phone. The **Home layout** stories in the sidebar show it at each width.
 - The card rests on an outline. As the first card under the sky, beside the race on desktop, \`className="shadow-rest"\` lifts it.
+
+\`FocusPanel.Basic\` is the ready-made panel. A screen with a special need composes the parts: \`Root\` (the card), \`Header\`, \`Gain\`, \`Movers\` and \`PageLink\`.
 `;
 
 const meta = {
   title: "Organisms/Focus panel",
-  component: FocusPanel,
+  component: FocusPanel.Basic,
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
-} satisfies Meta<typeof FocusPanel>;
+} satisfies Meta<typeof FocusPanel.Basic>;
 
 export default meta;
 
@@ -123,19 +130,19 @@ const configurable = {
         "Their page, or the viewer’s portfolio: an `href`, or `render` for the router’s link, and `toPageIcon`, any Phosphor icon, a caret by default. Here, the icon is picked by name.",
       control: { type: "select" },
       options: Object.keys(PAGE_ICONS),
-      table: { type: { summary: "FocusPanelPageLink" } },
+      table: { type: { summary: 'Omit<PageLinkProps, "children">' } },
     },
     backLink: {
       name: "backLink",
       description:
         "“Back to you”: an `href` or a `render`, as `pageLink`. Shown only when `you` is off. Here, switched on or off.",
       control: { type: "boolean" },
-      table: { type: { summary: "FocusPanelLink | null" } },
+      table: { type: { summary: "BackLinkProps | null" } },
       if: { arg: "you", truthy: false },
     },
   },
   render: (args) => (
-    <FocusPanel {...toProps(args)} className="max-w-[18.75rem]" />
+    <FocusPanel.Basic {...toProps(args)} className="max-w-[18.75rem]" />
   ),
 } satisfies StoryObj<PanelArgs>;
 
@@ -215,7 +222,52 @@ export const NoMoversYet: Story = {
 export const FullWidth: Story = {
   ...AnotherMember,
   name: "Full width",
-  render: (args) => <FocusPanel {...toProps(args)} />,
+  render: (args) => <FocusPanel.Basic {...toProps(args)} />,
+};
+
+/** The Parts story's own line and link, in the toolbar’s language. They are the story’s content, not the panel’s. */
+const TEXTS = {
+  en: { note: "Sam joined the race on 3 March.", open: "See Sam’s holdings" },
+  fr: {
+    note: "Sam a rejoint la course le 3 mars.",
+    open: "Voir les titres de Sam",
+  },
+} as const satisfies Record<Language, Record<string, string>>;
+
+/** A panel composed of its parts, with a line of its own between the gain and the movers. */
+function Composed({ movers }: { movers: boolean }) {
+  const text = TEXTS[useLanguage()];
+  const titleId = useId();
+
+  return (
+    <FocusPanel.Root aria-labelledby={titleId} className="max-w-[18.75rem]">
+      <FocusPanel.Header
+        titleId={titleId}
+        member={{ name: "Sam", color: "vermilion", photo: null }}
+        you={false}
+        period="1M"
+        backLink={{ href: "#" }}
+      />
+      <FocusPanel.Gain
+        gain={{ eur: "1240.00", percent: "6.1" }}
+        unit="percent"
+      />
+      <p className="text-s text-secondary">{text.note}</p>
+      {movers ? (
+        <FocusPanel.Movers you={false} movers={MOVERS} unit="percent" />
+      ) : null}
+      <FocusPanel.PageLink href="#">{text.open}</FocusPanel.PageLink>
+    </FocusPanel.Root>
+  );
+}
+
+/** The parts composed by hand, for a screen with a special need: here a line of its own under the gain. */
+export const Parts: StoryObj<{ movers: boolean }> = {
+  args: { movers: true },
+  argTypes: {
+    movers: { control: { type: "boolean" }, name: "FocusPanel.Movers" },
+  },
+  render: (args) => <Composed {...args} />,
 };
 
 /** The race's place in the Home layout stories, in the toolbar’s language. */
@@ -253,7 +305,7 @@ function HomeLayout(args: PanelArgs) {
       )}
     >
       <RacePlaceholder />
-      <FocusPanel
+      <FocusPanel.Basic
         {...toProps(args)}
         className={cn(
           "",
