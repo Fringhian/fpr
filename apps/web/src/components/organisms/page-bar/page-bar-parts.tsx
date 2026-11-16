@@ -2,6 +2,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
+import { backLink } from "../../../lib/back-link";
 import { cn } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
@@ -80,15 +81,7 @@ export function Back({
     defaultTagName: "a",
     props: {
       ...props,
-      className: cn(
-        "inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 items-center gap-xs rounded-s text-m font-semibold text-primary no-underline underline-offset-[0.2em]",
-        "",
-        "",
-        "",
-        "hover:underline",
-        "focus-visible:focus-ring",
-        className,
-      ),
+      className: cn(backLink, className),
       children: (
         <>
           <Icon icon={icon} size="m" />
