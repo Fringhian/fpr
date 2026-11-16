@@ -1530,6 +1530,22 @@
                       ],
                       "type": "string"
                     },
+                    "email": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-anonymize": "personal"
+                    },
+                    "raceTimeZone": {
+                      "type": "string",
+                      "minLength": 1
+                    },
                     "language": {
                       "anyOf": [
                         {
@@ -1554,6 +1570,8 @@
                     "avatarUrl",
                     "color",
                     "role",
+                    "email",
+                    "raceTimeZone",
                     "language",
                     "onboarded"
                   ]
@@ -1747,6 +1765,22 @@
                       ],
                       "type": "string"
                     },
+                    "email": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-anonymize": "personal"
+                    },
+                    "raceTimeZone": {
+                      "type": "string",
+                      "minLength": 1
+                    },
                     "language": {
                       "anyOf": [
                         {
@@ -1771,6 +1805,8 @@
                     "avatarUrl",
                     "color",
                     "role",
+                    "email",
+                    "raceTimeZone",
                     "language",
                     "onboarded"
                   ]
@@ -2040,6 +2076,22 @@
                       ],
                       "type": "string"
                     },
+                    "email": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-anonymize": "personal"
+                    },
+                    "raceTimeZone": {
+                      "type": "string",
+                      "minLength": 1
+                    },
                     "language": {
                       "anyOf": [
                         {
@@ -2064,6 +2116,8 @@
                     "avatarUrl",
                     "color",
                     "role",
+                    "email",
+                    "raceTimeZone",
                     "language",
                     "onboarded"
                   ]
@@ -2352,6 +2406,22 @@
                       ],
                       "type": "string"
                     },
+                    "email": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-anonymize": "personal"
+                    },
+                    "raceTimeZone": {
+                      "type": "string",
+                      "minLength": 1
+                    },
                     "language": {
                       "anyOf": [
                         {
@@ -2376,6 +2446,8 @@
                     "avatarUrl",
                     "color",
                     "role",
+                    "email",
+                    "raceTimeZone",
                     "language",
                     "onboarded"
                   ]
