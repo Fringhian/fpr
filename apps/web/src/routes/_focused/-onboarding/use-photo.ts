@@ -16,7 +16,9 @@ function refusesPicture(error: unknown): boolean {
  * The person's photo, uploaded as soon as a file is picked, or removed. The
  * API judges the file: JPEG, PNG or WebP within its size limit. `error` says
  * why the last attempt failed, and `retry` sends the same file again after a
- * failure that wasn't the picture's fault.
+ * failure that wasn't the picture's fault. While one request runs, `busy`
+ * holds and neither action starts another, so an upload and a removal
+ * never race.
  */
 export function usePhoto() {
   const api = useApi();
@@ -25,6 +27,7 @@ export function usePhoto() {
   const upload = useMutation(api.me.setAvatar.mutationOptions());
   const remove = useMutation(api.me.deleteAvatar.mutationOptions());
 
+  const busy = upload.isPending || remove.isPending;
   const failure = upload.error ?? remove.error;
   const canRetry =
     upload.isError && !refusesPicture(upload.error) && picked !== null;
@@ -32,17 +35,19 @@ export function usePhoto() {
   return {
     uploading: upload.isPending,
     removing: remove.isPending,
+    busy,
     error: failure === null ? null : errorText(failure),
     retry: canRetry ? () => upload.mutate(picked) : null,
     choose: (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = "";
-      if (file === undefined) return;
+      if (file === undefined || busy) return;
       setPicked(file);
       remove.reset();
       upload.mutate(file);
     },
     remove: () => {
+      if (busy) return;
       upload.reset();
       remove.mutate(undefined);
     },

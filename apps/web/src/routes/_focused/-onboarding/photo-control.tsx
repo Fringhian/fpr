@@ -36,6 +36,7 @@ export function PhotoControl({ look }: { look: Look }) {
             type="button"
             loading={photo.uploading}
             loadingLabel={t("onboarding.look.uploading")}
+            disabled={photo.busy}
             onClick={() => input.current?.click()}
           >
             {hasPhoto
@@ -47,6 +48,7 @@ export function PhotoControl({ look }: { look: Look }) {
               type="button"
               intent="ghost"
               loading={photo.removing}
+              disabled={photo.busy}
               onClick={photo.remove}
             >
               {t("onboarding.look.removePhoto")}
