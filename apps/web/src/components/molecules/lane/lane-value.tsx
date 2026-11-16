@@ -13,7 +13,6 @@ export type BarProps = {
   value: LaneValue;
   /** The standings' scale, from `laneScale`. Without it, the bar is measured against itself. */
   scale?: UnitScale | undefined;
-  /** The member's colour. */
   color: MemberColor;
 } & Omit<BarTrackProps, "value" | "amount" | "scale" | "color" | "size">;
 
