@@ -11158,10 +11158,37 @@
                             "priceEur": {
                               "type": "string",
                               "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            "changedBy": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid"
+                                    },
+                                    "displayName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 40,
+                                      "x-anonymize": "personal"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "displayName"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
-                            "priceEur"
+                            "priceEur",
+                            "changedBy"
                           ]
                         }
                       },
@@ -12000,10 +12027,37 @@
                             "priceEur": {
                               "type": "string",
                               "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            "changedBy": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid"
+                                    },
+                                    "displayName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 40,
+                                      "x-anonymize": "personal"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "displayName"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
-                            "priceEur"
+                            "priceEur",
+                            "changedBy"
                           ]
                         }
                       },
@@ -12286,10 +12340,37 @@
                             "priceEur": {
                               "type": "string",
                               "pattern": "^(?!-0(?:\\.0+)?$)-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                            },
+                            "changedBy": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid"
+                                    },
+                                    "displayName": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 40,
+                                      "x-anonymize": "personal"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "displayName"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
-                            "priceEur"
+                            "priceEur",
+                            "changedBy"
                           ]
                         }
                       },

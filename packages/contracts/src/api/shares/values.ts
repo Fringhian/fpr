@@ -1,12 +1,34 @@
 import { z } from "zod";
-import { errorMap, signedInRoute } from "../../contract.js";
+import { errorMap, errorWithDetails, signedInRoute } from "../../contract.js";
 import { roles, writerRoles } from "../../roles.js";
 import { idSchema } from "../../schemas/ids.js";
 import { priceEurSchema } from "../../schemas/money.js";
-import { personSchema } from "../../schemas/person.js";
-import { pricePointSchema, valueChangedError } from "../../schemas/share.js";
+import { madeBySchema, personSchema } from "../../schemas/person.js";
+import {
+  pricePointSchema,
+  valueChangedDetailsSchema,
+} from "../../schemas/share.js";
 import { timestampSchema } from "../../schemas/time.js";
 import { shareIdParamsSchema } from "./schemas.js";
+
+/**
+ * The `details` of a value point's `value_changed`: the stored price, and who
+ * entered it, so the editor reads "Lea changed it to €40.10". `changedBy` is
+ * `null` for a price nobody entered, such as a close from before the share
+ * was made manual, or once that person is deleted.
+ */
+export const shareValueChangedDetailsSchema = valueChangedDetailsSchema.extend({
+  changedBy: madeBySchema,
+});
+
+export type ShareValueChangedDetails = z.infer<
+  typeof shareValueChangedDetailsSchema
+>;
+
+const valueChangedError = errorWithDetails(
+  "value_changed",
+  shareValueChangedDetailsSchema,
+);
 
 /**
  * A manual share's value point: what one unit was worth at a moment, and who
