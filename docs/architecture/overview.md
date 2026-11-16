@@ -20,38 +20,33 @@ flowchart LR
     Ops["Admin's browser"] -- "own hostname and login" --> Logs
 ```
 
-| Block | What it is | File |
+| Block | What it is | Its doc covers |
 | --- | --- | --- |
-| Web | The React app, served as static files and installable as a Progressive Web App. Its server also forwards `/api` to the API, so the browser sees one origin. | `web.md` |
-| API | The only block the browser talks to. Accounts, access, portfolios, shares, leaderboards, and the admin area. | `api.md` |
-| Price service | Internal. The only block that calls the price provider and the exchange-rate API, and the only writer of `shares`, `prices`, and `manual_price_events`. Prices the held shares on a schedule. | `prices.md` |
-| Postgres | Every table, reached through the shared `@fpr/db` package. | `database.md` |
-| Auth | Better Auth inside the API, FPR's access keys, reset keys, and roles. | `auth.md` |
-| Deployment | Docker images, `compose.yaml`, configuration, CI. | `deployment.md` |
+| Web | The React app, served as static files and installable. Its server forwards `/api` to the API, so the browser sees one origin. | `web.md`: stack, design tokens, screens, languages, serving |
+| API | The only block the browser talks to: accounts, portfolios, shares, leaderboards, and the admin area. | `api.md`: route contracts, request pipeline, errors, routes, race calculation, anonymization |
+| Price service | Internal. The only block that calls the price provider and the exchange-rate API, and the only writer of shares, prices, and manual price events. | `prices.md`: provider, schedule, call budget, currency, endpoints |
+| Postgres | Every table, reached through the shared `@fpr/db` package. | `database.md`: schema, writers, valuation, deletion, retention |
+| Auth | Better Auth inside the API, FPR's access keys, and roles. | `auth.md`: roles, access keys, sign-in flows, rate limits, admin rules |
+| Deployment | Docker images, `compose.yaml`, configuration, logs, CI. | `deployment.md` |
 
 ## Stack-wide conventions
 
-- TypeScript everywhere, on Node 24.
-- One pnpm workspaces monorepo. Biome lints and formats it, Vitest tests it, GitHub Actions runs both on every push. Each workspace keeps its tests in `test/`, beside `src/`.
-- The tests cover the API and the price service over HTTP, sign-in and access, the database's rules against a real Postgres, the guards over every route of the contracts, and the locales. Each API route has its test file in `test/routes/`, named after the route. Components are checked by their stories, run in Chromium.
-- Git hooks, managed by lefthook and installed by `pnpm install`, run Biome on the staged files before each commit, fixing formatting and blocking on errors, and on the whole repository before each push.
-- Every route is declared in `@fpr/contracts` as an oRPC contract: its method, path, Zod schemas, error codes, and accepted roles. The web app, the API, and the price service share these declarations, and the OpenAPI document is generated from them. The web app imports `@fpr/contracts` alone, which holds neither the price service's routes, in `@fpr/contracts/prices`, nor the generator, in `@fpr/contracts/openapi`.
+- TypeScript on Node 24, in one pnpm workspaces monorepo. Biome lints and formats, Vitest tests, and GitHub Actions runs both on every push. lefthook runs Biome on staged files before each commit and on the whole repository before each push.
+- Every route is an oRPC contract in `@fpr/contracts`, shared by the web app, the API, and the price service. The OpenAPI document is generated from them. See `api.md`, Route contracts.
 - Every process reaches Postgres through `@fpr/db`.
-- Money is in euros. Prices are converted to EUR by the price service when fetched, and every amount stored is in EUR.
-- Quantities, prices, and amounts are Postgres `numeric`, and travel as decimal strings in JSON, never as floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero. Arithmetic and comparisons on them happen in Postgres, or in TypeScript with `big.js`, never by hand.
+- Money is in euros. The price service converts prices to EUR when it fetches them, and every amount stored is in EUR.
+- Quantities, prices, and amounts are Postgres `numeric` and travel in JSON as decimal strings, never floating-point numbers. A decimal string is an optional minus sign, digits with no leading zero, and an optional fractional part, such as `74.328` or `-1250.00`: no plus sign, exponent, separator, whitespace, or negative zero. Arithmetic on them happens in Postgres or with `big.js`.
 - Days, weeks, and year-to-date start in the instance's time zone, `RACE_TIMEZONE`.
+- Tests are integration tests in each workspace's `test/`: the API and the price service over HTTP, with one file per API route in `test/routes/`; sign-in and access; the database's rules against a real Postgres; guards over every contract route; and the locales. Components are checked by their stories, run in Chromium.
 
 ## Logging
 
-`api` and `prices` log with pino: one JSON line per event on standard output. `web`'s nginx writes one JSON access line per request. Vector collects every container's output and stores it in VictoriaLogs, which keeps it and serves a search interface on its own hostname, behind its own login. See `deployment.md`.
+- `api` and `prices` log with pino, one JSON line per event on standard output, each with the time, the level, the service, and a message. In development, `pino-pretty` prints them readably.
+- `api` logs every request with a request id, the method, the route, the status, the duration, and the signed-in person's id, and returns the id in `X-Request-Id`. `web`'s nginx writes one JSON access line per request, carrying the same id for requests proxied to `api`.
+- Every error is logged at `error` with its stack and its request id or price run.
+- Passwords, access keys, reset keys, and session cookies are never logged.
 
-- Every pino line has the time, the level (`info`, `warn`, or `error`), the service, and a message.
-- `api` logs every request with pino-http: a request id, the method, the route, the status, the duration, and the signed-in person's id. The response carries the same id in `X-Request-Id`.
-- `web` logs each request with its time, client address, method, path, status, size, duration, and request id. A request proxied to `api` carries the id `api` returns in `X-Request-Id`, the same id as its `api` lines. Every other request has an empty `request_id`. `/access/…` requests are not logged.
-- Every error is logged at `error` with its stack trace and its request id or price run.
-- `prices` logs every run and every provider call. See `prices.md`.
-- Passwords, access keys, reset keys, and session cookies are never logged: pino's `redact` removes them, and auth request bodies are not logged.
-- In development, `pino-pretty` prints the lines readably.
+Vector collects every container's output into VictoriaLogs: see `deployment.md`, Logs.
 
 ## Repository
 
@@ -64,33 +59,24 @@ fpr/
 ├── packages/
 │   ├── contracts/        # @fpr/contracts: route contracts, with /prices and /openapi
 │   └── db/               # @fpr/db: pool, migrations, row types, queries
-├── deploy/
-│   ├── vector.Dockerfile # the vector image, with vector.yaml built in
-│   └── vector.yaml       # vector's log collection
+├── deploy/               # the vector image and its log collection
 ├── docs/
 │   ├── architecture/
 │   └── product/
 ├── compose.yaml
 ├── compose.dev.yaml      # local ports for development
 ├── .env.example
-├── package.json
-├── pnpm-workspace.yaml
 ├── tsconfig.base.json
-├── biome.json
-├── lefthook.yml
 ├── vitest.config.ts
-├── vitest.shared.ts
-└── .nvmrc
+└── vitest.shared.ts
 ```
 
-- Every workspace is named `@fpr/<folder>`.
-- The root `package.json` pins pnpm through `packageManager` and Node 24 through `engines`. `.nvmrc` holds `24`.
-- Every dependency is pinned to an exact version. `pnpm-workspace.yaml` sets `saveExact`, so `pnpm add` writes exact versions.
-- Each workspace's TypeScript configuration extends `tsconfig.base.json`. `apps/web` splits it in Vite's way: `tsconfig.app.json` for `src/` and `test/` and `tsconfig.node.json` for its config files, both referenced from `tsconfig.json`. The other workspaces type-check `src/` and `test/` with `tsconfig.json` and build `src/` alone with `tsconfig.build.json`.
-- `vitest.config.ts` makes each workspace a Vitest project, named after its package. Each workspace's `vitest.config.ts` merges `vitest.shared.ts`, which resolves the `@fpr/source` condition. `pnpm test` runs every project, and `pnpm test --project @fpr/<folder>` runs one.
+- Every workspace is named `@fpr/<folder>`. Each app has its own `Dockerfile`, built from the repository root with `pnpm deploy`.
+- Node 24 is pinned in `package.json` and `.nvmrc`, pnpm through `packageManager`. Every dependency is pinned to an exact version.
+- Each workspace's TypeScript configuration extends `tsconfig.base.json`.
+- `pnpm test` runs every workspace as a Vitest project, and `pnpm test --project @fpr/<folder>` runs one.
 - Packages build to `dist/`. Their `@fpr/source` export condition points at `src/`, which development tooling resolves, so a package edit reaches its consumers without a rebuild.
-- Each app has its own `apps/<name>/Dockerfile`, built from the repository root with `pnpm deploy`.
 
 ## First version
 
-The first version covers every `v1` story in `../product/user-stories.md`. The `later` stories are the event feed, the best-pick leaderboard, personal records, and bank statement import. A new leaderboard is a new query on the same series: see `api.md`.
+The first version covers every `v1` story in `../product/user-stories.md`. The `later` stories are the event feed, the best-pick leaderboard, personal records, and bank statement import.
