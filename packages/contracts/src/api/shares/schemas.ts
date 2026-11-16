@@ -16,5 +16,4 @@ export const shareQuoteSchema = shareSummarySchema.extend({
 
 export type ShareQuote = z.infer<typeof shareQuoteSchema>;
 
-/** A share's id, as a path param. */
 export const shareIdParamsSchema = z.object({ id: idSchema });

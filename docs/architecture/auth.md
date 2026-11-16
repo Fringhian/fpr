@@ -4,7 +4,7 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 
 ## Better Auth
 
-- Served at `/api/auth/*`, built in `apps/api/src/auth.ts`. Email and password only: no OAuth, and its sign-up and user-update endpoints are disabled. A person changes their profile through `PATCH /me`, the admin through the admin area.
+- Served at `/api/auth/*`, built in `apps/api/src/auth/`. Email and password only: no OAuth, and its sign-up and user-update endpoints are disabled. A person changes their profile through `PATCH /me`, the admin through the admin area.
 - Sessions are HTTP-only, `Secure`, `SameSite=Lax` cookies on the instance's origin, with the `__Secure-` prefix in every environment. A session lasts 30 days and is extended on use, at most once a day.
 - It accepts writes from `PUBLIC_URL` alone.
 - Passwords are 12 to 128 characters, hashed with Better Auth's default hasher. Changing one takes the current password and ends the person's other sessions.

@@ -12,7 +12,7 @@ Postgres 18, reached by the API and the price service through one shared interna
 - **Queries** (`src/queries/`): one module per table, holding that table's queries and no workflow logic.
 - **Test databases** (`@fpr/db/testing`): each test file that touches the database creates its own migrated `fpr_test_…` database on the server at `DATABASE_URL`, and drops it afterwards.
 
-`pnpm --filter @fpr/api auth:schema` prints the SQL that brings the database at `DATABASE_URL` to Better Auth's schema, as configured in `apps/api/src/auth.ts`, and nothing once it matches.
+`pnpm --filter @fpr/api auth:schema` prints the SQL that brings the database at `DATABASE_URL` to Better Auth's schema, as configured in `apps/api/src/auth/`, and nothing once it matches.
 
 Identifiers are lowercase snake_case in SQL, Better Auth's columns included, and camelCase in TypeScript through Kysely's `CamelCasePlugin`. Every table carries `created_at`. The pool reads values as follows:
 

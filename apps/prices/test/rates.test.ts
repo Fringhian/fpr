@@ -1,8 +1,9 @@
 import { Writable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createLogger } from "../src/logger.js";
+import { createRatesClient } from "../src/market/frankfurter.js";
+import { eurRates, RatesError } from "../src/market/rates.js";
 import type { Fetch } from "../src/providers/http.js";
-import { createRatesClient, eurRates, RatesError } from "../src/rates.js";
 
 const BASE = "https://rates.test";
 

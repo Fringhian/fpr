@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { errorWithDetails } from "../contract.js";
 import { idSchema } from "./ids.js";
 import { currencySchema, priceEurSchema } from "./money.js";
 import { timestampSchema } from "./time.js";
@@ -90,6 +91,11 @@ export const isinTakenDetailsSchema = z.object({ shareId: idSchema });
 
 export type IsinTakenDetails = z.infer<typeof isinTakenDetailsSchema>;
 
+export const isinTakenError = errorWithDetails(
+  "isin_taken",
+  isinTakenDetailsSchema,
+);
+
 /**
  * The `details` of `value_changed`: the value point's stored price, which the
  * editor confirms their value over or keeps.
@@ -99,3 +105,8 @@ export const valueChangedDetailsSchema = z.object({
 });
 
 export type ValueChangedDetails = z.infer<typeof valueChangedDetailsSchema>;
+
+export const valueChangedError = errorWithDetails(
+  "value_changed",
+  valueChangedDetailsSchema,
+);

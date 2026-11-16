@@ -1,6 +1,5 @@
 import type { Generated, Insertable, Selectable, Updateable } from "kysely";
 
-/** Every role a person can have. */
 export type Role = "admin" | "member" | "guest" | "anonymous";
 
 /** A language a person picks in Settings. */

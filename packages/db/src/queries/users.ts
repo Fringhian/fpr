@@ -14,7 +14,6 @@ export type UserChanges = Pick<
   | "onboardedAt"
 >;
 
-/** The person with this id. */
 export async function findById(db: Db, id: string): Promise<User | undefined> {
   return db
     .selectFrom("user")
@@ -88,7 +87,6 @@ export async function remove(db: Db, id: string): Promise<boolean> {
   return numDeletedRows > 0n;
 }
 
-/** How many admins there are. */
 export async function countAdmins(db: Db): Promise<number> {
   const { count } = await db
     .selectFrom("user")

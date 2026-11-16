@@ -44,15 +44,12 @@ export async function update(
   id: string,
   changes: CashBalanceChanges,
 ): Promise<CashBalance | undefined> {
-  const set = Object.fromEntries(
-    Object.entries(changes).filter(([, value]) => value !== undefined),
-  ) as CashBalanceChanges;
-  if (Object.keys(set).length === 0) {
+  if (Object.values(changes).every((value) => value === undefined)) {
     return findById(db, id);
   }
   return db
     .updateTable("cashBalances")
-    .set(set)
+    .set(changes)
     .where("id", "=", id)
     .returningAll()
     .executeTakeFirst();

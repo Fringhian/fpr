@@ -49,7 +49,6 @@ export const accessKeyErrorDetailsSchema = z.object({
 
 export type AccessKeyErrorDetails = z.infer<typeof accessKeyErrorDetailsSchema>;
 
-/** `invalid_access_key`, with the key's state in `details`. */
 const invalidAccessKeyError = errorWithDetails(
   "invalid_access_key",
   accessKeyErrorDetailsSchema,

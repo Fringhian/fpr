@@ -16,7 +16,7 @@ import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
 import { implement, os } from "@orpc/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
-import type { Auth } from "../src/auth.js";
+import type { Auth } from "../src/auth/auth.js";
 import type { ApiContext } from "../src/orpc.js";
 import { assertMayWriteUser } from "../src/ownership.js";
 import { requestPipeline, signedIn } from "../src/pipeline/index.js";

@@ -1,21 +1,14 @@
 import type { Server } from "node:http";
-import { close, createDb } from "@fpr/db";
+import { close, createDb, type Db } from "@fpr/db";
+import type { Logger } from "pino";
 import { createApp } from "./app.js";
-import { createCallBudget } from "./budget.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { createCallBudget } from "./market/budget.js";
 import { createProvider } from "./providers/index.js";
 
 function main(): void {
-  let env: ReturnType<typeof loadEnv>;
-  try {
-    env = loadEnv();
-  } catch (error) {
-    // The logger is not built yet, so the problem goes to standard error.
-    console.error(error instanceof Error ? error.message : error);
-    process.exit(1);
-  }
-
+  const env = loadEnvOrExit();
   const logger = createLogger();
   const db = createDb({
     url: env.DATABASE_URL,
@@ -44,7 +37,28 @@ function main(): void {
       "prices listening",
     );
   });
+  shutDownOnSignal({ server, db, logger });
+}
 
+function loadEnvOrExit(): ReturnType<typeof loadEnv> {
+  try {
+    return loadEnv();
+  } catch (error) {
+    // The logger is not built yet, so the problem goes to standard error.
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
+
+function shutDownOnSignal({
+  server,
+  db,
+  logger,
+}: {
+  server: Server;
+  db: Db;
+  logger: Logger;
+}): void {
   let shuttingDown = false;
   const shutdown = (signal: NodeJS.Signals): void => {
     if (shuttingDown) {
