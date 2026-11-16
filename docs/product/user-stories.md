@@ -37,6 +37,7 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - Settings has no Save button: each setting is saved as soon as it changes, the name when the field is left.
 - FPR is in French until a person picks a language, whatever their browser's language. The device keeps the pick, so pages before sign-in follow it; a signed-in person's pick follows them to every device.
 - A page that doesn't exist offers Go to Home. A failed load offers Retry, and a form keeps what was typed.
+- Settings offers Install the app in a browser that can install FPR: the browser's own prompt where it has one (Chrome, Edge), and otherwise the steps of its menu (Share then Add to Home Screen on iPhone and iPad, File then Add to Dock in Safari on a Mac). A dismissed prompt leaves Settings until the browser offers it again. FPR running installed, or a browser that can't install it, shows no install entry.
 - Installed FPR opens without a connection and says it is offline, with Retry. It never shows data it doesn't have.
 - A new version of FPR offers Reload, and never reloads by itself.
 - An app installed on iOS asks to sign in once, since it doesn't share Safari's session. An anonymous viewer signs in there by pasting their access link on the sign-in page.
