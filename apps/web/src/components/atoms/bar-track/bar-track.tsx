@@ -4,8 +4,7 @@ import { type BarScale, barGeometry } from "../../../lib/bar-track";
 import { cn } from "../../../lib/cn";
 import { MEMBER_FILLS, type MemberColor } from "../../../lib/member-color";
 
-/** A bar's colour: a member's, or the colour of a gain's sign. */
-export type BarTrackColor = MemberColor | "positive" | "negative";
+type BarTrackColor = MemberColor | "positive" | "negative";
 
 const BAR_COLORS = {
   ...MEMBER_FILLS,
@@ -23,7 +22,7 @@ const track = cva("relative block", {
   defaultVariants: { size: "m" },
 });
 
-export interface BarTrackOwnProps {
+export type BarTrackProps = {
   /** The amount the bar draws: right of the zero line above zero, left of it below. `null` draws only the zero line. */
   amount: number | null;
   /**
@@ -36,11 +35,10 @@ export interface BarTrackOwnProps {
   color: BarTrackColor;
   /** The track's height: `s` in a mover row, `m` in a lane. */
   size?: "s" | "m" | undefined;
-}
-
-/** Its own props, and every prop of the `<span>` it renders but its content. */
-export type BarTrackProps = BarTrackOwnProps &
-  Omit<ComponentProps<"span">, keyof BarTrackOwnProps | "children">;
+} & Omit<
+  ComponentProps<"span">,
+  "amount" | "scale" | "color" | "size" | "children"
+>;
 
 /**
  * A bar from a zero line: rightwards for a gain, leftwards for a loss, its

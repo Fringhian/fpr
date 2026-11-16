@@ -1,7 +1,8 @@
+import type { Language } from "@fpr/contracts";
+import { periods, units } from "@fpr/contracts/values";
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { MEMBER_COLORS } from "../../../lib/member-color";
 import { Chip } from "../../atoms/chip/chip";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
@@ -167,9 +168,9 @@ const meta = {
     },
     period: {
       control: { type: "inline-radio" },
-      options: ["1D", "1W", "1M", "3M", "YTD", "all"],
+      options: periods,
     },
-    unit: { control: { type: "inline-radio" }, options: ["eur", "percent"] },
+    unit: { control: { type: "inline-radio" }, options: units },
     gain: {
       control: { type: "object" },
       description:

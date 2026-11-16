@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatList } from "../../../lib/format";
+import { formatList } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
 
 /** The line writes its own words, so it takes no `children`. */

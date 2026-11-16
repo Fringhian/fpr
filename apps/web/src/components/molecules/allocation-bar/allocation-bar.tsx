@@ -1,29 +1,16 @@
+import type { Decimal } from "@fpr/contracts";
 import Big from "big.js";
 import type { ComponentProps, CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
+import { cn } from "../../../lib/cn";
+import { formatPercent } from "../../../lib/format/money";
+import { useLanguage } from "../../../lib/i18n";
+import { MEMBER_TONES, type MemberColor } from "../../../lib/member-color";
 import {
   type AllocationHolding,
   type AllocationPart,
   allocate,
-} from "../../../lib/allocation";
-import { cn } from "../../../lib/cn";
-import { type Decimal, formatPercent } from "../../../lib/format";
-import { useLanguage } from "../../../lib/i18n";
-import type { MemberColor } from "../../../lib/member-color";
-
-/** Sets the person's colour, and the surface it lightens towards, for the parts to mix. */
-const TONES = {
-  vermilion: "[--tone:var(--color-vermilion)]",
-  cobalt: "[--tone:var(--color-cobalt)]",
-  green: "[--tone:var(--color-green)]",
-  violet: "[--tone:var(--color-violet)]",
-  amber: "[--tone:var(--color-amber)]",
-  pink: "[--tone:var(--color-pink)]",
-  cyan: "[--tone:var(--color-cyan)]",
-  lime: "[--tone:var(--color-lime)]",
-  sienna: "[--tone:var(--color-sienna)]",
-  periwinkle: "[--tone:var(--color-periwinkle)]",
-} as const satisfies Record<MemberColor, string>;
+} from "./allocation-bar-model";
 
 /** A share or Other in the person's colour, mixed with the surface by its tone; the cash in grey. */
 function fill(part: AllocationPart): {
@@ -86,7 +73,10 @@ export function AllocationBar({
   };
 
   return parts.length === 0 ? null : (
-    <div {...props} className={cn("grid gap-s", TONES[color], className)}>
+    <div
+      {...props}
+      className={cn("grid gap-s", MEMBER_TONES[color], className)}
+    >
       <div
         aria-hidden="true"
         className="flex h-[0.875rem] gap-[0.125rem] overflow-hidden rounded-full"

@@ -1,12 +1,8 @@
+import type { Decimal, IsoDate, Timestamp } from "@fpr/contracts";
 import { type ComponentProps, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import {
-  type Decimal,
-  formatDate,
-  type IsoDate,
-  type Timestamp,
-} from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 import { Card } from "../../atoms/card/card";
 import { TextLink } from "../../atoms/text-link/text-link";

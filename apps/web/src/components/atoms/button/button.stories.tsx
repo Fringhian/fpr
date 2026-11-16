@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CameraIcon } from "@phosphor-icons/react/Camera";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
@@ -10,7 +11,6 @@ import type { ReactNode } from "react";
 import { expect, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Button, type ButtonProps } from "./button";
 
 /** The icons the playground offers, by name. */

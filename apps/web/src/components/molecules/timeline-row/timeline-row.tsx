@@ -1,3 +1,4 @@
+import type { Decimal, IsoDate, Language, Timestamp } from "@fpr/contracts";
 import { CoinsIcon } from "@phosphor-icons/react/Coins";
 import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
@@ -7,16 +8,10 @@ import type { TFunction } from "i18next";
 import type { ComponentProps, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import {
-  type Decimal,
-  formatDate,
-  formatMoney,
-  formatQuantity,
-  type IsoDate,
-  type Timestamp,
-} from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
+import { formatMoney } from "../../../lib/format/money";
+import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 import * as Menu from "../menu/menu";
 

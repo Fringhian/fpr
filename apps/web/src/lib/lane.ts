@@ -1,5 +1,5 @@
+import type { Decimal } from "@fpr/contracts";
 import { type UnitScale, unitScale } from "./bar-track";
-import type { Decimal } from "./format";
 import {
   type GainAmount,
   type GainInput,

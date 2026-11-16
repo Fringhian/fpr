@@ -3,16 +3,13 @@ import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { cn } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
-export interface TextLinkOwnProps {
+/** Every prop of an `<a>`, and Base UI's `render` to compose it with another element. */
+export type TextLinkProps = {
   /** Ends the link with `toPageIcon`: it goes to another page. */
   toPage?: boolean;
   /** The icon `toPage` draws, any Phosphor icon. A caret by default. */
   toPageIcon?: IconProps["icon"] | undefined;
-}
-
-/** Every prop of an `<a>`, and Base UI's `render` to compose it with another element. */
-export type TextLinkProps = TextLinkOwnProps &
-  Omit<useRender.ComponentProps<"a">, keyof TextLinkOwnProps>;
+} & Omit<useRender.ComponentProps<"a">, "toPage" | "toPageIcon">;
 
 /**
  * A link in the link colour, underlined so it never rests on colour alone. It
@@ -28,7 +25,7 @@ export function TextLink({
   children,
   ...props
 }: TextLinkProps) {
-  const element = useRender({
+  return useRender({
     render,
     ref,
     defaultTagName: "a",
@@ -57,6 +54,4 @@ export function TextLink({
       ),
     },
   });
-
-  return element;
 }

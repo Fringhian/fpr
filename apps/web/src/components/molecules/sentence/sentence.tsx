@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
-import type { TimeOfDay } from "../../../lib/time-of-day";
 import { RaceHeadline } from "./sentence-headline";
 import { Greeting, Root } from "./sentence-parts";
 import { type Standing, type StarShare, StoryLine } from "./sentence-story";
+import type { TimeOfDay } from "./time-of-day";
 
 export { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 export type { SentenceLeader, Standing, StarShare } from "./sentence-story";

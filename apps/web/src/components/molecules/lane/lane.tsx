@@ -1,8 +1,8 @@
 import { Collapsible } from "@base-ui/react/collapsible";
+import type { IsoDate } from "@fpr/contracts";
 import type { ComponentProps, ReactNode } from "react";
 import type { UnitScale } from "../../../lib/bar-track";
 import { cn, stateClassName } from "../../../lib/cn";
-import type { IsoDate } from "../../../lib/format";
 import type { LaneValue } from "../../../lib/lane";
 import type { MemberColor } from "../../../lib/member-color";
 import { Picture, type PictureMedal } from "../../atoms/picture/picture";

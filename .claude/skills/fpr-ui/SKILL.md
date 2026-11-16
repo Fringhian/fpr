@@ -10,9 +10,9 @@ These conventions win over any other skill's advice on styling or components —
 ## Stack
 
 - `apps/web` — React, Vite, TanStack Router (file-based routes), TanStack Query, Tailwind v4.
-- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. Each component has its own folder in its story's group, `src/components/<group>/<component>/`, holding the component, its stories and any `-model.ts`: `atoms/button/button.tsx` and `atoms/button/button.stories.tsx`. Components shown in one story file share one folder. They move to a package only if a second consumer appears.
-- Imports name the file itself: `../../atoms/button/button`. There are no barrel files (`index.ts`).
-- Components have no unit tests. Their stories are their check, run in Chromium by `test-storybook`.
+- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`, one folder per component (`atoms/button/button.tsx`, `atoms/button/button.stories.tsx`). They move to a package only if a second consumer appears.
+- A helper used by one component sits beside it, as `<component>-model.ts` or a named sibling (`allocation-bar/allocation-bar-model.ts`). `src/lib/` holds what two or more places use.
+- The web app imports contracts' value lists (periods, units, languages, boards…) from `@fpr/contracts/values`, and everything else from `@fpr/contracts` as `import type`, so Zod and oRPC stay out of the bundle. A type or list that exists there is never redeclared.
 
 ## Design workflow
 
@@ -156,9 +156,10 @@ cn(
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
 - Reuse before building. Before writing a component or a helper, search `src/components` and `src/lib` for one that already draws or computes it, and render or call it. The second copy of any markup, class map, helper or type becomes one shared block, used by both, instead of a copy.
-- Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
-- A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, is one component with data props, the rule inside it. Layout pieces, with no rule to enforce, are compound.
-- A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved after the part's own classes by `stateClassName` from `src/lib/cn.ts`:
+- A component reads on one screen, about 50 lines. A longer one is split into named sub-components, in the same file or a sibling file.
+- Atoms and simple molecules take plain props. A complex molecule or organism (eight or so props, or several optional regions) exposes its parts, each a thin styled wrapper taking `className`, `children` and the HTML props of its element, imported as a namespace: `import * as HoldingCard from "…/holding-card"`, then `<HoldingCard.Root>`, `<HoldingCard.Value>`. It also exports `Basic`, the ready-made composition driven by props, for the common case. A screen with a special need composes the parts with its own child instead of adding a prop. Its stories show `Basic`, plus one story composing the parts.
+- A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, keeps the rule inside it, whether in `Basic` or in a part.
+- An exported component has one props type, written as one declaration: its own props plus every prop of what it renders, `type ChipProps = { … } & Omit<ComponentProps<"span">, "gain" | "children">`, or `ComponentProps<typeof BaseButton>` for a Base UI part. A prop's JSDoc shows in the Docs table: it is written only when it adds something the name and type don't (a unit, a size in px, what `null` means, a rule). `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved after the part's own classes by `stateClassName` from `src/lib/cn.ts`:
 
   ```tsx
   className={stateClassName(classes, className)}

@@ -12,10 +12,10 @@ import {
 } from "../../schemas/performance.js";
 import { personSchema } from "../../schemas/person.js";
 import { shareSummarySchema } from "../../schemas/share.js";
+import { leaderboardBoards } from "../../values.js";
 import { bestHoldingSchema, lastCloseOnSchema } from "./fields.js";
 
-/** `balance`: the standings by balance. `gain`: by gain over the period. */
-export const leaderboardBoards = ["balance", "gain"] as const;
+export { leaderboardBoards };
 
 export const leaderboardBoardSchema = z.enum(leaderboardBoards);
 

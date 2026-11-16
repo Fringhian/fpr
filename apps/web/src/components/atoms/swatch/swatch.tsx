@@ -26,16 +26,13 @@ const item = cn(
   "disabled:cursor-not-allowed",
 );
 
-/** Every prop of Base UI's radio group, its value a member colour. */
-export type GroupProps = RadioGroup.Props<MemberColor>;
-
 /**
  * The picker's swatches, one choice among them: a row of five per line on
  * phone, one wrapping row from tablet up. Name it with `aria-labelledby` or
  * `aria-label`. Every prop goes to Base UI's radio group, `className`
  * included: a string, or a function of its state.
  */
-export function Group({ className, ...props }: GroupProps) {
+export function Group({ className, ...props }: RadioGroup.Props<MemberColor>) {
   return (
     <RadioGroup<MemberColor>
       {...props}
@@ -44,20 +41,17 @@ export function Group({ className, ...props }: GroupProps) {
   );
 }
 
-export interface ItemOwnProps {
+export type ItemProps = {
   /** One of the ten member colours, and the value the group takes when it is picked. */
   color: MemberColor;
   /** The name of the member who has this colour: the swatch fades and shows their initial. A taken colour can't be picked unless all ten are taken, so `disabled` usually comes with it. */
   takenBy?: string | undefined;
   /** The icon a selected swatch shows, any Phosphor icon. A check by default. */
   checkIcon?: IconProps["icon"] | undefined;
-}
-
-export type ItemProps = ItemOwnProps &
-  Omit<
-    Radio.Root.Props<MemberColor>,
-    keyof ItemOwnProps | "value" | "children"
-  >;
+} & Omit<
+  Radio.Root.Props<MemberColor>,
+  "color" | "takenBy" | "checkIcon" | "value" | "children"
+>;
 
 /**
  * One colour in the picker, a radio in `Swatch.Group`: free, selected (a

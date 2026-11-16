@@ -17,7 +17,9 @@ export const MEMBER_COLORS = [
 
 export type MemberColor = (typeof MEMBER_COLORS)[number];
 
-/** Each member colour's fill class, written out whole so Tailwind generates it. */
+// Each map below writes its classes out whole, so Tailwind generates them.
+
+/** Each member colour's fill: a line, a bar, a swatch. */
 export const MEMBER_FILLS = {
   vermilion: "bg-vermilion",
   cobalt: "bg-cobalt",
@@ -30,6 +32,34 @@ export const MEMBER_FILLS = {
   sienna: "bg-sienna",
   periwinkle: "bg-periwinkle",
 } as const satisfies Record<MemberColor, `bg-${string}`>;
+
+/** Each member colour's pastel, the ground a picture sits on. */
+export const MEMBER_PASTELS = {
+  vermilion: "bg-vermilion-pastel",
+  cobalt: "bg-cobalt-pastel",
+  green: "bg-green-pastel",
+  violet: "bg-violet-pastel",
+  amber: "bg-amber-pastel",
+  pink: "bg-pink-pastel",
+  cyan: "bg-cyan-pastel",
+  lime: "bg-lime-pastel",
+  sienna: "bg-sienna-pastel",
+  periwinkle: "bg-periwinkle-pastel",
+} as const satisfies Record<MemberColor, `bg-${string}-pastel`>;
+
+/** Each member colour as `--tone`, for the parts inside to mix with the surface. */
+export const MEMBER_TONES = {
+  vermilion: "[--tone:var(--color-vermilion)]",
+  cobalt: "[--tone:var(--color-cobalt)]",
+  green: "[--tone:var(--color-green)]",
+  violet: "[--tone:var(--color-violet)]",
+  amber: "[--tone:var(--color-amber)]",
+  pink: "[--tone:var(--color-pink)]",
+  cyan: "[--tone:var(--color-cyan)]",
+  lime: "[--tone:var(--color-lime)]",
+  sienna: "[--tone:var(--color-sienna)]",
+  periwinkle: "[--tone:var(--color-periwinkle)]",
+} as const satisfies Record<MemberColor, `[--tone:${string}]`>;
 
 /**
  * The member colour the API's `color`, from 1 to 10, names. Anything else

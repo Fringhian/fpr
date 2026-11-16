@@ -1,12 +1,10 @@
-import type { Unit } from "@fpr/contracts";
+import type { Decimal, Language, Unit } from "@fpr/contracts";
 import {
-  type Decimal,
   formatMoney,
   formatPercent,
   type MoneyPrecision,
-} from "./format";
-import type { Language } from "./language";
-import { MINUS } from "./typography";
+} from "./format/money";
+import { MINUS } from "./format/text";
 
 /** How a gain is expressed: the shared unit setting, `€` or `%`. */
 export type GainUnit = Unit;

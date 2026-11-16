@@ -1,12 +1,10 @@
+import type { Decimal, IsoDate, Language } from "@fpr/contracts";
 import type { Time, UTCTimestamp } from "lightweight-charts";
 import {
-  type Decimal,
   formatMoney,
   formatPercent,
-  type IsoDate,
   type MoneyPrecision,
-} from "../../../lib/format";
-import type { Language } from "../../../lib/language";
+} from "../../../lib/format/money";
 
 export type ChartUnit = "money" | "percent";
 

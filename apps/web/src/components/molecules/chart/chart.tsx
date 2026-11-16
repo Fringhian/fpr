@@ -1,6 +1,6 @@
 import { type ComponentProps, type ReactNode, useMemo, useRef } from "react";
 import { cn } from "../../../lib/cn";
-import type { MoneyPrecision } from "../../../lib/format";
+import type { MoneyPrecision } from "../../../lib/format/money";
 import { type DrawnLine, useChartLines } from "./chart-lines";
 import type { ChartUnit } from "./chart-model";
 import { LinePlot } from "./chart-plot";

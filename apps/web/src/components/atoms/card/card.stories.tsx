@@ -1,6 +1,6 @@
+import type { Language } from "@fpr/contracts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Card } from "./card";
 
 /** The demo texts, in the toolbar's language. They are the stories' content, not the card's. */

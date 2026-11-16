@@ -1,7 +1,7 @@
+import type { Language } from "@fpr/contracts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { formatMoney, formatPercent } from "../../../lib/format";
+import { formatMoney, formatPercent } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import {
   TrailSign,
   type TrailSignPerson,

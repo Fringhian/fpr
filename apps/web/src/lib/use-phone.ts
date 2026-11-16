@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
-/** Every width below the `tablet:` breakpoint, `--breakpoint-tablet` in `theme.css`. */
-export const PHONE_QUERY = "(width < 40rem)";
+// Every width below the `tablet:` breakpoint, `--breakpoint-tablet` in `theme.css`.
+const PHONE_QUERY = "(width < 40rem)";
 
 let query: MediaQueryList | null = null;
 

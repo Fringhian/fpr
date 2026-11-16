@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import { XIcon } from "@phosphor-icons/react/X";
@@ -6,7 +7,6 @@ import { type ReactNode, useState } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Button } from "../../atoms/button/button";
 import * as Dialog from "./dialog";
 

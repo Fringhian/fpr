@@ -24,10 +24,10 @@ const iconButton = cva(
   },
 );
 
-/** The icon’s size in each button size: 16px in a 24px button, 20px in a 40px one. */
+// The icon’s size in each button size: 16px in a 24px button, 20px in a 40px one.
 const ICON_SIZES = { s: "s", m: "m" } as const;
 
-export interface IconButtonOwnProps {
+export type IconButtonProps = {
   /** Any Phosphor icon, imported from its own module: `icon={XIcon}`. */
   icon: IconProps["icon"];
   /** Names the action for screen readers, such as “Close” or “More actions”. Required: the icon alone says nothing to them. */
@@ -36,13 +36,16 @@ export interface IconButtonOwnProps {
   ring?: boolean;
   /** `m` 40px, the default; `s` 24px, beside a line of text, such as the info icon next to an idea that needs a sentence. */
   size?: "s" | "m" | undefined;
-}
-
-export type IconButtonProps = IconButtonOwnProps &
-  Omit<
-    ComponentProps<typeof BaseButton>,
-    keyof IconButtonOwnProps | "children" | "aria-label" | "aria-labelledby"
-  >;
+} & Omit<
+  ComponentProps<typeof BaseButton>,
+  | "icon"
+  | "label"
+  | "ring"
+  | "size"
+  | "children"
+  | "aria-label"
+  | "aria-labelledby"
+>;
 
 /**
  * A round button holding one icon, on Base UI’s button, named by its label.

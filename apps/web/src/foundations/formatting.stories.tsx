@@ -1,16 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useTranslation } from "react-i18next";
 import { cn } from "../lib/cn";
-import {
-  formatDate,
-  formatGain,
-  formatMoney,
-  formatPercent,
-  formatQuantity,
-  formatTime,
-} from "../lib/format";
+import { formatDate, formatTime } from "../lib/format/date";
+import { formatGain, formatMoney, formatPercent } from "../lib/format/money";
+import { formatQuantity } from "../lib/format/number";
+import { quote } from "../lib/format/text";
 import { useLanguage } from "../lib/i18n";
-import { quote } from "../lib/typography";
 import { Specimen } from "./specimen";
 
 // Invented values, read in UTC so every reader sees the same times.

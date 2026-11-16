@@ -39,7 +39,7 @@ const item = cn(
   "disabled:dimmed",
 );
 
-/** The selected option, either held by the segment or by its owner. */
+// The selected option, held either by the segment or by its owner.
 type Selection<Value extends string> =
   | {
       /** The selected option, held by the owner. Pair it with `onValueChange`. */
@@ -52,7 +52,8 @@ type Selection<Value extends string> =
       defaultValue: Value;
     };
 
-export type RootOwnProps<Value extends string> = Selection<Value> & {
+/** Every prop of Base UI's ToggleGroup but `multiple`: a segment selects one option. */
+export type RootProps<Value extends string> = Selection<Value> & {
   /** `sky` for the peach sky, `snow` for the page or a white surface. */
   backdrop: Backdrop;
   /** Called with the newly selected option. Pressing the selected one again changes nothing. */
@@ -60,14 +61,7 @@ export type RootOwnProps<Value extends string> = Selection<Value> & {
     value: Value,
     eventDetails: ToggleGroup.ChangeEventDetails,
   ) => void;
-};
-
-/**
- * The segment's own props, then every prop of Base UI's ToggleGroup but
- * `multiple`: a segment selects one option.
- */
-export type RootProps<Value extends string> = RootOwnProps<Value> &
-  Omit<
+} & Omit<
     ToggleGroup.Props<Value>,
     "value" | "defaultValue" | "onValueChange" | "multiple"
   > &
@@ -111,20 +105,14 @@ export function Root<Value extends string>({
   );
 }
 
-export interface ItemOwnProps<Value extends string> {
+/** Every prop of Base UI's Toggle but its pressed state, which the segment holds. */
+export type ItemProps<Value extends string> = {
   /** The option's value, unique within its segment. */
   value: Value;
-}
-
-/**
- * The option's own props, then every prop of Base UI's Toggle but its pressed
- * state, which the segment holds.
- */
-export type ItemProps<Value extends string> = ItemOwnProps<Value> &
-  Omit<
-    Toggle.Props<Value>,
-    keyof ItemOwnProps<Value> | "pressed" | "defaultPressed" | "onPressedChange"
-  > &
+} & Omit<
+  Toggle.Props<Value>,
+  "value" | "pressed" | "defaultPressed" | "onPressedChange"
+> &
   RefAttributes<HTMLButtonElement>;
 
 /**

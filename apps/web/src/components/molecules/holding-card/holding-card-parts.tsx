@@ -1,8 +1,9 @@
 import { useRender } from "@base-ui/react/use-render";
+import type { Decimal } from "@fpr/contracts";
 import { type ReactElement, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { type Decimal, formatMoney, formatPercent } from "../../../lib/format";
+import { formatMoney, formatPercent } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 import {

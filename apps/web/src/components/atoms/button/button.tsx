@@ -72,10 +72,10 @@ const button = cva(
   },
 );
 
-/** Both of the button's faces share one grid cell, so it keeps its width while loading. */
+// Both of the button's faces share one grid cell, so it keeps its width while loading.
 const face = "col-start-1 row-start-1 inline-flex items-center gap-s";
 
-export interface ButtonOwnProps {
+export type ButtonProps = {
   /** `primary` (charcoal), the one main action of a screen region; `secondary` (white, outlined); `danger` (red text) to delete or sign out; `ghost` (grey text, no fill, no outline), a quiet action inside another control, such as an input's “Show” or “All”. */
   intent?: "primary" | "secondary" | "danger" | "ghost";
   /** `s` 32px; `m` 40px; `wide` 48px at full width; `step` 56px, the main button of a step flow: full width on phone, fitted to its label on tablet and desktop. */
@@ -93,13 +93,17 @@ export interface ButtonOwnProps {
   loading?: boolean;
   /** The text shown while loading. Defaults to “Saving…”. */
   loadingLabel?: string;
-}
-
-export type ButtonProps = ButtonOwnProps &
-  Omit<
-    ComponentProps<typeof BaseButton>,
-    keyof ButtonOwnProps | "focusableWhenDisabled"
-  >;
+} & Omit<
+  ComponentProps<typeof BaseButton>,
+  | "intent"
+  | "size"
+  | "icon"
+  | "next"
+  | "nextIcon"
+  | "loading"
+  | "loadingLabel"
+  | "focusableWhenDisabled"
+>;
 
 /**
  * A capsule button on Base UI’s button. It names its action: “Save change”,
@@ -119,10 +123,9 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const { t } = useTranslation();
-
   const busy = loading === true;
   const arrow = size === "step" && next;
+
   return (
     <BaseButton
       {...props}
@@ -139,19 +142,7 @@ export function Button({
         {children}
       </span>
       {loading === undefined ? null : (
-        <span className={cn(face, busy ? "" : "invisible")}>
-          <span
-            aria-hidden="true"
-            className={cn(
-              "size-[0.875rem] animate-spin rounded-full border-2 border-current/35 border-t-current",
-              "",
-              "",
-              "",
-              "motion-reduce:animate-none",
-            )}
-          />
-          {loadingLabel ?? t("button.saving")}
-        </span>
+        <LoadingFace busy={busy} label={loadingLabel} />
       )}
       {arrow && !busy ? (
         <Icon
@@ -161,5 +152,32 @@ export function Button({
         />
       ) : null}
     </BaseButton>
+  );
+}
+
+/** The spinner and the loading label, hidden but kept in place while not busy. */
+function LoadingFace({
+  busy,
+  label,
+}: {
+  busy: boolean;
+  label: string | undefined;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <span className={cn(face, busy ? "" : "invisible")}>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "size-[0.875rem] animate-spin rounded-full border-2 border-current/35 border-t-current",
+          "",
+          "",
+          "",
+          "motion-reduce:animate-none",
+        )}
+      />
+      {label ?? t("button.saving")}
+    </span>
   );
 }

@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "../../../lib/cn";
-import type { MoneyPrecision } from "../../../lib/format";
+import type { MoneyPrecision } from "../../../lib/format/money";
 import {
   type GainInput,
   type GainTone,
@@ -24,11 +24,10 @@ export interface GainOwnProps {
   precision?: MoneyPrecision | undefined;
 }
 
-/** The part writes its own text: it takes every prop of a `<span>` but `children`. */
 export type GainValueProps = GainOwnProps &
   Omit<ComponentProps<"span">, keyof GainOwnProps | "children">;
 
-/** The text colour of each gain tone: green up, red down, grey when it rounds to zero. */
+/** Each gain tone's text colour, for a gain written outside `GainValue`. */
 export const GAIN_TONE_TEXT = {
   positive: "text-positive",
   negative: "text-negative",

@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../lib/cn";
-import { readToken, Specimen, TokenValue } from "./specimen";
+import { cssVariable } from "../lib/css-variable";
+import {
+  MEMBER_COLORS,
+  MEMBER_FILLS,
+  MEMBER_PASTELS,
+} from "../lib/member-color";
+import { Specimen, TokenValue } from "./specimen";
 
 const PALETTE = [
   "charcoal",
@@ -137,28 +143,11 @@ const SOFT_FILLS = [
   },
 ] as const;
 
-const MEMBERS = [
-  { name: "vermilion", line: "bg-vermilion", picture: "bg-vermilion-pastel" },
-  { name: "cobalt", line: "bg-cobalt", picture: "bg-cobalt-pastel" },
-  { name: "green", line: "bg-green", picture: "bg-green-pastel" },
-  { name: "violet", line: "bg-violet", picture: "bg-violet-pastel" },
-  { name: "amber", line: "bg-amber", picture: "bg-amber-pastel" },
-  { name: "pink", line: "bg-pink", picture: "bg-pink-pastel" },
-  { name: "cyan", line: "bg-cyan", picture: "bg-cyan-pastel" },
-  { name: "lime", line: "bg-lime", picture: "bg-lime-pastel" },
-  { name: "sienna", line: "bg-sienna", picture: "bg-sienna-pastel" },
-  {
-    name: "periwinkle",
-    line: "bg-periwinkle",
-    picture: "bg-periwinkle-pastel",
-  },
-] as const;
-
 /** The palette colour a role points at, found by its value in the page. */
 function paletteOf(role: string): string {
-  const value = readToken(`--color-${role}`);
+  const value = cssVariable(`--color-${role}`);
   return (
-    PALETTE.find((name) => readToken(`--palette-${name}`) === value) ?? value
+    PALETTE.find((name) => cssVariable(`--palette-${name}`) === value) ?? value
   );
 }
 
@@ -290,7 +279,7 @@ function Members() {
           "desktop:grid-cols-2",
         )}
       >
-        {MEMBERS.map(({ name, line, picture }, index) => (
+        {MEMBER_COLORS.map((name, index) => (
           <li
             key={name}
             className="flex items-center gap-s rounded-m bg-surface p-s shadow-outline"
@@ -298,7 +287,7 @@ function Members() {
             <span
               className={cn(
                 "inline-flex size-[2rem] flex-none items-center justify-center rounded-full font-semibold uppercase",
-                picture,
+                MEMBER_PASTELS[name],
               )}
             >
               {name[0]}
@@ -307,7 +296,9 @@ function Members() {
               <span className="text-s font-semibold">{name}</span>
               <span className="text-xs text-secondary">colour {index + 1}</span>
             </span>
-            <span className={cn("h-s flex-1 rounded-full", line)} />
+            <span
+              className={cn("h-s flex-1 rounded-full", MEMBER_FILLS[name])}
+            />
             <span className="grid w-[10rem] flex-none text-xs text-secondary">
               <TokenValue variable={`--color-${name}`} />
               <span>

@@ -1,14 +1,11 @@
 import { Collapsible } from "@base-ui/react/collapsible";
+import type { Decimal, IsoDate } from "@fpr/contracts";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { barScale, type UnitScale } from "../../../lib/bar-track";
 import { cn } from "../../../lib/cn";
-import {
-  type Decimal,
-  formatDate,
-  formatMoney,
-  type IsoDate,
-} from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
+import { formatMoney } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { type LaneValue, laneAmount } from "../../../lib/lane";
 import type { MemberColor } from "../../../lib/member-color";

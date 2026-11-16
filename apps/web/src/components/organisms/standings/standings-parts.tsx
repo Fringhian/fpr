@@ -1,3 +1,5 @@
+import type { LeaderboardBoard } from "@fpr/contracts";
+import { leaderboardBoards } from "@fpr/contracts/values";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
@@ -8,7 +10,7 @@ import { Lane, type LaneProps } from "../../molecules/lane/lane";
 import { useRankSlide } from "./rank-slide";
 
 /** The standings shown: by gain over the period, or by balance. */
-export type StandingsBoard = "gain" | "balance";
+export type StandingsBoard = LeaderboardBoard;
 
 /**
  * One member in the race: who they are, and what their lane shows. `value`
@@ -21,8 +23,6 @@ export type StandingsMember = Pick<
   /** The member's id: what `focusedId`, `viewerId` and `onFocusMember` name. */
   id: string;
 };
-
-const BOARDS = ["gain", "balance"] as const satisfies readonly StandingsBoard[];
 
 /** The rings of the first three lanes, in order. */
 const MEDALS = [
@@ -68,7 +68,7 @@ export function StandingsHeader({
           onValueChange={(next) => onBoardChange?.(next)}
           aria-label={t("controls.standings.label")}
         >
-          {BOARDS.map((option) => (
+          {leaderboardBoards.map((option) => (
             <Segment.Item key={option} value={option}>
               {t(`controls.standings.${option}`)}
             </Segment.Item>

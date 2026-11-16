@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { CoinsIcon } from "@phosphor-icons/react/Coins";
 import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
@@ -5,7 +6,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useId } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import * as Option from "./option";
 
 /** The demo texts, in the toolbar’s language: Record a change’s first step. They are the stories’ content, not the option’s. */

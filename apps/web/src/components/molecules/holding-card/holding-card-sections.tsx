@@ -1,12 +1,9 @@
+import type { Decimal, LatestPrice, ShareKind } from "@fpr/contracts";
 import type { ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  type Decimal,
-  formatDate,
-  formatMoney,
-  formatQuantity,
-  formatTime,
-} from "../../../lib/format";
+import { formatDate, formatTime } from "../../../lib/format/date";
+import { formatMoney } from "../../../lib/format/money";
+import { formatQuantity } from "../../../lib/format/number";
 import { type GainInput, type GainUnit, gainDisplay } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import { Badge } from "../../atoms/badge/badge";
@@ -15,7 +12,6 @@ import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-plac
 import type { IconProps } from "../../foundations/icon/icon";
 import type { ChartColor, ChartPoint } from "../chart/chart";
 import * as Menu from "../menu/menu";
-import type { HoldingPrice } from "./holding-card";
 import {
   CardFigure,
   Curve,
@@ -42,7 +38,7 @@ export function HoldingHeader({
 }: {
   nameId: string;
   name: string;
-  kind: "market" | "manual";
+  kind: ShareKind;
   link: ReactElement | undefined;
   linkIcon: IconProps["icon"];
   actions: ReactNode;
@@ -81,7 +77,7 @@ export function HoldingDetails({
   timeZone,
 }: {
   quantity: Decimal;
-  latestPrice: HoldingPrice | null;
+  latestPrice: LatestPrice | null;
   anonymous: boolean;
   timeZone: string | undefined;
 }) {
