@@ -84,8 +84,17 @@ export function createAuth({
     advanced: advancedOptions,
     databaseHooks: accessCheckHooks(db),
     hooks: { before: changePasswordRules },
-    // A person's profile changes through PATCH /me, which checks it.
-    disabledPaths: ["/update-user"],
+    // A person's profile changes through PATCH /me, which checks it. The
+    // session list and revocations are off: anonymous viewers share one
+    // person, so they would see each other's addresses and sign each other
+    // out.
+    disabledPaths: [
+      "/update-user",
+      "/list-sessions",
+      "/revoke-session",
+      "/revoke-sessions",
+      "/revoke-other-sessions",
+    ],
     plugins: [accessSessions()],
   });
 }
