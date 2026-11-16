@@ -105,8 +105,12 @@ describe("each page's own view", () => {
   });
 
   it("keeps the Shares search as typed, spaces included, and drops a blank one", async () => {
-    const { search } = await visit("/shares?q=World%20", "guest");
+    const { search, location } = await visit("/shares?q=World%20", "guest");
     expect(search).toMatchObject({ q: "World " });
+    // The address the router writes back reads the same text again.
+    expect((await visit(location.href, "guest")).search).toMatchObject({
+      q: "World ",
+    });
     expect((await visit("/shares?q=%20", "guest")).search).toMatchObject({
       q: undefined,
     });
