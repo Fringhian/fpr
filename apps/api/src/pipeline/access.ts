@@ -2,7 +2,7 @@ import { accessKeys } from "@fpr/db";
 import { os } from "@orpc/server";
 import { fromNodeHeaders } from "better-auth/node";
 import type { RequestHandler } from "express";
-import { authBasePath } from "../auth.js";
+import { authBasePath } from "../auth/auth.js";
 import { ApiError, apiError } from "../errors.js";
 import type { ApiServices } from "../orpc.js";
 import type { PipelineContext } from "./session.js";

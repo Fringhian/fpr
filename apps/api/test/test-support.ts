@@ -10,7 +10,7 @@ import { Writable } from "node:stream";
 import { accessKeys, type Db, type Role, users } from "@fpr/db";
 import type { AnyRouter } from "@orpc/server";
 import { createApp } from "../src/app.js";
-import { type Auth, createAuth } from "../src/auth.js";
+import { type Auth, createAuth } from "../src/auth/auth.js";
 import { createLogger } from "../src/logger.js";
 
 export const TEST_PUBLIC_URL = "https://fpr.example.test";

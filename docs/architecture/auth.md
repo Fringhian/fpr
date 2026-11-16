@@ -4,7 +4,7 @@ Accounts, sign-in, and roles. Better Auth runs inside the API and handles passwo
 
 ## Better Auth
 
-- Better Auth is served at `/api/auth/*`. It is built in `apps/api/src/auth.ts`.
+- Better Auth is served at `/api/auth/*`. It is built in `apps/api/src/auth/`.
 - Email and password only. No OAuth and no public sign-up: Better Auth's sign-up endpoint is disabled.
 - Sessions are HTTP-only, `Secure`, `SameSite=Lax` cookies on the instance's origin, named with the `__Secure-` prefix in every environment. A session lasts 30 days and is extended on use, at most once a day, with a renewed cookie.
 - Better Auth's origin check accepts only `PUBLIC_URL`.

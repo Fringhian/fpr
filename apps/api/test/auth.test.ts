@@ -5,8 +5,8 @@ import {
   type Auth,
   passwordLength,
   sessionMaxAgeSeconds,
-  signInRateLimit,
-} from "../src/auth.js";
+} from "../src/auth/auth.js";
+import { signInRateLimit } from "../src/auth/rate-limit.js";
 import {
   addPerson,
   cookieFrom,
