@@ -80,7 +80,8 @@ export async function listBetween(
 
 /**
  * Stores a price, replacing the price, source, and `enteredBy` of one already
- * stored for the share at the same moment.
+ * stored for the share at the same moment. A replaced row takes a new
+ * `createdAt`, so readers that watch the latest `createdAt` see the change.
  */
 export async function upsert(db: Db, price: NewPrice): Promise<Price> {
   return db
@@ -91,6 +92,7 @@ export async function upsert(db: Db, price: NewPrice): Promise<Price> {
         priceEur: eb.ref("excluded.priceEur"),
         source: eb.ref("excluded.source"),
         enteredBy: eb.ref("excluded.enteredBy"),
+        createdAt: sql<Date>`now()`,
       })),
     )
     .returningAll()
