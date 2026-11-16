@@ -58,7 +58,7 @@ describe("Record a change", () => {
     );
     await submit(page, () => expect(text()).toContain("When?"));
     await submit(page, () => expect(text()).toContain("How many did you buy?"));
-    typeInto(amountField(page), "7,25");
+    typeInto(amountField(page), "7.25");
     await submit(page, () => expect(text()).toContain("Check and save"));
     await submit(page, () =>
       expect(text()).toContain("Bought 7.25 World Index ETF on"),
@@ -75,6 +75,39 @@ describe("Record a change", () => {
     await vi.waitFor(() =>
       expect(text()).toContain("Bought 7.25 World Index ETF"),
     );
+  });
+
+  it("reads an amount in English: a comma between thousands, never as the decimal mark", async () => {
+    const { page, store } = await visit(
+      `/portfolio/record?kind=cash&step=amount&start=when&day=${daysAgo(1)}`,
+      "member",
+    );
+    await vi.waitFor(() => expect(amountField(page)).toBeTruthy());
+
+    typeInto(amountField(page), "1,20");
+    await submit(page, () =>
+      expect(text()).toContain("Enter an amount of zero or more"),
+    );
+    typeInto(amountField(page), "1,200");
+    await submit(page, () => expect(text()).toContain("€1,200.00"));
+    await submit(page, () => expect(text()).toContain("This session"));
+    expect(store.entries.at(-1)).toMatchObject({ amountEur: "1200" });
+  });
+
+  it("reads an amount in French: spaces between thousands, a comma before the decimals", async () => {
+    const { page, store } = await visit(
+      `/portfolio/record?kind=cash&step=amount&start=when&day=${daysAgo(1)}`,
+      fixturePersonId("jordan"),
+      { language: "fr" },
+    );
+    await vi.waitFor(() => expect(amountField(page)).toBeTruthy());
+
+    typeInto(amountField(page), "1 200,50");
+    await submit(page, () =>
+      expect(text()).toContain("Vérifier et enregistrer"),
+    );
+    await submit(page, () => expect(text()).toContain("Cette session"));
+    expect(store.entries.at(-1)).toMatchObject({ amountEur: "1200.50" });
   });
 
   it("refuses a sale that breaks a later one, naming it, and saves nothing", async () => {

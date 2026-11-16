@@ -619,7 +619,7 @@
     },
     "amount": {
       "aboveZero": "Saisissez un nombre supérieur à zéro, comme 10 ou 74,328.",
-      "zeroOrMore": "Saisissez un montant de zéro ou plus, comme 1500."
+      "zeroOrMore": "Saisissez un montant de zéro ou plus, comme 1 500 ou 250,50."
     },
     "quantity": {
       "question": {

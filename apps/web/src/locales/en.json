@@ -607,7 +607,7 @@
     },
     "amount": {
       "aboveZero": "Enter a number above zero, such as 10 or 74.328.",
-      "zeroOrMore": "Enter an amount of zero or more, such as 1500."
+      "zeroOrMore": "Enter an amount of zero or more, such as 1,500 or 250.50."
     },
     "quantity": {
       "question": {

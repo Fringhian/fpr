@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { IconProps } from "../../../components/foundations/icon/icon";
 import * as Field from "../../../components/molecules/field/field";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
+import { useLanguage } from "../../../lib/i18n";
 import { isPositive, parseAmount } from "./amount";
 import { useFlow } from "./flow";
 
@@ -45,10 +46,12 @@ export function AmountForm({
   icon,
 }: AmountFormProps) {
   const { t } = useTranslation();
+  const language = useLanguage();
   const { goTo, refusal, setRefusal } = useFlow();
 
   const validate = (typed: unknown) => {
-    const amount = typeof typed === "string" ? parseAmount(typed) : null;
+    const amount =
+      typeof typed === "string" ? parseAmount(typed, language) : null;
     if (amount === null || !isPositive(amount, orZero)) {
       return t(
         orZero
@@ -59,7 +62,7 @@ export function AmountForm({
     return check?.(amount) ?? null;
   };
   const submit = ({ amount }: { amount: string }) => {
-    const parsed = parseAmount(amount);
+    const parsed = parseAmount(amount, language);
     if (parsed !== null) goTo("review", { amount: parsed });
   };
 
