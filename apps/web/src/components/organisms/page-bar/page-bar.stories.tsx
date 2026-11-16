@@ -7,6 +7,7 @@ import { expect, userEvent, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
+import { Card } from "../../atoms/card/card";
 import * as Sky from "../../foundations/sky/sky";
 import {
   PeriodControl,
@@ -153,12 +154,16 @@ function Page({ back, controls, sky, icon }: PageArgs) {
       ) : (
         bar
       )}
-      <section className="grid h-[16rem] content-start gap-xs rounded-l bg-surface p-m shadow-rest">
+      <Card
+        elevation="rest"
+        render={<section />}
+        className="grid h-[16rem] content-start gap-xs p-m"
+      >
         <h2 className="text-l font-semibold">{labels.card}</h2>
         <p className="text-s text-secondary">
           {sky ? labels.onRidge : labels.onSnow}
         </p>
-      </section>
+      </Card>
     </Sky.Root>
   );
 }

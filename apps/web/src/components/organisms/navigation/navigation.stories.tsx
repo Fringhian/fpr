@@ -15,6 +15,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import type { Language } from "../../../lib/language";
+import { Card } from "../../atoms/card/card";
 import {
   PeriodControl,
   type PeriodSetting,
@@ -144,13 +145,10 @@ function Cards() {
   const text = TEXTS[useLanguage()];
 
   return [1, 2, 3, 4, 5, 6, 7].map((card) => (
-    <article
-      key={card}
-      className="grid gap-xs rounded-l bg-surface p-m shadow-outline"
-    >
+    <Card key={card} render={<article />} className="grid gap-xs p-m">
       <h2 className="text-m font-semibold">{text.card}</h2>
       <p className="text-s text-secondary">{text.body}</p>
-    </article>
+    </Card>
   ));
 }
 

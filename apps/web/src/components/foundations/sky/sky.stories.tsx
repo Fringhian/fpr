@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { cn } from "../../../lib/cn";
+import { Card } from "../../atoms/card/card";
 import * as Sky from "./sky";
 
 /** Which of Sky's parts the page renders; its content stays the same. */
@@ -49,14 +50,18 @@ function SkyPage({ band, header }: SkyParts) {
       ) : (
         <PageBar />
       )}
-      <article className="grid max-w-[40rem] gap-xs rounded-l bg-surface p-m shadow-rest">
+      <Card
+        elevation="rest"
+        render={<article />}
+        className="grid max-w-[40rem] gap-xs p-m"
+      >
         <h2 className="text-l font-semibold">The page’s first card</h2>
         <p className="text-s text-secondary">
           After the header, it starts just below the near ridge: 240px from the
           top on phone, 236px from tablet up. Without the header, it follows the
           page bar.
         </p>
-      </article>
+      </Card>
     </Sky.Root>
   );
 }
