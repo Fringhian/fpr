@@ -18,19 +18,23 @@ export function pricePointAt(
   atMs: number,
 ): StoredPrice | null {
   const { prices } = share;
+  return prices[Math.max(lastIndexAt(prices, atMs), 0)] ?? null;
+}
+
+function lastIndexAt(items: readonly { atMs: number }[], atMs: number): number {
   let low = 0;
-  let high = prices.length - 1;
+  let high = items.length - 1;
   let found = -1;
   while (low <= high) {
     const middle = (low + high) >> 1;
-    if ((prices[middle]?.atMs ?? Number.POSITIVE_INFINITY) <= atMs) {
+    if ((items[middle]?.atMs ?? Number.POSITIVE_INFINITY) <= atMs) {
       found = middle;
       low = middle + 1;
     } else {
       high = middle - 1;
     }
   }
-  return prices[Math.max(found, 0)] ?? null;
+  return found;
 }
 
 export function priceAt(share: StoredShare, atMs: number): Big | null {
@@ -94,7 +98,7 @@ export function quantitiesAt(
 }
 
 export function cashAt(cash: readonly StoredCash[], atMs: number): Big {
-  const latest = cash.findLast((balance) => balance.atMs <= atMs);
+  const latest = cash[lastIndexAt(cash, atMs)];
   return latest === undefined ? zero : new Big(latest.amountEur);
 }
 
@@ -137,22 +141,24 @@ export function valuationAt(store: MockStore, userId: Id, atMs: number) {
 export type Valuation = ReturnType<typeof valuationAt>;
 
 /**
- * The money a person added, minus the money taken out, up to a moment: each
+ * The money a person added, minus the money taken out, up to any moment: each
  * share change at its share's value at its day's close, with no price
  * counting as zero, plus the cash then, which is the sum of every change of
- * cash balance.
+ * cash balance. The changes are summed once, so a series reads every point
+ * from the same running totals.
  */
-export function flowsAt(store: MockStore, userId: Id, atMs: number): Big {
-  let flows = cashAt(cashOf(store, userId), atMs);
-  for (const change of changesOf(store, userId)) {
-    if (change.atMs > atMs) {
-      break;
-    }
-    const share = shareOf(store, change.shareId);
+export function flowsOf(store: MockStore, userId: Id): (atMs: number) => Big {
+  const shares = new Map(store.shares.map((share) => [share.id, share]));
+  let total = zero;
+  const totals = changesOf(store, userId).map((change) => {
+    const share = shares.get(change.shareId);
     const price = share === undefined ? null : dayPrice(share, change.atMs);
-    flows = flows.plus(price?.times(change.quantityDelta) ?? zero);
-  }
-  return flows;
+    total = total.plus(price?.times(change.quantityDelta) ?? zero);
+    return { atMs: change.atMs, total };
+  });
+  const cash = cashOf(store, userId);
+  return (atMs) =>
+    cashAt(cash, atMs).plus(totals[lastIndexAt(totals, atMs)]?.total ?? zero);
 }
 
 /** A person's holdings now, at their latest prices, largest first, unpriced last. */

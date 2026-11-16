@@ -10,7 +10,7 @@ import {
 import { type Big, money } from "./decimal.ts";
 import { toGain, withGains } from "./gain.ts";
 import type { MockStore } from "./types.ts";
-import { flowsAt, valuationAt } from "./valuation.ts";
+import { flowsOf, valuationAt } from "./valuation.ts";
 
 /** A period as of the last close: the close it starts from, and every close in it. */
 export type PeriodWindow = {
@@ -102,7 +102,7 @@ export function measuredFrom(
 export type BalancePoint = {
   atMs: number;
   balanceEur: Big;
-  /** The money added, minus the money taken out, up to the point: `flowsAt`. */
+  /** The money added, minus the money taken out, up to the point: `flowsOf`. */
   flowsEur: Big;
   incomplete: boolean;
   /** A refresh after the last close: today's point, not final. */
@@ -129,6 +129,7 @@ export function windowPoints(
   const moments = closesOnly
     ? instants
     : [...instants, ...store.calendar.provisional];
+  const flowsAt = flowsOf(store, userId);
   return moments
     .filter((atMs) => atMs >= first)
     .map((atMs) => {
@@ -136,7 +137,7 @@ export function windowPoints(
       return {
         atMs,
         balanceEur: valuation.balanceEur,
-        flowsEur: flowsAt(store, userId, atMs),
+        flowsEur: flowsAt(atMs),
         incomplete: valuation.incomplete,
         provisional: atMs > window.lastCloseMs,
       };

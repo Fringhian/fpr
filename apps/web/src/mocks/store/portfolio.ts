@@ -20,7 +20,7 @@ import type { MockStore, StoredChange } from "./types.ts";
 import {
   cashOf,
   changesOf,
-  flowsAt,
+  flowsOf,
   type Holding,
   holdingsNow,
 } from "./valuation.ts";
@@ -67,7 +67,7 @@ function gainNow(
   const now =
     first === null || first > atMs
       ? []
-      : [{ atMs, balanceEur, flowsEur: flowsAt(store, userId, atMs) }];
+      : [{ atMs, balanceEur, flowsEur: flowsOf(store, userId)(atMs) }];
   return (
     withGains([...points, ...now]).at(-1)?.gain ?? { eur: zero, base: zero }
   );
