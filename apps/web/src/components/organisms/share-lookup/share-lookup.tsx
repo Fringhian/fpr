@@ -106,10 +106,10 @@ export function Missing({
         size="m"
         className="bg-surface"
       />
-      <h2 role="status" className="text-m font-semibold">
-        {title}
-      </h2>
-      <p className="text-s text-secondary">{description}</p>
+      <div role="status" className="grid gap-s">
+        <h2 className="text-m font-semibold">{title}</h2>
+        <p className="text-s text-secondary">{description}</p>
+      </div>
       <Button
         intent={failed ? "secondary" : "primary"}
         size="wide"

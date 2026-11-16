@@ -8,6 +8,11 @@ function CreateLink(props: ComponentProps<"a">) {
   return <a {...props} href="#new-share" />;
 }
 
+/** The page of the share that has the ISIN typed, as the router's `<Link>` would be. */
+function ShareLink(props: ComponentProps<"a">) {
+  return <a {...props} href="#share" />;
+}
+
 /** What an invented lookup found: a listing with an ISIN, stored, and one the provider sent without. */
 const FOUND = {
   status: "found",
@@ -112,7 +117,7 @@ export const IsinTaken: Story = {
       symbol: "PACB.LSE",
       adding: false,
       error: "Another share in FPR already has this ISIN.",
-      takenLink: <a href="#share">Open</a>,
+      takenLink: <ShareLink />,
     },
   },
   play: async ({ canvasElement }) => {

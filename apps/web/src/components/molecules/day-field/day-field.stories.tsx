@@ -70,7 +70,7 @@ export const PicksADay: Story = {
       await page.findByRole("button", { name: "3 March 2026" }),
     );
     await expect(
-      canvas.getByRole("button", { name: /On 3 March 2026/ }),
+      canvas.getByRole("button", { name: "On 3 March" }),
     ).toBeVisible();
   },
 };
