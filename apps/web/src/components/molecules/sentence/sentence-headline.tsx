@@ -1,6 +1,6 @@
-import type { Period } from "@fpr/contracts";
+import type { Language, Period } from "@fpr/contracts";
 import { Trans, useTranslation } from "react-i18next";
-import { formatMoney, formatPercent } from "../../../lib/format";
+import { formatMoney, formatPercent } from "../../../lib/format/money";
 import {
   type GainInput,
   type GainTone,
@@ -8,7 +8,6 @@ import {
   gainDisplay,
 } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { GAIN_TONE_TEXT } from "../../atoms/gain-value/gain-value";
 import { Headline } from "./sentence-parts";
 

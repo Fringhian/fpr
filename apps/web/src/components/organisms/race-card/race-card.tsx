@@ -1,7 +1,7 @@
+import type { IsoDate } from "@fpr/contracts";
 import { type ComponentProps, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import type { IsoDate } from "../../../lib/format";
 import type { GainUnit } from "../../../lib/gain";
 import { Card } from "../../atoms/card/card";
 import { Chart } from "../../molecules/chart/chart";

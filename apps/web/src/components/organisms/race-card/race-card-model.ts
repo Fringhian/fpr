@@ -1,4 +1,4 @@
-import type { IsoDate } from "../../../lib/format";
+import type { IsoDate } from "@fpr/contracts";
 import type { MemberColor } from "../../../lib/member-color";
 import type { ChartLine, ChartPoint } from "../../molecules/chart/chart";
 

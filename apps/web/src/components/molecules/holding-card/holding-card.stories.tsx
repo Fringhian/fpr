@@ -1,4 +1,5 @@
 import type { IsoDate, Language } from "@fpr/contracts";
+import { shareKinds, units } from "@fpr/contracts/values";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
@@ -203,14 +204,14 @@ const meta = {
   args: GAIN,
   argTypes: {
     name: { control: { type: "text" } },
-    kind: { control: { type: "inline-radio" }, options: ["market", "manual"] },
+    kind: { control: { type: "inline-radio" }, options: shareKinds },
     quantity: { control: { type: "text" } },
     latestPrice: { control: { type: "object" } },
     curve: { control: false },
     valueEur: { control: { type: "text" } },
     weight: { control: { type: "text" } },
     gain: { control: { type: "object" } },
-    unit: { control: { type: "inline-radio" }, options: ["eur", "percent"] },
+    unit: { control: { type: "inline-radio" }, options: units },
     anonymous: { control: { type: "boolean" } },
     link: { control: { type: "boolean" } },
     linkIcon: {

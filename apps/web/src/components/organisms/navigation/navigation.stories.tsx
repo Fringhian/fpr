@@ -1,4 +1,5 @@
-import type { Role } from "@fpr/contracts";
+import type { Language, Role } from "@fpr/contracts";
+import { roles } from "@fpr/contracts/values";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ArrowsClockwise";
 import { ChartLineIcon } from "@phosphor-icons/react/ChartLine";
 import { CompassIcon } from "@phosphor-icons/react/Compass";
@@ -14,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Card } from "../../atoms/card/card";
 import {
   PeriodControl,
@@ -264,7 +264,7 @@ const meta = {
       description:
         "Who is signed in. Guests and anonymous viewers have no Portfolio; the admin and anonymous viewers have the Admin group.",
       control: { type: "inline-radio" },
-      options: ["admin", "member", "guest", "anonymous"],
+      options: roles,
     },
     current: {
       description:

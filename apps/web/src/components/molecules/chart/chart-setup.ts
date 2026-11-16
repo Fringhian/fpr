@@ -5,7 +5,7 @@ import {
   type Time,
 } from "lightweight-charts";
 import { type RefObject, useEffect, useState } from "react";
-import { formatDate } from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 import type { DrawnLine } from "./chart-lines";
 import {

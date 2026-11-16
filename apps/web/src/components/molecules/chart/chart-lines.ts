@@ -1,3 +1,4 @@
+import type { Decimal, IsoDate } from "@fpr/contracts";
 import {
   type IChartApi,
   type ISeriesApi,
@@ -5,7 +6,6 @@ import {
   type LineSeriesPartialOptions,
 } from "lightweight-charts";
 import { type RefObject, useEffect } from "react";
-import type { Decimal, IsoDate } from "../../../lib/format";
 import { type ChartPoint, dayToTime, splitLine } from "./chart-model";
 import { seriesOptions } from "./chart-options";
 import type { ChartLine, ChartVariant } from "./chart-types";

@@ -1,3 +1,4 @@
+import type { IsoDate } from "@fpr/contracts";
 import type { IChartApi, MouseEventParams, Time } from "lightweight-charts";
 import {
   type Dispatch,
@@ -8,7 +9,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { IsoDate } from "../../../lib/format";
 import { type DrawnLine, seriesOn } from "./chart-lines";
 import { chartDays, dayOf, dayToTime, stepIndex } from "./chart-model";
 import type { ChartLine } from "./chart-types";

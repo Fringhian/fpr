@@ -1,8 +1,9 @@
+import type { IsoDate } from "@fpr/contracts";
+import { units } from "@fpr/contracts/values";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
-import type { IsoDate } from "../../../lib/format";
 import type { MemberColor } from "../../../lib/member-color";
 import { MarketStatus } from "../../atoms/market-status/market-status";
 import * as Sky from "../../foundations/sky/sky";
@@ -249,7 +250,7 @@ const meta = {
       },
       options: [LAST_CLOSE, TODAY],
     },
-    unit: { control: { type: "inline-radio" }, options: ["eur", "percent"] },
+    unit: { control: { type: "inline-radio" }, options: units },
     onFocusMember: { control: false },
   },
   // A new `focusId` from the controls starts the kept focus again.

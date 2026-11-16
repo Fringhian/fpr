@@ -1,8 +1,8 @@
+import type { IsoDate, Language } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatDate, type IsoDate } from "../../../lib/format";
+import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { MEMBER_FILLS } from "../../../lib/member-color";
 import type { Active } from "./chart-active";
 import { type ChartValueFormat, formatChartValue } from "./chart-model";

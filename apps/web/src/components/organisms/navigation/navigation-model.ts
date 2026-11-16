@@ -1,4 +1,5 @@
 import type { Role } from "@fpr/contracts";
+import { adminAreaRoles, writerRoles } from "@fpr/contracts/values";
 import type { PictureProps } from "../../atoms/picture/picture";
 
 /** A page the navigation has an item for. */
@@ -41,8 +42,8 @@ export function destinationsFor(role: Role): {
   main: readonly Destination[];
   admin: readonly Destination[];
 } {
-  const portfolio = role === "admin" || role === "member";
-  const adminArea = role === "admin" || role === "anonymous";
+  const portfolio = (writerRoles as readonly Role[]).includes(role);
+  const adminArea = (adminAreaRoles as readonly Role[]).includes(role);
   return {
     main: portfolio
       ? ["home", "members", "portfolio", "shares"]

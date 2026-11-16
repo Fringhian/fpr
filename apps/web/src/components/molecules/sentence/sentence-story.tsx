@@ -1,6 +1,5 @@
-import type { Period } from "@fpr/contracts";
+import type { Decimal, Period } from "@fpr/contracts";
 import { Trans, useTranslation } from "react-i18next";
-import type { Decimal } from "../../../lib/format";
 import type { GainInput, GainUnit } from "../../../lib/gain";
 import { Chip } from "../../atoms/chip/chip";
 import { GainValue } from "../../atoms/gain-value/gain-value";

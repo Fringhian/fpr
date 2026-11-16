@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { ArrowLeftIcon } from "@phosphor-icons/react/ArrowLeft";
 import { CaretLeftIcon } from "@phosphor-icons/react/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/House";
@@ -6,7 +7,6 @@ import { type CSSProperties, useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { Card } from "../../atoms/card/card";
 import * as Sky from "../../foundations/sky/sky";
 import {
