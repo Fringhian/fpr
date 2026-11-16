@@ -21,6 +21,8 @@ export interface ChartMark {
   direction: "up" | "down";
   /** What happened, in the readout of its day and to screen readers: “Bought 10 World Index ETF”. */
   label: string;
+  /** The arrow's colour, such as the member who made the change. `positive` up and `negative` down by default. */
+  color?: ChartColor | undefined;
 }
 
 /** One line of the chart. Lines draw in their order: the last one on top. */
@@ -39,6 +41,8 @@ export interface ChartLine {
   emphasis?: "focus" | "context";
   /** `line` only: arrows on the line's days, such as purchases up and sales down. */
   marks?: readonly ChartMark[] | undefined;
+  /** Draws the line in steps: each value holds until the next, as a manual share's values do. */
+  steps?: boolean | undefined;
 }
 
 export type ChartVariant = "line" | "sparkline";
