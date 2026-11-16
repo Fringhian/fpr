@@ -3,7 +3,7 @@ import type { Decimal } from "@fpr/contracts";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { formatMoney, formatPercent } from "../../../lib/format/money";
 import { useLanguage } from "../../../lib/i18n";
 import { Card } from "../../atoms/card/card";
@@ -115,7 +115,7 @@ export function Actions({
       <Menu.MoreTrigger
         {...props}
         size="s"
-        className={cn("relative", className)}
+        className={stateClassName("relative", className)}
       />
       <Menu.Popup>{children}</Menu.Popup>
     </Menu.Root>
