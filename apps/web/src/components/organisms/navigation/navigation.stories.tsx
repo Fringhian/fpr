@@ -177,7 +177,7 @@ function AppFrame({
         <main
           className={cn(
             "grid min-w-0 flex-1 content-start gap-m",
-            "px-m pb-[calc(6rem+env(safe-area-inset-bottom))]",
+            "px-m pb-(--tab-bar-room)",
             "tablet:px-l tablet:pb-l",
             "desktop:px-l desktop:pb-l",
           )}

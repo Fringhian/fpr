@@ -41,6 +41,24 @@
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
+/*
+ * The fixed bars at the page's edges: the compact page bar at the top, below
+ * the safe area, and on phone the floating tab bar with its gap at the bottom.
+ * The page's scroll padding keeps a focused or scrolled-to element clear of
+ * both (WCAG 2.4.11).
+ */
+:root {
+  --compact-bar: 3.5rem;
+  --tab-bar-room: calc(6rem + env(safe-area-inset-bottom, 0px));
+  scroll-padding-top: calc(var(--compact-bar) + var(--safe-top));
+  scroll-padding-bottom: var(--tab-bar-room);
+
+  @variant tablet {
+    --compact-bar: 4rem;
+    --tab-bar-room: 0px;
+  }
+}
+
 @theme {
   /* Tailwind's default scales are reset: only the tokens below generate classes. */
   --color-*: initial;
@@ -201,6 +219,12 @@
    out to it; still under reduced motion. */
 @utility popup-motion {
   @apply transition-[opacity,scale] duration-s ease-soft motion-reduce:transition-none starting-style:scale-[0.96] starting-style:opacity-0 ending-style:scale-[0.96] ending-style:opacity-0;
+}
+
+/* A bar floating over the page, which scrolls under it: 80% white over a
+   blur, opaque where the browser can't blur. */
+@utility frosted {
+  @apply bg-surface/80 backdrop-blur-[1.125rem] backdrop-saturate-[1.4] not-supports-[backdrop-filter:blur(0)]:bg-surface;
 }
 
 /* Dialogs, sheets, popovers, menus and disclosures that are open */
