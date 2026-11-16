@@ -76,7 +76,7 @@ type NavigationArgs = Omit<
   Record<IconProp, IconName> & {
     current: Navigation.Destination | "none";
     side: boolean;
-    topBar: boolean;
+    accountMenu: boolean;
     tabBar: boolean;
   };
 
@@ -89,27 +89,21 @@ const PERIOD_PAGES: readonly (Navigation.Destination | "none")[] = [
 ];
 
 /**
- * A page laid out with the parts the controls switch on: the side navigation,
- * the phone's top bar, the tab bar. With `back`, the page sits under the
- * current one, and the top bar leads with a back link to it.
+ * The demo page's bar: its title, or with `back` a link to the current item's
+ * page, then the period on the pages that show it, and the account menu.
  */
-function AppFrame({
+function Bar({
   current,
-  side,
-  topBar,
-  tabBar,
-  homeIcon,
-  membersIcon,
-  portfolioIcon,
-  sharesIcon,
-  peopleIcon,
-  trackedSharesIcon,
-  moreIcon,
-  back = false,
-  ...props
-}: NavigationArgs & { back?: boolean }) {
+  anonymous,
+  accountMenu,
+  back,
+}: {
+  current: Navigation.Destination | "none";
+  anonymous: boolean;
+  accountMenu: boolean;
+  back: boolean;
+}) {
   const { t } = useTranslation();
-  const text = TEXTS[useLanguage()];
   const [setting, setSetting] = useState<PeriodSetting>({
     period: "1M",
     unit: "percent",
@@ -120,71 +114,82 @@ function AppFrame({
     current === "none"
       ? t("navigation.help")
       : t(`navigation.items.${current}`);
-  const left =
-    back && current !== "none" ? (
-      <PageBar.Back href={Navigation.HREFS[current]}>{title}</PageBar.Back>
-    ) : (
-      <PageBar.Title render={(titleProps) => <h1 {...titleProps} />}>
-        {title}
-      </PageBar.Title>
-    );
 
+  return (
+    <PageBar.Root>
+      {back && current !== "none" ? (
+        <PageBar.Back href={Navigation.HREFS[current]}>{title}</PageBar.Back>
+      ) : (
+        <PageBar.Title render={(titleProps) => <h1 {...titleProps} />}>
+          {title}
+        </PageBar.Title>
+      )}
+      <PageBar.Controls>
+        {PERIOD_PAGES.includes(current) ? (
+          <PeriodControl
+            value={setting}
+            onChange={setSetting}
+            backdrop="snow"
+            anonymous={anonymous}
+          />
+        ) : null}
+        {accountMenu ? <Navigation.AccountMenu /> : null}
+      </PageBar.Controls>
+    </PageBar.Root>
+  );
+}
+
+function Cards() {
+  const text = TEXTS[useLanguage()];
+
+  return [1, 2, 3, 4, 5, 6, 7].map((card) => (
+    <article
+      key={card}
+      className="grid gap-xs rounded-l bg-surface p-m shadow-outline"
+    >
+      <h2 className="text-m font-semibold">{text.card}</h2>
+      <p className="text-s text-secondary">{text.body}</p>
+    </article>
+  ));
+}
+
+/**
+ * A page laid out with the parts the controls switch on: the side navigation,
+ * the account menu in the page bar, the tab bar. With `back`, the page sits
+ * under the current one, and its bar leads with a back link to it.
+ */
+function AppFrame({
+  current,
+  side,
+  accountMenu,
+  tabBar,
+  back = false,
+  ...props
+}: NavigationArgs & { back?: boolean }) {
   return (
     <Navigation.Root
       {...props}
       account={ACCOUNTS[props.userRole]}
       current={current === "none" ? undefined : current}
-      homeIcon={ICONS[homeIcon]}
-      membersIcon={ICONS[membersIcon]}
-      portfolioIcon={ICONS[portfolioIcon]}
-      sharesIcon={ICONS[sharesIcon]}
-      peopleIcon={ICONS[peopleIcon]}
-      trackedSharesIcon={ICONS[trackedSharesIcon]}
-      moreIcon={ICONS[moreIcon]}
+      {...iconsOf(props)}
     >
       <div className="flex font-sans text-primary">
         {side ? <Navigation.Side /> : null}
-        <main className="min-w-0 flex-1">
-          {topBar ? (
-            <Navigation.TopBar title={left}>
-              {PERIOD_PAGES.includes(current) ? (
-                <PeriodControl
-                  value={setting}
-                  onChange={setSetting}
-                  backdrop="snow"
-                  anonymous={props.userRole === "anonymous"}
-                />
-              ) : null}
-            </Navigation.TopBar>
-          ) : null}
-          <div
-            className={cn(
-              "grid gap-m",
-              "px-m pt-0 pb-[calc(6rem+env(safe-area-inset-bottom))]",
-              "tablet:px-l tablet:pt-l tablet:pb-l",
-              "desktop:px-l desktop:pt-l desktop:pb-l",
-            )}
-          >
-            <h1
-              className={cn(
-                "text-l font-semibold",
-                "hidden",
-                "tablet:block",
-                "desktop:block",
-              )}
-            >
-              {title}
-            </h1>
-            {[1, 2, 3, 4, 5, 6, 7].map((card) => (
-              <article
-                key={card}
-                className="grid gap-xs rounded-l bg-surface p-m shadow-outline"
-              >
-                <h2 className="text-m font-semibold">{text.card}</h2>
-                <p className="text-s text-secondary">{text.body}</p>
-              </article>
-            ))}
-          </div>
+        <main
+          className={cn(
+            "grid min-w-0 flex-1 content-start gap-m",
+            "px-m pb-[calc(6rem+env(safe-area-inset-bottom))]",
+            "tablet:px-l tablet:pb-l",
+            "desktop:px-l desktop:pb-l",
+          )}
+        >
+          <Bar
+            current={current}
+            anonymous={props.userRole === "anonymous"}
+            accountMenu={accountMenu}
+            back={back}
+          />
+          <Cards />
         </main>
         {tabBar ? <Navigation.TabBar /> : null}
       </div>
@@ -192,20 +197,33 @@ function AppFrame({
   );
 }
 
+/** Root's icon props, from the names the controls pick. */
+function iconsOf(names: Record<IconProp, IconName>) {
+  return {
+    homeIcon: ICONS[names.homeIcon],
+    membersIcon: ICONS[names.membersIcon],
+    portfolioIcon: ICONS[names.portfolioIcon],
+    sharesIcon: ICONS[names.sharesIcon],
+    peopleIcon: ICONS[names.peopleIcon],
+    trackedSharesIcon: ICONS[names.trackedSharesIcon],
+    moreIcon: ICONS[names.moreIcon],
+  };
+}
+
 const DESCRIPTION = `
-The app’s navigation: a sidebar on desktop, a rail on tablet, and on phone a top bar with a floating tab bar. Import it as a namespace: \`import * as Navigation from "…/navigation"\`.
+The app’s navigation: a sidebar on desktop, a rail on tablet, and on phone a floating tab bar, with the account menu at the end of the page bar. Import it as a namespace: \`import * as Navigation from "…/navigation"\`.
 
 | Part | What it is |
 | --- | --- |
 | \`Navigation.Root\` | Holds what every part reads: \`userRole\`, \`current\`, \`account\`, \`renderLink\`, \`onSettings\`, \`onSignOut\`, and each item’s icon. It renders no element. |
 | \`Navigation.Side\` | The rail on tablet, each icon above its name, and the sidebar on desktop, each icon before its name, with the account menu at its bottom. Hidden on phone. |
-| \`Navigation.TopBar\` | The phone’s top bar, built from the page bar’s parts: \`title\` on the left (\`PageBar.Title\`, or \`PageBar.Back\` on a page under another), then \`PageBar.Controls\` holding its \`children\` (such as \`PeriodControl\`) and your picture, which opens the account menu. 70px high, like \`PageBar.Root\` on phone, under the top safe area. Hidden from tablet up. |
+| \`Navigation.AccountMenu\` | Your picture, last in \`PageBar.Controls\`, which opens the account menu as a sheet. Phone only: from tablet up, the side navigation holds the menu. A 44px target. |
 | \`Navigation.TabBar\` | The phone’s floating tab bar: a capsule 16px above the bottom edge and the safe area, 80% white over a blur, opaque where the browser can’t blur. Nothing floats beside it. Hidden from tablet up. |
 
 - **Items**: Home, Members, Portfolio and Shares, then an Admin group with People and Tracked shares. Guests and anonymous viewers have no Portfolio. The admin has the Admin group, and so do anonymous viewers, who read the admin area without changing anything. The admin area works on tablet and desktop, so the tab bar never shows it. \`destinationsFor(role)\` returns the items a role sees.
 - **Current item**: charcoal, its icon filled, with \`aria-current="page"\`. \`current\` names it; a page without an item, such as How FPR works, has none.
 - **Links**: plain \`<a href>\` by default. \`renderLink\` returns the router’s link for each one, \`({ href }) => <Link to={href} />\`, and the item’s classes, \`aria-current\` and content are merged into it. \`HREFS\` holds each page’s path.
-- **Account menu**: your picture, with your name on the desktop sidebar, opens Settings, How FPR works, and Sign out. It sits at the bottom of the sidebar and the rail, and at the end of the phone’s top bar.
+- **Account menu**: your picture, with your name on the desktop sidebar, opens Settings, How FPR works, and Sign out. It sits at the bottom of the sidebar and the rail, and at the end of the page bar on phone, so a page has one bar at every width.
 - **Icons**: each item’s icon is a prop of \`Navigation.Root\`, any Phosphor icon, with the design’s icon by default.
 
 Every story here renders in its own frame at the page’s own width. The **Tablet** and **Phone** stories in the sidebar show the narrower widths, and the viewport menu switches any story.
@@ -232,7 +250,7 @@ const meta = {
     userRole: "admin",
     current: "home",
     side: true,
-    topBar: true,
+    accountMenu: true,
     tabBar: true,
     homeIcon: "house",
     membersIcon: "users-three",
@@ -281,9 +299,10 @@ const meta = {
       description: "Renders the rail on tablet and the sidebar on desktop.",
       control: { type: "boolean" },
     },
-    topBar: {
-      name: "Navigation.TopBar",
-      description: "Renders the phone’s top bar, with the account menu.",
+    accountMenu: {
+      name: "Navigation.AccountMenu",
+      description:
+        "Renders your picture at the end of the page bar, on phone only.",
       control: { type: "boolean" },
     },
     tabBar: {
@@ -356,10 +375,10 @@ export const AccountMenu: Story = {
   globals: { viewport: { value: "desktop" } },
   play: async ({ canvasElement, step }) => {
     const page = within(canvasElement.ownerDocument.body);
-    const trigger = within(canvasElement).getAllByRole("button", {
+    // The page bar's account button is hidden from tablet up: one shows.
+    const trigger = within(canvasElement).getByRole("button", {
       name: "Alex, your account",
-    })[0];
-    if (trigger === undefined) throw new Error("No account button");
+    });
     await step("Your picture opens the menu", async () => {
       await userEvent.click(trigger);
       const menu = await page.findByRole("menu");
@@ -380,14 +399,14 @@ export const Tablet: Story = {
   globals: { viewport: { value: "tablet" } },
 };
 
-/** The top bar and the floating tab bar. The admin area isn’t on phone, so the tab bar has the four main items. */
+/** The page bar ending with your picture, and the floating tab bar. The admin area isn’t on phone, so the tab bar has the four main items. */
 export const Phone: Story = {
   tags: ["!autodocs"],
   args: { current: "members" },
   globals: { viewport: { value: "phone" } },
 };
 
-/** A member’s page, under Members: the top bar leads with `PageBar.Back`, a 44px target, in place of the title. */
+/** A member’s page, under Members: the page bar leads with `PageBar.Back`, a 44px target, in place of the title. */
 export const PhoneBackLink: Story = {
   name: "Phone, back link",
   tags: ["!autodocs"],
@@ -395,9 +414,8 @@ export const PhoneBackLink: Story = {
   globals: { viewport: { value: "phone" } },
   render: (args) => <AppFrame {...args} back />,
   play: async ({ canvasElement }) => {
-    const banner = within(canvasElement).getByRole("banner");
     await expect(
-      within(banner).getByRole("link", { name: "Back to Members" }),
+      within(canvasElement).getByRole("link", { name: "Back to Members" }),
     ).toHaveAttribute("href", "/members");
   },
 };
@@ -418,7 +436,7 @@ export const TabletAnonymous: Story = {
   globals: { viewport: { value: "tablet" } },
 };
 
-/** The account menu from the phone’s top bar, as a sheet rising from the bottom. */
+/** The account menu from the end of the page bar, as a sheet rising from the bottom. On phone, the only account button is there. */
 export const PhoneAccountMenu: Story = {
   name: "Phone, account menu",
   tags: ["!autodocs"],
@@ -426,9 +444,8 @@ export const PhoneAccountMenu: Story = {
   globals: { viewport: { value: "phone" } },
   play: async ({ canvasElement }) => {
     const page = within(canvasElement.ownerDocument.body);
-    const banner = within(canvasElement).getByRole("banner");
     await userEvent.click(
-      within(banner).getByRole("button", { name: "Sam, your account" }),
+      within(canvasElement).getByRole("button", { name: "Sam, your account" }),
     );
     const sheet = await page.findByRole("dialog", {
       name: "Sam, your account",

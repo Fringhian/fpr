@@ -160,7 +160,7 @@ Every page’s top: the page bar, then, on a page with a header sentence, the se
 - **With a header sentence** (Home, Portfolio, a member, a share): \`Sky.Root\` holds \`Sky.Band\` and \`Sky.Header\`; \`Sky.Header\` holds the bar, then the sentence, which ends above the ridge. The main card follows \`Sky.Header\` and starts on the ridge.
 - **Without one** (Members, Shares, People, How FPR works…): \`Sky.Root\` alone, the bar on snow, and the title is the page’s heading.
 
-On phone, \`Navigation.TopBar\` is built from these parts: the title or back link, then \`PageBar.Controls\` holding the period control and the account menu, under the top safe area.
+A page has this one bar at every width. On phone, \`PageBar.Controls\` ends with \`Navigation.AccountMenu\`, your picture opening the account menu, which hides itself from tablet up, where the side navigation holds the menu.
 
 Every part takes \`className\` and the props of the element it renders. The controls switch each part on and off and pick the back link’s icon. On this page every story renders at the page’s own width, a desktop width: the **Phone** and **Tablet** stories in the sidebar show the narrower ones.
 `;
