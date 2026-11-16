@@ -1,8 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
+import { createQueryClient } from "./lib/api/query-client.ts";
 import { createI18n, syncDocumentLanguage } from "./lib/i18n.ts";
 import { DEFAULT_LANGUAGE } from "./lib/language.ts";
 import { routeTree } from "./routeTree.gen.ts";
@@ -11,7 +12,7 @@ import "./index.css";
 const i18n = createI18n(DEFAULT_LANGUAGE);
 syncDocumentLanguage(i18n);
 
-const queryClient = new QueryClient();
+const queryClient = createQueryClient();
 
 const router = createRouter({
   routeTree,
