@@ -6,7 +6,7 @@ import type { GainUnit } from "../../../lib/gain";
 import { Card } from "../../atoms/card/card";
 import { LoadingPlaceholder } from "../../atoms/loading-placeholder/loading-placeholder";
 import { Chart } from "../../molecules/chart/chart";
-import type { ChartValueFormat } from "../../molecules/chart/chart-model";
+import { gainFormat } from "../../molecules/chart/chart-model";
 import { LineEnds } from "./race-card-ends";
 import { Legend } from "./race-card-legend";
 import { type RaceCast, type RaceMember, raceLines } from "./race-card-model";
@@ -58,15 +58,6 @@ export function Header({
       {children}
     </div>
   );
-}
-
-/** The race's values, on the chart's axis and on the signs alike: signed gains, in whole euros or in percent. */
-function raceFormat(unit: GainUnit): ChartValueFormat {
-  return {
-    unit: unit === "eur" ? "money" : "percent",
-    precision: "euros",
-    signed: true,
-  };
 }
 
 /** You and the focused member, once each, in that order, among the members in the race. */
@@ -153,7 +144,7 @@ export function Race({
   );
 
   const cast = { youId, focusId };
-  const format = raceFormat(unit);
+  const format = gainFormat(unit);
   const ends = { members: byId, format, onFocusMember, ...cast };
 
   return (

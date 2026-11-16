@@ -1,4 +1,9 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  MutationCache,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 import { holdsSession } from "../session/session-query.ts";
 import { isApiError, isRefusal } from "./errors.ts";
 import { invalidateAfter } from "./invalidation.ts";
@@ -45,4 +50,10 @@ export const livePrices = {
   refetchInterval: 5 * 60 * 1000,
   refetchIntervalInBackground: false,
   refetchOnWindowFocus: "always",
+} as const;
+
+/** A price read that a page keeps on screen while a new period or unit loads. */
+export const liveView = {
+  ...livePrices,
+  placeholderData: keepPreviousData,
 } as const;

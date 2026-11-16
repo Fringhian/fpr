@@ -4,15 +4,12 @@ import type {
   Period,
   Unit,
 } from "@fpr/contracts";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { livePrices } from "../../../lib/api/query-client";
+import { useQuery } from "@tanstack/react-query";
+import { liveView as homeRead } from "../../../lib/api/query-client";
 import { useApi } from "../../../lib/api/use-api";
 
 /** The standings by gain, which the sentence and the focus panel read. */
 export type GainStandings = Extract<Leaderboard, { board: "gain" }>;
-
-/** A Home read: fetched again with the prices, and kept on screen while a new period or unit loads. */
-const homeRead = { ...livePrices, placeholderData: keepPreviousData } as const;
 
 /**
  * Home's reads for the view: the race chart; the gain standings, which the

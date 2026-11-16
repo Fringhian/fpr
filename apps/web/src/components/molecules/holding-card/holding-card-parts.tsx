@@ -56,7 +56,7 @@ function NameLink({
     defaultTagName: "a",
     props: {
       className: cn(
-        "flex min-w-0 items-center gap-xs text-primary no-underline outline-none after:absolute after:inset-0 after:rounded-l after:content-['']",
+        "card-link flex min-w-0 items-center gap-xs text-primary no-underline",
         "",
         "",
         "",
