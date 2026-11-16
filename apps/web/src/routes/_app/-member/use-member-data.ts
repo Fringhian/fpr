@@ -1,6 +1,6 @@
 import type { Id, Members } from "@fpr/contracts";
 import { useQuery } from "@tanstack/react-query";
-import { liveView } from "../../../lib/api/query-client";
+import { liveViewFor } from "../../../lib/api/query-client";
 import { useApi } from "../../../lib/api/use-api";
 import { useMembers } from "../../../lib/members";
 import { useSession } from "../../../lib/session/use-session";
@@ -15,16 +15,13 @@ function usePortfolioReads(userId: Id, enabled: boolean) {
   const { setting } = useViewState();
 
   const input = { userId, period: setting.period };
+  const view = liveViewFor(input, "userId");
   return {
     portfolio: useQuery(
-      api.portfolio.get.queryOptions({ input, ...liveView, enabled }),
+      api.portfolio.get.queryOptions({ input, ...view, enabled }),
     ),
     history: useQuery(
-      api.portfolio.balanceHistory.queryOptions({
-        input,
-        ...liveView,
-        enabled,
-      }),
+      api.portfolio.balanceHistory.queryOptions({ input, ...view, enabled }),
     ),
   };
 }
