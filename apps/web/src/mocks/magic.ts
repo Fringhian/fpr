@@ -27,6 +27,14 @@ export const lookupErrors = {
 } as const;
 
 /**
+ * `POST /admin/prices/refresh` runs this many times, then answers
+ * `call_budget_used`, as once the day's call cap is reached. A refresh takes
+ * `refreshMs`, and another one sent meanwhile answers `refresh_running`.
+ */
+export const refreshCap = 2;
+export const refreshMs = 1200;
+
+/**
  * The address switches of `pnpm dev:mock`, each read once on load and removed
  * from the address, lasting until the next load: `?mock-as=<persona>` signs
  * in as a persona, `?mock-empty` starts with nobody yet, `?mock-slow` (or

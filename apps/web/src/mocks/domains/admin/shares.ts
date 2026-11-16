@@ -1,4 +1,5 @@
 import type { AdminShare, AdminShareGroups } from "@fpr/contracts";
+import { refreshCap, refreshMs } from "../../magic.ts";
 import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import {
@@ -72,7 +73,10 @@ function groups(store: MockStore): AdminShareGroups {
   return result;
 }
 
-/** The tracked shares: their groups, making one manual, and a refresh now. */
+/**
+ * The tracked shares: their groups, making one manual, and a refresh now,
+ * refused while one runs or past `refreshCap`.
+ */
 export const adminShareRoutes = {
   shares: mock.admin.shares.handler(({ context }) => groups(context.store)),
 
@@ -118,8 +122,19 @@ export const adminShareRoutes = {
     return toAdminShare(store, share);
   }),
 
-  refreshPrices: mock.admin.refreshPrices.handler(({ context }) => {
+  refreshPrices: mock.admin.refreshPrices.handler(async ({ context }) => {
     const { store } = context;
+    const { refreshes } = store;
+    if (refreshes.running) {
+      throw mockError("refresh_running");
+    }
+    if (refreshes.count >= refreshCap) {
+      throw mockError("call_budget_used");
+    }
+    refreshes.running = true;
+    await new Promise((resolve) => setTimeout(resolve, refreshMs));
+    refreshes.running = false;
+    refreshes.count += 1;
     const priced = store.shares.filter(
       (share) =>
         share.kind === "market" &&

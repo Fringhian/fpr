@@ -181,6 +181,7 @@ export function createMockStore(options: MockStoreOptions = {}): MockStore {
     accessKeys: empty ? new Map() : seededAccessKeys(),
     resetKeys: new Map(),
     conflicted: options.conflicts ? new Set() : null,
+    refreshes: { running: false, count: 0 },
     session: options.session ?? null,
     onSessionChange: options.onSessionChange ?? (() => {}),
   };

@@ -101,6 +101,8 @@ export type MockStore = {
    * changed. `null` when off.
    */
   conflicted: Set<number> | null;
+  /** The price refreshes the admin ran: whether one is going, and how many have run. */
+  refreshes: { running: boolean; count: number };
   /** The signed-in person, or `null`. */
   session: Id | null;
   onSessionChange: (session: Id | null) => void;
