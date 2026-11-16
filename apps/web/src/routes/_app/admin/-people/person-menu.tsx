@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import * as Menu from "../../../../components/molecules/menu/menu";
 import { editPortfolioLink } from "../../../../lib/edit-portfolio";
 import { mayEnter } from "../../../../lib/session/access";
-import { hasPassword, type PeopleActions } from "./people-model";
+import type { PeopleActions } from "./people-model";
 
 /**
  * The ⋯ menu's items for a person: Edit, Edit portfolio for someone with a
@@ -41,7 +41,7 @@ export function PersonMenu({
       <Menu.Item {...locked} onClick={open("replaceLink")}>
         {t("adminPeople.menu.replaceLink")}
       </Menu.Item>
-      {hasPassword(person) ? (
+      {person.hasPassword === true ? (
         <Menu.Item onClick={open("resetKey")}>
           {t("adminPeople.menu.resetKey")}
         </Menu.Item>

@@ -73,12 +73,12 @@ function PortfolioView({
         <OwnedHoldings
           userId={person.id}
           portfolio={portfolio}
-          cashSetAt={data.cashSetAt}
           label={t("portfolioPage.holdings")}
         />
         <LatestChanges
           userId={person.id}
           rows={data.rows}
+          total={data.total}
           historyLink={<Link to="/portfolio/history" />}
         />
       </div>

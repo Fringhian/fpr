@@ -66,15 +66,15 @@ export const invalidations = {
   "shares.deleteValue": valuation,
   "shares.delete": ["shares", "admin.shares"],
 
-  "admin.addPerson": ["admin.people", "race"],
+  "admin.addPerson": ["admin.people", "me.people", "race"],
   "admin.updatePerson": person,
-  "admin.revoke": ["admin.people", "race"],
-  "admin.restore": ["admin.people", "race"],
+  "admin.revoke": ["admin.people", "me.people", "race"],
+  "admin.restore": ["admin.people", "me.people", "race"],
   "admin.replaceLink": ["admin.people"],
   "admin.resetKey": ["admin.people"],
-  "admin.deletePerson": [...valuation, "admin.people"],
+  "admin.deletePerson": [...valuation, "admin.people", "me.people"],
   "admin.makeManual": valuation,
-  "admin.refreshPrices": valuation,
+  "admin.refreshPrices": [...valuation, "admin.refreshState"],
 } as const satisfies Partial<Record<RoutePath, Stale>>;
 
 function staleAfter(mutationKey: QueryKey | undefined): Stale | undefined {

@@ -45,6 +45,7 @@ function storeListing(
     symbol: listing.symbol,
     exchange: listing.exchange,
     tradingCurrency: listing.tradingCurrency,
+    addedAtMs: store.calendar.nowMs,
     prices: marketPrices(
       listing.market ?? lookedUpModel,
       store.calendar,
@@ -92,6 +93,9 @@ export const manualShareWrites = {
   lookup: mock.shares.lookup.handler(({ context, input }) => {
     const { store } = context;
     const error = lookupErrors[input.query as keyof typeof lookupErrors];
+    if (error === "provider_unavailable") {
+      store.refreshes.offline = true;
+    }
     if (error !== undefined) {
       throw mockError(error);
     }
@@ -129,6 +133,7 @@ export const manualShareWrites = {
       symbol: null,
       exchange: null,
       tradingCurrency: null,
+      addedAtMs: store.calendar.nowMs,
       prices: [
         {
           atMs,

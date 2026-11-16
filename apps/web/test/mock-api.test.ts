@@ -3,6 +3,7 @@ import { getResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { type ApiClient, createApiClient } from "../src/lib/api/client.ts";
+import { raceDayOf } from "../src/lib/race-day.ts";
 import {
   fixturePeople,
   fixturePersonId,
@@ -85,6 +86,18 @@ function reads(client: ApiClient): Record<string, () => Promise<unknown>> {
   };
 }
 
+async function dayClose(
+  client: ApiClient,
+  shareId: string,
+  at: string,
+): Promise<number> {
+  const { points } = await client.shares.prices({ id: shareId, range: "all" });
+  const day = raceDayOf(at);
+  const close =
+    points.findLast((point) => raceDayOf(point.at) <= day) ?? points[0];
+  return Number(close?.priceEur ?? 0);
+}
+
 const readRoutes = contractProcedures(apiContract).filter(
   ([, procedure]) => procedure["~orpc"].route.method === "GET",
 );
@@ -130,6 +143,64 @@ describe("the mock API", () => {
     expect(race.notStarted.map((person) => person.displayName)).toContain(
       "Noa Lambert",
     );
+  });
+
+  it("measures a member's gain as their balance's change over the period minus the money added or taken out", async () => {
+    const { client } = mockClient({ session: "member" });
+    for (const period of periods) {
+      const [{ members }, history] = await Promise.all([
+        client.race.members({ period }),
+        client.portfolio.balanceHistory({ userId: sam, period }),
+      ]);
+      const startMs = Date.parse(history.points[0]?.at ?? "");
+      const end = history.points.findLast((point) => !point.provisional);
+      let flows = 0;
+      for (const entry of history.entries) {
+        const atMs = Date.parse(entry.effectiveAt);
+        if (atMs <= startMs || atMs > Date.parse(end?.at ?? "")) {
+          continue;
+        }
+        flows +=
+          entry.type === "cash"
+            ? Number(entry.amountEur) - Number(entry.previousAmountEur ?? 0)
+            : Number(entry.quantityDelta) *
+              (await dayClose(client, entry.share.id, entry.effectiveAt));
+      }
+      const expected =
+        Number(end?.balanceEur) - Number(history.points[0]?.balanceEur) - flows;
+      const gain = members.find(({ member }) => member.id === sam)?.gain;
+      // Within the cent the gain is rounded to.
+      expect(Math.abs(Number(gain?.eur) - expected), period).toBeLessThan(0.01);
+    }
+  });
+
+  it("leaves a member's gain unchanged by a purchase with no cash change", async () => {
+    const { client } = mockClient({ session: "member" });
+    const gains = async () => {
+      const [{ members }, portfolio] = await Promise.all([
+        client.race.members({ period: "1M" }),
+        client.portfolio.get({ userId: sam, period: "1M" }),
+      ]);
+      const member = members.find(({ member }) => member.id === sam);
+      return { lastClose: member?.gain?.eur, now: portfolio.gain.eur };
+    };
+    const purchase = (effectiveAt: string) =>
+      client.portfolio.addChange({
+        userId: sam,
+        shareId: world,
+        quantityDelta: "5",
+        effectiveAt,
+      });
+
+    // On the last close's day: its close values it at what it cost.
+    const before = await gains();
+    await purchase("2026-03-03T11:00:00Z");
+    const after = await gains();
+    expect(after.lastClose).toBe(before.lastClose);
+
+    // An hour ago: today's latest price values it at what it cost.
+    await purchase(new Date(now.getTime() - 3_600_000).toISOString());
+    expect(await gains()).toEqual(after);
   });
 
   it("gives an anonymous viewer no names, euro amounts or quantities", async () => {

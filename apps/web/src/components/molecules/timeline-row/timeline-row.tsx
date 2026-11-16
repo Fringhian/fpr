@@ -40,7 +40,7 @@ export type TimelineRowProps = TimelineEntry &
   Pick<DayProps, "date" | "timeZone" | "year"> & {
     /** Who made it, as “by Alex”: on a member's entry the admin made, and on every value. */
     madeBy?: string | undefined;
-    /** The icon in the soft circle. By default, the kind's: plus, minus, coins, tag, pencil. */
+    /** The icon in the soft circle. By default, the kind's: plus, minus, arrows, coins, tag, pencil. */
     icon?: IconProps["icon"] | undefined;
     /** The `Menu.Item`s the ⋯ menu offers, such as Edit and Delete. Without them, the row has no ⋯. */
     actions?: ReactNode;
@@ -104,6 +104,7 @@ export function Basic(props: TimelineRowProps) {
     before,
     after,
     amount,
+    weight,
     price,
     date,
     timeZone,

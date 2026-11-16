@@ -14,7 +14,7 @@ export type MemberRow = Members["members"][number];
  * the members list; their portfolio and their balance over time once they
  * have started; and the viewer's own, to compare, when the viewer is in the
  * race too. In the admin's edit mode, `editing`, their log too, for the
- * latest changes and the day the cash was set. `row` is `null` once the list
+ * latest changes. `row` is `null` once the list
  * has loaded without them.
  */
 export function useMemberData(userId: Id, editing: boolean) {
@@ -31,7 +31,7 @@ export function useMemberData(userId: Id, editing: boolean) {
 
   const theirs = usePortfolioReads(userId, started);
   const yours = usePortfolioReads(person.id, comparing);
-  const theirLog = useLog(userId, theirs.portfolio.data, started && editing);
+  const theirLog = useLog(userId, started && editing);
   return {
     row,
     viewer: comparing ? viewer : undefined,
@@ -40,7 +40,7 @@ export function useMemberData(userId: Id, editing: boolean) {
     yourHistory: yours.history.data,
     yourPortfolio: yours.portfolio.data,
     logRows: theirLog.rows,
-    cashSetAt: theirLog.cashSetAt,
+    logTotal: theirLog.total,
     ...neededReads([members, theirs.portfolio, theirs.history, theirLog.log]),
   };
 }

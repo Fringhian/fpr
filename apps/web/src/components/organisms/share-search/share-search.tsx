@@ -1,5 +1,6 @@
 // The Shares search's parts, imported as a namespace: `import * as ShareSearch from "…/share-search"`.
 import type { Id, ShareQuote } from "@fpr/contracts";
+import { shareSearchMaxLength } from "@fpr/contracts/values";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/X";
 import type { ComponentProps, ReactNode } from "react";
@@ -43,6 +44,7 @@ export function Input({
       enterKeyHint="search"
       autoComplete="off"
       spellCheck={false}
+      maxLength={shareSearchMaxLength}
       aria-label={label}
       placeholder={label}
       icon={MagnifyingGlassIcon}

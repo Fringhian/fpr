@@ -12,7 +12,7 @@ import { type Flow, FlowContext, type Owner } from "./flow";
 import { LoadState } from "./load-state";
 import { placeOf, shownStep, startOf } from "./steps";
 import { STEPS } from "./steps-screens";
-import { useLogFind } from "./use-log-find";
+import { useLogEntry } from "./use-log-entry";
 import { useSessionChanges } from "./use-session-changes";
 
 /**
@@ -52,11 +52,7 @@ export function RecordFlow({
   const [refusal, setRefusal] = useState<string | null>(null);
   const session = useSessionChanges();
   const record = useRecord(owner.id);
-  const edit = useLogFind(
-    owner.id,
-    (entry) => entry.id === search.entry,
-    search.entry !== undefined,
-  );
+  const edit = useLogEntry(owner.id, search.entry);
 
   const close = closeLink(owner, search.entry !== undefined);
   if (search.entry !== undefined && !edit.found) {

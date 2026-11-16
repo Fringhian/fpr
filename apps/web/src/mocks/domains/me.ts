@@ -5,16 +5,22 @@ import {
   type Me,
 } from "@fpr/contracts";
 import { mockError } from "../server/errors.ts";
-import { mock, viewerOf } from "../server/implementer.ts";
-import { personOf, toPerson } from "../store/people.ts";
-import type { MockPerson } from "../store/types.ts";
+import {
+  type MockContext,
+  mock,
+  type PipelineContext,
+  viewerOf,
+} from "../server/implementer.ts";
+import { peopleInOrder, personOf, toPerson } from "../store/people.ts";
 
-function toMe(person: MockPerson): Me {
+function toMe(context: MockContext & PipelineContext): Me {
+  const { store } = context;
+  const person = viewerOf(context);
   return {
     ...toPerson(person),
     role: person.role,
-    email: person.email,
-    raceTimeZone: "Europe/Paris",
+    email: person.role === "anonymous" ? null : person.email,
+    raceTimeZone: store.raceTimeZone,
     language: person.language,
     onboarded: person.onboarded,
   };
@@ -22,7 +28,7 @@ function toMe(person: MockPerson): Me {
 
 /** The signed-in person's routes, and everyone's pictures. */
 export const meRoutes = {
-  get: mock.me.get.handler(({ context }) => toMe(viewerOf(context))),
+  get: mock.me.get.handler(({ context }) => toMe(context)),
 
   update: mock.me.update.handler(({ context, input }) => {
     const viewer = viewerOf(context);
@@ -41,7 +47,7 @@ export const meRoutes = {
         Object.entries(input).filter(([, value]) => value !== undefined),
       ),
     );
-    return toMe(viewer);
+    return toMe(context);
   }),
 
   setAvatar: mock.me.setAvatar.handler(({ context, input }) => {
@@ -54,17 +60,17 @@ export const meRoutes = {
     }
     viewer.avatar = input;
     viewer.avatarVersion += 1;
-    return toMe(viewer);
+    return toMe(context);
   }),
 
   deleteAvatar: mock.me.deleteAvatar.handler(({ context }) => {
     const viewer = viewerOf(context);
     viewer.avatar = null;
-    return toMe(viewer);
+    return toMe(context);
   }),
 
   people: mock.me.people.handler(({ context }) =>
-    context.store.people.map((person) => ({
+    peopleInOrder(context.store).map((person) => ({
       ...toPerson(person),
       role: person.role,
     })),

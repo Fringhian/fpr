@@ -8,11 +8,12 @@ import { Button } from "../../../../components/atoms/button/button";
 import { Icon } from "../../../../components/foundations/icon/icon";
 import { PictureStack } from "../../../../components/molecules/picture-stack/picture-stack";
 import { cn } from "../../../../lib/cn";
+import { formatDate } from "../../../../lib/format/date";
 import { formatMoney } from "../../../../lib/format/money";
 import { useLanguage } from "../../../../lib/i18n";
 import { lookOf } from "../../../../lib/look";
 import { usePriceTime } from "../../../../lib/price-time";
-import { RACE_TIME_ZONE } from "../../../../lib/race-day";
+import { inThisYear, raceTimeZone } from "../../../../lib/race-day";
 import {
   actionOf,
   badgeOf,
@@ -39,19 +40,33 @@ export function ShareList({ className, ...props }: ComponentProps<"ul">) {
   );
 }
 
-/** The latest price and its time, “€40.10 · close of 2 Mar”, or that it has none. */
+/**
+ * The latest price and its time, “€40.10 · close of 2 Mar”, or that it has
+ * none; and the day it was added, for a share never priced or never held.
+ */
 function PriceDetail({ share }: { share: AdminShare }) {
   const { t } = useTranslation();
   const language = useLanguage();
   const priceTime = usePriceTime();
 
+  const timeZone = raceTimeZone();
   const { latestPrice } = share;
-  return latestPrice === null
-    ? t("adminShares.neverPriced")
-    : `${formatMoney(latestPrice.priceEur, language)} · ${priceTime(latestPrice, RACE_TIME_ZONE)}`;
+  const price =
+    latestPrice === null
+      ? t("adminShares.neverPriced")
+      : `${formatMoney(latestPrice.priceEur, language)} · ${priceTime(latestPrice, timeZone)}`;
+  const added = t("adminShares.addedOn", {
+    date: formatDate(share.addedAt, language, {
+      timeZone,
+      year: !inThisYear(share.addedAt),
+    }),
+  });
+  return latestPrice === null || !share.hasShareChanges
+    ? `${price} · ${added}`
+    : price;
 }
 
-/** The ISIN and the symbol, then the price on a line under them on tablet, or in its own column on desktop. */
+/** The ISIN and the exchange, then the price on a line under them on tablet, or in its own column on desktop. */
 function Meta({ share }: { share: AdminShare }) {
   return (
     <span
@@ -63,7 +78,7 @@ function Meta({ share }: { share: AdminShare }) {
       )}
     >
       <span className="col-1 row-2 truncate text-xs">
-        {share.symbol === null ? share.isin : `${share.isin} · ${share.symbol}`}
+        {[share.isin, share.exchange].filter(Boolean).join(" · ")}
       </span>
       <span
         className={cn(

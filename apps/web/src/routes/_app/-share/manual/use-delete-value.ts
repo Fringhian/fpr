@@ -1,14 +1,14 @@
-import type { Decimal, Id, ShareValue } from "@fpr/contracts";
+import type { Id, ShareValue } from "@fpr/contracts";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
-import { changedPrice } from "../../../../lib/api/errors";
+import { changedValue, type ValueConflict } from "../../../../lib/api/errors";
 import { useApi } from "../../../../lib/api/use-api";
 import { useRefusedToast } from "../../../../lib/api/use-refused-toast";
 
-/** A deletion the API refused because the value changed: the value, and the price it has now. */
-export type ChangedValue = { value: ShareValue; priceEur: Decimal };
+/** A deletion the API refused because the value changed: the value, the price it has now, and who entered it. */
+export type ChangedValue = { value: ShareValue } & ValueConflict;
 
 /**
  * Deletes a manual share's value point at once, then offers Undo, which adds
@@ -43,9 +43,9 @@ export function useDeleteValue(
         expectedPriceEur: value.priceEur,
       });
     } catch (error) {
-      const priceEur = changedPrice(error);
-      if (priceEur === null) refuse(t("valueActions.deleteRefused"), error);
-      else setChanged({ value, priceEur });
+      const conflict = changedValue(error);
+      if (conflict === null) refuse(t("valueActions.deleteRefused"), error);
+      else setChanged({ value, ...conflict });
       return false;
     }
     setChanged(null);

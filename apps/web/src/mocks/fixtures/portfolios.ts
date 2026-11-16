@@ -3,12 +3,14 @@ import type { ShareKey } from "./shares.ts";
 
 /**
  * A day's entries for one person: share changes, positive to buy and
- * negative to sell, then the cash they hold from then on.
+ * negative to sell, then the cash they hold from then on. The person records
+ * them, or the admin for them with `byAdmin`.
  */
 export type FixtureDay = {
   daysAgo: number;
   changes?: Partial<Record<ShareKey, string>>;
   cashEur?: string;
+  byAdmin?: true;
 };
 
 /** Every portfolio's history, oldest first. Invented, like the people. */
@@ -48,7 +50,7 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
   ],
   jordan: [
     { daysAgo: 375, changes: { tech: "15" }, cashEur: "500" },
-    { daysAgo: 300, changes: { energy: "300" } },
+    { daysAgo: 300, changes: { energy: "300" }, byAdmin: true },
     { daysAgo: 150, changes: { world: "25" }, cashEur: "200" },
     { daysAgo: 40, changes: { tech: "-5" }, cashEur: "1400" },
     { daysAgo: 4, changes: { emerging: "30" }, cashEur: "575" },
@@ -66,6 +68,7 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
       daysAgo: 10,
       changes: { robotics: "20", world: "15" },
       cashEur: "300",
+      byAdmin: true,
     },
   ],
   camille: [
@@ -73,6 +76,7 @@ export const fixturePortfolios: Partial<Record<PersonKey, FixtureDay[]>> = {
       daysAgo: 1,
       changes: { world: "12", vineyard: "4.5", robotics: "30" },
       cashEur: "750",
+      byAdmin: true,
     },
   ],
   eden: [{ daysAgo: 340, changes: { world: "20" }, cashEur: "100" }],

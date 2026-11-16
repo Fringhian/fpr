@@ -1,9 +1,10 @@
 import type { Id } from "@fpr/contracts";
-import { localInstant } from "../../lib/race-day.ts";
 import {
   addDays,
   type Calendar,
   closeAt,
+  localInstant,
+  PRICING_RUNS,
   refreshInstants,
   tradingDays,
 } from "../store/calendar.ts";
@@ -26,7 +27,7 @@ function dayRefreshes(
   model: MarketModel,
   random: () => number,
 ): StoredPrice[] {
-  const instants = refreshInstants(day);
+  const instants = refreshInstants(day, PRICING_RUNS);
   return instants.map((atMs, step) => {
     const share = (step + 1) / (instants.length + 1);
     const wander =
@@ -59,8 +60,9 @@ function todayRefreshes(
 
 /**
  * A market share's invented prices, oldest first: a close each trading day
- * of its history, the refreshes of the last days, and today's. A stale share's
- * closes stop `staleDays` before the last close, with no refreshes since.
+ * of its history the daily run has stored, the refreshes of the last days,
+ * and today's. A stale share's closes stop `staleDays` before the last close,
+ * with no refreshes since.
  */
 export function marketPrices(
   model: MarketModel,
@@ -87,11 +89,13 @@ export function marketPrices(
     if (index > 0 && index >= days.length - INTRADAY_DAYS) {
       prices.push(...dayRefreshes(day, previous, close, model, random));
     }
-    prices.push({
-      atMs: closeAt(day),
-      priceEur: euros(close),
-      source: "close",
-    });
+    if (day <= calendar.closesThrough) {
+      prices.push({
+        atMs: closeAt(day),
+        priceEur: euros(close),
+        source: "close",
+      });
+    }
   });
   return model.staleDays === undefined
     ? [...prices, ...todayRefreshes(calendar, close, model, random)]

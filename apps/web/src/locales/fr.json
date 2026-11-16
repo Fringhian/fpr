@@ -222,6 +222,14 @@
     "heldSpoken": "de {{before}} à {{after}} parts détenues",
     "newHolding": "Nouvelle ligne",
     "firstCash": "Premières liquidités saisies",
+    "weighed": {
+      "bought": "Achat de {{share}}",
+      "sold": "Vente de {{share}}",
+      "traded": "Mouvement sur {{share}}",
+      "cashSet": "Liquidités fixées"
+    },
+    "weight": "{{weight}} du portefeuille",
+    "weightUnknown": "Poids inconnu",
     "was": "au lieu de {{before}}",
     "madeBy": "par {{name}}",
     "subject": "{{title}}, {{date}}"
@@ -548,7 +556,9 @@
   },
   "latestChanges": {
     "title": "Derniers mouvements",
-    "seeAll": "Voir tous les mouvements"
+    "seeAll": "Voir tous les mouvements",
+    "seeCount_one": "Voir le mouvement",
+    "seeCount_other": "Voir les {{count}} mouvements"
   },
   "sharePage": {
     "loading": "Chargement du titre…",
@@ -565,7 +575,7 @@
     "marks": {
       "bought": "{{name}} a acheté {{quantity}}",
       "sold": "{{name}} a vendu {{quantity}}",
-      "changed": "{{name}} a modifié sa position"
+      "weight": "{{weight}} de son portefeuille"
     },
     "chart": "{{name}}, cours {{period}}",
     "pricesFrom": "Cours depuis le {{date}}",
@@ -592,6 +602,7 @@
     "changed": {
       "title": "Supprimer cette valeur ?",
       "description": "Quelqu’un l’a modifiée à {{price}} entre-temps.",
+      "descriptionBy": "{{name}} l’a modifiée à {{price}} entre-temps.",
       "confirm": "Supprimer {{price}}",
       "keep": "La garder"
     }
@@ -613,9 +624,11 @@
     "day": "Date",
     "time": "Heure",
     "future": "Saisissez une heure passée, par exemple 09:30.",
-    "last": "Dernière valeur : {{price}} le {{date}}.",
+    "last": "Dernière valeur : {{price}} le {{date}}{{by}}.",
+    "lastBy": ", par {{name}}",
     "updates": "Le solde de chaque détenteur est mis à jour.",
     "changed": "Quelqu’un a modifié cette valeur à {{price}} pendant votre saisie. Enregistrez de nouveau pour la remplacer par la vôtre, ou fermez pour garder la sienne.",
+    "changedBy": "{{name}} a modifié cette valeur à {{price}} pendant votre saisie. Enregistrez de nouveau pour la remplacer par la vôtre, ou fermez pour garder la sienne.",
     "taken": "Il y a déjà une valeur de {{price}} le {{date}} à {{time}}.",
     "editTaken": "Modifier cette valeur",
     "save": "Enregistrer la valeur",
@@ -794,6 +807,18 @@
       },
       "tooMany": "{{held}} Saisissez {{quantity}} ou moins.",
       "all": "Tout"
+    },
+    "overTime": {
+      "title": {
+        "you": "Vos {{share}} au fil du temps",
+        "member": "Les {{share}} de {{name}} au fil du temps"
+      },
+      "bought": "Achat de {{quantity}}",
+      "sold": "Vente de {{quantity}}",
+      "thisSale": "Cette vente",
+      "unknown": "Pas encore connu",
+      "loading": "Chargement de la position au fil du temps…",
+      "failed": "Impossible de charger la position au fil du temps."
     },
     "cash": {
       "question": {
@@ -1061,6 +1086,7 @@
   "adminShares": {
     "loading": "Chargement des titres…",
     "neverPriced": "Jamais coté",
+    "addedOn": "ajouté le {{date}}",
     "groups": {
       "needsAttention": {
         "title": "À surveiller",
@@ -1091,9 +1117,23 @@
       "schedule": "Les cours sont actualisés toutes les 30 minutes les jours de bourse.",
       "action": "Actualiser les cours",
       "running": "Actualisation…",
-      "done_one": "Actualisé à {{time}} : {{count}} titre coté.",
-      "done_many": "Actualisé à {{time}} : {{count}} de titres cotés.",
-      "done_other": "Actualisé à {{time}} : {{count}} titres cotés."
+      "lastRun": {
+        "succeeded_one": "Dernière actualisation à {{time}}, {{count}} titre coté",
+        "succeeded_many": "Dernière actualisation à {{time}}, {{count}} de titres cotés",
+        "succeeded_other": "Dernière actualisation à {{time}}, {{count}} titres cotés",
+        "partial_one": "Dernière actualisation à {{time}}, {{count}} titre coté et {{failures}} en échec",
+        "partial_many": "Dernière actualisation à {{time}}, {{count}} de titres cotés et {{failures}} en échec",
+        "partial_other": "Dernière actualisation à {{time}}, {{count}} titres cotés et {{failures}} en échec",
+        "failed": "Dernière actualisation à {{time}} en échec, aucun cours obtenu",
+        "skipped": "Dernière actualisation à {{time}} sautée, les appels du jour étaient épuisés"
+      },
+      "noRun": "Aucune actualisation pour l’instant",
+      "next": "prochaine à {{time}}",
+      "dayTime": "{{day}} à {{time}}",
+      "runsToday_one": "{{count}} actualisation aujourd’hui",
+      "runsToday_many": "{{count}} d’actualisations aujourd’hui",
+      "runsToday_other": "{{count}} actualisations aujourd’hui",
+      "callsLeft": "{{left}} appels au fournisseur restants sur {{limit}}"
     },
     "makeManual": {
       "title": "Passer {{name}} en manuel ?",

@@ -1,22 +1,14 @@
-import type {
-  Decimal,
-  Id,
-  Period,
-  Portfolio,
-  PortfolioCashBalance,
-  PortfolioChange,
-  PortfolioHolding,
-  PortfolioLogEntry,
-} from "@fpr/contracts";
+import type { Id, Period, Portfolio, PortfolioHolding } from "@fpr/contracts";
 import { dayOf } from "./calendar.ts";
-import { Big, money, plain, ratio, zero } from "./decimal.ts";
-import { gainBetween, toGain } from "./gain.ts";
-import { firstEntryOn } from "./people.ts";
+import { type Big, money, plain, ratio, zero } from "./decimal.ts";
+import { type GainAmount, periodGain, toGain, withGains } from "./gain.ts";
 import {
+  firstEntryMs,
   measuredFrom,
   type PeriodWindow,
-  periodWindow,
+  raceWindow,
   windowInstants,
+  windowPoints,
 } from "./series.ts";
 import {
   firstPriceDay,
@@ -24,79 +16,14 @@ import {
   priceSeries,
   toShareSummary,
 } from "./shares.ts";
-import type {
-  MockStore,
-  StoredCash,
-  StoredChange,
-  StoredEntry,
-} from "./types.ts";
+import type { MockStore, StoredChange } from "./types.ts";
 import {
   cashOf,
   changesOf,
+  flowsOf,
   type Holding,
-  priceAt,
-  quantitiesAt,
-  shareOf,
-  valuationAt,
+  holdingsNow,
 } from "./valuation.ts";
-
-export function toChange(
-  store: MockStore,
-  change: StoredChange,
-): PortfolioChange {
-  const share = shareOf(store, change.shareId);
-  if (share === undefined) {
-    throw new Error(`Share ${change.shareId} is missing`);
-  }
-  return {
-    type: "change",
-    id: change.id,
-    share: toShareSummary(share),
-    quantityDelta: change.quantityDelta,
-    effectiveAt: change.effectiveAt,
-    madeBy: null,
-  };
-}
-
-export function toCash(cash: StoredCash): PortfolioCashBalance {
-  return {
-    type: "cash",
-    id: cash.id,
-    amountEur: cash.amountEur,
-    effectiveAt: cash.effectiveAt,
-    madeBy: null,
-  };
-}
-
-export function toLogEntry(
-  store: MockStore,
-  entry: StoredEntry,
-): PortfolioLogEntry {
-  if (entry.type === "cash") {
-    return { ...toCash(entry), previousAmountEur: null };
-  }
-  const held = quantitiesAt(changesOf(store, entry.userId), entry.atMs);
-  return {
-    ...toChange(store, entry),
-    quantityAfter: plain(held.get(entry.shareId) ?? zero),
-  };
-}
-
-/**
- * The weight of an entry in its holder's balance just after it: what an
- * anonymous viewer sees in place of its quantity or cash.
- */
-export function entryWeight(store: MockStore, entry: StoredEntry): Decimal {
-  const { balanceEur } = valuationAt(store, entry.userId, entry.atMs);
-  if (entry.type === "cash") {
-    return ratio(new Big(entry.amountEur), balanceEur) ?? "0";
-  }
-  const share = shareOf(store, entry.shareId);
-  const price = share === undefined ? null : priceAt(share, entry.atMs);
-  const value =
-    price === null ? new Big(0) : price.times(entry.quantityDelta).abs();
-  return ratio(value, balanceEur) ?? "0";
-}
 
 function holdingView(
   store: MockStore,
@@ -104,45 +31,60 @@ function holdingView(
   context: { window: PeriodWindow; balanceEur: Big; changes: StoredChange[] },
 ): PortfolioHolding {
   const { share, quantity, valueEur } = holding;
-  const { window, changes } = context;
-  const bought = changes.find((change) => change.shareId === share.id);
+  const { window } = context;
+  const changes = context.changes.filter((c) => c.shareId === share.id);
+  const [bought] = changes;
   const pricesStart = firstPriceDay(share);
   const startsBefore =
     bought !== undefined &&
     pricesStart !== null &&
     dayOf(bought.atMs) < pricesStart;
+  const gain = periodGain(share, changes, {
+    fromMs: window.startMs,
+    toMs: store.calendar.nowMs,
+  });
   return {
     share: toShareSummary(share),
     quantity: plain(quantity),
     valueEur: valueEur === null ? null : money(valueEur),
     weight: valueEur === null ? null : ratio(valueEur, context.balanceEur),
-    gain:
-      valueEur === null
-        ? null
-        : toGain(
-            gainBetween(
-              store,
-              changes,
-              window.startMs,
-              store.calendar.nowMs,
-              share.id,
-            ),
-          ),
+    gain: valueEur === null || gain === null ? null : toGain(gain),
     latestPrice: latestPrice(share, store.calendar.nowMs),
     pricesFrom: startsBefore ? pricesStart : null,
     series: priceSeries(share, windowInstants(store, window)),
   };
 }
 
-/** A member's portfolio now, with its gain over the period. */
+function gainNow(
+  store: MockStore,
+  userId: Id,
+  { window, balanceEur }: { window: PeriodWindow; balanceEur: Big },
+): GainAmount {
+  const atMs = store.calendar.nowMs;
+  const points = windowPoints(store, userId, window, { closesOnly: false });
+  const first = firstEntryMs(store, userId);
+  const now =
+    first === null || first > atMs
+      ? []
+      : [{ atMs, balanceEur, flowsEur: flowsOf(store, userId)(atMs) }];
+  return (
+    withGains([...points, ...now]).at(-1)?.gain ?? { eur: zero, base: zero }
+  );
+}
+
+/**
+ * A member's holdings and cash now, at the latest prices, and the balance's
+ * gain since the period's start: since their first point when they started
+ * after it.
+ */
 export function portfolioView(
   store: MockStore,
   userId: Id,
   period: Period,
 ): Portfolio {
   const now = store.calendar.nowMs;
-  const window = periodWindow(store, period, firstEntryOn(store, userId));
-  const valuation = valuationAt(store, userId, now);
+  const window = raceWindow(store, period);
+  const valuation = holdingsNow(store, userId);
   const changes = changesOf(store, userId);
   const holdings = valuation.holdings.map((holding) =>
     holdingView(store, holding, {
@@ -154,6 +96,7 @@ export function portfolioView(
   const pricedAt = holdings
     .flatMap((holding) => holding.latestPrice?.at ?? [])
     .sort();
+  const first = firstEntryMs(store, userId);
   return {
     latestPricesAt: pricedAt.at(-1) ?? null,
     balanceEur: money(valuation.balanceEur),
@@ -164,8 +107,10 @@ export function portfolioView(
     cashSetAt:
       cashOf(store, userId).findLast(({ atMs }) => atMs <= now)?.effectiveAt ??
       null,
-    gain: toGain(gainBetween(store, changes, window.startMs, now)),
-    firstEntryOn: firstEntryOn(store, userId),
+    gain: toGain(
+      gainNow(store, userId, { window, balanceEur: valuation.balanceEur }),
+    ),
+    firstEntryOn: first === null ? null : dayOf(first),
     measuredFrom: measuredFrom(store, userId, window),
     incomplete: valuation.incomplete,
     holdings,

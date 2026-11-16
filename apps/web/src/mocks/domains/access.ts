@@ -8,7 +8,7 @@ import {
 import { mockError } from "../server/errors.ts";
 import { mock } from "../server/implementer.ts";
 import { keyState } from "../store/access-keys.ts";
-import { newPerson } from "../store/people.ts";
+import { newPerson, toPerson } from "../store/people.ts";
 import { endSessionsOf, setSession } from "../store/session.ts";
 import type { MockPerson, MockStore } from "../store/types.ts";
 
@@ -43,7 +43,7 @@ function checkResponse(store: MockStore, key: string): AccessCheckResponse {
     email: person.email ?? "",
     displayName: person.displayName,
     color: person.color,
-    avatarUrl: null,
+    avatarUrl: toPerson(person).avatarUrl,
     hasPassword: person.password !== null,
   };
 }

@@ -1,5 +1,4 @@
 import type { Id } from "@fpr/contracts";
-import { localInstant } from "../../lib/race-day.ts";
 import {
   type FixturePerson,
   fixturePeople,
@@ -8,10 +7,8 @@ import {
 } from "../fixtures/people.ts";
 import { fixturePicture } from "../fixtures/pictures.ts";
 import { fixturePortfolios } from "../fixtures/portfolios.ts";
-import { manualValues, marketPrices } from "../fixtures/prices.ts";
 import { fixtureId } from "../fixtures/random.ts";
 import {
-  type FixtureShare,
   fixtureShareId,
   fixtureShares,
   type ShareKey,
@@ -21,14 +18,12 @@ import {
   addDays,
   type Calendar,
   createCalendar,
+  localInstant,
+  MOCK_RACE_TIME_ZONE,
   timestamp,
 } from "./calendar.ts";
-import type {
-  MockPerson,
-  MockStore,
-  StoredEntry,
-  StoredShare,
-} from "./types.ts";
+import { storedShare } from "./seed-shares.ts";
+import type { MockPerson, MockStore, StoredEntry } from "./types.ts";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -42,6 +37,8 @@ export type MockStoreOptions = {
   empty?: boolean;
   /** Another member changes each manual value point just before its first edit or deletion. */
   conflicts?: boolean;
+  /** The time zone `GET /me` names, `MOCK_RACE_TIME_ZONE` by default. The store's own days stay in `MOCK_RACE_TIME_ZONE`. */
+  raceTimeZone?: string;
 };
 
 function mockPerson(fixture: FixturePerson, calendar: Calendar): MockPerson {
@@ -75,36 +72,6 @@ function mockPerson(fixture: FixturePerson, calendar: Calendar): MockPerson {
   };
 }
 
-function storedShare(
-  fixture: FixtureShare,
-  calendar: Calendar,
-  index: number,
-): StoredShare {
-  const values =
-    fixture.values === undefined
-      ? { prices: [], events: [] }
-      : manualValues(
-          fixture.values,
-          calendar,
-          fixturePersonId,
-          1000 + index * 100,
-        );
-  return {
-    id: fixture.id,
-    isin: fixture.isin,
-    name: fixture.name,
-    kind: fixture.values === undefined ? "market" : "manual",
-    symbol: fixture.symbol,
-    exchange: fixture.exchange,
-    tradingCurrency: fixture.tradingCurrency,
-    prices:
-      fixture.market === null
-        ? values.prices
-        : marketPrices(fixture.market, calendar, index + 1),
-    valueEvents: values.events,
-  };
-}
-
 function storedEntries(calendar: Calendar): StoredEntry[] {
   const entries: StoredEntry[] = [];
   const moment = (atMs: number) => ({
@@ -112,6 +79,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
     atMs,
     effectiveAt: timestamp(atMs),
   });
+  const admin = fixturePersonId("alex");
   for (const [key, days] of Object.entries(fixturePortfolios)) {
     const userId = fixturePersonId(key as PersonKey);
     for (const day of days ?? []) {
@@ -119,6 +87,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
         addDays(calendar.today, -day.daysAgo),
         "10:15:00",
       );
+      const madeBy = day.byAdmin ? admin : userId;
       Object.entries(day.changes ?? {}).forEach(
         ([share, quantityDelta], index) => {
           const shareId = fixtureShareId(share as ShareKey);
@@ -127,6 +96,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
             userId,
             shareId,
             quantityDelta,
+            madeBy,
             ...moment(dayStart + index * 60_000),
           });
         },
@@ -136,6 +106,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
           type: "cash",
           userId,
           amountEur: day.cashEur,
+          madeBy,
           ...moment(dayStart + 15 * 60_000),
         });
       }
@@ -167,21 +138,23 @@ function seededAccessKeys(): MockStore["accessKeys"] {
 export function createMockStore(options: MockStoreOptions = {}): MockStore {
   const calendar = createCalendar(options.now ?? new Date());
   const empty = options.empty === true;
+  const entries = empty ? [] : storedEntries(calendar);
   return {
     calendar,
+    raceTimeZone: options.raceTimeZone ?? MOCK_RACE_TIME_ZONE,
     people: empty
       ? []
       : fixturePeople.map((person) => mockPerson(person, calendar)),
     shares: empty
       ? []
       : fixtureShares.map((share, index) =>
-          storedShare(share, calendar, index),
+          storedShare(share, calendar, index, entries),
         ),
-    entries: empty ? [] : storedEntries(calendar),
+    entries,
     accessKeys: empty ? new Map() : seededAccessKeys(),
     resetKeys: new Map(),
     conflicted: options.conflicts ? new Set() : null,
-    refreshes: { running: false, count: 0 },
+    refreshes: { running: false, count: 0, lastRunMs: null, offline: false },
     session: options.session ?? null,
     onSessionChange: options.onSessionChange ?? (() => {}),
   };

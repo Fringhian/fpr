@@ -64,7 +64,7 @@ function Started({
           name={look.name}
           portfolio={data.portfolio}
           rows={data.logRows}
-          cashSetAt={data.cashSetAt}
+          total={data.logTotal}
         />
       ) : (
         <MemberHoldings

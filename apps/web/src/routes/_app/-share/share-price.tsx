@@ -11,7 +11,7 @@ import { HelpInfo } from "../../../lib/help-info";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
 import { usePriceTime } from "../../../lib/price-time";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { useViewState } from "../../../lib/view-state/use-view-state";
 
 const caption = "text-xs text-secondary";
@@ -30,7 +30,7 @@ const FROM_TABLET = cn(
 function EnteredBy({ value }: { value: ShareValue }) {
   const language = useLanguage();
 
-  const date = formatDate(value.at, language, { timeZone: RACE_TIME_ZONE });
+  const date = formatDate(value.at, language, { timeZone: raceTimeZone() });
   const by = value.enteredBy && lookOf(value.enteredBy);
   return (
     <span className={caption}>
@@ -76,7 +76,7 @@ function ChangeAndTime({ share }: { share: ShareDetail }) {
           {" · "}
         </>
       )}
-      {share.latestPrice ? priceTime(share.latestPrice, RACE_TIME_ZONE) : null}
+      {share.latestPrice ? priceTime(share.latestPrice, raceTimeZone()) : null}
     </span>
   );
 }

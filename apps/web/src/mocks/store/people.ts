@@ -1,6 +1,5 @@
-import type { AdminAccessStatus, Id, IsoDate, Person } from "@fpr/contracts";
+import type { AdminAccessStatus, Id, Person } from "@fpr/contracts";
 import { adminRoles, writerRoles } from "@fpr/contracts/values";
-import { dayOf } from "./calendar.ts";
 import type { MockPerson, MockStore } from "./types.ts";
 
 export function personOf(store: MockStore, id: Id): MockPerson | undefined {
@@ -37,36 +36,32 @@ export function isAdmin(person: MockPerson): boolean {
   return (adminRoles as readonly string[]).includes(person.role);
 }
 
-/**
- * The people in the race: every admin and member, whatever their access. One
- * still waiting for their link is listed, so the admin can prepare their
- * portfolio; one cut off stays with their data.
- */
-export function racers(store: MockStore): MockPerson[] {
-  return store.people.filter(hasPortfolio);
+/** Every person, in the order they were added. */
+export function peopleInOrder(store: MockStore): MockPerson[] {
+  return store.people.toSorted((a, b) => a.addedAtMs - b.addedAtMs);
 }
 
+/**
+ * The people in the race, in the order they were added: every admin and
+ * member, whatever their access. One still waiting for their link is listed,
+ * so the admin can prepare their portfolio; one cut off stays with their
+ * data.
+ */
+export function racers(store: MockStore): MockPerson[] {
+  return peopleInOrder(store).filter(hasPortfolio);
+}
+
+/** A person as every screen shows them. An anonymous viewer has no picture. */
 export function toPerson(person: MockPerson): Person {
   return {
     id: person.id,
     displayName: person.displayName,
     avatarUrl:
-      person.avatar === null
+      person.avatar === null || person.role === "anonymous"
         ? null
         : `/api/users/${person.id}/avatar?v=${person.avatarVersion}`,
     color: person.color,
   };
-}
-
-/** The day of a person's first entry, or `null` with none. */
-export function firstEntryOn(store: MockStore, userId: Id): IsoDate | null {
-  let first: number | null = null;
-  for (const entry of store.entries) {
-    if (entry.userId === userId && (first === null || entry.atMs < first)) {
-      first = entry.atMs;
-    }
-  }
-  return first === null ? null : dayOf(first);
 }
 
 /**

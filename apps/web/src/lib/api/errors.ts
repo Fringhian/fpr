@@ -3,13 +3,16 @@ import type {
   ErrorCode,
   Id,
   IsinTakenDetails,
-  ValueChangedDetails,
+  MadeBy,
+  ShareValueChangedDetails,
 } from "@fpr/contracts";
+import { errorCodes } from "@fpr/contracts/values";
 import { ORPCError } from "@orpc/client";
 import { onlineManager } from "@tanstack/react-query";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { oneOf } from "../one-of";
 import { useOnline } from "./use-online";
 
 /**
@@ -48,7 +51,7 @@ const errorTexts = {
 } as const satisfies Record<ErrorCode, ParseKeys>;
 
 function isErrorCode(code: unknown): code is ErrorCode {
-  return typeof code === "string" && Object.hasOwn(errorTexts, code);
+  return oneOf(errorCodes, code) !== undefined;
 }
 
 /**
@@ -96,13 +99,18 @@ export function isinTakenBy(error: unknown): Id | null {
   return details?.shareId ?? null;
 }
 
-/** The value point's stored price, when the API refused a value write with `value_changed`. */
-export function changedPrice(error: unknown): Decimal | null {
+/** A value point as stored when a write was refused over it: its price, and who entered it, `null` when that isn't known. */
+export type ValueConflict = { priceEur: Decimal; changedBy: MadeBy };
+
+/** The value point as stored, when the API refused a value write with `value_changed`. */
+export function changedValue(error: unknown): ValueConflict | null {
   if (!isApiError(error, "value_changed")) {
     return null;
   }
-  const details = error.data as Partial<ValueChangedDetails> | undefined;
-  return details?.priceEur ?? null;
+  const details = error.data as Partial<ShareValueChangedDetails> | undefined;
+  return details?.priceEur === undefined
+    ? null
+    : { priceEur: details.priceEur, changedBy: details.changedBy ?? null };
 }
 
 /**

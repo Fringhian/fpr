@@ -5,19 +5,18 @@ import { usePortfolioReads } from "../-portfolio-sections/use-portfolio-reads";
 
 /**
  * Portfolio's reads: the viewer's portfolio and balance over the period, and
- * their log, whose first page gives the latest changes and the day the cash
- * was set.
+ * their log, whose first page gives the latest changes.
  */
 export function usePortfolioData() {
   const { person } = useSession();
   const { portfolio, history } = usePortfolioReads(person.id);
-  const { log, rows, cashSetAt } = useLog(person.id, portfolio.data);
+  const { log, rows, total } = useLog(person.id);
 
   return {
     portfolio: portfolio.data,
     history: history.data,
     rows,
-    cashSetAt,
+    total,
     ...neededReads([portfolio, history, log]),
   };
 }

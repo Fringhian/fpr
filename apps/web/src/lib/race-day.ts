@@ -1,26 +1,53 @@
 import type { IsoDate, Timestamp } from "@fpr/contracts";
 
-/**
- * The race's time zone, where a day starts and a close is dated: the API's
- * `RACE_TIMEZONE` default, which no response carries.
- */
-export const RACE_TIME_ZONE = "Europe/Paris";
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// `en-CA` writes a date as `YYYY-MM-DD`.
-const dayFormat = new Intl.DateTimeFormat("en-CA", {
-  timeZone: RACE_TIME_ZONE,
-});
+type Formats = { day: Intl.DateTimeFormat; offset: Intl.DateTimeFormat };
 
-const offsetFormat = new Intl.DateTimeFormat("en-US", {
-  timeZone: RACE_TIME_ZONE,
-  timeZoneName: "longOffset",
-});
+const formats = new Map<string, Formats>();
+
+function formatsIn(timeZone: string): Formats {
+  let zoneFormats = formats.get(timeZone);
+  if (zoneFormats === undefined) {
+    zoneFormats = {
+      // `en-CA` writes a date as `YYYY-MM-DD`.
+      day: new Intl.DateTimeFormat("en-CA", { timeZone }),
+      offset: new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        timeZoneName: "longOffset",
+      }),
+    };
+    formats.set(timeZone, zoneFormats);
+  }
+  return zoneFormats;
+}
+
+/** The API's `RACE_TIMEZONE` default. */
+export const DEFAULT_RACE_TIME_ZONE = "Europe/Paris";
+
+// The default holds until a session names the instance's own zone: a
+// signed-out page, such as setup or an access link, still dates days. The
+// session loads in the root route, before any screen renders.
+let zone = DEFAULT_RACE_TIME_ZONE;
+
+/** The race's time zone, where a day starts and a close is dated. */
+export function raceTimeZone(): string {
+  return zone;
+}
+
+/** Takes the instance's time zone from the session, `GET /me`'s `raceTimeZone`. */
+export function setRaceTimeZone(timeZone: string): void {
+  zone = timeZone;
+}
+
+/** The day a moment falls on in a time zone. */
+export function dayIn(timeZone: string, at: string | number): IsoDate {
+  return formatsIn(timeZone).day.format(new Date(at));
+}
 
 /** The race's day a moment falls on: a close, at 23:59:59 there, falls on its trading day. */
 export function raceDayOf(at: string | number): IsoDate {
-  return dayFormat.format(new Date(at));
+  return dayIn(zone, at);
 }
 
 /** The race's day now, whatever the browser's time zone. */
@@ -40,11 +67,14 @@ export function addDays(day: IsoDate, days: number): IsoDate {
     .slice(0, 10);
 }
 
-function offsetMs(atMs: number): number {
+const OFFSET = /GMT([+-])(\d{2}):(\d{2})/;
+
+function offsetMs(timeZone: string, atMs: number): number {
   const name =
-    offsetFormat.formatToParts(atMs).find(({ type }) => type === "timeZoneName")
-      ?.value ?? "";
-  const match = /GMT([+-])(\d{2}):(\d{2})/.exec(name);
+    formatsIn(timeZone)
+      .offset.formatToParts(atMs)
+      .find(({ type }) => type === "timeZoneName")?.value ?? "";
+  const match = OFFSET.exec(name);
   if (match === null) {
     return 0;
   }
@@ -53,14 +83,23 @@ function offsetMs(atMs: number): number {
 }
 
 /**
- * The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. The
+ * The instant of a time of day, `HH:MM:SS`, on a day in a time zone. The
  * offset is read twice: once at the wall time taken as UTC, then at the
  * instant that gives, so a day that changes clocks lands on the right side.
  */
-export function localInstant(day: IsoDate, time: string): number {
+export function instantIn(
+  timeZone: string,
+  day: IsoDate,
+  time: string,
+): number {
   const asUtc = Date.parse(`${day}T${time}Z`);
-  const first = asUtc - offsetMs(asUtc);
-  return asUtc - offsetMs(first);
+  const first = asUtc - offsetMs(timeZone, asUtc);
+  return asUtc - offsetMs(timeZone, first);
+}
+
+/** The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. */
+export function localInstant(day: IsoDate, time: string): number {
+  return instantIn(zone, day, time);
 }
 
 /**

@@ -20,7 +20,11 @@ export const mockBootstrapKey = "mock-bootstrap-key";
 /** `POST /password-reset/check` accepts this key with any password user's email. */
 export const mockResetKey = "mock-reset-key";
 
-/** `POST /shares/lookup` answers these queries with these errors. */
+/**
+ * `POST /shares/lookup` answers these queries with these errors. After
+ * `offline`, the price service stays down until the next load: the refresh's
+ * state and a refresh answer `provider_unavailable` too.
+ */
 export const lookupErrors = {
   budget: "call_budget_used",
   offline: "provider_unavailable",

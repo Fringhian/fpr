@@ -1,3 +1,4 @@
+import { colorCount } from "@fpr/contracts/values";
 import * as Swatch from "../../components/atoms/swatch/swatch";
 import { cn } from "../../lib/cn";
 import {
@@ -34,7 +35,7 @@ export function useTakenColours(color: MemberColor): {
   const all = new Set([...owners.keys(), color]);
 
   return {
-    taken: { owners, shared: all.size >= MEMBER_COLORS.length },
+    taken: { owners, shared: all.size >= colorCount },
     refresh,
   };
 }

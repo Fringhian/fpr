@@ -1,11 +1,15 @@
-import type { Decimal, Id, ShareValue, Timestamp } from "@fpr/contracts";
+import type { Id, ShareValue, Timestamp } from "@fpr/contracts";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import { priceIn } from "../../../lib/amount";
-import { changedPrice, useErrorText } from "../../../lib/api/errors";
+import {
+  changedValue,
+  useErrorText,
+  type ValueConflict,
+} from "../../../lib/api/errors";
 import { useApi } from "../../../lib/api/use-api";
 import { useLanguage } from "../../../lib/i18n";
 import { isFuture, momentOf, type ValueDraft } from "./value-draft";
@@ -16,7 +20,8 @@ import { isFuture, momentOf, type ValueDraft } from "./value-draft";
  * back to the share's page.
  *
  * Two people editing the same value: the API refuses a price set over one
- * the editor didn't see, and `changed` holds the price there now; saving
+ * the editor didn't see, and `changed` holds the price there now and who
+ * entered it; saving
  * again confirms the typed price over it. A new value at a moment that has
  * one already is refused, and `taken` holds the value there.
  */
@@ -29,7 +34,7 @@ export function useSaveValue(shareId: Id, editing: ShareValue | undefined) {
   const api = useApi();
   const add = useMutation(api.shares.addValue.mutationOptions());
   const update = useMutation(api.shares.updateValue.mutationOptions());
-  const [changed, setChanged] = useState<Decimal | null>(null);
+  const [changed, setChanged] = useState<ValueConflict | null>(null);
   const [taken, setTaken] = useState<ShareValue | null>(null);
 
   const done = {
@@ -43,18 +48,18 @@ export function useSaveValue(shareId: Id, editing: ShareValue | undefined) {
     },
   };
   const write = editing ? update : add;
-  const conflict = changedPrice(write.error) !== null;
+  const conflict = changedValue(write.error) !== null;
 
   const save = (draft: ValueDraft) => {
     const priceEur = priceIn(draft.price, language);
     if (priceEur === null) return;
     if (editing) {
-      const expectedPriceEur = changed ?? editing.priceEur;
+      const expectedPriceEur = changed?.priceEur ?? editing.priceEur;
       update.mutate(
         { id: shareId, at: editing.at, priceEur, expectedPriceEur },
         {
           ...done,
-          onError: (error) => setChanged(changedPrice(error) ?? changed),
+          onError: (error) => setChanged(changedValue(error) ?? changed),
         },
       );
       return;
@@ -66,9 +71,11 @@ export function useSaveValue(shareId: Id, editing: ShareValue | undefined) {
       {
         ...done,
         onError: (error) => {
-          const there = changedPrice(error);
+          const there = changedValue(error);
           setTaken(
-            there === null ? null : { at, priceEur: there, enteredBy: null },
+            there === null
+              ? null
+              : { at, priceEur: there.priceEur, enteredBy: null },
           );
         },
       },

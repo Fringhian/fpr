@@ -1,4 +1,5 @@
 import type { Person } from "@fpr/contracts";
+import { writerRoles } from "@fpr/contracts/values";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -9,6 +10,7 @@ import { cn } from "../../../lib/cn";
 import { formatList } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
+import { oneOf } from "../../../lib/one-of";
 import { useSession } from "../../../lib/session/use-session";
 import { useOthers } from "../../-account/use-others";
 import { useRefusal } from "../../-account/use-refusal";
@@ -59,11 +61,17 @@ function useFinish() {
   };
 }
 
-/** The last step: the person among everyone already there, then Go to Home. */
+/**
+ * The last step: the person among everyone already in the race, the members
+ * and the admin, then Go to Home.
+ */
 export function WelcomeStep() {
   const { t } = useTranslation();
   const { person } = useSession();
-  const { others } = useOthers();
+  const people = useOthers();
+  const others = people.others.filter(
+    (other) => oneOf(writerRoles, other.role) !== undefined,
+  );
   const sentence = useOthersSentence(others);
   const { error, finishing, finish } = useFinish();
 

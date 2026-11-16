@@ -6,7 +6,7 @@ import { formatDate } from "../../../lib/format/date";
 import { quote } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
 import { useEntryTitle } from "../../../lib/log-entry";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 
 function brokenChange(error: unknown): PortfolioChange | null {
   if (!isApiError(error, "holding_below_zero")) return null;
@@ -40,7 +40,7 @@ export function useEntryRefusalText(): (error: unknown) => string {
       : t("entryActions.breaks", {
           change: quote(title(change), language),
           date: formatDate(change.effectiveAt, language, {
-            timeZone: RACE_TIME_ZONE,
+            timeZone: raceTimeZone(),
           }),
         });
   };

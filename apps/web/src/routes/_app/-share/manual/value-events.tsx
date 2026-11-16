@@ -5,9 +5,7 @@ import { describe } from "../../../../components/molecules/timeline-row/timeline
 import { formatDate, formatTime } from "../../../../lib/format/date";
 import { useLanguage } from "../../../../lib/i18n";
 import { lookOf } from "../../../../lib/look";
-import { inThisYear, RACE_TIME_ZONE } from "../../../../lib/race-day";
-
-const timeZone = RACE_TIME_ZONE;
+import { inThisYear, raceTimeZone } from "../../../../lib/race-day";
 
 /** The event as the timeline row tells it: added, changed from a value, or deleted. */
 function entryOf(event: ShareValueEvent): TimelineRow.TimelineEntry {
@@ -30,6 +28,7 @@ function EventRow({ event }: { event: ShareValueEvent }) {
   const { t } = useTranslation();
   const language = useLanguage();
 
+  const timeZone = raceTimeZone();
   const entry = entryOf(event);
   const { title, change } = describe(entry, t, language);
   const moment = t("sharePage.events.of", {

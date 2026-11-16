@@ -2,6 +2,11 @@
 import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fixtureShareId } from "../src/mocks/fixtures/shares.ts";
+import {
+  addDays,
+  localInstant,
+  tradingDayOnOrBefore,
+} from "../src/mocks/store/calendar.ts";
 import { click, submit, typeInto } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
@@ -144,7 +149,7 @@ describe("Shares", () => {
     value.priceEur = "60.00";
     typeInto(field("price"), "54");
     await submit(page, () =>
-      expect(text()).toContain("Someone changed this value to €60.00"),
+      expect(text()).toContain("Robin Leclerc changed this value to €60.00"),
     );
     expect(value.priceEur).toBe("60.00");
 
@@ -174,6 +179,34 @@ describe("Shares", () => {
       share: stored?.id,
     });
     expect(router.state.location.search).not.toHaveProperty("amount");
+  });
+
+  it("shows an anonymous viewer a share bought before its first price that day, its change unmarked", async () => {
+    const robotics = fixtureShareId("robotics");
+    const { queryClient, store } = await visit(
+      `/shares/${robotics}?period=1M`,
+      "anonymous",
+    );
+    // A purchase at 10:15 on a trading day, the share's first price at noon:
+    // the change has no weight, and its day is the chart's first.
+    const day = tradingDayOnOrBefore(addDays(store.calendar.today, -3));
+    const change = store.entries.find(
+      (entry) => entry.type === "change" && entry.shareId === robotics,
+    );
+    if (change === undefined) throw new Error("No change on the share");
+    change.atMs = localInstant(day, "10:15:00");
+    change.effectiveAt = new Date(change.atMs).toISOString();
+    store.shares
+      .find(({ id }) => id === robotics)
+      ?.prices.push({
+        atMs: localInstant(day, "12:00:00"),
+        priceEur: "50.00",
+        source: "close",
+      });
+    await act(() => queryClient.invalidateQueries());
+
+    await vi.waitFor(() => expect(text()).toContain("Robotics ETF"));
+    expect(text()).not.toContain("Can’t load this page");
   });
 
   it("says a manual share's page can't load when its values fail", async () => {
@@ -209,7 +242,7 @@ describe("Shares", () => {
         [
           ...document.body.querySelectorAll<HTMLElement>("[role=menuitem]"),
         ].find((item) => item.textContent?.startsWith("Delete")),
-      () => expect(text()).toContain("Someone changed it to €60.00"),
+      () => expect(text()).toContain("Robin Leclerc changed it to €60.00"),
     );
     await vi.waitFor(() => expect(firstRow()?.textContent).toContain("€60.00"));
     expect(value.priceEur).toBe("60.00");

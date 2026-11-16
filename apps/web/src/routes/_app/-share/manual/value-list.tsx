@@ -10,10 +10,8 @@ import { formatDate, formatTime } from "../../../../lib/format/date";
 import { formatMoney } from "../../../../lib/format/money";
 import { useLanguage } from "../../../../lib/i18n";
 import { lookOf } from "../../../../lib/look";
-import { inThisYear, RACE_TIME_ZONE } from "../../../../lib/race-day";
+import { inThisYear, raceTimeZone } from "../../../../lib/race-day";
 import { type ChangedValue, useDeleteValue } from "./use-delete-value";
-
-const timeZone = RACE_TIME_ZONE;
 
 /** “€40.10, 3 Mar”: a value as the toasts and the ⋯ button name it. */
 function useSubject() {
@@ -23,7 +21,7 @@ function useSubject() {
   return (value: ShareValue) =>
     t("timelineRow.subject", {
       title: formatMoney(value.priceEur, language),
-      date: formatDate(value.at, language, { timeZone }),
+      date: formatDate(value.at, language, { timeZone: raceTimeZone() }),
     });
 }
 
@@ -81,6 +79,7 @@ function ValueRow({
   const language = useLanguage();
   const subject = useSubject();
 
+  const timeZone = raceTimeZone();
   const price = formatMoney(value.priceEur, language);
   const by = value.enteredBy && lookOf(value.enteredBy).name;
   const time = formatTime(value.at, language, { timeZone });
@@ -110,7 +109,7 @@ function ValueRow({
   );
 }
 
-/** Asks before deleting a value someone changed in the meantime, showing its new price. */
+/** Asks before deleting a value someone changed in the meantime, naming them, with its new price. */
 function ChangedConfirm({
   changed,
   onConfirm,
@@ -124,12 +123,20 @@ function ChangedConfirm({
   const language = useLanguage();
 
   const price = changed ? formatMoney(changed.priceEur, language) : "";
+  const by = changed?.changedBy;
   return (
     <ConfirmDialog.Basic
       open={changed !== null}
       onOpenChange={(open) => (open ? undefined : onDismiss())}
       title={t("valueActions.changed.title")}
-      description={t("valueActions.changed.description", { price })}
+      description={
+        by
+          ? t("valueActions.changed.descriptionBy", {
+              name: by.displayName,
+              price,
+            })
+          : t("valueActions.changed.description", { price })
+      }
       confirmLabel={t("valueActions.changed.confirm", { price })}
       cancelLabel={t("valueActions.changed.keep")}
       onConfirm={onConfirm}

@@ -6,7 +6,7 @@ import * as TimelineRow from "../../../components/molecules/timeline-row/timelin
 import { describe } from "../../../components/molecules/timeline-row/timeline-row-entry";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
-import { inThisYear, RACE_TIME_ZONE } from "../../../lib/race-day";
+import { inThisYear, raceTimeZone } from "../../../lib/race-day";
 import type { LogRow } from "./log-rows";
 import { type RecordLink, useRecord } from "./record-link";
 import { useDeleteEntry } from "./use-delete-entry";
@@ -34,7 +34,7 @@ function EntryActions({
 
 /** One entry's row, its year written when it isn't this year's. */
 function EntryRow({
-  logRow: { entry, row },
+  logRow: { entry, row, madeBy },
   recordLink,
   onDelete,
 }: {
@@ -49,15 +49,16 @@ function EntryRow({
   const year = !inThisYear(date);
   const subject = t("timelineRow.subject", {
     title: describe(row, t, language).title,
-    date: formatDate(date, language, { timeZone: RACE_TIME_ZONE, year }),
+    date: formatDate(date, language, { timeZone: raceTimeZone(), year }),
   });
 
   return (
     <TimelineRow.Basic
       {...row}
       date={date}
-      timeZone={RACE_TIME_ZONE}
+      timeZone={raceTimeZone()}
       year={year}
+      madeBy={madeBy}
       actions={
         <EntryActions
           edit={recordLink({ entry: entry.id })}

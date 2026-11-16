@@ -57,28 +57,31 @@ export type StoredShare = {
   symbol: string | null;
   exchange: string | null;
   tradingCurrency: Currency | null;
+  /** When it was stored: looked up, or created manual. */
+  addedAtMs: number;
   /** Prices and value points, oldest first. */
   prices: StoredPrice[];
   valueEvents: StoredValueEvent[];
 };
 
-export type StoredChange = {
-  type: "change";
+type StoredEntryFields = {
   id: Id;
   userId: Id;
-  shareId: Id;
-  quantityDelta: Decimal;
   effectiveAt: Timestamp;
   atMs: number;
+  /** Who recorded it: the member, or the admin for them. `null` once deleted. */
+  madeBy: Id | null;
 };
 
-export type StoredCash = {
+export type StoredChange = StoredEntryFields & {
+  type: "change";
+  shareId: Id;
+  quantityDelta: Decimal;
+};
+
+export type StoredCash = StoredEntryFields & {
   type: "cash";
-  id: Id;
-  userId: Id;
   amountEur: Decimal;
-  effectiveAt: Timestamp;
-  atMs: number;
 };
 
 export type StoredEntry = StoredChange | StoredCash;
@@ -89,6 +92,8 @@ export type StoredEntry = StoredChange | StoredCash;
  */
 export type MockStore = {
   calendar: Calendar;
+  /** The instance's race time zone, as `GET /me` names it. */
+  raceTimeZone: string;
   people: MockPerson[];
   shares: StoredShare[];
   entries: StoredEntry[];
@@ -101,8 +106,17 @@ export type MockStore = {
    * changed. `null` when off.
    */
   conflicted: Set<number> | null;
-  /** The price refreshes the admin ran: whether one is going, and how many have run. */
-  refreshes: { running: boolean; count: number };
+  /**
+   * The price refreshes the admin ran: whether one is going, how many have
+   * run and when the last ended, and whether the price service stopped
+   * answering, after the `offline` lookup.
+   */
+  refreshes: {
+    running: boolean;
+    count: number;
+    lastRunMs: number | null;
+    offline: boolean;
+  };
   /** The signed-in person, or `null`. */
   session: Id | null;
   onSessionChange: (session: Id | null) => void;

@@ -9,11 +9,12 @@ import { formatDate } from "../../../lib/format/date";
 import { formatMoney } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
 import { useLanguage } from "../../../lib/i18n";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { AmountForm } from "./amount-form";
 import { useFlow } from "./flow";
+import { HoldingOverTime } from "./holding-over-time";
 import { ReadLine } from "./read-line";
-import { RecordPage } from "./record-page";
+import { DraftSummary, RecordPage } from "./record-page";
 import { useCashBefore, useHeldOn } from "./use-before";
 import { useDraftText } from "./use-draft-text";
 
@@ -124,9 +125,9 @@ function CashStep() {
           ? t("recordChange.cash.noneBefore")
           : t("recordChange.cash.before", {
               amount: formatMoney(cash.amountEur, language),
-              date: formatDate(cash.effectiveAt, language, {
+              date: formatDate(cash.setAt, language, {
                 style: "long",
-                timeZone: RACE_TIME_ZONE,
+                timeZone: raceTimeZone(),
               }),
             })
       }
@@ -152,12 +153,21 @@ function CashStep() {
   );
 }
 
-/** How many, or how much for cash. */
+/** How many, or how much for cash. A sale's panel adds the holding over time. */
 export function AmountStep() {
   const { draft } = useFlow();
 
   return (
-    <RecordPage>
+    <RecordPage
+      panel={
+        draft.kind === "sell" ? (
+          <>
+            <DraftSummary />
+            <HoldingOverTime />
+          </>
+        ) : undefined
+      }
+    >
       {draft.kind === "cash" ? <CashStep /> : <QuantityStep />}
     </RecordPage>
   );

@@ -13,7 +13,7 @@ import { formatMoney } from "../../../../lib/format/money";
 import { formatList } from "../../../../lib/format/text";
 import { useLanguage } from "../../../../lib/i18n";
 import { usePriceTime } from "../../../../lib/price-time";
-import { RACE_TIME_ZONE, raceDayStart } from "../../../../lib/race-day";
+import { raceDayStart, raceTimeZone } from "../../../../lib/race-day";
 import { useRefusal } from "../../../-account/use-refusal";
 import { DialogHeading } from "../-shared/dialog-heading";
 import { FirstValueFields } from "./first-value-fields";
@@ -42,7 +42,7 @@ function FirstValueNote({ share }: { share: AdminShare }) {
           })
         : t("adminShares.makeManual.fromPrice", {
             price: formatMoney(latestPrice.priceEur, language),
-            when: priceTime(latestPrice, RACE_TIME_ZONE),
+            when: priceTime(latestPrice, raceTimeZone()),
           })}
     </p>
   );

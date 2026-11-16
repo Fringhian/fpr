@@ -1,4 +1,5 @@
 import type { Decimal, Language } from "@fpr/contracts";
+import { ArrowsDownUpIcon } from "@phosphor-icons/react/ArrowsDownUp";
 import { CoinsIcon } from "@phosphor-icons/react/Coins";
 import { MinusIcon } from "@phosphor-icons/react/Minus";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
@@ -7,9 +8,9 @@ import { TagIcon } from "@phosphor-icons/react/Tag";
 import { TrashIcon } from "@phosphor-icons/react/Trash";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
-import { formatMoney } from "../../../lib/format/money";
+import { formatMoney, formatPercent } from "../../../lib/format/money";
 import { formatQuantity } from "../../../lib/format/number";
-import { entryTitle } from "../../../lib/log-entry";
+import { entryTitle, type WeighedSummary } from "../../../lib/log-entry";
 import type { IconProps } from "../../foundations/icon/icon";
 
 /** Shares added to a holding, or removed from it. */
@@ -56,7 +57,13 @@ interface ValueDeleted {
   before: Decimal;
 }
 
-type Entry = HoldingChange | CashSet | ValueAdded | ValueEdited | ValueDeleted;
+type Entry =
+  | HoldingChange
+  | CashSet
+  | WeighedSummary
+  | ValueAdded
+  | ValueEdited
+  | ValueDeleted;
 
 export type KeysOf<T> = T extends unknown ? keyof T : never;
 
@@ -74,6 +81,7 @@ export type TimelineRowKind = Entry["kind"];
 export const TIMELINE_ICONS = {
   bought: PlusIcon,
   sold: MinusIcon,
+  traded: ArrowsDownUpIcon,
   cashSet: CoinsIcon,
   valueAdded: TagIcon,
   valueEdited: PencilSimpleIcon,
@@ -114,6 +122,27 @@ function describeHolding(
   };
 }
 
+function describeWeighed(
+  entry: WeighedSummary,
+  t: TFunction,
+  language: Language,
+): Description {
+  const signed = entry.kind !== "cashSet";
+  return {
+    title: entryTitle(entry, t, language),
+    change:
+      entry.weight === null
+        ? t("timelineRow.weightUnknown")
+        : t("timelineRow.weight", {
+            weight: formatPercent(entry.weight, language, { signed }),
+          }),
+  };
+}
+
+function isWeighed(entry: Entry): entry is WeighedSummary {
+  return "weight" in entry && entry.weight !== undefined;
+}
+
 /** What happened, and the line under it: the title and the change, before → after. */
 export function describe(
   entry: Entry,
@@ -121,6 +150,9 @@ export function describe(
   language: Language,
 ): Description {
   const money = (amount: Decimal) => formatMoney(amount, language);
+  if (isWeighed(entry)) {
+    return describeWeighed(entry, t, language);
+  }
   switch (entry.kind) {
     case "bought":
     case "sold":

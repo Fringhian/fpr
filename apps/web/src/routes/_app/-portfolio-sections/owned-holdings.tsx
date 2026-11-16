@@ -1,10 +1,10 @@
-import type { Id, Portfolio, Timestamp } from "@fpr/contracts";
+import type { Id, Portfolio } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import * as HoldingCard from "../../../components/molecules/holding-card/holding-card";
 import * as Menu from "../../../components/molecules/menu/menu";
 import * as Holdings from "../../../components/organisms/holdings/holdings";
 import { HelpInfo } from "../../../lib/help-info";
-import { RACE_TIME_ZONE } from "../../../lib/race-day";
+import { raceTimeZone } from "../../../lib/race-day";
 import { useViewState } from "../../../lib/view-state/use-view-state";
 import { PortfolioHoldings } from "./portfolio-holdings";
 import { useRecord } from "./record-link";
@@ -17,14 +17,11 @@ import { useRecord } from "./record-link";
 export function OwnedHoldings({
   userId,
   portfolio,
-  cashSetAt,
   label,
 }: {
   userId: Id;
   /** The portfolio, or `undefined` while it loads. */
   portfolio: Portfolio | undefined;
-  /** The moment of the latest cash balance, once the log knows it. */
-  cashSetAt: Timestamp | undefined;
   /** Names the list. */
   label: string;
 }) {
@@ -54,9 +51,9 @@ export function OwnedHoldings({
           <HoldingCard.Cash
             amountEur={portfolio.cashEur}
             weight={portfolio.cashWeight}
-            setOn={cashSetAt}
+            setOn={portfolio.cashSetAt ?? undefined}
             anonymous={anonymous}
-            timeZone={RACE_TIME_ZONE}
+            timeZone={raceTimeZone()}
             onUpdateCash={() => record.open({ kind: "cash" })}
             info={
               <HelpInfo section="cash" title={t("helpInfo.cash.title")}>

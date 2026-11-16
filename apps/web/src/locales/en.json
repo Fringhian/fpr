@@ -217,6 +217,14 @@
     "heldSpoken": "from {{before}} to {{after}} units held",
     "newHolding": "New holding",
     "firstCash": "First cash entry",
+    "weighed": {
+      "bought": "Bought {{share}}",
+      "sold": "Sold {{share}}",
+      "traded": "Traded {{share}}",
+      "cashSet": "Cash set"
+    },
+    "weight": "{{weight}} of the portfolio",
+    "weightUnknown": "Weight unknown",
     "was": "was {{before}}",
     "madeBy": "by {{name}}",
     "subject": "{{title}}, {{date}}"
@@ -536,7 +544,9 @@
   },
   "latestChanges": {
     "title": "Latest changes",
-    "seeAll": "See all changes"
+    "seeAll": "See all changes",
+    "seeCount_one": "See the change",
+    "seeCount_other": "See all {{count}} changes"
   },
   "sharePage": {
     "loading": "Loading the share…",
@@ -553,7 +563,7 @@
     "marks": {
       "bought": "{{name}} bought {{quantity}}",
       "sold": "{{name}} sold {{quantity}}",
-      "changed": "{{name}} changed their holding"
+      "weight": "{{weight}} of their portfolio"
     },
     "chart": "{{name}}, price {{period}}",
     "pricesFrom": "Prices from {{date}}",
@@ -580,6 +590,7 @@
     "changed": {
       "title": "Delete this value?",
       "description": "Someone changed it to {{price}} in the meantime.",
+      "descriptionBy": "{{name}} changed it to {{price}} in the meantime.",
       "confirm": "Delete {{price}}",
       "keep": "Keep it"
     }
@@ -601,9 +612,11 @@
     "day": "Date",
     "time": "Time",
     "future": "Enter a time that has passed, such as 09:30.",
-    "last": "Last value: {{price}} on {{date}}.",
+    "last": "Last value: {{price}} on {{date}}{{by}}.",
+    "lastBy": ", by {{name}}",
     "updates": "Every holder’s balance updates.",
     "changed": "Someone changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
+    "changedBy": "{{name}} changed this value to {{price}} while you were editing. Save again to replace it with yours, or close to keep theirs.",
     "taken": "There’s already a value of {{price}} on {{date}} at {{time}}.",
     "editTaken": "Edit that value",
     "save": "Save value",
@@ -780,6 +793,18 @@
       },
       "tooMany": "{{held}} Enter {{quantity}} or less.",
       "all": "All"
+    },
+    "overTime": {
+      "title": {
+        "you": "Your {{share}} over time",
+        "member": "{{name}}’s {{share}} over time"
+      },
+      "bought": "Bought {{quantity}}",
+      "sold": "Sold {{quantity}}",
+      "thisSale": "This sale",
+      "unknown": "Not known yet",
+      "loading": "Loading the holding over time…",
+      "failed": "Can’t load the holding over time."
     },
     "cash": {
       "question": {
@@ -1047,6 +1072,7 @@
   "adminShares": {
     "loading": "Loading the shares…",
     "neverPriced": "Never priced",
+    "addedOn": "added {{date}}",
     "groups": {
       "needsAttention": {
         "title": "Needs attention",
@@ -1077,8 +1103,20 @@
       "schedule": "Prices refresh every 30 minutes on trading days.",
       "action": "Refresh prices now",
       "running": "Refreshing…",
-      "done_one": "Refreshed at {{time}}: {{count}} share priced.",
-      "done_other": "Refreshed at {{time}}: {{count}} shares priced."
+      "lastRun": {
+        "succeeded_one": "Last run {{time}}, {{count}} share priced",
+        "succeeded_other": "Last run {{time}}, {{count}} shares priced",
+        "partial_one": "Last run {{time}}, {{count}} share priced and {{failures}} failed",
+        "partial_other": "Last run {{time}}, {{count}} shares priced and {{failures}} failed",
+        "failed": "Last run {{time}} failed, no price fetched",
+        "skipped": "Last run {{time}} skipped, the day’s calls were used up"
+      },
+      "noRun": "No run yet",
+      "next": "next {{time}}",
+      "dayTime": "{{day}}, {{time}}",
+      "runsToday_one": "{{count}} run today",
+      "runsToday_other": "{{count}} runs today",
+      "callsLeft": "{{left}} of {{limit}} provider calls left"
     },
     "makeManual": {
       "title": "Make {{name}} manual?",

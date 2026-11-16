@@ -1,13 +1,17 @@
 import type { Period } from "@fpr/contracts";
+import { shareSearchMaxLength } from "@fpr/contracts/values";
 import { useQuery } from "@tanstack/react-query";
 import { useDeferredValue } from "react";
 import { liveView } from "./api/query-client";
 import { useApi } from "./api/use-api";
 import { isinIn } from "./isin";
 
-/** The text the Shares search sends: an ISIN as the API takes it, any other text trimmed. */
+/**
+ * The text the Shares search sends: an ISIN as the API takes it, any other
+ * text trimmed to the length the API takes.
+ */
 export function searchTextOf(text: string): string {
-  const trimmed = text.trim();
+  const trimmed = text.trim().slice(0, shareSearchMaxLength).trim();
   return isinIn(trimmed) ?? trimmed;
 }
 

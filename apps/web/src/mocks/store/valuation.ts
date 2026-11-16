@@ -1,4 +1,5 @@
 import type { Id } from "@fpr/contracts";
+import { closeAt, dayOf } from "./calendar.ts";
 import { Big, zero } from "./decimal.ts";
 import type {
   MockStore,
@@ -17,24 +18,33 @@ export function pricePointAt(
   atMs: number,
 ): StoredPrice | null {
   const { prices } = share;
+  return prices[Math.max(lastIndexAt(prices, atMs), 0)] ?? null;
+}
+
+function lastIndexAt(items: readonly { atMs: number }[], atMs: number): number {
   let low = 0;
-  let high = prices.length - 1;
+  let high = items.length - 1;
   let found = -1;
   while (low <= high) {
     const middle = (low + high) >> 1;
-    if ((prices[middle]?.atMs ?? Number.POSITIVE_INFINITY) <= atMs) {
+    if ((items[middle]?.atMs ?? Number.POSITIVE_INFINITY) <= atMs) {
       found = middle;
       low = middle + 1;
     } else {
       high = middle - 1;
     }
   }
-  return prices[Math.max(found, 0)] ?? null;
+  return found;
 }
 
 export function priceAt(share: StoredShare, atMs: number): Big | null {
   const point = pricePointAt(share, atMs);
   return point === null ? null : new Big(point.priceEur);
+}
+
+/** One unit's value at the close of a change's day: the latest price so far for today's. */
+export function dayPrice(share: StoredShare, atMs: number): Big | null {
+  return priceAt(share, closeAt(dayOf(atMs)));
 }
 
 export function shareOf(
@@ -88,7 +98,7 @@ export function quantitiesAt(
 }
 
 export function cashAt(cash: readonly StoredCash[], atMs: number): Big {
-  const latest = cash.findLast((balance) => balance.atMs <= atMs);
+  const latest = cash[lastIndexAt(cash, atMs)];
   return latest === undefined ? zero : new Big(latest.amountEur);
 }
 
@@ -129,3 +139,37 @@ export function valuationAt(store: MockStore, userId: Id, atMs: number) {
 }
 
 export type Valuation = ReturnType<typeof valuationAt>;
+
+/**
+ * The money a person added, minus the money taken out, up to any moment: each
+ * share change at its share's value at its day's close, with no price
+ * counting as zero, plus the cash then, which is the sum of every change of
+ * cash balance. The changes are summed once, so a series reads every point
+ * from the same running totals.
+ */
+export function flowsOf(store: MockStore, userId: Id): (atMs: number) => Big {
+  const shares = new Map(store.shares.map((share) => [share.id, share]));
+  let total = zero;
+  const totals = changesOf(store, userId).map((change) => {
+    const share = shares.get(change.shareId);
+    const price = share === undefined ? null : dayPrice(share, change.atMs);
+    total = total.plus(price?.times(change.quantityDelta) ?? zero);
+    return { atMs: change.atMs, total };
+  });
+  const cash = cashOf(store, userId);
+  return (atMs) =>
+    cashAt(cash, atMs).plus(totals[lastIndexAt(totals, atMs)]?.total ?? zero);
+}
+
+/** A person's holdings now, at their latest prices, largest first, unpriced last. */
+export function holdingsNow(store: MockStore, userId: Id) {
+  const valuation = valuationAt(store, userId, store.calendar.nowMs);
+  const value = (holding: Holding) => holding.valueEur ?? new Big(-1);
+  return {
+    ...valuation,
+    holdings: valuation.holdings.toSorted(
+      (a, b) =>
+        value(b).cmp(value(a)) || a.share.name.localeCompare(b.share.name),
+    ),
+  };
+}

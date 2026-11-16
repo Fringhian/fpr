@@ -1,17 +1,13 @@
-import type { PortfolioLog } from "@fpr/contracts";
+import type { PortfolioHoldingAtQuery, PortfolioLog } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, type PipelineContext } from "../../server/implementer.ts";
-import { Big, money, plain, ratio, zero } from "../../store/decimal.ts";
-import { firstEntryOn } from "../../store/people.ts";
+import { money, plain, ratio, zero } from "../../store/decimal.ts";
+import { toLogEntry, weighEntries } from "../../store/log.ts";
+import { portfolioView } from "../../store/portfolio.ts";
 import {
-  entryWeight,
-  portfolioView,
-  toLogEntry,
-} from "../../store/portfolio.ts";
-import {
-  periodWindow,
-  seriesPoints,
-  windowInstants,
+  raceWindow,
+  toSeriesPoints,
+  windowPoints,
 } from "../../store/series.ts";
 import { requireShare, toShareSummary } from "../../store/shares.ts";
 import type { MockStore, StoredEntry } from "../../store/types.ts";
@@ -20,6 +16,7 @@ import {
   changesOf,
   priceAt,
   quantitiesAt,
+  valuationAt,
 } from "../../store/valuation.ts";
 import { portfolioOwner } from "./owner.ts";
 
@@ -30,19 +27,6 @@ function newestFirst(a: StoredEntry, b: StoredEntry): number {
 
 function cursorOf(entry: StoredEntry): string {
   return `${entry.atMs}_${entry.id}`;
-}
-
-/** Records each entry's weight, which replaces its quantity for an anonymous viewer. */
-function weighEntries(
-  store: MockStore,
-  context: PipelineContext,
-  entries: readonly StoredEntry[],
-): void {
-  if (context.viewer?.role === "anonymous") {
-    for (const entry of entries) {
-      context.quantityWeights.set(entry.id, entryWeight(store, entry));
-    }
-  }
 }
 
 function logPage(
@@ -70,6 +54,21 @@ function logPage(
   };
 }
 
+function holdingAt(store: MockStore, input: PortfolioHoldingAtQuery) {
+  const share = requireShare(store, input.shareId, () =>
+    mockError("not_found"),
+  );
+  const atMs = Date.parse(input.at);
+  const held = quantitiesAt(changesOf(store, input.userId), atMs).get(share.id);
+  const value = held === undefined ? null : priceAt(share, atMs)?.times(held);
+  const { balanceEur } = valuationAt(store, input.userId, atMs);
+  return {
+    share,
+    quantity: held === undefined ? "0" : plain(held),
+    weight: value == null ? null : ratio(value, balanceEur),
+  };
+}
+
 /** A member's portfolio, its log, its balance over time, and a holding at a moment. */
 export const portfolioReads = {
   get: mock.portfolio.get.handler(({ context, input }) => {
@@ -78,25 +77,12 @@ export const portfolioReads = {
   }),
 
   holdingAt: mock.portfolio.holdingAt.handler(({ context, input }) => {
-    const { store } = context;
-    portfolioOwner(store, input.userId);
-    const share = requireShare(store, input.shareId, () =>
-      mockError("not_found"),
-    );
-    const changes = changesOf(store, input.userId);
-    const held = quantitiesAt(changes, Date.parse(input.at)).get(share.id);
-    if (context.viewer?.role === "anonymous") {
-      const latest = changes.findLast((change) => change.shareId === share.id);
-      context.quantityWeights.set(
-        share.id,
-        latest === undefined ? "0" : entryWeight(store, latest),
-      );
+    portfolioOwner(context.store, input.userId);
+    const { share, quantity, weight } = holdingAt(context.store, input);
+    if (weight !== null) {
+      context.quantityWeights.set(share.id, weight);
     }
-    return {
-      share: toShareSummary(share),
-      at: input.at,
-      quantity: held === undefined ? "0" : plain(held),
-    };
+    return { share: toShareSummary(share), at: input.at, quantity };
   }),
 
   holdingHistory: mock.portfolio.holdingHistory.handler(
@@ -106,29 +92,21 @@ export const portfolioReads = {
       const share = requireShare(store, input.shareId, () =>
         mockError("not_found"),
       );
-      const window = periodWindow(
-        store,
-        input.period,
-        firstEntryOn(store, input.userId),
-      );
+      const window = raceWindow(store, input.period);
       const changes = changesOf(store, input.userId);
-      const moments = seriesPoints(
-        store,
-        input.userId,
-        window,
-        windowInstants(store, window),
-      );
+      const points = windowPoints(store, input.userId, window, {
+        closesOnly: false,
+      });
       return {
         share: toShareSummary(share),
-        points: moments.map(({ at, balanceEur }) => {
-          const atMs = Date.parse(at);
+        points: points.map(({ atMs, balanceEur }) => {
           const held = quantitiesAt(changes, atMs).get(share.id) ?? zero;
           const value = priceAt(share, atMs)?.times(held) ?? null;
           return {
-            at,
+            at: new Date(atMs).toISOString(),
             quantity: plain(held),
             valueEur: value === null ? null : money(value),
-            weight: value === null ? null : ratio(value, new Big(balanceEur)),
+            weight: value === null ? null : ratio(value, balanceEur),
           };
         }),
       };
@@ -167,11 +145,7 @@ export const portfolioReads = {
     ({ context, input }) => {
       const { store } = context;
       portfolioOwner(store, input.userId);
-      const window = periodWindow(
-        store,
-        input.period,
-        firstEntryOn(store, input.userId),
-      );
+      const window = raceWindow(store, input.period);
       const entries = store.entries
         .filter(
           (entry) =>
@@ -180,11 +154,8 @@ export const portfolioReads = {
         .sort((a, b) => a.atMs - b.atMs);
       weighEntries(store, context, entries);
       return {
-        points: seriesPoints(
-          store,
-          input.userId,
-          window,
-          windowInstants(store, window),
+        points: toSeriesPoints(
+          windowPoints(store, input.userId, window, { closesOnly: false }),
         ),
         entries: entries.map((entry) => toLogEntry(store, entry)),
       };

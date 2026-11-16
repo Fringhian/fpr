@@ -4,60 +4,60 @@ import { money } from "../store/decimal.ts";
 import { toGain } from "../store/gain.ts";
 import { toPerson } from "../store/people.ts";
 import {
-  bestHolding,
   compareGains,
   membersView,
-  raceField,
   raceView,
   shareLeaderboardView,
-  standing,
+  toBestHolding,
 } from "../store/race.ts";
 import { measuredFrom } from "../store/series.ts";
+import { bestHolding, type Standing, standingsAt } from "../store/standings.ts";
 import type { MockStore } from "../store/types.ts";
 
 /**
- * The standings as of the last close, highest first. An anonymous viewer's
- * gain board ranks in percent whatever the request asks.
+ * The standings as of the last close, highest first. Members tied keep the
+ * order they were added in. An anonymous viewer's gain board ranks in percent
+ * whatever the request asks.
  */
 function leaderboard(
   store: MockStore,
   { board, period }: Required<Pick<LeaderboardQuery, "board" | "period">>,
   unit: Unit,
 ): Leaderboard {
-  const { window, started, notStarted } = raceField(store, period);
-  const rows = started.map((person) => ({
-    person,
-    ...standing(store, person, window),
-  }));
-  const lastCloseOn = store.calendar.lastCloseOn;
+  const { window, standings, notStarted } = standingsAt(store, period);
+  const common = ({ person, end }: Standing) => ({
+    member: toPerson(person),
+    incomplete: end.incomplete,
+    bestHolding: toBestHolding(bestHolding(store, person.id, window)),
+  });
+  const base = {
+    lastCloseOn: store.calendar.lastCloseOn,
+    notStarted: notStarted.map(toPerson),
+  };
   if (board === "balance") {
-    rows.sort((a, b) => b.valuation.balanceEur.cmp(a.valuation.balanceEur));
     return {
+      ...base,
       board,
-      lastCloseOn,
-      rows: rows.map((row) => ({
-        member: toPerson(row.person),
-        balanceEur: money(row.valuation.balanceEur),
-        incomplete: row.valuation.incomplete,
-        bestHolding: bestHolding(row.shareGains),
-      })),
-      notStarted,
+      rows: standings
+        .toSorted((a, b) => b.end.balanceEur.cmp(a.end.balanceEur))
+        .map((row) => ({
+          ...common(row),
+          balanceEur: money(row.end.balanceEur),
+        })),
     };
   }
   const compare = compareGains(unit);
-  rows.sort((a, b) => compare(a.gain, b.gain));
   return {
+    ...base,
     board,
     unit,
-    lastCloseOn,
-    rows: rows.map((row) => ({
-      member: toPerson(row.person),
-      gain: toGain(row.gain),
-      measuredFrom: measuredFrom(store, row.person.id, window),
-      incomplete: row.valuation.incomplete,
-      bestHolding: bestHolding(row.shareGains),
-    })),
-    notStarted,
+    rows: standings
+      .toSorted((a, b) => compare(a.gain, b.gain))
+      .map((row) => ({
+        ...common(row),
+        gain: toGain(row.gain),
+        measuredFrom: measuredFrom(store, row.person.id, window),
+      })),
   };
 }
 

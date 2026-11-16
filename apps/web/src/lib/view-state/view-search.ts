@@ -1,5 +1,10 @@
 import type { Id, LeaderboardBoard, Period, Unit } from "@fpr/contracts";
-import { leaderboardBoards, periods, units } from "@fpr/contracts/values";
+import {
+  idPattern,
+  leaderboardBoards,
+  periods,
+  units,
+} from "@fpr/contracts/values";
 import type { SearchSchemaInput } from "@tanstack/react-router";
 import type { PeriodSetting } from "../../components/molecules/period-control/period-control";
 import { oneOf } from "../one-of";
@@ -8,12 +13,9 @@ import { readStoredSetting } from "./stored-setting";
 /** The setting a person who never picked one sees: this month, in percent. */
 export const DEFAULT_SETTING: PeriodSetting = { period: "1M", unit: "percent" };
 
-const ID_SHAPE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 /** An id from the address, in lower case, or nothing when it isn't one. */
 export function idIn(value: unknown): Id | undefined {
-  return typeof value === "string" && ID_SHAPE.test(value)
+  return typeof value === "string" && idPattern.test(value)
     ? value.toLowerCase()
     : undefined;
 }

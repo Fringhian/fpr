@@ -1,5 +1,5 @@
 import { mock, viewerOf } from "../../server/implementer.ts";
-import { toCash } from "../../store/portfolio.ts";
+import { toCash } from "../../store/log.ts";
 import type { StoredCash } from "../../store/types.ts";
 import {
   notInFuture,
@@ -12,10 +12,11 @@ import {
 export const cashWrites = {
   setCash: mock.portfolio.setCash.handler(({ context, input }) => {
     const { store } = context;
-    writablePortfolio(store, viewerOf(context), input.userId);
+    const viewer = viewerOf(context);
+    writablePortfolio(store, viewer, input.userId);
     const stored = storedWithId(store, input.userId, input.id);
     if (stored?.type === "cash") {
-      return toCash(stored);
+      return toCash(store, stored);
     }
     notInFuture(store, input.effectiveAt);
     const atMs = Date.parse(input.effectiveAt);
@@ -26,9 +27,10 @@ export const cashWrites = {
       amountEur: input.amountEur,
       effectiveAt: new Date(atMs).toISOString(),
       atMs,
+      madeBy: viewer.id,
     };
     store.entries.push(cash);
-    return toCash(cash);
+    return toCash(store, cash);
   }),
 
   updateCash: mock.portfolio.updateCash.handler(({ context, input }) => {
@@ -44,7 +46,7 @@ export const cashWrites = {
       effectiveAt: new Date(atMs).toISOString(),
       atMs,
     });
-    return toCash(cash);
+    return toCash(store, cash);
   }),
 
   deleteCash: mock.portfolio.deleteCash.handler(({ context, input }) => {
