@@ -133,6 +133,15 @@ export function useUnreachableText(): string {
   return t(unreachableTextKey(useOnline()));
 }
 
+/**
+ * The line of a read that failed with nothing to show, such as a step's or a
+ * list's next page: its own `text`, or “You’re offline” with no network.
+ */
+export function useReadFailedText(text: string): string {
+  const { t } = useTranslation();
+  return useOnline() ? text : t("errors.offline");
+}
+
 /** Writes any error a call throws in the person's language. */
 export function useErrorText(): (error: unknown) => string {
   const { t } = useTranslation();

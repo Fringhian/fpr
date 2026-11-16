@@ -859,7 +859,6 @@
         "failed": "Impossible de charger cette valeur",
         "missing": "Cette valeur n’existe plus"
       },
-      "failedLine": "Vérifiez votre connexion et réessayez.",
       "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",
       "retry": "Réessayer"
     }
@@ -1169,6 +1168,6 @@
     "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",
     "providerUnavailable": "Le fournisseur de cours ne répond pas. Réessayez dans quelques minutes.",
     "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez.",
-    "offline": "Vous êtes hors ligne, rien n’a été envoyé. Reconnectez-vous, puis réessayez."
+    "offline": "Vous êtes hors ligne. Reconnectez-vous, puis réessayez."
   }
 }

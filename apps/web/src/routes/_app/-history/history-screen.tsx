@@ -5,6 +5,7 @@ import { Button } from "../../../components/atoms/button/button";
 import { Card } from "../../../components/atoms/card/card";
 import { LoadingPlaceholder } from "../../../components/atoms/loading-placeholder/loading-placeholder";
 import { PageMessage } from "../../../components/templates/page-message/page-message";
+import { useReadFailedText } from "../../../lib/api/errors";
 import { neededReads } from "../../../lib/api/needed-reads";
 import { cn } from "../../../lib/cn";
 import { useSession } from "../../../lib/session/use-session";
@@ -22,6 +23,7 @@ type Log = ReturnType<typeof useLog>["log"];
 function ListEnd({ log }: { log: Log }) {
   const { t } = useTranslation();
   const end = useRef<HTMLDivElement>(null);
+  const failedText = useReadFailedText(t("historyPage.moreFailed"));
   const failed = log.isFetchNextPageError;
   useMoreOnScroll(
     end,
@@ -41,7 +43,7 @@ function ListEnd({ log }: { log: Log }) {
           role="alert"
           className="flex flex-wrap items-center justify-center gap-s text-s text-secondary"
         >
-          {t("historyPage.moreFailed")}
+          {failedText}
           <Button size="s" onClick={() => void log.fetchNextPage()}>
             {t("pageStates.loadFailed.action")}
           </Button>

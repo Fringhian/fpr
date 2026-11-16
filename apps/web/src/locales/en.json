@@ -845,7 +845,6 @@
         "failed": "Can’t load this value",
         "missing": "This value no longer exists"
       },
-      "failedLine": "Check your connection and try again.",
       "missingLine": "It may have been deleted. Close this page to go back.",
       "retry": "Try again"
     }
@@ -1153,6 +1152,6 @@
     "internalError": "Something went wrong on FPR’s side. Try again in a moment.",
     "providerUnavailable": "The price provider isn’t answering. Try again in a few minutes.",
     "unreachable": "FPR can’t be reached. Check your connection and try again.",
-    "offline": "You’re offline, so nothing was sent. Reconnect, then try again."
+    "offline": "You’re offline. Reconnect, then try again."
   }
 }

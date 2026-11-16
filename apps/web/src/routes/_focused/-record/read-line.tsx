@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/atoms/button/button";
+import { useReadFailedText } from "../../../lib/api/errors";
 import type { BeforeRead } from "./use-before";
 
 /**
@@ -20,11 +21,12 @@ export function ReadLine<T>({
   done: (value: T) => ReactNode;
 }) {
   const { t } = useTranslation();
+  const failedText = useReadFailedText(failed);
 
   if (read.failed) {
     return (
       <span className="inline-flex flex-wrap items-center gap-s">
-        <span role="alert">{failed}</span>
+        <span role="alert">{failedText}</span>
         <Button type="button" size="s" onClick={read.retry}>
           {t("recordChange.load.retry")}
         </Button>
