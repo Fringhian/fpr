@@ -1,14 +1,13 @@
+import type { Decimal, Language, Unit } from "@fpr/contracts";
 import {
-  type Decimal,
   formatMoney,
   formatPercent,
   type MoneyPrecision,
-} from "./format";
-import type { Language } from "./language";
-import { MINUS } from "./typography";
+} from "./format/money";
+import { MINUS } from "./format/text";
 
 /** How a gain is expressed: the shared unit setting, `€` or `%`. */
-export type GainUnit = "eur" | "percent";
+export type GainUnit = Unit;
 
 /**
  * A gain as the API sends it. `percent` is `null` from a start at zero. The
@@ -30,6 +29,28 @@ export interface GainDisplay {
   unit: GainUnit;
 }
 
+/** The value a gain reads as, in the unit it is written in. */
+export interface GainAmount {
+  amount: Decimal;
+  unit: GainUnit;
+}
+
+/**
+ * The value of a gain in the unit asked for. Without euros (an anonymous
+ * viewer) it is the percentage; without a percentage (a start at zero) the
+ * euros; with neither, `null`.
+ */
+export function gainAmount(gain: GainInput, unit: GainUnit): GainAmount | null {
+  const eur = gain.eur ?? null;
+  if (unit === "eur" && eur !== null) {
+    return { amount: eur, unit: "eur" };
+  }
+  if (gain.percent !== null) {
+    return { amount: gain.percent, unit: "percent" };
+  }
+  return eur === null ? null : { amount: eur, unit: "eur" };
+}
+
 /**
  * A gain in the unit asked for, signed, with its tone. Without euros (an
  * anonymous viewer) it reads in percent; without a percentage (a start at
@@ -41,19 +62,19 @@ export function gainDisplay(
   language: Language,
   { precision = "cents" }: { precision?: MoneyPrecision | undefined } = {},
 ): GainDisplay | null {
-  const eur = gain.eur ?? null;
-  const inEuros = (amount: Decimal): GainDisplay =>
-    display(formatMoney(amount, language, { precision, signed: true }), "eur");
-  if (unit === "eur" && eur !== null) {
-    return inEuros(eur);
+  const shown = gainAmount(gain, unit);
+  if (shown === null) {
+    return null;
   }
-  if (gain.percent !== null) {
-    return display(
-      formatPercent(gain.percent, language, { signed: true }),
-      "percent",
-    );
-  }
-  return eur === null ? null : inEuros(eur);
+  return shown.unit === "eur"
+    ? display(
+        formatMoney(shown.amount, language, { precision, signed: true }),
+        "eur",
+      )
+    : display(
+        formatPercent(shown.amount, language, { signed: true }),
+        "percent",
+      );
 }
 
 function display(text: string, unit: GainUnit): GainDisplay {

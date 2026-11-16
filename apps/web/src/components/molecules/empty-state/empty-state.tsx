@@ -7,11 +7,8 @@ import {
   type StateIconProps,
 } from "../../atoms/state-icon/state-icon";
 
-/** Every prop of a `<div>`. */
-export type RootProps = ComponentProps<"div">;
-
 /** The empty state’s column, centred in its container. */
-export function Root({ className, ...props }: RootProps) {
+export function Root({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       {...props}
@@ -23,14 +20,11 @@ export function Root({ className, ...props }: RootProps) {
   );
 }
 
-export interface IconOwnProps {
+/** The icon’s own props, then every prop of the state icon but `size`: an empty state’s is 56 px. */
+export type IconProps = {
   /** The state’s icon, any Phosphor icon. The tray by default, for nothing there yet; a plus when the action adds the first one. */
   icon?: StateIconProps["icon"] | undefined;
-}
-
-/** The icon’s own props, then every prop of the state icon but `size`: an empty state’s is 56 px. */
-export type IconProps = IconOwnProps &
-  Omit<StateIconProps, keyof IconOwnProps | "size">;
+} & Omit<StateIconProps, "icon" | "size">;
 
 /** The icon in its soft blush circle, 56 px: the tray by default, a plus when the action adds the first one. */
 export function Icon({ icon = TrayIcon, className, ...props }: IconProps) {
@@ -44,15 +38,17 @@ export function Icon({ icon = TrayIcon, className, ...props }: IconProps) {
   );
 }
 
-/** Every prop of an `<h2>`, and Base UI's `render` to give another heading level. */
-export type TitleProps = useRender.ComponentProps<"h2">;
-
 /**
  * What is empty: “Your portfolio is empty”. Renders an `<h2>`; `render` gives
  * another level, such as the page’s `<h1>`: `render={<h1 />}`.
  */
-export function Title({ render, ref, className, ...props }: TitleProps) {
-  const element = useRender({
+export function Title({
+  render,
+  ref,
+  className,
+  ...props
+}: useRender.ComponentProps<"h2">) {
+  return useRender({
     render,
     ref,
     defaultTagName: "h2",
@@ -64,23 +60,15 @@ export function Title({ render, ref, className, ...props }: TitleProps) {
       ),
     },
   });
-
-  return element;
 }
 
-/** Every prop of a `<p>`. */
-export type DescriptionProps = ComponentProps<"p">;
-
 /** One sentence that says what to do: “Record each share you hold with the day you bought it.” */
-export function Description({ className, ...props }: DescriptionProps) {
+export function Description({ className, ...props }: ComponentProps<"p">) {
   return <p {...props} className={cn("text-m text-secondary", className)} />;
 }
 
-/** Every prop of a `<div>`. */
-export type ActionProps = ComponentProps<"div">;
-
 /** Holds the action that fills the state: a `Button` or a `TextLink`. */
-export function Action({ className, ...props }: ActionProps) {
+export function Action({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       {...props}

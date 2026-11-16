@@ -1,22 +1,22 @@
+import type { Timestamp } from "@fpr/contracts";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
-import { formatDate, formatTime, type Timestamp } from "../../../lib/format";
+import { formatDate, formatTime } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
 
-export interface MarketStatusOwnProps {
+export type MarketStatusProps = {
   /** `open` while today's prices refresh, with a green dot; `closed` after the close, with a grey one. */
   status: "open" | "closed";
   /** When the prices shown were taken: their time while open, the close's day once closed. */
   pricedAt: Timestamp;
   /** The time zone the time and day are read in. The browser's by default. */
   timeZone?: string | undefined;
-}
-
-/** The part writes its own line: it takes every prop of a `<span>` but `children`. */
-export type MarketStatusProps = MarketStatusOwnProps &
-  Omit<ComponentProps<"span">, keyof MarketStatusOwnProps | "children">;
+} & Omit<
+  ComponentProps<"span">,
+  "status" | "pricedAt" | "timeZone" | "children"
+>;
 
 const dot = cva("size-s shrink-0 rounded-full", {
   variants: {
@@ -39,14 +39,13 @@ export function MarketStatus({
   const { t } = useTranslation();
   const language = useLanguage();
 
-  const zone = timeZone === undefined ? {} : { timeZone };
   const text =
     status === "open"
       ? t("smallParts.marketStatus.open", {
-          time: formatTime(pricedAt, language, zone),
+          time: formatTime(pricedAt, language, { timeZone }),
         })
       : t("smallParts.marketStatus.closed", {
-          date: formatDate(pricedAt, language, { style: "weekday", ...zone }),
+          date: formatDate(pricedAt, language, { style: "weekday", timeZone }),
         });
 
   return (

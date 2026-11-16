@@ -10857,8 +10857,8 @@
             "required": true,
             "schema": {
               "enum": [
-                "balance",
-                "gain"
+                "gain",
+                "balance"
               ],
               "type": "string"
             }

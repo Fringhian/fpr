@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { CameraIcon } from "@phosphor-icons/react/Camera";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { InfoIcon } from "@phosphor-icons/react/Info";
@@ -8,7 +9,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Fragment } from "react";
 import { expect, within } from "storybook/test";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import { IconButton, type IconButtonProps } from "./icon-button";
 
 /** The icons the playground offers, by name: the design system’s uses, then any other. */

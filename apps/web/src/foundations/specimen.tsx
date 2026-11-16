@@ -1,17 +1,11 @@
 import type { ReactNode } from "react";
+import { cssVariable } from "../lib/css-variable";
 
 const ROOT_FONT_SIZE = 16;
 
-/** A CSS variable's value as the page computes it from `theme.css`. */
-export function readToken(variable: `--${string}`): string {
-  return getComputedStyle(document.documentElement)
-    .getPropertyValue(variable)
-    .trim();
-}
-
 /** A token's value, with its pixel size when it is in rem. */
 export function TokenValue({ variable }: { variable: `--${string}` }) {
-  const value = readToken(variable);
+  const value = cssVariable(variable);
   const rem = /^(-?[\d.]+)rem$/.exec(value);
   return (
     <code className="text-xs text-secondary tabular-nums">

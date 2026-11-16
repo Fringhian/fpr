@@ -10,9 +10,9 @@ These conventions win over any other skill's advice on styling or components —
 ## Stack
 
 - `apps/web` — React, Vite, TanStack Router (file-based routes), TanStack Query, Tailwind v4.
-- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`. Each component has its own folder in its story's group, `src/components/<group>/<component>/`, holding the component, its stories and any `-model.ts`: `atoms/button/button.tsx` and `atoms/button/button.stories.tsx`. Components shown in one story file share one folder. They move to a package only if a second consumer appears.
-- Imports name the file itself: `../../atoms/button/button`. There are no barrel files (`index.ts`).
-- Components have no unit tests. Their stories are their check, run in Chromium by `test-storybook`.
+- Components live in `apps/web/src/components/`, split into `foundations/`, `atoms/`, `molecules/` and `organisms/`, one folder per component (`atoms/button/button.tsx`, `atoms/button/button.stories.tsx`). They move to a package only if a second consumer appears.
+- A helper used by one component sits beside it, as `<component>-model.ts` or a named sibling (`allocation-bar/allocation-bar-model.ts`). `src/lib/` holds what two or more places use.
+- The web app imports contracts' value lists (periods, units, languages, boards…) from `@fpr/contracts/values`, and everything else from `@fpr/contracts` as `import type`, so Zod and oRPC stay out of the bundle. A type or list that exists there is never redeclared.
 
 ## Design workflow
 
@@ -70,6 +70,7 @@ impeccable's craft floor and the Web Interface Guidelines (the `web-design-guide
 - Each state role has a soft fill, its pale ground: `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`. Text on a soft fill takes its role (`bg-positive-soft text-positive`), at 4.5:1 or more.
 - Every size scale uses the same names — `xs`, `s`, `m`, `l`, `xl` — with its own values per namespace: spacing (`p-m`, `gap-s`, `w-l`), text (`text-s`), radius (`rounded-m`), container (`max-w-l`). Text adds one more step, `display`, for the page sentence on tablet and desktop. Spacing adds `0` (`p-0`, `inset-0`, `min-h-0`). Radius adds `card`, 18 px between `m` and `l`, for person rows, option cards and popovers (`rounded-card`).
 - Two outlines: `shadow-outline` draws the divider line outside a card's edge; `inset-shadow-outline` draws it inside the edge, for inputs, options and flat cards, and `inset-shadow-<colour>` recolours it for a state (`focus-within:inset-shadow-primary`, `invalid:inset-shadow-error`). An inset ring and a drop shadow combine (`inset-shadow-outline shadow-float`).
+- Motion: one easing, `ease-soft`, and three durations, `duration-s` (150 ms, a state change), `duration-m` (200 ms, a popup, a sheet or a panel) and `duration-l` (300 ms, a bar or a lane moving). A script reads the same tokens from the page (`--ease-soft`, `--transition-duration-l`) with `cssVariable` from `src/lib/css-variable.ts`. Anything that moves or resizes stills under `motion-reduce:`.
 - Breakpoints are mobile-first: phone is the unprefixed base, then `tablet:` from 40rem (640 px) and `desktop:` from 70rem (1120 px).
 - Light theme only in v1. Components never use `dark:`; a later dark theme is a second set of token values.
 
@@ -148,18 +149,20 @@ cn(
   ```
 
   A control whose focus lands on an inner element uses `has-focus-visible:focus-ring`. A text input marks its focus with its inset outline instead.
+- `dimmed` is the look of a control that can't be used: the not-allowed cursor at 45 % opacity, applied with `disabled:dimmed`.
+- `popup-motion` is a menu's or a popover's popup fading and scaling in from its trigger and out to it, still under reduced motion.
 
 ## Components
 
 - shadcn's philosophy, not its code: every component's source lives in this repository, built on Base UI primitives.
-- Compound and destructurable: a component is a set of parts (`Card.Root`, `Card.Header`, `Card.Body`), each a thin styled wrapper that passes props through, so a screen composes only the parts it needs.
-- A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, is one component with data props, the rule inside it. Layout pieces, with no rule to enforce, are compound.
-- A component's props are its own props plus every prop of what it renders: `OwnProps & Omit<ComponentProps<"div">, keyof OwnProps>`, or `ComponentProps<typeof BaseButton>` for a Base UI part. `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved before `cn`:
+- Reuse before building. Before writing a component or a helper, search `src/components` and `src/lib` for one that already draws or computes it, and render or call it. The second copy of any markup, class map, helper or type becomes one shared block, used by both, instead of a copy.
+- A component reads on one screen, about 50 lines. A longer one is split into named sub-components, in the same file or a sibling file.
+- Atoms and simple molecules take plain props. A complex molecule or organism (eight or so props, or several optional regions) exposes its parts, each a thin styled wrapper taking `className`, `children` and the HTML props of its element, imported as a namespace: `import * as HoldingCard from "…/holding-card"`, then `<HoldingCard.Root>`, `<HoldingCard.Value>`. It also exports `Basic`, the ready-made composition driven by props, for the common case. A screen with a special need composes the parts with its own child instead of adding a prop. Its stories show `Basic`, plus one story composing the parts.
+- A component that enforces a display rule from data, such as hiding names from an anonymous viewer or folding small holdings into “Other”, keeps the rule inside it, whether in `Basic` or in a part.
+- An exported component has one props type, written as one declaration: its own props plus every prop of what it renders, `type ChipProps = { … } & Omit<ComponentProps<"span">, "gain" | "children">`, or `ComponentProps<typeof BaseButton>` for a Base UI part. A prop's JSDoc shows in the Docs table: it is written only when it adds something the name and type don't (a unit, a size in px, what `null` means, a rule). `className` keeps the type of what it renders and is never narrowed: on a Base UI part it is a string or a function of the part's state, resolved after the part's own classes by `stateClassName` from `src/lib/cn.ts`:
 
   ```tsx
-  className={(state) =>
-    cn(classes, typeof className === "function" ? className(state) : className)
-  }
+  className={stateClassName(classes, className)}
   ```
 - A place for an icon is a prop that takes any Phosphor icon (`icon`, or named for its place: `nextIcon`), with a default when the design fixes one, never an icon written into the component. An optional icon prop also accepts `undefined`, so a caller can pass one conditionally.
 - Inside a component, three groups, each separated by a blank line: the hook calls (`useTranslation()`, `useState()`…), then the values derived from props and hooks, then the `return`.
@@ -180,7 +183,7 @@ cn(
   import { cn } from "../../../lib/cn";
 
   const button = cva(
-    ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:opacity-[0.45]"],
+    ["rounded-full font-semibold", "", "", "", "focus-visible:focus-ring", "disabled:dimmed"],
     {
       variants: {
         intent: {

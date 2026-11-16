@@ -4,6 +4,7 @@ import { SlidersHorizontalIcon } from "@phosphor-icons/react/SlidersHorizontal";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { cn } from "../../../lib/cn";
 import {
   PeriodControl,
   type PeriodControlProps,
@@ -30,7 +31,12 @@ function Owner({ value, icon, onChange, ...args }: PeriodControlArgs) {
   const [setting, setSetting] = useState(value);
 
   return (
-    <div className="flex justify-end rounded-l bg-sky p-m font-sans text-primary">
+    <div
+      className={cn(
+        "flex justify-end rounded-l p-m font-sans text-primary",
+        args.backdrop === "snow" ? "bg-page" : "bg-sky",
+      )}
+    >
       <PeriodControl
         {...args}
         value={setting}
@@ -49,13 +55,14 @@ The shared period and € / %: one setting for every page, shown at the right of
 
 - **Tablet and desktop**: the period capsules (1D, 1W, 1M, 3M, YTD, All), then the € / % capsules.
 - **Phone**: one capsule naming both, “This month · %”, which opens a sheet holding the two rows. CSS picks the layout, so both live in the markup and one is hidden.
+- **Backdrop**: \`sky\` by default; \`snow\` on a page without a header sentence, where the capsules take a darker fill.
 - **Anonymous viewer**: amounts are in % only, so the € / % capsules are hidden, the phone capsule names the period alone (“This month”), and \`onChange\` always sends \`unit: "percent"\`. An option a viewer can’t use is hidden, never disabled.
 - **Controlled**: \`value\` (\`{ period, unit }\`, with the API’s names: \`"1M"\`, \`"eur"\` or \`"percent"\`) and \`onChange\`, called with the whole new setting. The app shell keeps it, in \`localStorage\` and the URL.
 - **Keyboard**: each row is a capsule segment: Tab reaches it, the arrow keys move between its options, Space or Enter picks one. The sheet keeps focus inside until Escape, the ✕ or a press on the dimmed page closes it.
 
-\`import { PeriodControl } from "…/period-control"\`, with \`periods\`, \`units\`, \`Period\`, \`Unit\` and \`PeriodSetting\` beside it.
+\`import { PeriodControl } from "…/period-control"\`, with \`PeriodSetting\` beside it. The periods and units are \`periods\` and \`units\` from \`@fpr/contracts/values\`.
 
-The controls change the setting, the anonymous version, and the phone capsule’s icon. The **Phone** stories in the sidebar show the capsule and its sheet.
+The controls change the setting, the anonymous version, the phone capsule’s icon, and the backdrop. The **Phone** stories in the sidebar show the capsule and its sheet.
 `;
 
 const meta = {
@@ -66,6 +73,7 @@ const meta = {
     value: { period: "1M", unit: "percent" },
     anonymous: false,
     icon: "caret-down",
+    backdrop: "sky",
     onChange: fn(),
   },
   argTypes: {
@@ -88,6 +96,12 @@ const meta = {
         "The icon at the end of the phone capsule, any Phosphor icon. A caret by default.",
       control: { type: "select" },
       options: Object.keys(ICONS),
+    },
+    backdrop: {
+      description:
+        "What the control sits on: `sky` by default, or `snow` on a page without a header sentence.",
+      control: { type: "inline-radio" },
+      options: ["sky", "snow"],
     },
   },
   // A new `value` from the Controls panel starts the owner again from it.

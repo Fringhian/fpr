@@ -1,7 +1,5 @@
-/** The languages FPR is written in. */
-export const LANGUAGES = ["en", "fr"] as const;
-
-export type Language = (typeof LANGUAGES)[number];
+import type { Language } from "@fpr/contracts";
+import { languages } from "@fpr/contracts/values";
 
 /**
  * The language FPR starts in, until a person picks one in Settings, and the
@@ -9,8 +7,14 @@ export type Language = (typeof LANGUAGES)[number];
  */
 export const DEFAULT_LANGUAGE: Language = "fr";
 
-export function isLanguage(value: string): value is Language {
-  return (LANGUAGES as readonly string[]).includes(value);
+/** The Intl locale each language formats with: day before month, 24-hour clock. */
+export const INTL_LOCALE = {
+  en: "en-GB",
+  fr: "fr-FR",
+} as const satisfies Record<Language, string>;
+
+function isLanguage(value: string): value is Language {
+  return (languages as readonly string[]).includes(value);
 }
 
 /**

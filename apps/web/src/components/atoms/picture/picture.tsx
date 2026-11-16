@@ -1,24 +1,10 @@
 import { Avatar } from "@base-ui/react/avatar";
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { initialOf } from "../../../lib/initial";
-import type { MemberColor } from "../../../lib/member-color";
-
-/** The pastel each member colour's picture sits on. */
-const PASTELS = {
-  vermilion: "bg-vermilion-pastel",
-  cobalt: "bg-cobalt-pastel",
-  green: "bg-green-pastel",
-  violet: "bg-violet-pastel",
-  amber: "bg-amber-pastel",
-  pink: "bg-pink-pastel",
-  cyan: "bg-cyan-pastel",
-  lime: "bg-lime-pastel",
-  sienna: "bg-sienna-pastel",
-  periwinkle: "bg-periwinkle-pastel",
-} as const satisfies Record<MemberColor, string>;
+import { MEMBER_PASTELS, type MemberColor } from "../../../lib/member-color";
 
 const picture = cva(
   "inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full font-semibold text-primary",
@@ -55,13 +41,11 @@ const picture = cva(
   },
 );
 
-/** `xs` 20 px in chips and signs, `s` 28 px in lists, `m` 48 px in panels, `l` 88 px on a member's page and in onboarding. */
 export type PictureSize = "xs" | "s" | "m" | "l";
 
-/** The medal of the first three lanes in the standings. */
 export type PictureMedal = "gold" | "silver" | "bronze";
 
-interface PictureOwnProps {
+export type PictureProps = {
   /** The person's display name, or an anonymous viewer's pseudonym. Its first letter is the initial, and it names the picture for screen readers. */
   name: string;
   /** The person's colour: the picture sits on its pastel. */
@@ -72,10 +56,10 @@ interface PictureOwnProps {
   size: PictureSize;
   /** A gold, silver or bronze ring for the first three lanes in the standings, shown on tablet and desktop only. */
   medal?: PictureMedal | null;
-}
-
-export type PictureProps = PictureOwnProps &
-  Omit<ComponentProps<typeof Avatar.Root>, keyof PictureOwnProps | "children">;
+} & Omit<
+  ComponentProps<typeof Avatar.Root>,
+  "name" | "color" | "photo" | "size" | "medal" | "children"
+>;
 
 /**
  * A person's picture: their initial on the pastel of their colour, or their
@@ -95,7 +79,7 @@ export function Picture({
 }: PictureProps) {
   const language = useLanguage();
 
-  const classes = cn(picture({ size, medal }), PASTELS[color]);
+  const classes = cn(picture({ size, medal }), MEMBER_PASTELS[color]);
   const initial = initialOf(name, language);
 
   return (
@@ -103,12 +87,7 @@ export function Picture({
       role="img"
       aria-label={name}
       {...props}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(classes, className)}
     >
       {photo ? (
         <Avatar.Image src={photo} alt="" className="size-full object-cover" />

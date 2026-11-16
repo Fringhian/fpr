@@ -1,11 +1,7 @@
 import { z } from "zod";
+import { decimalPattern } from "./values.js";
 
-/**
- * A plain decimal: an optional minus sign, digits with no leading zero, and an
- * optional fractional part. No plus sign, exponent, separator, whitespace, or
- * negative zero. Trailing zeros are kept, as Postgres `numeric` returns them.
- */
-export const decimalPattern = /^(?!-0(?:\.0+)?$)-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
+export { decimalPattern };
 
 /** A quantity, price, or amount: a Postgres `numeric` as a decimal string. */
 export const decimalSchema = z

@@ -2,9 +2,6 @@ import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 
-/** Every prop of a `<div>`: its `children` are the line saying what loads. */
-export type LoadingPlaceholderProps = ComponentProps<"div">;
-
 /**
  * Holds the place of content still loading, such as a holding's curve before
  * its prices arrive: a dashed outline with a short line saying what loads,
@@ -16,7 +13,7 @@ export function LoadingPlaceholder({
   className,
   children,
   ...props
-}: LoadingPlaceholderProps) {
+}: ComponentProps<"div">) {
   const { t } = useTranslation();
 
   const line = children ?? t("smallParts.loadingPlaceholder.default");
@@ -33,7 +30,7 @@ export function LoadingPlaceholder({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute inset-[0] -z-10 rounded-[inherit] bg-highlight",
+          "absolute inset-0 -z-10 rounded-[inherit] bg-highlight",
           "",
           "",
           "",

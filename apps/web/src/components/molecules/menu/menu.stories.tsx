@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
@@ -5,7 +6,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import * as Menu from "./menu";
 
 /** The demo items and names, in the toolbar’s language. They are the stories’ content, not the menu’s. */

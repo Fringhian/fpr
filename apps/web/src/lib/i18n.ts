@@ -1,10 +1,12 @@
+import type { Language } from "@fpr/contracts";
+import { languages } from "@fpr/contracts/values";
 import { createInstance, type i18n as I18n } from "i18next";
 import { useTranslation } from "react-i18next";
 import en from "../locales/en.json";
 import fr from "../locales/fr.json";
-import { LANGUAGES, type Language, pickLanguage } from "./language";
+import { pickLanguage } from "./language";
 
-/** Both languages ship with the app: the texts are small, and load at once. */
+// Both languages ship with the app: the texts are small, and load at once.
 const resources = {
   en: { translation: en },
   fr: { translation: fr },
@@ -22,7 +24,7 @@ export function createI18n(language: Language): I18n {
   const instance = createInstance();
   void instance.init({
     lng: language,
-    supportedLngs: LANGUAGES,
+    supportedLngs: languages,
     fallbackLng: "en",
     resources,
     initAsync: false,

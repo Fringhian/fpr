@@ -1,30 +1,21 @@
 import { Progress } from "@base-ui/react/progress";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 
-export interface StepProgressOwnProps {
+/**
+ * Every prop of Base UI's `Progress.Root`, `className` included, but the
+ * value, its range and its text, which `step` and `count` set.
+ */
+export type StepProgressProps = {
   /** The step on screen, from 1: it and every step before it are filled. */
   step: number;
   /** How many steps the flow has, one segment each. */
   count: number;
-}
-
-/**
- * Every prop of Base UI's `Progress.Root`, `className` included, but the
- * value, its range and its text, which `step` and `count` set, and `children`,
- * the segments.
- */
-export type StepProgressProps = StepProgressOwnProps &
-  Omit<
-    ComponentProps<typeof Progress.Root>,
-    | keyof StepProgressOwnProps
-    | "value"
-    | "min"
-    | "max"
-    | "getAriaValueText"
-    | "children"
-  >;
+} & Omit<
+  ComponentProps<typeof Progress.Root>,
+  "step" | "count" | "value" | "min" | "max" | "getAriaValueText" | "children"
+>;
 
 const segment = "h-xs flex-1 rounded-full";
 
@@ -55,12 +46,7 @@ export function StepProgress({
       min={0}
       max={count}
       getAriaValueText={() => valueText}
-      className={(state) =>
-        cn(
-          "flex w-full gap-xs",
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName("flex w-full gap-xs", className)}
     >
       {Array.from({ length: count }, (_, index) => (
         <span

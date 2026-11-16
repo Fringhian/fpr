@@ -1,16 +1,16 @@
 import { z } from "zod";
 import { errorWithDetails } from "../contract.js";
+import { priceSources, shareKinds } from "../values.js";
 import { idSchema } from "./ids.js";
 import { currencySchema, priceEurSchema } from "./money.js";
 import { timestampSchema } from "./time.js";
+
+export { priceSources, shareKinds };
 
 /** An ISIN: two letters, nine letters or digits, and a check digit. */
 export const isinSchema = z
   .string()
   .regex(/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/, { error: "Expected an ISIN" });
-
-/** `market`: priced by the provider. `manual`: priced by value points members enter. */
-export const shareKinds = ["market", "manual"] as const;
 
 export const shareKindSchema = z.enum(shareKinds);
 
@@ -44,12 +44,6 @@ export const pricePointSchema = z.object({
 });
 
 export type PricePoint = z.infer<typeof pricePointSchema>;
-
-/**
- * Where a price comes from: a daily close, the 30-minute refresh, or a value
- * point a member entered.
- */
-export const priceSources = ["close", "intraday", "manual"] as const;
 
 export const priceSourceSchema = z.enum(priceSources);
 

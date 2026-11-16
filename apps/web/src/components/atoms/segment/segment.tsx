@@ -2,15 +2,27 @@ import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { cva } from "class-variance-authority";
 import { type RefAttributes, useState } from "react";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
+
+/** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
+export type Backdrop = "sky" | "snow";
+
+/**
+ * The capsule's resting fill on each backdrop: white veiling the sky, the
+ * divider tint on snow. Any capsule that sits beside a segment takes it.
+ */
+export const backdropFill = {
+  sky: "bg-surface/75",
+  snow: "bg-divider/50",
+} as const satisfies Record<Backdrop, string>;
 
 const root = cva(
   ["inline-flex gap-[0.125rem] rounded-full p-[0.1875rem]", "", "", ""],
   {
     variants: {
       backdrop: {
-        sky: ["bg-surface/75"],
-        snow: ["bg-divider/50"],
+        sky: [backdropFill.sky],
+        snow: [backdropFill.snow],
       },
     },
   },
@@ -24,13 +36,10 @@ const item = cn(
   "hover:not-pressed:not-disabled:text-primary",
   "pressed:bg-primary pressed:text-on-primary",
   "focus-visible:focus-ring",
-  "disabled:cursor-not-allowed disabled:opacity-[0.45]",
+  "disabled:dimmed",
 );
 
-/** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
-export type Backdrop = "sky" | "snow";
-
-/** The selected option, either held by the segment or by its owner. */
+// The selected option, held either by the segment or by its owner.
 type Selection<Value extends string> =
   | {
       /** The selected option, held by the owner. Pair it with `onValueChange`. */
@@ -43,7 +52,8 @@ type Selection<Value extends string> =
       defaultValue: Value;
     };
 
-export type RootOwnProps<Value extends string> = Selection<Value> & {
+/** Every prop of Base UI's ToggleGroup but `multiple`: a segment selects one option. */
+export type RootProps<Value extends string> = Selection<Value> & {
   /** `sky` for the peach sky, `snow` for the page or a white surface. */
   backdrop: Backdrop;
   /** Called with the newly selected option. Pressing the selected one again changes nothing. */
@@ -51,14 +61,7 @@ export type RootOwnProps<Value extends string> = Selection<Value> & {
     value: Value,
     eventDetails: ToggleGroup.ChangeEventDetails,
   ) => void;
-};
-
-/**
- * The segment's own props, then every prop of Base UI's ToggleGroup but
- * `multiple`: a segment selects one option.
- */
-export type RootProps<Value extends string> = RootOwnProps<Value> &
-  Omit<
+} & Omit<
     ToggleGroup.Props<Value>,
     "value" | "defaultValue" | "onValueChange" | "multiple"
   > &
@@ -83,7 +86,6 @@ export function Root<Value extends string>({
 
   const selected = value ?? held;
   const pressed = selected === undefined ? [] : [selected];
-  const classes = root({ backdrop });
 
   return (
     <ToggleGroup<Value>
@@ -98,30 +100,19 @@ export function Root<Value extends string>({
         setHeld(next);
         onValueChange?.(next, eventDetails);
       }}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(root({ backdrop }), className)}
     />
   );
 }
 
-export interface ItemOwnProps<Value extends string> {
+/** Every prop of Base UI's Toggle but its pressed state, which the segment holds. */
+export type ItemProps<Value extends string> = {
   /** The option's value, unique within its segment. */
   value: Value;
-}
-
-/**
- * The option's own props, then every prop of Base UI's Toggle but its pressed
- * state, which the segment holds.
- */
-export type ItemProps<Value extends string> = ItemOwnProps<Value> &
-  Omit<
-    Toggle.Props<Value>,
-    keyof ItemOwnProps<Value> | "pressed" | "defaultPressed" | "onPressedChange"
-  > &
+} & Omit<
+  Toggle.Props<Value>,
+  "value" | "pressed" | "defaultPressed" | "onPressedChange"
+> &
   RefAttributes<HTMLButtonElement>;
 
 /**
@@ -134,11 +125,6 @@ export function Item<Value extends string>({
   ...props
 }: ItemProps<Value>) {
   return (
-    <Toggle<Value>
-      {...props}
-      className={(state) =>
-        cn(item, typeof className === "function" ? className(state) : className)
-      }
-    />
+    <Toggle<Value> {...props} className={stateClassName(item, className)} />
   );
 }

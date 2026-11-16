@@ -6,9 +6,9 @@ import {
   displayNameSchema,
   personSchema,
 } from "../../schemas/person.js";
+import { languages } from "../../values.js";
 
-/** The languages FPR is written in. */
-export const languages = ["fr", "en"] as const;
+export { languages };
 
 export const languageSchema = z.enum(languages);
 

@@ -4,12 +4,12 @@ import { cn } from "../../../lib/cn";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
 
 const box = cn(
-  "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-ring-[1.5px] inset-ring-divider",
+  "flex min-h-[2.75rem] w-full items-center gap-s rounded-s bg-surface px-[0.875rem] text-m text-secondary inset-shadow-outline",
   "",
   "",
   "",
-  "focus-within:inset-ring-primary",
-  "has-invalid:inset-ring-error",
+  "focus-within:inset-shadow-primary",
+  "has-invalid:inset-shadow-error",
   "has-disabled:bg-page has-disabled:text-secondary/55",
 );
 
@@ -21,7 +21,7 @@ const field = cn(
   "disabled:text-secondary/55 disabled:placeholder:text-secondary/55",
 );
 
-export interface InputOwnProps {
+export type InputProps = {
   /** An icon at the start, any Phosphor icon: the search's `MagnifyingGlassIcon`. */
   icon?: IconProps["icon"] | undefined;
   /** A short control at the end: Show on a password, All on a quantity, clear on a search. */
@@ -32,10 +32,10 @@ export interface InputOwnProps {
   invalid?: boolean | undefined;
   /** Classes for the outlined box the input sits in, such as its width: the box is what this component renders around Base UI's input. */
   className?: ComponentProps<"div">["className"];
-}
-
-export type InputProps = InputOwnProps &
-  Omit<ComponentProps<typeof BaseInput>, keyof InputOwnProps>;
+} & Omit<
+  ComponentProps<typeof BaseInput>,
+  "icon" | "end" | "decimal" | "invalid" | "className"
+>;
 
 /**
  * Text entry: 44 px tall, 16 px text, 12 px corners, with an optional icon

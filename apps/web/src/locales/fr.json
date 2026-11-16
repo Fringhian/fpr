@@ -131,6 +131,55 @@
   "popover": {
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
+  "moverRow": {
+    "empty": "Rien n’a encore bougé sur la période."
+  },
+  "focusPanel": {
+    "period": {
+      "you": {
+        "1D": "Votre journée",
+        "1W": "Votre semaine",
+        "1M": "Votre mois",
+        "3M": "Vos 3 mois",
+        "YTD": "Votre année jusqu’ici",
+        "all": "Depuis vos débuts"
+      },
+      "them": {
+        "1D": "Sa journée",
+        "1W": "Sa semaine",
+        "1M": "Son mois",
+        "3M": "Ses 3 mois",
+        "YTD": "Son année jusqu’ici",
+        "all": "Depuis ses débuts"
+      }
+    },
+    "moved": {
+      "you": "Ce qui vous a fait bouger",
+      "them": "Ce qui l’a fait bouger"
+    },
+    "open": {
+      "you": "Ouvrir votre portefeuille",
+      "them": "Ouvrir la page de {{name}}"
+    },
+    "backToYou": "Revenir à vous"
+  },
+  "navigation": {
+    "label": "Principale",
+    "brand": "FPR",
+    "admin": "Administration",
+    "items": {
+      "home": "Accueil",
+      "members": "Membres",
+      "portfolio": "Portefeuille",
+      "shares": "Titres",
+      "people": "Personnes",
+      "trackedShares": "Titres suivis"
+    },
+    "account": "{{name}}, votre compte",
+    "settings": "Réglages",
+    "help": "Comment fonctionne FPR",
+    "signOut": "Se déconnecter"
+  },
   "personRow": {
     "until": "Jusqu’au {{date}}",
     "noEnd": "Sans date de fin"
@@ -196,6 +245,13 @@
       "en": "English"
     }
   },
+  "raceCard": {
+    "title": "La course",
+    "label": "La course : le gain de chaque membre depuis le début de la période",
+    "you": "Vous",
+    "focusOn": "Mettre {{name}} en avant",
+    "notFinal": "Aujourd’hui, provisoire"
+  },
   "periodControl": {
     "title": "Période",
     "summary": "{{period}} · {{unit}}",
@@ -212,5 +268,8 @@
     "label": "Répartition",
     "other": "Autres",
     "cash": "Liquidités"
+  },
+  "pageBar": {
+    "back": "Retour vers"
   }
 }

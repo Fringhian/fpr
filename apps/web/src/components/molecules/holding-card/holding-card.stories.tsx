@@ -1,23 +1,18 @@
+import type { IsoDate, Language } from "@fpr/contracts";
+import { shareKinds, units } from "@fpr/contracts/values";
 import { ArrowRightIcon } from "@phosphor-icons/react/ArrowRight";
 import { CaretRightIcon } from "@phosphor-icons/react/CaretRight";
 import { DotsThreeIcon } from "@phosphor-icons/react/DotsThree";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/DotsThreeVertical";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ComponentProps } from "react";
+import { type ComponentProps, useId } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
-import type { IsoDate } from "../../../lib/format";
 import { useLanguage } from "../../../lib/i18n";
-import type { Language } from "../../../lib/language";
 import type { ChartPoint } from "../chart/chart";
 import { toDecimal } from "../chart/chart-model";
 import * as Menu from "../menu/menu";
-import {
-  CashCard,
-  type CashCardProps,
-  HoldingCard,
-  type HoldingCardProps,
-} from "./holding-card";
+import * as HoldingCard from "./holding-card";
 
 /** The weekdays of March 2026: the period the curves cover. */
 const DAYS: IsoDate[] = Array.from({ length: 31 }, (_, index) =>
@@ -48,8 +43,12 @@ const GLOBAL_TECH = walk(37, 40.1, 0.06, 0.4);
 
 /** The demo menu items, in the toolbar’s language. They are the stories’ content, not the card’s. */
 const TEXTS = {
-  en: { buyMore: "Buy more", sell: "Sell" },
-  fr: { buyMore: "En acheter", sell: "Vendre" },
+  en: { buyMore: "Buy more", sell: "Sell", bought: "First bought on 2 March" },
+  fr: {
+    buyMore: "En acheter",
+    sell: "Vendre",
+    bought: "Premier achat le 2 mars",
+  },
 } as const satisfies Record<Language, Record<string, string>>;
 
 /** Buy more and Sell, as Portfolio passes them to your own holding’s ⋯ menu. */
@@ -82,7 +81,7 @@ const ACTIONS_ICONS = {
  * their icons are picked by name.
  */
 type StoryArgs = Omit<
-  HoldingCardProps,
+  HoldingCard.BasicProps,
   "link" | "linkIcon" | "actions" | "actionsIcon"
 > & {
   link: boolean;
@@ -99,7 +98,7 @@ function ShareLink(props: ComponentProps<"a">) {
 function Card({ link, linkIcon, actions, actionsIcon, ...props }: StoryArgs) {
   return (
     <div className="max-w-[17rem]">
-      <HoldingCard
+      <HoldingCard.Basic
         {...props}
         link={link ? <ShareLink /> : undefined}
         linkIcon={LINK_ICONS[linkIcon]}
@@ -127,7 +126,7 @@ const GAIN = {
   unit: "percent",
   anonymous: false,
   timeZone: "UTC",
-} as const satisfies HoldingCardProps;
+} as const satisfies HoldingCard.BasicProps;
 
 /** An invented bank, down over the period, priced at yesterday’s close. */
 const LOSS = {
@@ -143,7 +142,7 @@ const LOSS = {
   valueEur: "1054.50",
   weight: "8.8",
   gain: { eur: "-50.75", percent: "-4.6" },
-} as const satisfies HoldingCardProps;
+} as const satisfies HoldingCard.BasicProps;
 
 /** An invented fund nobody tracks, valued by members, held with decimals. */
 const MANUAL = {
@@ -160,7 +159,7 @@ const MANUAL = {
   valueEur: "2980.55",
   weight: "25.0",
   gain: { eur: "90.12", percent: "3.1" },
-} as const satisfies HoldingCardProps;
+} as const satisfies HoldingCard.BasicProps;
 
 /** An invented share just bought, whose prices haven’t arrived yet. */
 const PENDING = {
@@ -172,7 +171,7 @@ const PENDING = {
   valueEur: null,
   weight: null,
   gain: null,
-} as const satisfies HoldingCardProps;
+} as const satisfies HoldingCard.BasicProps;
 
 /** The ⋯ menu and the share link, on by default: your own holding. */
 const SLOTS = {
@@ -190,28 +189,43 @@ One share someone holds: its name, the quantity as entered with the latest price
 - **Manual** share (\`kind="manual"\`): a badge, and the price “as of” the day of its last value point.
 - **Price pending** (\`latestPrice={null}\`): its prices are loading, and it is not counted yet.
 - **anonymous**: the weight in percent replaces the quantity and the value, and the gain reads in percent.
-- **CashCard**, the last card: the cash, the day it was set, and Update cash, ended by \`updateCashIcon\`, a caret by default.
+- **Cash**, the last card: the cash, the day it was set, and Update cash, ended by \`updateCashIcon\`, a caret by default.
 
 Every other prop goes to the \`<article>\`. The **Phone** and **Tablet** stories in the sidebar show the cards in a grid at the narrower widths.
+
+\`HoldingCard.Basic\` and \`HoldingCard.Cash\` are ready-made cards. A screen with a special need composes the parts instead:
+
+| Part | What it is |
+| --- | --- |
+| \`Root\` | The card, an \`<article>\`. |
+| \`Header\` | The top row: the name, a badge, the ⋯ menu. |
+| \`Name\` | The name, linked with \`link\` or not. |
+| \`Actions\` | The ⋯ button and its menu's items. |
+| \`Details\` | The quantity, the latest price and its time. |
+| \`Caption\` | A small grey line. |
+| \`Value\` | The curve, the value and the gain. |
+| \`Pending\` | The loading prices, not counted yet. |
+| \`Foot\` | The value line at the card's foot. |
+| \`Figure\` | The amount, or the weight for an anonymous viewer. |
 `;
 
 const meta = {
   title: "Molecules/Holding card",
-  component: HoldingCard,
-  subcomponents: { CashCard },
+  component: HoldingCard.Basic,
+  subcomponents: { Cash: HoldingCard.Cash },
   tags: ["autodocs"],
   parameters: { docs: { description: { component: DESCRIPTION } } },
   args: GAIN,
   argTypes: {
     name: { control: { type: "text" } },
-    kind: { control: { type: "inline-radio" }, options: ["market", "manual"] },
+    kind: { control: { type: "inline-radio" }, options: shareKinds },
     quantity: { control: { type: "text" } },
     latestPrice: { control: { type: "object" } },
     curve: { control: false },
     valueEur: { control: { type: "text" } },
     weight: { control: { type: "text" } },
     gain: { control: { type: "object" } },
-    unit: { control: { type: "inline-radio" }, options: ["eur", "percent"] },
+    unit: { control: { type: "inline-radio" }, options: units },
     anonymous: { control: { type: "boolean" } },
     link: { control: { type: "boolean" } },
     linkIcon: {
@@ -231,7 +245,7 @@ const meta = {
       control: false,
     },
   },
-} satisfies Meta<typeof HoldingCard>;
+} satisfies Meta<typeof HoldingCard.Basic>;
 
 export default meta;
 
@@ -307,7 +321,7 @@ const CASH_PROPS = [
   "onUpdateCash",
   "updateCashIcon",
   "timeZone",
-] as const satisfies readonly (keyof CashCardProps)[];
+] as const satisfies readonly (keyof HoldingCard.CashProps)[];
 
 const CASH_ARGS = {
   amountEur: "2000.00",
@@ -316,10 +330,10 @@ const CASH_ARGS = {
   anonymous: false,
   onUpdateCash: fn(),
   timeZone: "UTC",
-} as const satisfies CashCardProps;
+} as const satisfies HoldingCard.CashProps;
 
 /** The Cash story’s args: the cash card’s props, its Update cash icon picked by name. */
-type CashArgs = Omit<CashCardProps, "updateCashIcon"> & {
+type CashArgs = Omit<HoldingCard.CashProps, "updateCashIcon"> & {
   updateCashIcon: keyof typeof LINK_ICONS;
 };
 
@@ -348,7 +362,7 @@ export const Cash: StoryObj<CashArgs> = {
     timeZone,
   }) => (
     <div className="max-w-[17rem]">
-      <CashCard
+      <HoldingCard.Cash
         amountEur={amountEur}
         weight={weight}
         setOn={setOn}
@@ -367,6 +381,64 @@ export const Cash: StoryObj<CashArgs> = {
   },
 };
 
+/** Which optional parts the Parts story renders. */
+interface PartsArgs {
+  actions: boolean;
+  caption: boolean;
+}
+
+/** A card composed of the parts, with its own line under the details: the day the share was first bought. */
+function Composed({ actions, caption }: PartsArgs) {
+  const text = TEXTS[useLanguage()];
+  const nameId = useId();
+
+  return (
+    <div className="max-w-[17rem]">
+      <HoldingCard.Root aria-labelledby={nameId}>
+        <HoldingCard.Header>
+          <HoldingCard.Name id={nameId} link={<ShareLink />}>
+            {GAIN.name}
+          </HoldingCard.Name>
+          {actions ? (
+            <HoldingCard.Actions subject={GAIN.name}>
+              <Actions />
+            </HoldingCard.Actions>
+          ) : null}
+        </HoldingCard.Header>
+        <HoldingCard.Details
+          quantity={GAIN.quantity}
+          latestPrice={GAIN.latestPrice}
+          anonymous={false}
+          timeZone="UTC"
+        />
+        {caption ? (
+          <HoldingCard.Caption>{text.bought}</HoldingCard.Caption>
+        ) : null}
+        <HoldingCard.Value
+          name={GAIN.name}
+          curve={GAIN.curve}
+          valueEur={GAIN.valueEur}
+          weight={GAIN.weight}
+          gain={GAIN.gain}
+          unit={GAIN.unit}
+          anonymous={false}
+        />
+      </HoldingCard.Root>
+    </div>
+  );
+}
+
+/** The parts composed by hand, for a screen with a special need: here a line of its own under the details. */
+export const Parts: StoryObj<PartsArgs> = {
+  args: { actions: true, caption: true },
+  argTypes: {
+    actions: { control: { type: "boolean" }, name: "HoldingCard.Actions" },
+    caption: { control: { type: "boolean" }, name: "HoldingCard.Caption" },
+  },
+  parameters: { controls: { include: ["actions", "caption"] } },
+  render: (args) => <Composed {...args} />,
+};
+
 /** Every card of a portfolio, one column on phone, two on tablet, three on desktop, the cash last. The first set is your own; the second is what an anonymous viewer sees. */
 function Portfolio() {
   const grid = cn(
@@ -380,25 +452,25 @@ function Portfolio() {
     <div className="grid max-w-[60rem] gap-l font-sans">
       <div className={grid}>
         {[GAIN, MANUAL, LOSS, PENDING].map((holding) => (
-          <HoldingCard
+          <HoldingCard.Basic
             key={holding.name}
             {...holding}
             link={<ShareLink />}
             actions={<Actions />}
           />
         ))}
-        <CashCard {...CASH_ARGS} />
+        <HoldingCard.Cash {...CASH_ARGS} />
       </div>
       <div className={grid}>
         {[GAIN, MANUAL, LOSS].map((holding) => (
-          <HoldingCard
+          <HoldingCard.Basic
             key={holding.name}
             {...holding}
             link={<ShareLink />}
             anonymous
           />
         ))}
-        <CashCard {...CASH_ARGS} anonymous onUpdateCash={undefined} />
+        <HoldingCard.Cash {...CASH_ARGS} anonymous onUpdateCash={undefined} />
       </div>
     </div>
   );

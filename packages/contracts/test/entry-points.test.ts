@@ -56,6 +56,10 @@ describe("the entry points", () => {
     expect(holdsTheGenerator(loaded)).toBe(false);
   });
 
+  it("@fpr/contracts/values loads no other module and no package", () => {
+    expect([...loadedBy("values.ts")]).toEqual(["values.ts"]);
+  });
+
   it("@fpr/contracts/prices loads its routes, and not the generator", () => {
     const loaded = [...loadedBy("prices/index.ts")];
     expect(loaded).toContain("prices/shares.ts");

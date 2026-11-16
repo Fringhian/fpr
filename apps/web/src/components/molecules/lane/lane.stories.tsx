@@ -3,9 +3,11 @@ import { useArgs } from "storybook/preview-api";
 import { expect, within } from "storybook/test";
 import { type LaneValue, laneScale } from "../../../lib/lane";
 import { MEMBER_COLORS } from "../../../lib/member-color";
-import type { PictureMedal } from "../../atoms/picture/picture";
+import { Card } from "../../atoms/card/card";
+import { Picture, type PictureMedal } from "../../atoms/picture/picture";
 import { TextLink } from "../../atoms/text-link/text-link";
-import { Lane, LaneNotStarted, type LaneProps } from "./lane";
+import { AllocationBar } from "../allocation-bar/allocation-bar";
+import * as Lane from "./lane";
 
 /** An abstract photo, drawn inline: a sun over two hills, no person. */
 const PHOTO = `data:image/svg+xml,${encodeURIComponent(
@@ -76,42 +78,49 @@ const STANDINGS = [
     },
     measuredFrom: "2026-02-12",
   },
-] as const satisfies readonly LaneProps[];
+] as const satisfies readonly Lane.LaneProps[];
 
 const STANDINGS_SCALE = laneScale(
   STANDINGS.map(({ value }): LaneValue => value),
 );
 
+const BALANCE_SCALE = {
+  eur: { min: 0, max: 15200 },
+  percent: { min: 0, max: 0 },
+};
+
 /** The lanes sit in a card, as in the standings. */
 const inACard: Decorator = (Story) => (
-  <div className="max-w-[47.5rem] rounded-l bg-surface p-s shadow-rest">
+  <Card elevation="rest" className="max-w-[47.5rem] p-s">
     <Story />
-  </div>
+  </Card>
 );
 
 const DESCRIPTION = `
 One member in the standings: their picture, name and best share, a bar from the zero line, and their value. The order and the bars show the ranking: there are no rank numbers.
 
-- Gains go right of the zero line and losses left. Every lane of one standings shares a \`scale\`, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare.
+- Gains go right of the zero line and losses left. Every lane of one standings shares a \`scale\`, from \`laneScale\` in \`src/lib/lane.ts\`, so the zero line sits at the same place in each and the bar lengths compare. The scale holds one span per unit, as the mover list's does: a gain with no percentage (a start at zero) reads in euros, its figure and its bar alike, and is drawn against the lanes in euros. The balance board reads in euros only.
 - The viewer’s own lane is tinted, with “· you” after the name.
 - The first three lanes ring their pictures in gold, silver and bronze on tablet and desktop. The phone shows no ring.
 - A member whose history starts after the period’s start says “since” that day; a member with a share whose prices haven’t arrived says “Incomplete”.
-- Members with no entry yet aren’t lanes: \`LaneNotStarted\` names them in one line under the lanes.
+- Members with no entry yet aren’t lanes: \`NotStarted\` names them in one line under the lanes.
 - An anonymous viewer sees pseudonyms, no photos, and every gain in percent, whatever the unit setting.
 - The whole row is a button. Pressing it opens the lane in place: on phone, where the best share isn’t under the name, the opened lane shows it, then whatever the standings put inside it, such as a link to the member’s page.
+
+Import it as a namespace: \`import * as Lane from "…/lane"\`. \`Basic\` is the ready-made lane, driven by the props below. Its parts compose a lane by hand, as **Composed** does: \`Root\` (the collapsible), \`Row\` (the button, in four columns: a \`Picture\`, \`Name\`, \`Bar\`, \`Figure\`), and \`Panel\`, what the opened lane shows. \`YouSuffix\` is the “· you” after a name.
 
 On this page every story renders at the page’s own width, a desktop width: the **On tablet**, **On phone** and **Phone, opened** stories in the sidebar show the narrower ones.
 `;
 
 /** The stories' args: the photo and the medal are picked by name, `none` for neither. */
-type LaneArgs = Omit<LaneProps, "photo" | "medal" | "children"> & {
+type LaneArgs = Omit<Lane.LaneProps, "photo" | "medal" | "children"> & {
   photo: PhotoName;
   medal: PictureMedal | "none";
 };
 
 const meta = {
   title: "Molecules/Lane",
-  component: Lane,
+  component: Lane.Basic,
   tags: ["autodocs"],
   decorators: [inACard],
   parameters: {
@@ -124,7 +133,7 @@ const meta = {
       control: false,
     },
   },
-} satisfies Meta<typeof Lane>;
+} satisfies Meta<typeof Lane.Basic>;
 
 export default meta;
 
@@ -143,17 +152,17 @@ function useOpenArg(): (open: boolean) => void {
 function renderLane(
   { photo, medal, ...args }: LaneArgs,
   onOpenChange: (open: boolean) => void,
-  children?: LaneProps["children"],
+  children?: Lane.LaneProps["children"],
 ) {
   return (
-    <Lane
+    <Lane.Basic
       {...args}
       photo={PHOTOS[photo]}
       medal={medal === "none" ? null : medal}
       onOpenChange={onOpenChange}
     >
       {children}
-    </Lane>
+    </Lane.Basic>
   );
 }
 
@@ -215,7 +224,12 @@ const configurable = {
     },
     scale: {
       control: { type: "object" },
-      table: { type: { summary: "{ min: number; max: number }" } },
+      table: {
+        type: {
+          summary:
+            "{ eur: { min: number; max: number }; percent: { min: number; max: number } }",
+        },
+      },
     },
     measuredFrom: {
       control: { type: "text" },
@@ -301,7 +315,7 @@ export const InEuros: Story = {
   args: {
     ...configurable.args,
     value: { board: "gain", gain: { eur: "610", percent: "6.1" }, unit: "eur" },
-    scale: { min: -88.1, max: 610 },
+    scale: { eur: { min: -88.1, max: 610 }, percent: { min: 0, max: 0 } },
   },
 };
 
@@ -311,7 +325,7 @@ export const Balance: Story = {
   args: {
     ...configurable.args,
     value: { board: "balance", balance: "12374" },
-    scale: { min: 0, max: 15200 },
+    scale: BALANCE_SCALE,
   },
 };
 
@@ -393,7 +407,7 @@ function Standings() {
   return (
     <div className="flex flex-col gap-[0.125rem]">
       {STANDINGS.map((member, index) => (
-        <Lane
+        <Lane.Basic
           key={member.name}
           {...member}
           medal={MEDALS[index] ?? null}
@@ -432,7 +446,40 @@ export const NotStarted: Story = {
   render: () => (
     <>
       <Standings />
-      <LaneNotStarted names={["Kim", "Nora"]} />
+      <Lane.NotStarted names={["Kim", "Nora"]} />
     </>
+  ),
+};
+
+/** The parts composed by hand: a lane that opens on the member's allocation, which `Basic` has no prop for. */
+export const Composed: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Lane.Root defaultOpen>
+      <Lane.Row>
+        <Picture name="Sam" color="vermilion" size="s" aria-hidden />
+        <Lane.Name
+          name="Sam"
+          best={{ share: "Swiss Pharma AG", percent: "12.4" }}
+        />
+        <Lane.Bar
+          value={{ board: "balance", balance: "12374" }}
+          scale={BALANCE_SCALE}
+          color="vermilion"
+        />
+        <Lane.Figure value={{ board: "balance", balance: "12374" }} />
+      </Lane.Row>
+      <Lane.Panel>
+        <AllocationBar
+          color="vermilion"
+          holdings={[
+            { id: "1", name: "Swiss Pharma AG", weight: "48.2" },
+            { id: "2", name: "World Index ETF", weight: "31.5" },
+          ]}
+          cashWeight="20.3"
+          className="w-full"
+        />
+      </Lane.Panel>
+    </Lane.Root>
   ),
 };

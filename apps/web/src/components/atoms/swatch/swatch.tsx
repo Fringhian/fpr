@@ -2,24 +2,11 @@ import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { CheckIcon } from "@phosphor-icons/react/Check";
 import { useTranslation } from "react-i18next";
-import { cn } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { useLanguage } from "../../../lib/i18n";
 import { initialOf } from "../../../lib/initial";
-import type { MemberColor } from "../../../lib/member-color";
+import { MEMBER_FILLS, type MemberColor } from "../../../lib/member-color";
 import { Icon, type IconProps } from "../../foundations/icon/icon";
-
-const FILLS = {
-  vermilion: "bg-vermilion",
-  cobalt: "bg-cobalt",
-  green: "bg-green",
-  violet: "bg-violet",
-  amber: "bg-amber",
-  pink: "bg-pink",
-  cyan: "bg-cyan",
-  lime: "bg-lime",
-  sienna: "bg-sienna",
-  periwinkle: "bg-periwinkle",
-} as const satisfies Record<MemberColor, string>;
 
 const group = cn(
   "",
@@ -39,43 +26,32 @@ const item = cn(
   "disabled:cursor-not-allowed",
 );
 
-/** Every prop of Base UI's radio group, its value a member colour. */
-export type GroupProps = RadioGroup.Props<MemberColor>;
-
 /**
  * The picker's swatches, one choice among them: a row of five per line on
  * phone, one wrapping row from tablet up. Name it with `aria-labelledby` or
  * `aria-label`. Every prop goes to Base UI's radio group, `className`
  * included: a string, or a function of its state.
  */
-export function Group({ className, ...props }: GroupProps) {
+export function Group({ className, ...props }: RadioGroup.Props<MemberColor>) {
   return (
     <RadioGroup<MemberColor>
       {...props}
-      className={(state) =>
-        cn(
-          group,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(group, className)}
     />
   );
 }
 
-export interface ItemOwnProps {
+export type ItemProps = {
   /** One of the ten member colours, and the value the group takes when it is picked. */
   color: MemberColor;
   /** The name of the member who has this colour: the swatch fades and shows their initial. A taken colour can't be picked unless all ten are taken, so `disabled` usually comes with it. */
   takenBy?: string | undefined;
   /** The icon a selected swatch shows, any Phosphor icon. A check by default. */
   checkIcon?: IconProps["icon"] | undefined;
-}
-
-export type ItemProps = ItemOwnProps &
-  Omit<
-    Radio.Root.Props<MemberColor>,
-    keyof ItemOwnProps | "value" | "children"
-  >;
+} & Omit<
+  Radio.Root.Props<MemberColor>,
+  "color" | "takenBy" | "checkIcon" | "value" | "children"
+>;
 
 /**
  * One colour in the picker, a radio in `Swatch.Group`: free, selected (a
@@ -99,19 +75,18 @@ export function Item({
   const label = owner
     ? t("swatch.takenBy", { colour: name, name: owner })
     : name;
-  const classes = cn(item, FILLS[color], owner ? "opacity-[0.35]" : null);
+  const classes = cn(
+    item,
+    MEMBER_FILLS[color],
+    owner ? "opacity-[0.35]" : null,
+  );
 
   return (
     <Radio.Root<MemberColor>
       aria-label={label}
       {...props}
       value={color}
-      className={(state) =>
-        cn(
-          classes,
-          typeof className === "function" ? className(state) : className,
-        )
-      }
+      className={stateClassName(classes, className)}
     >
       <Radio.Indicator className="flex">
         <Icon icon={checkIcon} size="s" />

@@ -29,8 +29,14 @@
       "@fpr/source": "./src/openapi.ts",
       "types": "./dist/openapi.d.ts",
       "default": "./dist/openapi.js"
+    },
+    "./values": {
+      "@fpr/source": "./src/values.ts",
+      "types": "./dist/values.d.ts",
+      "default": "./dist/values.js"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist"
   ],
