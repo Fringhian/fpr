@@ -5,6 +5,7 @@ import type {
   Unit,
 } from "@fpr/contracts";
 import { useQuery } from "@tanstack/react-query";
+import { neededReads } from "../../../lib/api/needed-reads";
 import { liveView as homeRead } from "../../../lib/api/query-client";
 import { useApi } from "../../../lib/api/use-api";
 
@@ -46,17 +47,12 @@ export function useHomeData({
     api.race.shareLeaderboard.queryOptions({ input: { period }, ...homeRead }),
   );
 
-  // The star share is a garnish: the page shows without it.
-  const needed = [race, gains, standings];
-
   return {
     race: race.data,
     gains: gains.data?.board === "gain" ? gains.data : undefined,
     standings: standings.data,
     starShare: shares.data?.rows[0],
-    failed: needed.some((read) => read.isError && read.data === undefined),
-    retry: () => {
-      for (const read of needed) void read.refetch();
-    },
+    // The star share is a garnish: the page shows without it.
+    ...neededReads([race, gains, standings]),
   };
 }

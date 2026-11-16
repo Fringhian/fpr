@@ -1,5 +1,6 @@
 import type { Id, Members } from "@fpr/contracts";
 import { useQuery } from "@tanstack/react-query";
+import { neededReads } from "../../../lib/api/needed-reads";
 import { liveViewFor } from "../../../lib/api/query-client";
 import { useApi } from "../../../lib/api/use-api";
 import { useMembers } from "../../../lib/members";
@@ -45,8 +46,6 @@ export function useMemberData(userId: Id) {
 
   const theirs = usePortfolioReads(userId, started);
   const yours = usePortfolioReads(person.id, comparing);
-  const needed = [members, theirs.portfolio, theirs.history];
-
   return {
     row,
     viewer: comparing ? viewer : undefined,
@@ -54,9 +53,6 @@ export function useMemberData(userId: Id) {
     history: theirs.history.data,
     yourHistory: yours.history.data,
     yourPortfolio: yours.portfolio.data,
-    failed: needed.some((read) => read.isError && read.data === undefined),
-    retry: () => {
-      for (const read of needed) if (read.isError) void read.refetch();
-    },
+    ...neededReads([members, theirs.portfolio, theirs.history]),
   };
 }
