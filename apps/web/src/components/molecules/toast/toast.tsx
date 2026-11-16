@@ -20,16 +20,18 @@ export function Provider(props: ComponentProps<typeof BaseToast.Provider>) {
 
 const viewport = cn(
   "fixed inset-x-0 z-50 mx-auto flex flex-col-reverse gap-s font-sans outline-none pointer-events-none",
-  "bottom-[calc(var(--tab-bar-room)+var(--spacing-s))] w-[calc(100%-2*var(--spacing-m))]",
-  "tablet:bottom-[calc(var(--spacing-l)+env(safe-area-inset-bottom,0px))] tablet:w-[24rem]",
-  "desktop:bottom-[calc(var(--spacing-l)+env(safe-area-inset-bottom,0px))] desktop:w-[24rem]",
+  "bottom-[calc(max(var(--tab-bar-room),var(--bottom-bar-room))+var(--spacing-s))] w-[calc(100%-2*var(--spacing-m))]",
+  "tablet:bottom-[max(calc(var(--bottom-bar-room)+var(--spacing-s)),calc(var(--spacing-l)+env(safe-area-inset-bottom,0px)))] tablet:w-[24rem]",
+  "desktop:bottom-[max(calc(var(--bottom-bar-room)+var(--spacing-s)),calc(var(--spacing-l)+env(safe-area-inset-bottom,0px)))] desktop:w-[24rem]",
 );
 
 /**
  * The region the toasts show in, a polite live region named “Notifications”:
  * a screen reader reads each new toast once the current sentence ends. At the
- * bottom of the screen: above the tab bar on phone, centred from tablet up.
- * F6 moves the focus into it. Every prop of Base UI's `Toast.Viewport`.
+ * bottom of the screen: above the tab bar on phone, centred from tablet up,
+ * and on a focused page above its step buttons, `--bottom-bar-room`, so a
+ * toast never covers them. F6 moves the focus into it. Every prop of Base
+ * UI's `Toast.Viewport`.
  */
 export function Viewport({
   className,

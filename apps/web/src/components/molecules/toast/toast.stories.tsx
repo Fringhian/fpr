@@ -36,7 +36,7 @@ A short message at the bottom of the screen about what just happened, such as a 
 
 - The region is a polite live region named “Notifications”: a screen reader reads each new toast once its current sentence ends. F6 moves the focus into it.
 - A toast waits while the pointer is over the region or the focus is in it, and goes on once they leave.
-- On phone, the toasts sit above the tab bar, full width; from tablet up, centred at the bottom. The newest is at the bottom.
+- On phone, the toasts sit above the tab bar, full width; from tablet up, centred at the bottom. On a focused page they sit above its step buttons, which measure their height into \`--bottom-bar-room\`. The newest is at the bottom.
 - A toast rises into place and sinks out; with reduced motion, it only fades. A swipe down or sideways dismisses it.
 - A deletion either happens at once and offers Undo here, or asks first in a [confirm dialog](?path=/docs/molecules-confirm-dialog--docs).
 `;
