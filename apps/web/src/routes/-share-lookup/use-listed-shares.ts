@@ -1,5 +1,4 @@
 import type { Period, ShareListItem } from "@fpr/contracts";
-import { writerRoles } from "@fpr/contracts/values";
 import { useSession } from "../../lib/session/use-session";
 import { useShareSearch } from "../../lib/share-search";
 import { useShareLookup } from "./use-share-lookup";
@@ -11,13 +10,13 @@ import { useShareLookup } from "./use-share-lookup";
  * admin can use.
  */
 export function useListedShares(query: string, period: Period) {
-  const { role } = useSession();
+  const { writer } = useSession();
   const { search, current } = useShareSearch(query, period);
   const shares = search.data?.shares;
   const lookup = useShareLookup({
     query: query.trim(),
     listed: current ? shares : undefined,
-    enabled: writerRoles.some((writer) => writer === role),
+    enabled: writer,
   });
 
   const listed: readonly ShareListItem[] | undefined = shares?.filter(

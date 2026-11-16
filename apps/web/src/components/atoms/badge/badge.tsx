@@ -14,6 +14,8 @@ const SOFT = "bg-highlight text-on-sky";
 const STATES = {
   manual: NEUTRAL,
   pricePending: WARNING,
+  priceLate: WARNING,
+  upToDate: SUCCESS,
   incomplete: WARNING,
   active: SUCCESS,
   waitingForFirstUse: NEUTRAL,
@@ -21,6 +23,7 @@ const STATES = {
   ended: WARNING,
   expired: WARNING,
   heldBefore: SOFT,
+  neverHeld: NEUTRAL,
   saved: SUCCESS,
 };
 
@@ -31,9 +34,10 @@ const badge = cva(
 
 /**
  * The states a badge names: a share entered by hand, a share whose prices
- * haven't arrived, a balance that leaves such a share out, an access link in
- * use, not opened yet, or revoked, access past its end date, a link never used
- * before its deadline, a share held in the past, a change just saved.
+ * haven't arrived, one whose closes stopped coming, one priced on time, a
+ * balance that leaves a share out, an access link in use, not opened yet, or
+ * revoked, access past its end date, a link never used before its deadline, a
+ * share held in the past, one nobody has held, a change just saved.
  */
 export type BadgeState = keyof typeof STATES;
 

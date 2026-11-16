@@ -1,6 +1,7 @@
 import type { Role } from "@fpr/contracts";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
+import { mayEnter } from "../../../lib/session/access";
 
 const allSteps = ["name", "look", "portfolio", "welcome"] as const;
 
@@ -11,11 +12,11 @@ export function stepIn(value: unknown): OnboardingStep {
   return allSteps.find((step) => step === value) ?? "name";
 }
 
-/** The steps a role goes through: a guest has no portfolio, so no portfolio step. */
+/** The steps a role goes through: a role with no portfolio, a guest, has no portfolio step. */
 export function stepsOf(role: Role): readonly OnboardingStep[] {
-  return role === "guest"
-    ? allSteps.filter((step) => step !== "portfolio")
-    : allSteps;
+  return mayEnter("portfolio", role)
+    ? allSteps
+    : allSteps.filter((step) => step !== "portfolio");
 }
 
 /**

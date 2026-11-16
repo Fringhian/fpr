@@ -23,6 +23,7 @@ export {
   type ItemProps,
   LinkItem,
   type LinkItemProps,
+  Note,
   Separator,
 } from "./menu-items";
 export { Popup, type PopupProps, type PopupState } from "./menu-popup";

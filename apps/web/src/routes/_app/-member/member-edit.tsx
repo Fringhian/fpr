@@ -7,10 +7,7 @@ import { Button } from "../../../components/atoms/button/button";
 import { Card } from "../../../components/atoms/card/card";
 import { StateIcon } from "../../../components/atoms/state-icon/state-icon";
 import { cn } from "../../../lib/cn";
-import {
-  canEditPortfolios,
-  editPortfolioLink,
-} from "../../../lib/edit-portfolio";
+import { editPortfolioLink } from "../../../lib/edit-portfolio";
 import { useSession } from "../../../lib/session/use-session";
 import { LatestChanges } from "../-portfolio-sections/latest-changes";
 import type { LogRow } from "../-portfolio-sections/log-rows";
@@ -24,10 +21,10 @@ import { useRecord } from "../-portfolio-sections/record-link";
  */
 export function useAdminAction(userId: Id, name: string, editing: boolean) {
   const { t } = useTranslation();
-  const { role } = useSession();
+  const { admin } = useSession();
   const record = useRecord(userId);
 
-  if (!canEditPortfolios(role)) return null;
+  if (!admin) return null;
   return editing
     ? {
         intent: "primary" as const,

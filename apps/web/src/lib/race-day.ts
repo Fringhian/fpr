@@ -23,9 +23,14 @@ export function raceDayOf(at: string | number): IsoDate {
   return dayFormat.format(new Date(at));
 }
 
+/** The race's day now, whatever the browser's time zone. */
+export function raceToday(): IsoDate {
+  return raceDayOf(Date.now());
+}
+
 /** Whether a moment or a day falls in the race's current year: a date outside it is written with its year. */
 export function inThisYear(at: string | number): boolean {
-  return raceDayOf(at).slice(0, 4) === raceDayOf(Date.now()).slice(0, 4);
+  return raceDayOf(at).slice(0, 4) === raceToday().slice(0, 4);
 }
 
 /** The day `days` after `day`, or before it when negative. */
@@ -47,11 +52,23 @@ function offsetMs(atMs: number): number {
   return (match[1] === "-" ? -minutes : minutes) * 60 * 1000;
 }
 
-/** The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. */
+/**
+ * The instant of a time of day, `HH:MM:SS`, on a day in the race's zone. The
+ * offset is read twice: once at the wall time taken as UTC, then at the
+ * instant that gives, so a day that changes clocks lands on the right side.
+ */
 export function localInstant(day: IsoDate, time: string): number {
   const asUtc = Date.parse(`${day}T${time}Z`);
   const first = asUtc - offsetMs(asUtc);
   return asUtc - offsetMs(first);
+}
+
+/**
+ * The first moment of a race day, midnight there: a manual share's first
+ * value dated then values every holding recorded that day.
+ */
+export function raceDayStart(day: IsoDate): Timestamp {
+  return new Date(localInstant(day, "00:00:00")).toISOString();
 }
 
 /**

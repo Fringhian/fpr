@@ -1,5 +1,5 @@
 import type { Decimal, IsoDate, Timestamp } from "@fpr/contracts";
-import { type ComponentProps, useId } from "react";
+import { type ComponentProps, type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "../../../lib/format/date";
 import { useLanguage } from "../../../lib/i18n";
@@ -29,6 +29,8 @@ export type CashProps = {
   updateCashIcon?: IconProps["icon"] | undefined;
   /** The time zone a moment's day is read in. The browser's by default. */
   timeZone?: string | undefined;
+  /** Beside the name, such as an ⓘ that explains cash. */
+  info?: ReactNode;
 } & Omit<
   ComponentProps<"article">,
   | "amountEur"
@@ -38,6 +40,7 @@ export type CashProps = {
   | "onUpdateCash"
   | "updateCashIcon"
   | "timeZone"
+  | "info"
   | "children"
 >;
 
@@ -50,6 +53,7 @@ export function Cash({
   onUpdateCash,
   updateCashIcon,
   timeZone,
+  info,
   ...props
 }: CashProps) {
   const { t } = useTranslation();
@@ -59,7 +63,10 @@ export function Cash({
   return (
     <Root {...props} aria-labelledby={titleId}>
       <Header>
-        <Name id={titleId}>{t("holdingCard.cash")}</Name>
+        <Name id={titleId} className={info ? "flex-initial" : undefined}>
+          {t("holdingCard.cash")}
+        </Name>
+        {info}
       </Header>
       {setOn === undefined ? null : (
         <Caption>

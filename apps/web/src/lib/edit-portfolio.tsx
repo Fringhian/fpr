@@ -1,5 +1,4 @@
-import type { Id, Role } from "@fpr/contracts";
-import { adminRoles } from "@fpr/contracts/values";
+import type { Id } from "@fpr/contracts";
 import { Link, type SearchSchemaInput } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 
@@ -14,11 +13,6 @@ export function validateMemberSearch(
   return {
     edit: edit === true || edit === 1 || edit === "1" ? true : undefined,
   };
-}
-
-/** Whether `role` may edit another member's portfolio: the admin. */
-export function canEditPortfolios(role: Role): boolean {
-  return adminRoles.some((admin) => admin === role);
 }
 
 /**

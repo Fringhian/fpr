@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../lib/cn";
 import * as Segment from "../../atoms/segment/segment";
@@ -24,15 +25,17 @@ const capsule = cn(
   "focus-visible:focus-ring",
 );
 
-/** The phone's one capsule, “This month · %”, and the sheet it opens holding both rows. */
+/** The phone's one capsule, “This month · %”, and the sheet it opens holding both rows, then `note`. */
 export function PhoneSheet({
   setting,
   anonymous,
   backdrop,
   icon,
+  note,
   onChange,
 }: Omit<SegmentsProps, "className"> & {
   icon: IconProps["icon"] | undefined;
+  note: ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -68,6 +71,7 @@ export function PhoneSheet({
           onChange={onChange}
           className="self-start"
         />
+        {note}
       </Dialog.Popup>
     </Dialog.Root>
   );

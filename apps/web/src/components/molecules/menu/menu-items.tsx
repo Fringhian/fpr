@@ -3,7 +3,7 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva } from "class-variance-authority";
 import { type ComponentProps, use } from "react";
-import { stateClassName } from "../../../lib/cn";
+import { cn, stateClassName } from "../../../lib/cn";
 import { type Sheet, SheetContext } from "./menu-sheet";
 
 /** An interface's fields as a plain object type, which `useRender` takes as a state. */
@@ -157,6 +157,24 @@ export function LinkItem({
       sheet={sheet}
       intent={intent}
       className={className}
+    />
+  );
+}
+
+/**
+ * A short line of text under the items, such as why some of them can't be
+ * used, in the popup and in the sheet alike. Give it an `id` and point the
+ * items it explains at it with `aria-describedby`, so a screen reader reads it
+ * with them.
+ */
+export function Note({ className, ...props }: ComponentProps<"p">) {
+  return (
+    <p
+      {...props}
+      className={cn(
+        "max-w-[16rem] px-[0.75rem] pt-xs pb-s text-xs text-secondary",
+        className,
+      )}
     />
   );
 }

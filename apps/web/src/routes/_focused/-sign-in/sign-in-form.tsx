@@ -2,14 +2,12 @@ import { Form } from "@base-ui/react/form";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { Trans, useTranslation } from "react-i18next";
 import { TextLink } from "../../../components/atoms/text-link/text-link";
-import * as Field from "../../../components/molecules/field/field";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
-import { useAccessChecks } from "../../../lib/access-checks";
 import type { SignInOutcome } from "../../../lib/session/better-auth";
-import { EmailField } from "../-access/access-fields";
+import { CurrentPasswordField, EmailField } from "../../-account/access-fields";
+import { type Refusal, useRefusal } from "../../-account/use-refusal";
 import { AccessPage } from "../-access/access-page";
-import { type Refusal, useRefusal } from "../-access/use-refusal";
 import { usePasswordSignIn } from "./use-password-sign-in";
 
 const route = getRouteApi("/_focused/sign-in");
@@ -57,7 +55,6 @@ function OtherWays() {
 export function SignInForm() {
   const { t } = useTranslation();
   const { redirect } = route.useSearch();
-  const checks = useAccessChecks();
   const { formError, refuse, edited } = useRefusal();
   const signIn = usePasswordSignIn(redirect);
 
@@ -88,11 +85,7 @@ export function SignInForm() {
           <StepFlow.Question>{t("signIn.question")}</StepFlow.Question>
           <StepFlow.Description>{t("signIn.description")}</StepFlow.Description>
           <EmailField />
-          <Field.Root name="password" validate={checks.password}>
-            <Field.Label>{t("accessFields.password")}</Field.Label>
-            <Field.Password autoComplete="current-password" />
-            <Field.Error />
-          </Field.Root>
+          <CurrentPasswordField />
           <FormError>{formError}</FormError>
           <OtherWays />
         </StepFlow.Body>

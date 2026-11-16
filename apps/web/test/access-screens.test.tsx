@@ -9,16 +9,8 @@ import {
   mockResetKey,
 } from "../src/mocks/magic.ts";
 import { keyState } from "../src/mocks/store/access-keys.ts";
-import { submit, typeInto } from "./interact.ts";
+import { fill, submit } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
-
-/** Types `value` into the page's field named `name`, as a person would. */
-function fill(page: HTMLElement, name: string, value: string) {
-  typeInto(
-    page.querySelector<HTMLInputElement>(`input[name="${name}"]`),
-    value,
-  );
-}
 
 /** Presses the button named `label`, then waits until `done` holds. */
 async function press(page: HTMLElement, label: string, done: () => void) {

@@ -1,17 +1,18 @@
+import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
-import * as Field from "../../../components/molecules/field/field";
-import { PASSWORD, useAccessChecks } from "../../../lib/access-checks";
+import * as Field from "../../components/molecules/field/field";
+import { PASSWORD, useAccessChecks } from "../../lib/access-checks";
 
 /**
  * The email a person signs in with, named `email`. `autoComplete` is
  * `username` where a password is chosen beside it, so password managers save
- * the pair.
+ * the pair, and `off` where it is someone else's.
  */
 export function EmailField({
   autoComplete = "email",
   defaultValue,
 }: {
-  autoComplete?: "email" | "username";
+  autoComplete?: "email" | "username" | "off";
   defaultValue?: string | undefined;
 }) {
   const { t } = useTranslation();
@@ -44,27 +45,60 @@ export function HiddenEmail({ email }: { email: string }) {
 /**
  * A display name, named `displayName`, with `help` under it. `label` stays
  * for screen readers alone with `hiddenLabel`, where the step's question
- * already asks for the name.
+ * already asks for the name. Outside a form, `validationMode="onBlur"`
+ * checks it as it is left. `autoComplete` is `nickname` unless it is someone
+ * else's name.
  */
 export function DisplayNameField({
   label,
   help,
   hiddenLabel = false,
+  validationMode,
   ...props
 }: {
   label: string;
-  help: string;
+  help?: string | undefined;
   hiddenLabel?: boolean;
-} & Pick<Field.ControlProps, "defaultValue" | "onValueChange">) {
+} & Pick<
+  Field.ControlProps,
+  "defaultValue" | "onValueChange" | "onBlur" | "autoComplete"
+> &
+  Pick<ComponentProps<typeof Field.Root>, "validationMode">) {
   const checks = useAccessChecks();
 
   return (
-    <Field.Root name="displayName" validate={checks.displayName}>
+    <Field.Root
+      name="displayName"
+      validate={checks.displayName}
+      validationMode={validationMode}
+    >
       <Field.Label className={hiddenLabel ? "sr-only" : undefined}>
         {label}
       </Field.Label>
-      <Field.Control {...props} autoComplete="nickname" />
-      <Field.Description>{help}</Field.Description>
+      <Field.Control autoComplete="nickname" {...props} />
+      {help === undefined ? null : (
+        <Field.Description>{help}</Field.Description>
+      )}
+      <Field.Error />
+    </Field.Root>
+  );
+}
+
+/** The password a person already has, with Show, named `password` unless `name` says otherwise. */
+export function CurrentPasswordField({
+  name = "password",
+  label,
+}: {
+  name?: string;
+  label?: string;
+}) {
+  const { t } = useTranslation();
+  const checks = useAccessChecks();
+
+  return (
+    <Field.Root name={name} validate={checks.password}>
+      <Field.Label>{label ?? t("accessFields.password")}</Field.Label>
+      <Field.Password autoComplete="current-password" />
       <Field.Error />
     </Field.Root>
   );

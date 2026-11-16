@@ -1,47 +1,40 @@
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "../../../components/atoms/button/button";
-import { Picture } from "../../../components/atoms/picture/picture";
-import { FormError } from "../../../components/molecules/form-error/form-error";
-import { cn } from "../../../lib/cn";
-import type { Look } from "../../../lib/look";
+import { Button } from "../../components/atoms/button/button";
+import { FormError } from "../../components/molecules/form-error/form-error";
 import { usePhoto } from "./use-photo";
 
 /**
- * The photo in place of the initial: “Use a photo instead”, then Change and
- * Remove once there is one, with why an upload failed and Retry when trying
- * again can help. The picture shows beside the buttons on phone and tablet;
- * the desktop shows it on the sky.
+ * The photo in place of the initial: `addLabel` while there is none, then
+ * Change and Remove, with why an upload failed and Retry when trying again
+ * can help. `children`, the person's picture, sits before the buttons.
  */
-export function PhotoControl({ look }: { look: Look }) {
+export function PhotoControl({
+  hasPhoto,
+  addLabel,
+  children,
+}: {
+  hasPhoto: boolean;
+  addLabel: string;
+  children?: ReactNode;
+}) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
   const photo = usePhoto();
 
-  const hasPhoto = look.photo !== null;
-
   return (
     <div className="flex flex-col gap-s">
       <div className="flex items-center gap-m">
-        <Picture
-          name={look.name}
-          color={look.color}
-          photo={look.photo}
-          size="l"
-          aria-hidden
-          className={cn("", "flex", "tablet:flex", "desktop:hidden")}
-        />
+        {children}
         <div className="flex flex-wrap items-center gap-s">
           <Button
             type="button"
             loading={photo.uploading}
-            loadingLabel={t("onboarding.look.uploading")}
+            loadingLabel={t("photoControl.uploading")}
             disabled={photo.busy}
             onClick={() => input.current?.click()}
           >
-            {hasPhoto
-              ? t("onboarding.look.changePhoto")
-              : t("onboarding.look.usePhoto")}
+            {hasPhoto ? t("photoControl.change") : addLabel}
           </Button>
           {hasPhoto ? (
             <Button
@@ -51,7 +44,7 @@ export function PhotoControl({ look }: { look: Look }) {
               disabled={photo.busy}
               onClick={photo.remove}
             >
-              {t("onboarding.look.removePhoto")}
+              {t("photoControl.remove")}
             </Button>
           ) : null}
         </div>
@@ -71,7 +64,7 @@ export function PhotoControl({ look }: { look: Look }) {
           className="self-start"
           onClick={photo.retry}
         >
-          {t("onboarding.retry")}
+          {t("photoControl.retry")}
         </Button>
       ) : null}
     </div>

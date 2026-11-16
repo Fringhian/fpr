@@ -1,8 +1,8 @@
 import type { Person } from "@fpr/contracts";
 import { useQuery } from "@tanstack/react-query";
-import { useApi } from "../../../lib/api/use-api";
-import { useSession } from "../../../lib/session/use-session";
-import { DEFAULT_SETTING } from "../../../lib/view-state/view-search";
+import { useApi } from "../../lib/api/use-api";
+import { useSession } from "../../lib/session/use-session";
+import { DEFAULT_SETTING } from "../../lib/view-state/view-search";
 
 /**
  * Everyone already there but the person, from the members list: an empty

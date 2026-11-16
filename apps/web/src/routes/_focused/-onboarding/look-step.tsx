@@ -1,15 +1,17 @@
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
+import { Picture } from "../../../components/atoms/picture/picture";
 import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
+import { cn } from "../../../lib/cn";
 import { lookOf } from "../../../lib/look";
 import { useSession } from "../../../lib/session/use-session";
-import { ColourPicker } from "./colour-picker";
+import { ColourPicker } from "../../-account/colour-picker";
+import { PhotoControl } from "../../-account/photo-control";
+import { useColourChoice } from "../../-account/use-colour-choice";
 import { LookPanel, LookTeaser } from "./look-preview";
 import { OnboardingPage } from "./onboarding-page";
-import { PhotoControl } from "./photo-control";
 import { placeOf, useGoToStep } from "./steps";
-import { useColourChoice } from "./use-colour-choice";
 
 /**
  * Step 2: the person's colour, the one they were given first, and a photo if
@@ -36,7 +38,20 @@ export function LookStep() {
         <StepFlow.Description>
           {t("onboarding.look.description")}
         </StepFlow.Description>
-        <PhotoControl look={look} />
+        <PhotoControl
+          hasPhoto={look.photo !== null}
+          addLabel={t("onboarding.look.usePhoto")}
+        >
+          {/* The desktop shows the picture on the sky. */}
+          <Picture
+            name={look.name}
+            color={look.color}
+            photo={look.photo}
+            size="l"
+            aria-hidden
+            className={cn("", "flex", "tablet:flex", "desktop:hidden")}
+          />
+        </PhotoControl>
         <ColourPicker
           value={choice.color}
           onValueChange={choice.setColor}
@@ -52,7 +67,7 @@ export function LookStep() {
           next
           loading={choice.saving}
           loadingLabel={t("onboarding.saving")}
-          onClick={choice.save}
+          onClick={() => choice.save()}
         >
           {t(`onboarding.look.action.${next}`)}
         </StepFlow.MainButton>

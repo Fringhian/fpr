@@ -1,3 +1,4 @@
+import type { Language } from "@fpr/contracts";
 import { CaretDownIcon } from "@phosphor-icons/react/CaretDown";
 import { CaretUpDownIcon } from "@phosphor-icons/react/CaretUpDown";
 import { SlidersHorizontalIcon } from "@phosphor-icons/react/SlidersHorizontal";
@@ -5,6 +6,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { cn } from "../../../lib/cn";
+import { useLanguage } from "../../../lib/i18n";
+import * as Popover from "../popover/popover";
 import {
   PeriodControl,
   type PeriodControlProps,
@@ -18,16 +21,60 @@ const ICONS = {
   "sliders-horizontal": SlidersHorizontalIcon,
 } as const;
 
-/** The stories’ args: the control’s props, its icon picked by name. */
-type PeriodControlArgs = Omit<PeriodControlProps, "icon"> & {
+/** The stories’ args: the control’s props, its icon picked by name, and whether the units come with their explanation. */
+type PeriodControlArgs = Omit<
+  PeriodControlProps,
+  "icon" | "unitInfo" | "unitNote"
+> & {
   icon: keyof typeof ICONS;
+  unitHelp: boolean;
 };
+
+/** The explanation of € and %, in the toolbar’s language. It is the story’s content, not the control’s. */
+const UNIT_HELP = {
+  en: {
+    title: "€ or %",
+    body: "€ counts the money each member earned over the period. % compares their performance.",
+  },
+  fr: {
+    title: "€ ou %",
+    body: "En €, on compte l’argent gagné par chacun sur la période. En %, on compare la performance.",
+  },
+} as const satisfies Record<Language, { title: string; body: string }>;
+
+/** The ⓘ a page puts after the € / % capsules. */
+function UnitInfo() {
+  const text = UNIT_HELP[useLanguage()];
+
+  return (
+    <Popover.Root>
+      <Popover.InfoTrigger label={text.title} />
+      <Popover.Popup align="end">
+        <Popover.Title>{text.title}</Popover.Title>
+        <Popover.Description>{text.body}</Popover.Description>
+      </Popover.Popup>
+    </Popover.Root>
+  );
+}
+
+/** The same words written out under the sheet’s rows. */
+function UnitNote() {
+  return (
+    <p className="text-s text-secondary">{UNIT_HELP[useLanguage()].body}</p>
+  );
+}
 
 /**
  * The control on the sky, at the end of the bar like in the page bar. It
  * keeps the setting the way the app shell will, starting from the `value` arg.
  */
-function Owner({ value, icon, onChange, ...args }: PeriodControlArgs) {
+function Owner({
+  value,
+  icon,
+  onChange,
+  unitHelp,
+  ...args
+}: PeriodControlArgs) {
   const [setting, setSetting] = useState(value);
 
   return (
@@ -41,6 +88,8 @@ function Owner({ value, icon, onChange, ...args }: PeriodControlArgs) {
         {...args}
         value={setting}
         icon={ICONS[icon]}
+        unitInfo={unitHelp ? <UnitInfo /> : undefined}
+        unitNote={unitHelp ? <UnitNote /> : undefined}
         onChange={(next) => {
           onChange(next);
           setSetting(next);
@@ -55,6 +104,7 @@ The shared period and € / %: one setting for every page, shown at the right of
 
 - **Tablet and desktop**: the period capsules (1D, 1W, 1M, 3M, YTD, All), then the € / % capsules.
 - **Phone**: one capsule naming both, “This month · %”, which opens a sheet holding the two rows. CSS picks the layout, so both live in the markup and one is hidden.
+- **What € and % mean**: \`unitInfo\` sits after the € / % capsules from tablet up, such as an ⓘ; \`unitNote\` sits under the sheet’s rows on phone, the same words written out, since an ⓘ there would open a second overlay.
 - **Backdrop**: \`sky\` by default; \`snow\` on a page without a header sentence, where the capsules take a darker fill.
 - **Anonymous viewer**: amounts are in % only, so the € / % capsules are hidden, the phone capsule names the period alone (“This month”), and \`onChange\` always sends \`unit: "percent"\`. An option a viewer can’t use is hidden, never disabled.
 - **Controlled**: \`value\` (\`{ period, unit }\`, with the API’s names: \`"1M"\`, \`"eur"\` or \`"percent"\`) and \`onChange\`, called with the whole new setting. The app shell keeps it, in \`localStorage\` and the URL.
@@ -74,9 +124,16 @@ const meta = {
     anonymous: false,
     icon: "caret-down",
     backdrop: "sky",
+    unitHelp: true,
     onChange: fn(),
   },
   argTypes: {
+    unitHelp: {
+      name: "unitInfo / unitNote",
+      description:
+        "What € and % mean: `unitInfo`, an ⓘ after the € / % capsules from tablet up, and `unitNote`, the same words under the sheet’s rows on phone, where an ⓘ would open a second overlay. An anonymous viewer gets neither.",
+      control: { type: "boolean" },
+    },
     value: {
       description:
         "The period and unit shown, held by the owner: `{ period, unit }`. Pair it with `onChange`.",

@@ -7,6 +7,7 @@ import { UserIcon } from "@phosphor-icons/react/User";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { Button } from "../../atoms/button/button";
+import * as Segment from "../../atoms/segment/segment";
 import * as Field from "./field";
 
 /** The icons the control's `icon` offers, by name. */
@@ -112,6 +113,7 @@ A label, an input, and help or an error under it, on Base UI's \`Field\`. Import
 | \`Field.Password\` | The Input atom as a password, with Show at its end, which reveals it and turns into Hide. It takes every Input prop but \`type\` and \`end\`. |
 | \`Field.Description\` | The help under the control. |
 | \`Field.Error\` | The error. Without children, it shows the message \`validate\` returns. |
+| \`Field.GroupLabel\` | Outside \`Field.Root\`: the label's look on a \`<p>\`, over a group of buttons that isn't a text field, such as swatches or a segment, which names itself with \`aria-labelledby\` its \`id\`. |
 | \`Field.Basic\` | A text field from props: \`name\`, \`label\`, \`check\` and its \`error\`, every other prop going to the control, and \`children\` under the error. |
 
 - The control is described by the help, through \`aria-describedby\`. While the field is invalid, the error replaces the help, in the same place and in \`aria-describedby\`, and a polite live region announces it.
@@ -292,6 +294,30 @@ export const PasswordWithShow: Story = {
       canvas.getByRole("button", { name: "Hide password" }),
     );
     await expect(input).toHaveAttribute("type", "password");
+  },
+};
+
+/** `Field.GroupLabel` over a segment, which it names: the label of a group of buttons. */
+export const GroupLabel: Story = {
+  name: "Group label",
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col">
+      <Field.GroupLabel id="unit-label">Unit</Field.GroupLabel>
+      <Segment.Root<"eur" | "percent">
+        aria-labelledby="unit-label"
+        backdrop="snow"
+        defaultValue="percent"
+        className="self-start"
+      >
+        <Segment.Item value="eur">€</Segment.Item>
+        <Segment.Item value="percent">%</Segment.Item>
+      </Segment.Root>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("group", { name: "Unit" })).toBeVisible();
   },
 };
 

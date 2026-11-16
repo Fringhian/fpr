@@ -45,7 +45,7 @@ export function ShareFields({
           onValueChange={(price) => onChange({ price })}
         />
         <DayField
-          label={t("newShare.day")}
+          label={t("shareFields.day.label")}
           value={draft.day}
           onValueChange={(day) => onChange({ day })}
           max={today}

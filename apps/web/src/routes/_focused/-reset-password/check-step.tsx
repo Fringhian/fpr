@@ -7,9 +7,9 @@ import { FormError } from "../../../components/molecules/form-error/form-error";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 import { useAccessChecks } from "../../../lib/access-checks";
 import { useApi } from "../../../lib/api/use-api";
-import { EmailField } from "../-access/access-fields";
+import { EmailField } from "../../-account/access-fields";
+import { useRefusal } from "../../-account/use-refusal";
 import { AccessPage } from "../-access/access-page";
-import { useRefusal } from "../-access/use-refusal";
 
 /** The email and reset key a reset sets a new password for. */
 export type ResetPair = { email: string; key: string };

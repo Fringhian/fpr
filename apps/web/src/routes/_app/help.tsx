@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ScreenPlaceholder } from "../-shell/screen-placeholder";
+import { HelpScreen } from "./-help/help-screen";
 
 export const Route = createFileRoute("/_app/help")({
-  component: () => <ScreenPlaceholder page="help" />,
+  component: HelpScreen,
 });

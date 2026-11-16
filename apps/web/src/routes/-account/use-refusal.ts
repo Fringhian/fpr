@@ -1,7 +1,7 @@
 import type { ErrorCode } from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
 import { useMemo, useState } from "react";
-import { useErrorText } from "../../../lib/api/errors";
+import { useErrorText } from "../../lib/api/errors";
 
 /**
  * Why the API refused a form: the field it blames, or the whole form, and the

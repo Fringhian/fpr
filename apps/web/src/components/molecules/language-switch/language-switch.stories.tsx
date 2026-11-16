@@ -9,14 +9,17 @@ import { LanguageSwitch } from "./language-switch";
 function Held({
   value,
   onValueChange,
+  named,
 }: {
   value: Language;
   onValueChange: (language: Language) => void;
+  named?: boolean | undefined;
 }) {
   const [language, setLanguage] = useState(value);
 
   return (
     <LanguageSwitch
+      named={named}
       value={language}
       onValueChange={(picked) => {
         setLanguage(picked);
@@ -30,16 +33,17 @@ const meta = {
   title: "Molecules/Language switch",
   component: LanguageSwitch,
   tags: ["autodocs"],
-  args: { value: "fr", onValueChange: fn() },
+  args: { value: "fr", onValueChange: fn(), named: false },
   argTypes: {
     value: { control: { type: "inline-radio" }, options: languages },
+    named: { control: "boolean" },
     onValueChange: { control: false },
   },
   parameters: {
     docs: {
       description: {
         component:
-          "FR and EN as a segment on snow, at the right of a focused page’s header before sign-in and during onboarding. Each option is marked as written in its own language (`lang`). The screen switches FPR with `useChangeLanguage()` and passes the language it shows as `value`.",
+          "FR and EN as a segment on snow, at the right of a focused page’s header before sign-in and during onboarding; `named` writes “Français” and “English” in full, as in Settings. Each option is marked as written in its own language (`lang`). The screen switches FPR with `useChangeLanguage()` and passes the language it shows as `value`.",
       },
     },
   },
@@ -65,3 +69,6 @@ export const French: Story = {
 
 /** English, once picked. */
 export const English: Story = { args: { value: "en" } };
+
+/** Each language named in full, in its own language, as Settings shows them. */
+export const Named: Story = { args: { named: true } };

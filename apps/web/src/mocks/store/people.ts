@@ -37,11 +37,13 @@ export function isAdmin(person: MockPerson): boolean {
   return (adminRoles as readonly string[]).includes(person.role);
 }
 
-/** The people in the race: admins and members with access. */
+/**
+ * The people in the race: every admin and member, whatever their access. One
+ * still waiting for their link is listed, so the admin can prepare their
+ * portfolio; one cut off stays with their data.
+ */
 export function racers(store: MockStore): MockPerson[] {
-  return store.people.filter(
-    (person) => hasPortfolio(person) && hasAccess(store, person),
-  );
+  return store.people.filter(hasPortfolio);
 }
 
 export function toPerson(person: MockPerson): Person {

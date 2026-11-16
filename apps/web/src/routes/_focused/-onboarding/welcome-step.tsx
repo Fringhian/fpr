@@ -10,9 +10,9 @@ import { formatList } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
 import { lookOf } from "../../../lib/look";
 import { useSession } from "../../../lib/session/use-session";
-import { useRefusal } from "../-access/use-refusal";
+import { useOthers } from "../../-account/use-others";
+import { useRefusal } from "../../-account/use-refusal";
 import { OnboardingPage } from "./onboarding-page";
-import { useOthers } from "./use-others";
 import { WelcomeCrowd } from "./welcome-crowd";
 
 const NAMED = 3;

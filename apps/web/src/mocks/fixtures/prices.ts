@@ -1,9 +1,9 @@
 import type { Id } from "@fpr/contracts";
+import { localInstant } from "../../lib/race-day.ts";
 import {
   addDays,
   type Calendar,
   closeAt,
-  localInstant,
   refreshInstants,
   tradingDays,
 } from "../store/calendar.ts";

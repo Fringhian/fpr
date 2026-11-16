@@ -22,13 +22,13 @@ export function DraftPanel({
 
   const price = priceIn(draft.price, language);
   const rows = [
-    { term: t("newShare.isin.label"), value: isinIn(draft.isin) },
-    { term: t("newShare.name.label"), value: draft.name.trim() || null },
+    { term: t("shareFields.isin.label"), value: isinIn(draft.isin) },
+    { term: t("shareFields.name.label"), value: draft.name.trim() || null },
     {
-      term: t("newShare.price.label"),
+      term: t("shareFields.price.label"),
       value: price === null ? null : formatMoney(price, language),
     },
-    { term: t("newShare.day"), value: dayText(draft.day) },
+    { term: t("shareFields.day.label"), value: dayText(draft.day) },
   ];
   return <ChangeSummary title={t("newShare.summary")} rows={rows} />;
 }

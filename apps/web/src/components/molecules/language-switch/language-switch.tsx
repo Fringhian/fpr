@@ -8,18 +8,22 @@ export type LanguageSwitchProps = {
   value: Language;
   /** Called with the language picked. */
   onValueChange: (language: Language) => void;
+  /** Names each language in full, “Français” and “English”, where there is room, as in Settings. FR and EN by default. */
+  named?: boolean | undefined;
 } & Omit<
   Segment.RootProps<Language>,
-  "value" | "defaultValue" | "onValueChange" | "backdrop"
+  "value" | "defaultValue" | "onValueChange" | "backdrop" | "named"
 >;
 
 /**
  * FR and EN as a segment on snow, for the steps before sign-in and
- * onboarding. Each option is marked as written in its own language.
+ * onboarding, or the languages' names in Settings. Each option is marked as
+ * written in its own language.
  */
 export function LanguageSwitch({
   value,
   onValueChange,
+  named = false,
   ...props
 }: LanguageSwitchProps) {
   const { t } = useTranslation();
@@ -34,7 +38,7 @@ export function LanguageSwitch({
     >
       {languages.map((language) => (
         <Segment.Item key={language} value={language} lang={language}>
-          {language.toUpperCase()}
+          {named ? t(`controls.language.${language}`) : language.toUpperCase()}
         </Segment.Item>
       ))}
     </Segment.Root>

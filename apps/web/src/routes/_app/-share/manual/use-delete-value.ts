@@ -3,8 +3,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../../components/molecules/toast/use-toast";
-import { changedPrice, useErrorText } from "../../../../lib/api/errors";
+import { changedPrice } from "../../../../lib/api/errors";
 import { useApi } from "../../../../lib/api/use-api";
+import { useRefusedToast } from "../../../../lib/api/use-refused-toast";
 
 /** A deletion the API refused because the value changed: the value, and the price it has now. */
 export type ChangedValue = { value: ShareValue; priceEur: Decimal };
@@ -22,14 +23,11 @@ export function useDeleteValue(
 ) {
   const { t } = useTranslation();
   const toast = useToast();
-  const errorText = useErrorText();
+  const refuse = useRefusedToast();
   const api = useApi();
   const remove = useMutation(api.shares.deleteValue.mutationOptions());
   const add = useMutation(api.shares.addValue.mutationOptions());
   const [changed, setChanged] = useState<ChangedValue | null>(null);
-
-  const refuse = (title: string, error: unknown) =>
-    toast.show({ title, description: errorText(error), timeout: 0 });
 
   const undo = (value: ShareValue) =>
     add

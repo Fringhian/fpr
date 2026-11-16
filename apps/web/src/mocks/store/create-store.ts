@@ -1,4 +1,5 @@
 import type { Id } from "@fpr/contracts";
+import { localInstant } from "../../lib/race-day.ts";
 import {
   type FixturePerson,
   fixturePeople,
@@ -20,7 +21,6 @@ import {
   addDays,
   type Calendar,
   createCalendar,
-  localInstant,
   timestamp,
 } from "./calendar.ts";
 import type {
@@ -181,6 +181,7 @@ export function createMockStore(options: MockStoreOptions = {}): MockStore {
     accessKeys: empty ? new Map() : seededAccessKeys(),
     resetKeys: new Map(),
     conflicted: options.conflicts ? new Set() : null,
+    refreshes: { running: false, count: 0 },
     session: options.session ?? null,
     onSessionChange: options.onSessionChange ?? (() => {}),
   };

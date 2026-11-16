@@ -1,4 +1,5 @@
 import type { LatestPrice } from "@fpr/contracts";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatTime } from "./format/date";
 import { useLanguage } from "./i18n";
@@ -10,23 +11,21 @@ import { useLanguage } from "./i18n";
  * default.
  */
 export function usePriceTime(): (
-  latestPrice: LatestPrice,
+  latestPrice: Pick<LatestPrice, "at" | "source">,
   timeZone?: string,
 ) => string {
   const { t } = useTranslation();
   const language = useLanguage();
 
-  return (latestPrice, timeZone) => {
-    if (latestPrice.source === "intraday") {
-      return t("holdingCard.asOfTime", {
-        time: formatTime(latestPrice.at, language, { timeZone }),
-      });
-    }
-    return t(
-      latestPrice.source === "manual"
-        ? "holdingCard.asOfDate"
-        : "holdingCard.closeOf",
-      { date: formatDate(latestPrice.at, language, { timeZone }) },
-    );
-  };
+  return useCallback(
+    ({ at, source }, timeZone) =>
+      source === "intraday"
+        ? t("priceTime.asOfTime", {
+            time: formatTime(at, language, { timeZone }),
+          })
+        : t(source === "manual" ? "priceTime.asOfDate" : "priceTime.closeOf", {
+            date: formatDate(at, language, { timeZone }),
+          }),
+    [t, language],
+  );
 }

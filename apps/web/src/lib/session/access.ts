@@ -25,6 +25,22 @@ export const routeAccess = {
 
 export type Access = keyof typeof routeAccess;
 
+/** The groups of routes a list of roles may enter. */
+type RoleAccess = {
+  [Group in Access]: (typeof routeAccess)[Group] extends readonly Role[]
+    ? Group
+    : never;
+}[Access];
+
+/**
+ * Whether `role` may enter the routes of `access`: what the guards check, and
+ * what a screen asks before showing a control that leads there or does what
+ * they do, such as Buy on a share for `portfolio`.
+ */
+export function mayEnter(access: RoleAccess, role: Role): boolean {
+  return (routeAccess[access] as readonly Role[]).includes(role);
+}
+
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
     /** Who may enter the route and its children. A child's own access wins. */

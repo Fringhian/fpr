@@ -1,5 +1,5 @@
 import type { Role } from "@fpr/contracts";
-import { adminAreaRoles, writerRoles } from "@fpr/contracts/values";
+import { mayEnter } from "../../../lib/session/access";
 import type { PictureProps } from "../../atoms/picture/picture";
 
 /** A page the navigation has an item for. */
@@ -59,12 +59,10 @@ export function destinationsFor(role: Role): {
   main: readonly Destination[];
   admin: readonly Destination[];
 } {
-  const portfolio = (writerRoles as readonly Role[]).includes(role);
-  const adminArea = (adminAreaRoles as readonly Role[]).includes(role);
   return {
-    main: portfolio
+    main: mayEnter("portfolio", role)
       ? ["home", "members", "portfolio", "shares"]
       : ["home", "members", "shares"],
-    admin: adminArea ? ["people", "trackedShares"] : [],
+    admin: mayEnter("adminArea", role) ? ["people", "trackedShares"] : [],
   };
 }
