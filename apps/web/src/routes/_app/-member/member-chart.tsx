@@ -5,6 +5,7 @@ import { Card } from "../../../components/atoms/card/card";
 import { LoadingPlaceholder } from "../../../components/atoms/loading-placeholder/loading-placeholder";
 import { Picture } from "../../../components/atoms/picture/picture";
 import { AllocationBar } from "../../../components/molecules/allocation-bar/allocation-bar";
+import { allocationHoldings } from "../../../components/molecules/allocation-bar/allocation-bar-model";
 import {
   Chart,
   type ChartLine,
@@ -150,11 +151,7 @@ export function MemberChart({ portfolio, ...props }: MemberChartProps) {
       {portfolio === undefined ? null : (
         <AllocationBar
           color={props.member.color}
-          holdings={portfolio.holdings.map(({ share, weight }) => ({
-            id: share.id,
-            name: share.name,
-            weight,
-          }))}
+          holdings={allocationHoldings(portfolio.holdings)}
           cashWeight={portfolio.cashWeight}
         />
       )}

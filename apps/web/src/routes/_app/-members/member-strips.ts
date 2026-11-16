@@ -1,4 +1,5 @@
 import type { Id, Language, Members } from "@fpr/contracts";
+import { allocationHoldings } from "../../../components/molecules/allocation-bar/allocation-bar-model";
 import type * as MemberStrip from "../../../components/organisms/member-strip/member-strip";
 import type { GainUnit } from "../../../lib/gain";
 import { INTL_LOCALE } from "../../../lib/language";
@@ -54,11 +55,7 @@ export function memberStrips(
       gain: row.gain,
       unit,
       balanceEur: row.balanceEur,
-      holdings: row.topHoldings.map(({ share, weight }) => ({
-        id: share.id,
-        name: share.name,
-        weight,
-      })),
+      holdings: allocationHoldings(row.topHoldings),
       holdingCount: row.holdingCount,
     };
   });

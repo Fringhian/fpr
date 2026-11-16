@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "../../../components/atoms/badge/badge";
 import { Card } from "../../../components/atoms/card/card";
 import { AllocationBar } from "../../../components/molecules/allocation-bar/allocation-bar";
+import { allocationHoldings } from "../../../components/molecules/allocation-bar/allocation-bar-model";
 import * as HoldingCard from "../../../components/molecules/holding-card/holding-card";
 import { cn } from "../../../lib/cn";
 import { formatMoney } from "../../../lib/format/money";
@@ -70,11 +71,7 @@ function Total({
       </div>
       <AllocationBar
         color={color}
-        holdings={portfolio.holdings.map(({ share, weight }) => ({
-          id: share.id,
-          name: share.name,
-          weight,
-        }))}
+        holdings={allocationHoldings(portfolio.holdings)}
         cashWeight={portfolio.cashWeight}
       />
     </Card>
