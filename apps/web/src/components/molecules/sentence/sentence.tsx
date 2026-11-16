@@ -10,12 +10,12 @@ import {
 } from "../../../lib/gain";
 import { useLanguage } from "../../../lib/i18n";
 import type { MemberColor } from "../../../lib/member-color";
-import type { TimeOfDay } from "../../../lib/time-of-day";
 import { Chip } from "../../atoms/chip/chip";
 import { GAIN_TONE_TEXT, GainValue } from "../../atoms/gain-value/gain-value";
 import { Picture } from "../../atoms/picture/picture";
 import { TrailSign } from "../../atoms/trail-sign/trail-sign";
 import { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
+import type { TimeOfDay } from "./time-of-day";
 
 export { Greeting, Headline, Root, Story, Wide } from "./sentence-parts";
 
