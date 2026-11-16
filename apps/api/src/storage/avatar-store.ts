@@ -6,25 +6,11 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 
-/** Where the storage is and how to sign in to it, from the `S3_*` variables. */
-export interface S3Options {
-  endpoint: string;
-  region: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-}
-
-/** A stored picture, with its media type. */
-export interface StoredObject {
-  body: Uint8Array;
-  contentType: string;
-}
-
 /** Where profile pictures are kept, by object key. */
 export interface AvatarStore {
   put(key: string, body: Uint8Array, contentType: string): Promise<void>;
   /** The object, or `null` when the bucket has none at this key. */
-  get(key: string): Promise<StoredObject | null>;
+  get(key: string): Promise<{ body: Uint8Array; contentType: string } | null>;
   /** Removes the object. Removing a missing key succeeds. */
   remove(key: string): Promise<void>;
 }
@@ -35,7 +21,12 @@ export interface AvatarStore {
  * checksums are sent and checked only where an operation requires them, as
  * services other than AWS S3 may not support the SDK's default ones.
  */
-export function createS3Client(options: S3Options): S3Client {
+export function createS3Client(options: {
+  endpoint: string;
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+}): S3Client {
   return new S3Client({
     endpoint: options.endpoint,
     region: options.region,

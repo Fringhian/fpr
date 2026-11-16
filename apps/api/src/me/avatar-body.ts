@@ -34,19 +34,14 @@ export const readAvatarBody: RequestHandler = (req, res, next) => {
   });
 };
 
-/** body-parser's errors carry their kind in `type` and their status. */
-interface BodyError {
-  type?: unknown;
-  status?: unknown;
-}
-
 /**
  * A body too large is `avatar_too_large`, a compressed one
  * `avatar_type_unsupported`, and any other client mistake, such as a body
- * shorter than its `Content-Length`, `invalid_request`.
+ * shorter than its `Content-Length`, `invalid_request`. body-parser's errors
+ * carry their kind in `type`, and their status.
  */
 function toApiError(error: unknown): unknown {
-  const { type, status }: BodyError =
+  const { type, status }: { type?: unknown; status?: unknown } =
     typeof error === "object" && error !== null ? error : {};
   if (type === "entity.too.large") {
     return new ApiError("avatar_too_large");

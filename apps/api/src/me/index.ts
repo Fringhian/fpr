@@ -4,9 +4,6 @@ import { readAvatar, removeAvatar, replaceAvatar } from "./avatar.js";
 import { toMe } from "./me.js";
 import { findMe, updateProfile } from "./profile.js";
 
-export { avatarUploadPath, readAvatarBody } from "./avatar-body.js";
-export { avatarUrl } from "./me.js";
-
 /**
  * The handlers of `apiContract.me`: the signed-in person's profile and
  * picture, and everyone's pictures. The contracts' roles keep anonymous

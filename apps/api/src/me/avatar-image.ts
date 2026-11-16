@@ -3,12 +3,11 @@ import sharp from "sharp";
 import { apiError } from "../errors.js";
 
 /** The largest picture, in pixels, the API decodes: 40 megapixels. */
-export const avatarMaxPixels = 40_000_000;
+const avatarMaxPixels = 40_000_000;
 
 /** The longest side of a stored picture, in pixels. */
-export const avatarMaxSide = 512;
+const avatarMaxSide = 512;
 
-/** The media type every stored picture has. */
 export const storedAvatarType = "image/webp";
 
 interface Signature {
@@ -41,7 +40,7 @@ const signatures: readonly Signature[] = [
  * The format a picture's first bytes announce, among JPEG, PNG, and WebP, or
  * `undefined` for anything else.
  */
-export function sniffAvatar(bytes: Uint8Array): Signature | undefined {
+function sniffAvatar(bytes: Uint8Array): Signature | undefined {
   return signatures.find((signature) =>
     signature.bytes.every(
       (expected, offset) => expected === null || bytes[offset] === expected,
