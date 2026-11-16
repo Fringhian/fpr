@@ -2,7 +2,7 @@ import type { Id } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import { plain, zero } from "../../store/decimal.ts";
-import { toChange } from "../../store/portfolio.ts";
+import { toChange } from "../../store/log.ts";
 import { requireShare } from "../../store/shares.ts";
 import type { MockStore, StoredChange } from "../../store/types.ts";
 import {
@@ -49,7 +49,8 @@ function storedChanges(store: MockStore): StoredChange[] {
 export const changeWrites = {
   addChange: mock.portfolio.addChange.handler(({ context, input }) => {
     const { store } = context;
-    writablePortfolio(store, viewerOf(context), input.userId);
+    const viewer = viewerOf(context);
+    writablePortfolio(store, viewer, input.userId);
     const stored = storedWithId(store, input.userId, input.id);
     if (stored?.type === "change") {
       return toChange(store, stored);
@@ -65,6 +66,7 @@ export const changeWrites = {
       quantityDelta: input.quantityDelta,
       effectiveAt: new Date(atMs).toISOString(),
       atMs,
+      madeBy: viewer.id,
     };
     keepHoldingsAboveZero(
       store,

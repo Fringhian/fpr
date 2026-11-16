@@ -129,3 +129,16 @@ export function valuationAt(store: MockStore, userId: Id, atMs: number) {
 }
 
 export type Valuation = ReturnType<typeof valuationAt>;
+
+/** A person's holdings now, at their latest prices, largest first, unpriced last. */
+export function holdingsNow(store: MockStore, userId: Id) {
+  const valuation = valuationAt(store, userId, store.calendar.nowMs);
+  const value = (holding: Holding) => holding.valueEur ?? new Big(-1);
+  return {
+    ...valuation,
+    holdings: valuation.holdings.toSorted(
+      (a, b) =>
+        value(b).cmp(value(a)) || a.share.name.localeCompare(b.share.name),
+    ),
+  };
+}

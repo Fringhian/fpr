@@ -2,8 +2,8 @@ import type { Period, ShareValueEvent } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import { timestamp } from "../../store/calendar.ts";
+import { weighEntries } from "../../store/log.ts";
 import { personOf, toPerson } from "../../store/people.ts";
-import { entryWeight } from "../../store/portfolio.ts";
 import { priceSeries, requireShare } from "../../store/shares.ts";
 import type {
   MockStore,
@@ -114,13 +114,13 @@ export const shareReads = {
   holders: mock.shares.holders.handler(({ context, input }) => {
     const { store } = context;
     const share = shareById(store, input.id);
-    if (context.viewer?.role === "anonymous") {
-      for (const entry of store.entries) {
-        if (entry.type === "change" && entry.shareId === share.id) {
-          context.quantityWeights.set(entry.id, entryWeight(store, entry));
-        }
-      }
-    }
+    weighEntries(
+      store,
+      context,
+      store.entries.filter(
+        (entry) => entry.type === "change" && entry.shareId === share.id,
+      ),
+    );
     return { holders: holdersOf(store, share) };
   }),
 

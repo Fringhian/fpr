@@ -75,10 +75,35 @@ function mockPerson(fixture: FixturePerson, calendar: Calendar): MockPerson {
   };
 }
 
+/**
+ * When a share was stored: a few minutes before its first change, as a
+ * lookup comes before the change, or with its first value; a month ago for
+ * one nobody recorded.
+ */
+function addedAtMs(
+  shareId: Id,
+  entries: readonly StoredEntry[],
+  events: readonly { madeAtMs: number }[],
+  calendar: Calendar,
+): number {
+  const moments = [
+    ...entries.flatMap((entry) =>
+      entry.type === "change" && entry.shareId === shareId
+        ? entry.atMs - 5 * 60_000
+        : [],
+    ),
+    ...events.map((event) => event.madeAtMs),
+  ];
+  return moments.length === 0
+    ? calendar.nowMs - 30 * DAY_MS
+    : Math.min(...moments);
+}
+
 function storedShare(
   fixture: FixtureShare,
   calendar: Calendar,
   index: number,
+  entries: readonly StoredEntry[],
 ): StoredShare {
   const values =
     fixture.values === undefined
@@ -97,6 +122,7 @@ function storedShare(
     symbol: fixture.symbol,
     exchange: fixture.exchange,
     tradingCurrency: fixture.tradingCurrency,
+    addedAtMs: addedAtMs(fixture.id, entries, values.events, calendar),
     prices:
       fixture.market === null
         ? values.prices
@@ -112,6 +138,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
     atMs,
     effectiveAt: timestamp(atMs),
   });
+  const admin = fixturePersonId("alex");
   for (const [key, days] of Object.entries(fixturePortfolios)) {
     const userId = fixturePersonId(key as PersonKey);
     for (const day of days ?? []) {
@@ -119,6 +146,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
         addDays(calendar.today, -day.daysAgo),
         "10:15:00",
       );
+      const madeBy = day.byAdmin ? admin : userId;
       Object.entries(day.changes ?? {}).forEach(
         ([share, quantityDelta], index) => {
           const shareId = fixtureShareId(share as ShareKey);
@@ -127,6 +155,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
             userId,
             shareId,
             quantityDelta,
+            madeBy,
             ...moment(dayStart + index * 60_000),
           });
         },
@@ -136,6 +165,7 @@ function storedEntries(calendar: Calendar): StoredEntry[] {
           type: "cash",
           userId,
           amountEur: day.cashEur,
+          madeBy,
           ...moment(dayStart + 15 * 60_000),
         });
       }
@@ -167,6 +197,7 @@ function seededAccessKeys(): MockStore["accessKeys"] {
 export function createMockStore(options: MockStoreOptions = {}): MockStore {
   const calendar = createCalendar(options.now ?? new Date());
   const empty = options.empty === true;
+  const entries = empty ? [] : storedEntries(calendar);
   return {
     calendar,
     people: empty
@@ -175,13 +206,13 @@ export function createMockStore(options: MockStoreOptions = {}): MockStore {
     shares: empty
       ? []
       : fixtureShares.map((share, index) =>
-          storedShare(share, calendar, index),
+          storedShare(share, calendar, index, entries),
         ),
-    entries: empty ? [] : storedEntries(calendar),
+    entries,
     accessKeys: empty ? new Map() : seededAccessKeys(),
     resetKeys: new Map(),
     conflicted: options.conflicts ? new Set() : null,
-    refreshes: { running: false, count: 0 },
+    refreshes: { running: false, count: 0, lastRunMs: null, offline: false },
     session: options.session ?? null,
     onSessionChange: options.onSessionChange ?? (() => {}),
   };

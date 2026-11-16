@@ -5,94 +5,29 @@ import type {
   Race,
   ShareLeaderboard,
 } from "@fpr/contracts";
-import { timestamp } from "./calendar.ts";
+import { dayOf, timestamp } from "./calendar.ts";
 import { Big, money, ratio } from "./decimal.ts";
-import { type GainAmount, gainBetween, gainPercent, toGain } from "./gain.ts";
-import { firstEntryOn, racers, toPerson } from "./people.ts";
+import { type GainAmount, gainPercent, toGain } from "./gain.ts";
+import { racers, toPerson } from "./people.ts";
 import {
-  earliestEntry,
+  firstEntryMs,
   measuredFrom,
-  type PeriodWindow,
-  periodWindow,
-  seriesPoints,
-  windowInstants,
+  raceWindow,
+  toSeriesPoints,
+  windowPoints,
 } from "./series.ts";
-import { priceChange, toShareSummary } from "./shares.ts";
-import type { MockPerson, MockStore } from "./types.ts";
-import { changesOf, valuationAt } from "./valuation.ts";
+import { earliestPrice, priceChange, toShareSummary } from "./shares.ts";
+import { type BestHolding, standingsAt } from "./standings.ts";
+import type { MockStore } from "./types.ts";
+import { changesOf, holdingsNow, quantitiesAt } from "./valuation.ts";
 
-/** The race's members and its window: those with an entry, and those not started. */
-export function raceField(store: MockStore, period: Period) {
-  const people = racers(store);
-  const started = people.filter(
-    (person) => firstEntryOn(store, person.id) !== null,
-  );
-  const window = periodWindow(
-    store,
-    period,
-    earliestEntry(
-      store,
-      started.map((person) => person.id),
-    ),
-  );
-  return {
-    window,
-    started,
-    notStarted: people
-      .filter((person) => !started.includes(person))
-      .map(toPerson),
-  };
-}
-
-/** A member's result as of the last close. */
-export function standing(
-  store: MockStore,
-  person: MockPerson,
-  window: PeriodWindow,
-) {
-  const end = window.lastCloseMs;
-  const changes = changesOf(store, person.id);
-  const valuation = valuationAt(store, person.id, end);
-  const shareGains = valuation.holdings.flatMap((holding) =>
-    holding.valueEur === null
-      ? []
-      : [
-          {
-            holding,
-            gain: gainBetween(
-              store,
-              changes,
-              window.startMs,
-              end,
-              holding.share.id,
-            ),
-          },
-        ],
-  );
-  return {
-    valuation,
-    gain: gainBetween(store, changes, window.startMs, end),
-    shareGains,
-  };
-}
-
-/** The holding with the largest gain in percent, or `null`. */
-export function bestHolding(
-  shareGains: ReturnType<typeof standing>["shareGains"],
-) {
-  const ranked = shareGains
-    .map(({ holding, gain }) => ({ holding, gain, percent: gainPercent(gain) }))
-    .filter(
-      (entry): entry is typeof entry & { percent: Big } =>
-        entry.percent !== null,
-    )
-    .sort((a, b) => b.percent.cmp(a.percent));
-  const best = ranked[0];
-  return best === undefined
+export function toBestHolding(best: BestHolding | null) {
+  return best === null
     ? null
-    : { share: toShareSummary(best.holding.share), gain: toGain(best.gain) };
+    : { share: toShareSummary(best.share), gain: toGain(best.gain) };
 }
 
+/** Highest first, a percentage of `null` last. */
 export function compareGains(unit: "eur" | "percent") {
   return (a: GainAmount, b: GainAmount): number => {
     if (unit === "eur") {
@@ -105,42 +40,62 @@ export function compareGains(unit: "eur" | "percent") {
   };
 }
 
-export function membersView(store: MockStore, period: Period): Members {
-  const { window, started } = raceField(store, period);
-  const people = racers(store);
+/** A member's three largest priced holdings now, each in percent of their balance now. */
+function topHoldings(store: MockStore, userId: Id) {
+  const { holdings, balanceEur } = holdingsNow(store, userId);
   return {
-    members: people.map((person) => {
-      const hasEntries = started.includes(person);
-      const { valuation, gain } = standing(store, person, window);
-      const ranked = valuation.holdings
-        .filter((holding) => holding.valueEur !== null)
-        .sort((a, b) =>
-          (b.valueEur ?? new Big(0)).cmp(a.valueEur ?? new Big(0)),
-        );
+    holdingCount: holdings.length,
+    topHoldings: holdings
+      .flatMap(({ share, valueEur }) =>
+        valueEur === null
+          ? []
+          : [
+              {
+                share: toShareSummary(share),
+                weight: ratio(valueEur, balanceEur) ?? "0.00",
+              },
+            ],
+      )
+      .slice(0, 3),
+  };
+}
+
+/**
+ * Every member with their closes over the period and their gain and balance
+ * at the last close, and their largest holdings now. A member with no close
+ * yet has no gain, balance, or series.
+ */
+export function membersView(store: MockStore, period: Period): Members {
+  const { window, standings, notStarted } = standingsAt(store, period);
+  const rows = [
+    ...standings.map((standing) => ({ person: standing.person, standing })),
+    ...notStarted.map((person) => ({ person, standing: undefined })),
+  ];
+  return {
+    members: rows.map(({ person, standing }) => {
+      const first = firstEntryMs(store, person.id);
       return {
         member: toPerson(person),
-        firstEntryOn: firstEntryOn(store, person.id),
+        firstEntryOn: first === null ? null : dayOf(first),
         measuredFrom: measuredFrom(store, person.id, window),
-        incomplete: valuation.incomplete,
-        gain: hasEntries ? toGain(gain) : null,
-        balanceEur: hasEntries ? money(valuation.balanceEur) : null,
-        series: seriesPoints(store, person.id, window, [
-          window.startMs,
-          ...window.closes,
-        ]),
-        topHoldings: ranked.slice(0, 3).map((holding) => ({
-          share: toShareSummary(holding.share),
-          weight:
-            ratio(holding.valueEur ?? new Big(0), valuation.balanceEur) ?? "0",
-        })),
-        holdingCount: valuation.holdings.length,
+        incomplete: standing?.end.incomplete ?? false,
+        gain: standing === undefined ? null : toGain(standing.gain),
+        balanceEur:
+          standing === undefined ? null : money(standing.end.balanceEur),
+        series: standing === undefined ? [] : toSeriesPoints(standing.closes),
+        ...topHoldings(store, person.id),
       };
     }),
   };
 }
 
+/**
+ * Each member's balance and gain since the period's start at each close,
+ * then at each refresh since the last close, which is provisional. A member
+ * with no point yet hasn't started.
+ */
 export function raceView(store: MockStore, period: Period): Race {
-  const { window, started, notStarted } = raceField(store, period);
+  const window = raceWindow(store, period);
   const latest = Math.max(
     0,
     ...store.shares.flatMap((share) =>
@@ -149,46 +104,60 @@ export function raceView(store: MockStore, period: Period): Race {
         .map((price) => price.atMs),
     ),
   );
+  const lanes = racers(store).map((person) => ({
+    person,
+    points: windowPoints(store, person.id, window, { closesOnly: false }),
+  }));
   return {
     lastCloseOn: store.calendar.lastCloseOn,
     latestPricesAt: latest === 0 ? null : timestamp(latest),
     refreshesRunning: store.calendar.refreshesRunning,
-    members: started.map((person) => {
-      const points = seriesPoints(
-        store,
-        person.id,
-        window,
-        windowInstants(store, window),
-      );
-      return {
-        member: toPerson(person),
-        measuredFrom: measuredFrom(store, person.id, window),
-        incomplete: points.at(-1)?.incomplete ?? false,
-        points,
-      };
-    }),
-    notStarted,
+    members: lanes.flatMap(({ person, points }) =>
+      points.length === 0
+        ? []
+        : [
+            {
+              member: toPerson(person),
+              measuredFrom: measuredFrom(store, person.id, window),
+              incomplete: points.at(-1)?.incomplete ?? false,
+              points: toSeriesPoints(points),
+            },
+          ],
+    ),
+    notStarted: lanes
+      .filter(({ points }) => points.length === 0)
+      .map(({ person }) => toPerson(person)),
   };
 }
 
+/**
+ * The shares someone held at the last close, by their change in percent from
+ * the period's start to it, or for `all` from their first price. A share
+ * without a price at both ends is left out.
+ */
 export function shareLeaderboardView(
   store: MockStore,
   period: Period,
 ): ShareLeaderboard {
-  const { window, started } = raceField(store, period);
-  const held = new Set<Id>(
-    started.flatMap((person) =>
-      valuationAt(store, person.id, window.lastCloseMs).holdings.map(
-        (holding) => holding.share.id,
-      ),
-    ),
+  const window = raceWindow(store, period);
+  const held = new Set(
+    store.people.flatMap((person) => [
+      ...quantitiesAt(changesOf(store, person.id), window.lastCloseMs).keys(),
+    ]),
   );
   const rows = store.shares.flatMap((share) => {
-    const change = held.has(share.id)
-      ? priceChange(share, window.startMs, window.lastCloseMs)
-      : null;
+    const startMs =
+      period === "all" ? earliestPrice(share)?.atMs : window.startMs;
+    const change =
+      held.has(share.id) && startMs !== undefined
+        ? priceChange(share, startMs, window.lastCloseMs)
+        : null;
     return change === null ? [] : [{ share: toShareSummary(share), change }];
   });
-  rows.sort((a, b) => new Big(b.change.percent).cmp(a.change.percent));
+  const percent = (row: (typeof rows)[number]) => new Big(row.change.percent);
+  rows.sort(
+    (a, b) =>
+      percent(b).cmp(percent(a)) || a.share.name.localeCompare(b.share.name),
+  );
   return { lastCloseOn: store.calendar.lastCloseOn, rows };
 }
