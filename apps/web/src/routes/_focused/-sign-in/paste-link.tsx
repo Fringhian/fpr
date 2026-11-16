@@ -42,8 +42,8 @@ export function PasteLink() {
           </StepFlow.Description>
           <Field.Root name="link" validate={checks.accessLink}>
             <Field.Label>{t("pasteLink.label")}</Field.Label>
+            {/* Text, not `url`: the browser would refuse a bare key before the check runs. */}
             <Field.Control
-              type="url"
               inputMode="url"
               autoComplete="off"
               autoCapitalize="none"

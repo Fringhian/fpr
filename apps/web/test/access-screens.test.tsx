@@ -246,4 +246,13 @@ describe("the access screens", () => {
     );
     await submit(page, () => expect(router.state.location.pathname).toBe("/"));
   });
+
+  it("open a bare access key pasted on sign-in", async () => {
+    const { page, router } = await visit("/sign-in?step=link", "signedOut");
+    fill(page, "link", accessKeys.waiting.key);
+    await submit(page, () =>
+      expect(page.textContent).toContain("You’re invited, Camille Roux"),
+    );
+    expect(router.state.location.href).toBe("/access");
+  });
 });
