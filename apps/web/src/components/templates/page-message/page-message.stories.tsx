@@ -1,6 +1,7 @@
 import { DesktopIcon } from "@phosphor-icons/react/Desktop";
 import { QuestionIcon } from "@phosphor-icons/react/Question";
 import { WarningCircleIcon } from "@phosphor-icons/react/WarningCircle";
+import { WifiSlashIcon } from "@phosphor-icons/react/WifiSlash";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../atoms/button/button";
@@ -10,11 +11,12 @@ import { PageMessage, type PageMessageProps } from "./page-message";
 const ICONS = {
   question: QuestionIcon,
   "warning-circle": WarningCircleIcon,
+  "wifi-slash": WifiSlashIcon,
   desktop: DesktopIcon,
 } as const;
 
 /** The messages the app shows, by their key in the texts. */
-type Use = "notFound" | "loadFailed" | "adminOnPhone";
+type Use = "notFound" | "loadFailed" | "offline" | "adminOnPhone";
 
 /** The story's args: the icon picked by name, and whether the action shows. */
 type StoryArgs = Omit<PageMessageProps, "icon" | "action"> & {
@@ -51,6 +53,7 @@ A page that is only a message: the state icon, the page’s heading, one sentenc
 
 - **Page not found**: an address no route answers, with Go to Home.
 - **Can’t load this page**: a page whose data failed to load, with Retry.
+- **You’re offline**: the same with no network, on every screen, with Retry.
 - **Admin works on a larger screen**: the admin area on a phone, with no action.
 
 It fills the content of whatever frame holds it: the app layout’s column, or a page of its own. It sits 60px under the top on phone and 96px from tablet up.
@@ -98,6 +101,12 @@ export const NotFound: Story = {
 export const LoadFailed: Story = {
   args: { icon: "warning-circle", action: true },
   render: (args) => <Demo use="loadFailed" {...args} />,
+};
+
+/** A load that failed with no network: Retry. */
+export const Offline: Story = {
+  args: { icon: "wifi-slash", action: true },
+  render: (args) => <Demo use="offline" {...args} />,
 };
 
 /** The admin area on a phone: nothing to do there, so no action. */

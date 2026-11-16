@@ -85,6 +85,8 @@
   },
   "toast": {
     "region": "Notifications",
+    "update": "Une nouvelle version de FPR est prête",
+    "reload": "Recharger",
     "dismiss": "Fermer",
     "undo": "Annuler"
   },
@@ -857,7 +859,6 @@
         "failed": "Impossible de charger cette valeur",
         "missing": "Cette valeur n’existe plus"
       },
-      "failedLine": "Vérifiez votre connexion et réessayez.",
       "missingLine": "Il a peut-être été supprimé. Fermez cette page pour revenir.",
       "retry": "Réessayer"
     }
@@ -1123,6 +1124,10 @@
       "description": "Vérifiez votre connexion et réessayez.",
       "action": "Réessayer"
     },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "description": "FPR a besoin d’une connexion pour afficher cette page. Vérifiez la vôtre et réessayez."
+    },
     "adminOnPhone": {
       "title": "L’administration s’utilise sur un plus grand écran",
       "description": "Ouvrez FPR sur une tablette ou un ordinateur pour l’utiliser."
@@ -1162,6 +1167,7 @@
     "callBudgetUsed": "Les recherches de cours du jour sont épuisées. Réessayez demain.",
     "internalError": "Un problème est survenu du côté de FPR. Réessayez dans un instant.",
     "providerUnavailable": "Le fournisseur de cours ne répond pas. Réessayez dans quelques minutes.",
-    "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez."
+    "unreachable": "FPR est injoignable. Vérifiez votre connexion et réessayez.",
+    "offline": "Vous êtes hors ligne. Reconnectez-vous, puis réessayez."
   }
 }

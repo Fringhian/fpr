@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useUnreachableText } from "../../lib/api/errors";
 import {
   changePassword,
   type PasswordChangeOutcome,
@@ -23,6 +24,7 @@ export function usePasswordChange(onChanged: () => void) {
   const { t } = useTranslation();
   const { errors, formError, refuse } = useRefusal<"currentPassword">();
   const change = useMutation({ mutationFn: changePassword });
+  const unreachableText = useUnreachableText();
 
   const refusals: Record<
     Exclude<PasswordChangeOutcome, "changed" | "signedOut" | "accessEnded">,
@@ -34,7 +36,7 @@ export function usePasswordChange(onChanged: () => void) {
     },
     rateLimited: { text: t("errors.rateLimited") },
     failed: { text: t("errors.internalError") },
-    unreachable: { text: t("errors.unreachable") },
+    unreachable: { text: unreachableText },
   };
   const submit = ({ currentPassword, password }: Passwords) => {
     refuse(null);

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { fixtureShares } from "../src/mocks/fixtures/shares.ts";
 import type { Persona } from "../src/mocks/personas.ts";
@@ -187,5 +187,47 @@ describe("the route guards", () => {
     const { text } = await visit("/", "member", { failMe: true });
     expect(text).toContain("Can’t load this page");
     expect(text).toContain("Retry");
+  });
+
+  it("say each screen is offline with no network, and load it again once back", async () => {
+    const { router, page, setOnline } = await visit("/members", "member");
+    await setOnline(false);
+    await act(() => router.navigate({ to: "/portfolio" }));
+    await vi.waitFor(() =>
+      expect(page.textContent).toContain("You’re offline"),
+    );
+    expect(page.textContent).toContain("Retry");
+    expect(page.querySelector("nav")).not.toBeNull();
+
+    await setOnline(true);
+    await vi.waitFor(() =>
+      expect(page.textContent).toContain("Your portfolio is worth"),
+    );
+    expect(page.textContent).not.toContain("Retry");
+  });
+
+  it.each([
+    routes.shares,
+    routes.share,
+    routes.shareValue,
+    routes.portfolioHistory,
+  ])("say %s is offline with no network", async (path) => {
+    const { router, page, setOnline } = await visit("/members", "member");
+    await setOnline(false);
+    await act(() => router.navigate({ href: path }));
+    await vi.waitFor(() =>
+      expect(page.textContent).toContain("You’re offline"),
+    );
+  });
+
+  it("open on You're offline with no network, and load by themselves once back", async () => {
+    const { page, setOnline } = await visit("/members", "member", {
+      offline: true,
+    });
+    expect(page.textContent).toContain("You’re offline");
+
+    await setOnline(true);
+    await vi.waitFor(() => expect(page.querySelector("nav")).not.toBeNull());
+    expect(page.textContent).not.toContain("Retry");
   });
 });

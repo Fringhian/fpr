@@ -97,14 +97,17 @@ export function PortfolioScreen() {
   const { person } = useSession();
   const data = usePortfolioData();
   const { link: recordLink } = useRecord(person.id);
-  const failed = useLoadFailedMessage(data.retry);
+  const failed = useLoadFailedMessage(
+    data.retry,
+    t("portfolioPage.loadFailed"),
+  );
 
   const title = t("pages.portfolio");
 
   if (data.failed) {
     return (
       <Screen title={title} heading={false}>
-        <PageMessage {...failed} title={t("portfolioPage.loadFailed")} />
+        <PageMessage {...failed} />
       </Screen>
     );
   }

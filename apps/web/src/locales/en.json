@@ -83,6 +83,8 @@
   },
   "toast": {
     "region": "Notifications",
+    "update": "A new version of FPR is ready",
+    "reload": "Reload",
     "dismiss": "Dismiss",
     "undo": "Undo"
   },
@@ -843,7 +845,6 @@
         "failed": "Can’t load this value",
         "missing": "This value no longer exists"
       },
-      "failedLine": "Check your connection and try again.",
       "missingLine": "It may have been deleted. Close this page to go back.",
       "retry": "Try again"
     }
@@ -1107,6 +1108,10 @@
       "description": "Check your connection and try again.",
       "action": "Retry"
     },
+    "offline": {
+      "title": "You’re offline",
+      "description": "FPR needs a connection to show this page. Check yours and try again."
+    },
     "adminOnPhone": {
       "title": "Admin works on a larger screen",
       "description": "Open FPR on a tablet or a computer to use it."
@@ -1146,6 +1151,7 @@
     "callBudgetUsed": "Today’s price lookups are used up. Try again tomorrow.",
     "internalError": "Something went wrong on FPR’s side. Try again in a moment.",
     "providerUnavailable": "The price provider isn’t answering. Try again in a few minutes.",
-    "unreachable": "FPR can’t be reached. Check your connection and try again."
+    "unreachable": "FPR can’t be reached. Check your connection and try again.",
+    "offline": "You’re offline. Reconnect, then try again."
   }
 }

@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "FPR’s name as its wordmark, in the body font, semibold and slightly spaced. It sits at the top of the sidebar, and above the steps before sign-in. It renders a `<p>`; its place on the page comes from the caller’s `className`.",
+          "FPR’s name as its wordmark, the app icon’s letters: F in cobalt, P in vermilion and R in green, in Rubik Black, the only place that typeface appears. It sits at the top of the sidebar, and above the steps before sign-in. It renders a `<p>`; its place on the page comes from the caller’s `className`.",
       },
     },
   },

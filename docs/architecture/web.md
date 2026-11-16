@@ -36,7 +36,7 @@ The Foundations stories, in `src/foundations/`, show every token with its value 
 
 ## Type and icons
 
-- Figtree is the one typeface, shipped with the build from `@fontsource-variable/figtree` (imported in `src/index.css`), on a variable weight axis.
+- Figtree is the interface's typeface, shipped with the build from `@fontsource-variable/figtree` (imported in `src/index.css`), on a variable weight axis. Rubik, in its 900 weight from `@fontsource/rubik`, draws the FPR wordmark only.
 - Three weights: `font-normal` (400) to read, `font-medium` (500) for labels, `font-semibold` (600) to name or rank.
 - Figures that line up, such as amounts, percentages, ranks and times, use `tabular-nums`.
 - Icons are Phosphor, drawn through `Icon` in `src/components/foundations/icon/icon.tsx`, in three sizes: `s` (16 px) in text, `m` (20 px) in navigation, `l` (24 px) for page actions and state icons. An icon takes the current text colour, and is hidden from screen readers unless it has a label.
@@ -160,10 +160,11 @@ Numbers, amounts and dates are formatted with `Intl` by the functions of `src/li
 FPR is a Progressive Web App: it installs to a phone's home screen or a computer's dock and opens full screen.
 
 - `vite-plugin-pwa` generates the manifest and the service worker at build time. The manifest opens on `/` in standalone mode, with the design system's colours and the app's icons (192 and 512 px, a maskable 512 px, and a 180 px Apple touch icon).
+- The icons, in `public/icons/`, are the wordmark's F, P and R in cobalt, vermilion and green on cream, with the F alone at favicon sizes, drawn from `theme.css` by `pnpm --filter @fpr/web icons`.
 - The service worker precaches the app shell (HTML, scripts, styles, fonts, icons) and never caches `/api/*`. Data always comes from the API.
-- Offline, the app still opens, and each screen shows "You're offline" with Retry.
+- Offline, the app still opens, each screen shows "You're offline" with Retry and loads again once the network is back, and a change fails at once with "You're offline", never queued.
 - A new version installs in the background, then the app offers Reload. It never reloads by itself.
-- Installed, the top and bottom bars pad for the device's safe areas, and the `theme-color` meta tag matches the top bar.
+- Installed, the top and bottom bars pad for the device's safe areas, and the `theme-color` meta tag matches the top bar where the platform uses it: the sky on a page with one, snow otherwise. iOS shows its default status bar.
 - An app installed on iOS keeps its own cookies, apart from Safari's, so its first launch shows sign-in. The sign-in page accepts a pasted access link, which signs an anonymous viewer in or opens the first-use steps of a waiting link.
 
 ## Roles

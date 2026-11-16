@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "../../../lib/cn";
+import { useSkyThemeColor } from "./sky-theme-color";
 
 /**
  * The page ground: warm snow, and the stacking context the sky band sits
@@ -14,9 +15,12 @@ export function Root({ className, ...props }: ComponentProps<"div">) {
 /**
  * The peach sky behind the top of the page, closed by the ridge at the fixed
  * horizon: the ridge's top sits 206px below the top safe area on phone, 200px
- * from tablet up. Goes inside `Root`, which it fills across.
+ * from tablet up. Goes inside `Root`, which it fills across. While it shows,
+ * the `theme-color` meta tag is the sky's.
  */
 export function Band({ className, ...props }: ComponentProps<"div">) {
+  useSkyThemeColor();
+
   return (
     <div
       {...props}

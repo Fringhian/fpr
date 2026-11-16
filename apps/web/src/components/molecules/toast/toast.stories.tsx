@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import * as Toast from "./toast";
-import { DeleteWithUndo, EveryKind, SaveChange, TEXTS } from "./toast-story";
+import {
+  DeleteWithUndo,
+  EveryKind,
+  NewVersion,
+  SaveChange,
+  TEXTS,
+} from "./toast-story";
 
 const text = TEXTS.en;
 
@@ -26,10 +32,11 @@ A short message at the bottom of the screen about what just happened, such as a 
 | --- | --- |
 | \`show({ title, description })\` | A message, gone after 5 s. |
 | \`offerUndo({ title, onUndo })\` | A message with Undo, gone after 8 s. Undo closes it and runs \`onUndo\`. |
+| \`offer({ title, action, onAction })\` | A message with one action, such as Reload for a new version of FPR. A press closes it and runs \`onAction\`. |
 
 - The region is a polite live region named “Notifications”: a screen reader reads each new toast once its current sentence ends. F6 moves the focus into it.
 - A toast waits while the pointer is over the region or the focus is in it, and goes on once they leave.
-- On phone, the toasts sit above the tab bar, full width; from tablet up, centred at the bottom. The newest is at the bottom.
+- On phone, the toasts sit above the tab bar, full width; from tablet up, centred at the bottom. On a focused page they sit above its step buttons, which measure their height into \`--bottom-bar-room\`. The newest is at the bottom.
 - A toast rises into place and sinks out; with reduced motion, it only fades. A swipe down or sideways dismisses it.
 - A deletion either happens at once and offers Undo here, or asks first in a [confirm dialog](?path=/docs/molecules-confirm-dialog--docs).
 `;
@@ -141,6 +148,32 @@ export const EveryKindPhone: Story = {
   name: "Every kind, phone",
   tags: ["!autodocs"],
   globals: { viewport: { value: "phone" } },
+};
+
+/** A new version of FPR, kept until Reload or Dismiss: a press on Reload closes it and runs its action. */
+export const NewVersionStory: Story = {
+  name: "One action",
+  render: () => <NewVersion />,
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const toasts = within(region(canvasElement));
+    const release = () =>
+      userEvent.click(canvas.getByRole("button", { name: text.release }));
+    await step("Reload closes the toast and runs its action", async () => {
+      await release();
+      await userEvent.click(
+        await toasts.findByRole("button", { name: "Reload" }),
+      );
+      await waitFor(() =>
+        expect(toasts.queryByText("A new version of FPR is ready")).toBeNull(),
+      );
+      await expect(await canvas.findByText(text.reloaded)).toBeVisible();
+    });
+    await step("Offer it again, to show it", async () => {
+      await release();
+      await toasts.findByText("A new version of FPR is ready");
+    });
+  },
 };
 
 /** A toast waits while the pointer is on it, then goes by itself once the pointer leaves. */

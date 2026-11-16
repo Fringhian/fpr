@@ -7,6 +7,7 @@ import {
 import type { i18n as I18n } from "i18next";
 import * as Toast from "../components/molecules/toast/toast.tsx";
 import type { Api } from "../lib/api/api.ts";
+import { UpdatePrompt } from "../lib/app-update.tsx";
 import { followSessionLanguage } from "../lib/language-choice.ts";
 import { guard } from "../lib/session/access.ts";
 import { loadSession } from "../lib/session/session-query.ts";
@@ -40,11 +41,12 @@ export const Route = createRootRouteWithContext<{
   errorComponent: LoadFailed,
 });
 
-/** Every page, with the toasts each layout shows in its own region. */
+/** Every page, with the toasts each layout shows in its own region, a new version's included. */
 function Root() {
   return (
     <Toast.Provider>
       <Outlet />
+      <UpdatePrompt />
     </Toast.Provider>
   );
 }

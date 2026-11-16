@@ -59,7 +59,7 @@ function Scale() {
   return (
     <Specimen
       title="Typography"
-      lead="Figtree for everything. Six sizes, each with one job: a new size needs a new role."
+      lead="Figtree for everything but the wordmark, drawn in Rubik. Six sizes, each with one job: a new size needs a new role."
     >
       <ul className="rounded-l bg-surface px-m shadow-outline">
         {SCALE.map(({ role, token, className, weight, use }) => (

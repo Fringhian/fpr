@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defaultClientConditions, defineConfig, type Plugin } from "vite";
+import { installableApp } from "./pwa/installable-app.ts";
 
 /**
  * Leaves MSW's worker, which `public/` keeps for the mock API, out of the
@@ -36,6 +37,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     dropMockWorker(),
+    installableApp(),
   ],
   resolve: { conditions: ["@fpr/source", ...defaultClientConditions] },
   server: {

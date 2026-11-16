@@ -6,9 +6,11 @@ import type {
   ValueChangedDetails,
 } from "@fpr/contracts";
 import { ORPCError } from "@orpc/client";
+import { onlineManager } from "@tanstack/react-query";
 import type { ParseKeys } from "i18next";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useOnline } from "./use-online";
 
 /**
  * The text each error code is written with, in `en.json` and `fr.json`. A
@@ -105,16 +107,39 @@ export function changedPrice(error: unknown): Decimal | null {
 
 /**
  * The text key of any error a call throws: its code's text, the internal
- * error's for an answer with no FPR code, and "can't be reached" when no
- * answer came back.
+ * error's for an answer with no FPR code, and, when no answer came back,
+ * "you're offline" with no network or "can't be reached" otherwise.
  */
 export function errorTextKey(error: unknown): ParseKeys {
   if (!(error instanceof ORPCError)) {
-    return "errors.unreachable";
+    return unreachableTextKey(onlineManager.isOnline());
   }
   return isErrorCode(error.code)
     ? errorTexts[error.code]
     : errorTexts.internal_error;
+}
+
+function unreachableTextKey(online: boolean): ParseKeys {
+  return online ? "errors.unreachable" : "errors.offline";
+}
+
+/**
+ * The text of a call no answer came back to, for a flow that gets no error to
+ * pass to `useErrorText`, such as Better Auth's: “You’re offline” with no
+ * network, “FPR can’t be reached” otherwise.
+ */
+export function useUnreachableText(): string {
+  const { t } = useTranslation();
+  return t(unreachableTextKey(useOnline()));
+}
+
+/**
+ * The line of a read that failed with nothing to show, such as a step's or a
+ * list's next page: its own `text`, or “You’re offline” with no network.
+ */
+export function useReadFailedText(text: string): string {
+  const { t } = useTranslation();
+  return useOnline() ? text : t("errors.offline");
 }
 
 /** Writes any error a call throws in the person's language. */

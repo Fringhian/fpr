@@ -44,11 +44,13 @@
 /*
  * The fixed bars at the page's edges: the compact page bar at the top, below
  * the safe area, and on phone the floating tab bar, which the page's end clears
- * by 92px above the bottom safe area.
+ * by 92px above the bottom safe area. A focused page's step buttons hold the
+ * bottom instead, and measure their height into `--bottom-bar-room`.
  */
 :root {
   --compact-bar: 3.5rem;
   --tab-bar-room: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  --bottom-bar-room: 0px;
 
   @variant tablet {
     --compact-bar: 4rem;
