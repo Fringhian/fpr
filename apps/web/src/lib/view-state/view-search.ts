@@ -23,8 +23,8 @@ export function validatePeriodSearch(
   const stored = readStoredSetting();
   return {
     period:
-      oneOf(periods, search.period) ?? stored?.period ?? DEFAULT_SETTING.period,
-    unit: oneOf(units, search.unit) ?? stored?.unit ?? DEFAULT_SETTING.unit,
+      oneOf(periods, search.period) ?? stored.period ?? DEFAULT_SETTING.period,
+    unit: oneOf(units, search.unit) ?? stored.unit ?? DEFAULT_SETTING.unit,
   };
 }
 

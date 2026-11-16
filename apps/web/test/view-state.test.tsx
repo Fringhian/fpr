@@ -6,8 +6,10 @@ import { visit } from "./visit-app.tsx";
 
 const KEY = "fpr.periodSetting.v1";
 
+/** Keeps a setting as an earlier visit or another tab would, which the app reads again. */
 function keep(setting: Record<string, string>) {
   localStorage.setItem(KEY, JSON.stringify(setting));
+  window.dispatchEvent(new StorageEvent("storage", { key: KEY }));
 }
 
 /** The first bar's segment named `label`, and its pressed option. */
@@ -25,6 +27,7 @@ function segment(page: HTMLElement, label: "Period" | "Unit") {
 
 beforeEach(() => {
   localStorage.clear();
+  window.dispatchEvent(new StorageEvent("storage", { key: null }));
 });
 
 describe("the period and unit", () => {
@@ -71,8 +74,9 @@ describe("the period and unit", () => {
     expect(members?.getAttribute("href")).toBe("/members?period=1W&unit=eur");
   });
 
-  it("are always in percent for an anonymous viewer, who has no € / %", async () => {
-    const { router, page } = await visit("/?unit=eur", "anonymous");
+  it("are always in percent for an anonymous viewer, who has no € / % and leaves the device's unit alone", async () => {
+    keep({ period: "1M", unit: "eur" });
+    const { router, page } = await visit("/", "anonymous");
     expect(segment(page, "Unit").group).toBeNull();
     await act(async () => segment(page, "Period").option("3M")?.click());
     expect(router.state.location.search).toMatchObject({
@@ -81,7 +85,7 @@ describe("the period and unit", () => {
     });
     expect(JSON.parse(localStorage.getItem(KEY) ?? "")).toEqual({
       period: "3M",
-      unit: "percent",
+      unit: "eur",
     });
   });
 });

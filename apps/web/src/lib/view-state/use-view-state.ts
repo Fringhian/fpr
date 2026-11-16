@@ -29,7 +29,8 @@ function useReplaceSearch() {
 /**
  * The period and unit every everyday page shares, and the way to change them:
  * a change goes in the address and in `localStorage`. An anonymous viewer's
- * unit is always percent, whatever the address says.
+ * unit is always percent, whatever the address says, and their change keeps
+ * the period alone, so the unit a member keeps on a shared device stays.
  */
 export function useViewState(): {
   setting: PeriodSetting;
@@ -46,9 +47,8 @@ export function useViewState(): {
   return {
     setting: percentOnly(search),
     setSetting: (setting) => {
-      const next = percentOnly(setting);
-      storeSetting(next);
-      void replaceSearch(next);
+      storeSetting(readOnly ? { period: setting.period } : setting);
+      void replaceSearch(percentOnly(setting));
     },
     anonymous: readOnly,
   };
