@@ -9,6 +9,7 @@ import { MarketStatus } from "../../atoms/market-status/market-status";
 import * as Sky from "../../foundations/sky/sky";
 import type { ChartPoint } from "../../molecules/chart/chart";
 import { toDecimal } from "../../molecules/chart/chart-model";
+import { madeUpCurve } from "../made-up-race/made-up-race-model";
 import * as RaceCard from "./race-card";
 
 /** The weekdays of March 2026 up to the 27th: the last one is today, after the last close. */
@@ -31,22 +32,11 @@ interface Runner {
   balance: number;
 }
 
-/** An invented, repeatable curve from zero to `gain`, wandering on the way: the same on every load. */
-function curve(seed: number, gain: number): number[] {
-  let state = seed;
-  return DAYS.map((_, index) => {
-    state = (state * 16_807) % 2_147_483_647;
-    const progress = index / (DAYS.length - 1);
-    const wander = (state / 2_147_483_647 - 0.5) * 2.4;
-    return gain * progress + wander * Math.sin(Math.PI * progress);
-  });
-}
-
 /** The same runners, in percent and in euros, as the API sends either unit. */
 function race(runners: readonly Runner[]) {
   const curves = runners.map((runner, index) => ({
     runner,
-    values: curve(31 + index * 97, runner.gain),
+    values: madeUpCurve(31 + index * 97, runner.gain, DAYS.length),
   }));
   const member = (
     { id, name, color }: Runner,

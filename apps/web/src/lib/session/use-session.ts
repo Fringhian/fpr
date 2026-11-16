@@ -1,6 +1,6 @@
 import type { Me, Role } from "@fpr/contracts";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useApi } from "../api/use-api.ts";
 import { sessionQuery } from "./session-query.ts";
 
 /** The signed-in person, as a screen reads them. */
@@ -19,10 +19,7 @@ export type Session = {
  * reads `null` here: only a route outside the guards would.
  */
 export function useSession(): Session {
-  const api = useRouteContext({
-    from: "__root__",
-    select: (context) => context.api,
-  });
+  const api = useApi();
   const { data: person } = useSuspenseQuery(sessionQuery(api));
 
   if (person === null) {

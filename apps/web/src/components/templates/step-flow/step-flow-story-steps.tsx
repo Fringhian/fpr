@@ -3,7 +3,7 @@ import { Button } from "../../atoms/button/button";
 import * as StepFlow from "./step-flow";
 import {
   ChangeSummary,
-  LanguageSwitch,
+  HeaderLanguageSwitch,
   PanelFigure,
   PortfolioList,
   QuantityField,
@@ -81,7 +81,7 @@ export function SignInStep(args: FlowArgs) {
       <StepFlow.Column>
         <StepFlow.Header>
           {args.back ? <StepFlow.Back href="#access" /> : null}
-          <LanguageSwitch />
+          <HeaderLanguageSwitch />
         </StepFlow.Header>
         {args.progress ? (
           <StepFlow.Progress step={args.step} count={args.count} />

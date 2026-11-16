@@ -1,6 +1,8 @@
 import { ProhibitIcon } from "@phosphor-icons/react/Prohibit";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { StateIcon } from "../../../components/atoms/state-icon/state-icon";
+import { TextLink } from "../../../components/atoms/text-link/text-link";
 import * as StepFlow from "../../../components/templates/step-flow/step-flow";
 
 /**
@@ -22,6 +24,11 @@ export function AccessEnded() {
           <StepFlow.Description>
             {t("pageStates.accessEnded.description")}
           </StepFlow.Description>
+          <p className="text-s">
+            <TextLink render={<Link to="/sign-in" />}>
+              {t("pageStates.accessEnded.otherAccount")}
+            </TextLink>
+          </p>
         </StepFlow.Body>
       </StepFlow.Column>
     </StepFlow.Root>
