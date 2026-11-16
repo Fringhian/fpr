@@ -1,7 +1,6 @@
 import type { NewPrice } from "@fpr/db";
-import type { SeedListing } from "./seed-data.js";
-
-export const DAY_MS = 24 * 60 * 60 * 1000;
+import type { SeedListing } from "./data/shares.js";
+import { DAY_MS } from "./seed-clock.js";
 
 /**
  * The UTC instant of a wall-clock time on a calendar day in a time zone,
