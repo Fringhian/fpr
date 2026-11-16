@@ -235,7 +235,11 @@ const configurable = {
     board: {
       control: { type: "inline-radio" },
       options: leaderboardBoards,
-      table: { type: { summary: `"gain" | "balance"` } },
+      table: {
+        type: {
+          summary: leaderboardBoards.map((board) => `"${board}"`).join(" | "),
+        },
+      },
     },
     anonymous: { control: { type: "boolean" } },
     period: { control: { type: "text" } },
