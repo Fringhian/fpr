@@ -206,6 +206,20 @@ describe("the route guards", () => {
     expect(page.textContent).not.toContain("Retry");
   });
 
+  it.each([
+    routes.shares,
+    routes.share,
+    routes.shareValue,
+    routes.portfolioHistory,
+  ])("say %s is offline with no network", async (path) => {
+    const { router, page, setOnline } = await visit("/members", "member");
+    await setOnline(false);
+    await act(() => router.navigate({ href: path }));
+    await vi.waitFor(() =>
+      expect(page.textContent).toContain("You’re offline"),
+    );
+  });
+
   it("open on You're offline with no network, and load by themselves once back", async () => {
     const { page, setOnline } = await visit("/members", "member", {
       offline: true,
