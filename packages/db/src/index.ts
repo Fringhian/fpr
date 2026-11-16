@@ -6,6 +6,7 @@ export {
   type Db,
   ping,
 } from "./database.js";
+export { violatedConstraint } from "./errors.js";
 export { migrateToLatest } from "./migrate.js";
 export * as accessKeys from "./queries/access-keys.js";
 export type { CashBalanceChanges } from "./queries/cash-balances.js";

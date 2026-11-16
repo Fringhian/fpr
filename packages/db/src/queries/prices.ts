@@ -39,6 +39,21 @@ export async function latestAt(
   return query.orderBy("at", "desc").limit(1).executeTakeFirst();
 }
 
+/** How many prices from one source a share has. */
+export async function count(
+  db: Db,
+  shareId: string,
+  source: PriceSource,
+): Promise<number> {
+  const { count } = await db
+    .selectFrom("prices")
+    .select((eb) => eb.fn.countAll<string>().as("count"))
+    .where("shareId", "=", shareId)
+    .where("source", "=", source)
+    .executeTakeFirstOrThrow();
+  return Number(count);
+}
+
 /**
  * A share's prices from `from` to `to`, both included, oldest first. With
  * `sources`, only prices from those sources.

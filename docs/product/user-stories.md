@@ -108,6 +108,8 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - An ISIN is stored once, and the filter finds it: creating a second share with it, or giving a manual share an ISIN another share has, is refused with a link to that share. An ISIN listed on several exchanges is stored on its primary listing.
 - A manual share always keeps at least one value point.
 - Two members editing the same value point: the second save shows the new value and asks to confirm.
+- Adding a value point at a moment that already has one is refused, and shows the value already there.
+- Two members deleting a manual share's last two value points at once: one deletion is refused, so the share keeps one.
 - A market share held since before the provider's history starts is valued at its earliest close until that day: it shows no gain before it, and its page says "prices from <date>".
 - A fund has no price during the day: its value is its latest daily price, one or two trading days late, shown with its date.
 - A share quoted in another currency is shown in EUR, converted when its price was fetched.
@@ -196,9 +198,9 @@ Every screen that shows gains uses one period (1D, 1W, 1M, 3M, YTD, or all) and 
 - A person with portfolio entries can't become a guest. Nobody becomes or stops being anonymous.
 - A member whose access is revoked or has ended stays in the race with their data. Restoring access lets them sign in again.
 - Deleting a person asks for their name to confirm, and removes them from the race with their share changes and cash balances. The manual shares and value points they created stay, since others may hold them.
-- A share needs attention when it is held and has no price yet, or its latest close is older than the last trading day.
+- A share needs attention when it is held and has no price yet, or no close in the last 5 trading days. A fund priced a day or two late, or a market closed for a holiday, doesn't need attention.
 - A share any share change refers to can't be deleted.
-- Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin.
+- Turning a share manual can't be undone. Its past prices stay, its latest price becomes its first value point, and the price service stops refreshing it. A share with no price at all needs a first value from the admin. A share that gets a price while the admin types that first value is made manual with the price it got, and the typed value is not stored.
 - A refresh runs the scheduled job at once: missing histories, then the latest prices in one batch. It is refused while a run is going and once the day's call cap is reached.
 - The admin area works on tablet and desktop. On a phone it says so.
 - On a fresh install, the first admin signs up with the bootstrap key from the environment. It works only while no admin exists.

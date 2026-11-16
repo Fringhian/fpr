@@ -21,8 +21,8 @@ export type AdminShare = z.infer<typeof adminShareSchema>;
 
 /**
  * Every stored share, each in one group:
- * - `needsAttention`: a held market share with no price, or a latest close
- *   older than the last trading day;
+ * - `needsAttention`: a held market share with no price, or no close in the
+ *   last 5 trading days: see `prices.md` › Endpoints;
  * - `tracked`: every other held market share;
  * - `manual`: every manual share, held or not;
  * - `notHeld`: a market share nobody holds.
