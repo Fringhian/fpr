@@ -575,6 +575,23 @@
     "empty": "FPR n’a encore aucune action.",
     "none": "Aucune action de FPR ne correspond à {{q}}."
   },
+  "pictureStack": {
+    "others_one": "et {{count}} autre",
+    "others_many": "et {{count}} autres",
+    "others_other": "et {{count}} autres"
+  },
+  "shareCard": {
+    "manual": "Valeur saisie par les membres",
+    "holders": "Qui la détient",
+    "heldBy_zero": "Personne ne la détient",
+    "heldBy_one": "Détenue par {{count}}",
+    "heldBy_many": "Détenue par {{count}}",
+    "heldBy_other": "Détenue par {{count}}"
+  },
+  "sharesPage": {
+    "held": "Dans la course",
+    "notHeld": "Que personne ne détient"
+  },
   "recordChange": {
     "leave": "Ce mouvement n’est pas encore enregistré. Ceux enregistrés avant restent.",
     "kinds": {

@@ -18,7 +18,7 @@ import {
 } from "./holding-card-parts";
 
 export { Cash, type CashProps } from "./holding-card-cash";
-export { Details, Pending, Value } from "./holding-card-figures";
+export { Curve, Details, Pending, Value } from "./holding-card-figures";
 export {
   Actions,
   Caption,
