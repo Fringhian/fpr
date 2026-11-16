@@ -1,16 +1,28 @@
 import { apiContract } from "@fpr/contracts";
 import { createTestDatabase, type TestDatabase } from "@fpr/db/testing";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockInstance,
+  vi,
+} from "vitest";
 import type { Auth } from "../../src/auth/auth.js";
+import { apiError } from "../../src/errors.js";
 import { expectError } from "../access-support.js";
 import { addRace, raceSeries } from "../race-support.js";
 import {
   addSignedIn,
   apiRequest,
   createTestAuth,
+  createTestPrices,
   parseOutput,
   serveApp,
   signIn,
+  type TestPrices,
   type TestServer,
 } from "../test-support.js";
 
@@ -18,11 +30,16 @@ let test: TestDatabase;
 let auth: Auth;
 let server: TestServer;
 let race: Awaited<ReturnType<typeof addRace>>;
+let prices: TestPrices;
+let clearSeries: MockInstance;
 
 beforeAll(async () => {
   test = await createTestDatabase();
   auth = createTestAuth(test.db);
-  server = await serveApp({ db: test.db, auth, series: raceSeries(test.db) });
+  prices = createTestPrices();
+  const series = raceSeries(test.db);
+  clearSeries = vi.spyOn(series, "clear");
+  server = await serveApp({ db: test.db, auth, series, prices: prices.prices });
   race = await addRace(test.db, auth);
 });
 
@@ -31,7 +48,12 @@ afterAll(async () => {
   await test.drop();
 });
 
-const { get } = apiContract.shares;
+beforeEach(() => {
+  prices.reset();
+  clearSeries.mockClear();
+});
+
+const { get, update, delete: deleteShare } = apiContract.shares;
 
 const shareFor = (id: string, cookie: string) =>
   apiRequest(server, `/shares/${id}?period=1D`, { cookie });
@@ -113,5 +135,93 @@ describe("GET /shares/{id}", () => {
       await shareFor(crypto.randomUUID(), cookie),
       "not_found",
     );
+  });
+});
+
+const shareId = "0196a1b2-0000-7000-8000-000000000004";
+
+describe("PATCH /api/shares/:id", () => {
+  it("renames a manual share at the price service", async () => {
+    const member = await addSignedIn(server, test.db, auth, "member");
+    const renamed = {
+      id: shareId,
+      isin: "XS0000000019",
+      name: "Example Vineyard Estate",
+      kind: "manual" as const,
+      symbol: null,
+    };
+    prices.routes.updateShare = async () => renamed;
+
+    const response = await apiRequest(server, `/shares/${shareId}`, {
+      method: "PATCH",
+      cookie: member.cookie,
+      body: { name: renamed.name },
+    });
+
+    expect(response.status).toBe(200);
+    expect(parseOutput(update, await response.json())).toEqual(renamed);
+    expect(prices.requests[0]).toMatchObject({
+      method: "PATCH",
+      path: `/shares/${shareId}`,
+      body: { name: renamed.name },
+    });
+    expect(clearSeries).toHaveBeenCalledOnce();
+  });
+
+  it("answers not_found for a market share, and isin_taken for a taken ISIN", async () => {
+    const member = await addSignedIn(server, test.db, auth, "member");
+    const patch = () =>
+      apiRequest(server, `/shares/${shareId}`, {
+        method: "PATCH",
+        cookie: member.cookie,
+        body: { isin: "XS0000000019" },
+      });
+
+    prices.routes.updateShare = async () => {
+      throw apiError("not_found");
+    };
+    await expectError(update, await patch(), "not_found");
+
+    const takenBy = "0196a1b2-0000-7000-8000-000000000005";
+    prices.routes.updateShare = async () => {
+      throw apiError("isin_taken", { shareId: takenBy });
+    };
+    await expectError(update, await patch(), "isin_taken", {
+      shareId: takenBy,
+    });
+  });
+});
+
+describe("DELETE /api/shares/:id", () => {
+  const remove = (cookie: string) =>
+    apiRequest(server, `/shares/${shareId}`, { method: "DELETE", cookie });
+
+  it("deletes a share for the admin", async () => {
+    const admin = await addSignedIn(server, test.db, auth, "admin");
+
+    const response = await remove(admin.cookie);
+
+    expect(response.status).toBe(204);
+    expect(prices.requests).toEqual([
+      { method: "DELETE", path: `/shares/${shareId}`, body: undefined },
+    ]);
+    expect(clearSeries).toHaveBeenCalledOnce();
+  });
+
+  it("refuses a share a share change refers to", async () => {
+    const admin = await addSignedIn(server, test.db, auth, "admin");
+    prices.routes.deleteShare = async () => {
+      throw apiError("share_in_use");
+    };
+
+    await expectError(deleteShare, await remove(admin.cookie), "share_in_use");
+  });
+
+  it("refuses everyone but the admin", async () => {
+    for (const role of ["member", "guest", "anonymous"] as const) {
+      const viewer = await addSignedIn(server, test.db, auth, role);
+      await expectError(deleteShare, await remove(viewer.cookie), "forbidden");
+    }
+    expect(prices.requests).toEqual([]);
   });
 });

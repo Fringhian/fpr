@@ -4,7 +4,7 @@ import { meRouter } from "./me/index.js";
 import { portfolioRouter } from "./portfolio/index.js";
 import { portfolioReads } from "./portfolio/reads.js";
 import { raceRouter } from "./race/index.js";
-import { shareReads } from "./shares/reads.js";
+import { sharesRouter } from "./shares/index.js";
 
 /**
  * The handlers of the routes in `apiContract`, with the same keys. A route
@@ -15,6 +15,6 @@ export const apiRouter = {
   admin: adminRouter,
   me: meRouter,
   portfolio: { ...portfolioRouter, ...portfolioReads },
-  shares: shareReads,
+  shares: sharesRouter,
   race: raceRouter,
 };
