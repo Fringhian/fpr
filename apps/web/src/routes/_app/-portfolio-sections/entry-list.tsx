@@ -34,7 +34,7 @@ function EntryActions({
 
 /** One entry's row, its year written when it isn't this year's. */
 function EntryRow({
-  logRow: { entry, row },
+  logRow: { entry, row, madeBy },
   recordLink,
   onDelete,
 }: {
@@ -58,6 +58,7 @@ function EntryRow({
       date={date}
       timeZone={raceTimeZone()}
       year={year}
+      madeBy={madeBy}
       actions={
         <EntryActions
           edit={recordLink({ entry: entry.id })}

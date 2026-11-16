@@ -14,7 +14,6 @@ import { useLoadFailedMessage } from "../../-states/load-failed";
 import { EntryList } from "../-portfolio-sections/entry-list";
 import type { LogRow } from "../-portfolio-sections/log-rows";
 import { useLog } from "../-portfolio-sections/use-log";
-import { usePortfolioRead } from "../-portfolio-sections/use-portfolio-reads";
 import { useMoreOnScroll } from "./use-more-on-scroll";
 
 type Log = ReturnType<typeof useLog>["log"];
@@ -103,9 +102,8 @@ export function HistoryView({
   none: string;
 }) {
   const { t } = useTranslation();
-  const portfolio = usePortfolioRead(userId);
-  const { log, rows } = useLog(userId, portfolio.data);
-  const reads = neededReads([portfolio, log]);
+  const { log, rows } = useLog(userId);
+  const reads = neededReads([log]);
   const failed = useLoadFailedMessage(reads.retry);
 
   const title = t("pages.portfolioHistory");

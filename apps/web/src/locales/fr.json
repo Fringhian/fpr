@@ -548,7 +548,9 @@
   },
   "latestChanges": {
     "title": "Derniers mouvements",
-    "seeAll": "Voir tous les mouvements"
+    "seeAll": "Voir tous les mouvements",
+    "seeCount_one": "Voir le mouvement",
+    "seeCount_other": "Voir les {{count}} mouvements"
   },
   "sharePage": {
     "loading": "Chargement du titre…",

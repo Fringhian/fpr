@@ -124,7 +124,7 @@ function CashStep() {
           ? t("recordChange.cash.noneBefore")
           : t("recordChange.cash.before", {
               amount: formatMoney(cash.amountEur, language),
-              date: formatDate(cash.effectiveAt, language, {
+              date: formatDate(cash.setAt, language, {
                 style: "long",
                 timeZone: raceTimeZone(),
               }),

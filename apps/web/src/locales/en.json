@@ -536,7 +536,9 @@
   },
   "latestChanges": {
     "title": "Latest changes",
-    "seeAll": "See all changes"
+    "seeAll": "See all changes",
+    "seeCount_one": "See the change",
+    "seeCount_other": "See all {{count}} changes"
   },
   "sharePage": {
     "loading": "Loading the share…",

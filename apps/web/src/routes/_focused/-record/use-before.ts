@@ -1,10 +1,9 @@
-import type { Decimal, PortfolioCashBalance } from "@fpr/contracts";
+import type { Decimal, PortfolioCashAt } from "@fpr/contracts";
 import { useQuery } from "@tanstack/react-query";
 import { useApi } from "../../../lib/api/use-api";
 import { raceDayEnd } from "../../../lib/race-day";
 import { heldBesides } from "./draft";
 import { useFlow } from "./flow";
-import { useLogFind } from "./use-log-find";
 
 /** A read a step shows: `value`, `undefined` while it loads; `failed`, with `retry`. */
 export type BeforeRead<T> = {
@@ -36,23 +35,40 @@ export function useHeldOn(): BeforeRead<Decimal> {
 }
 
 /**
- * The cash balance the owner had set on the draft's day, before this one:
- * the newest one by then, the one being edited left out, or `null` with none.
+ * The cash the owner had set on the draft's day, before this balance: the
+ * newest one by then, or `null` with none. When that is the balance being
+ * edited, the cash just before it is asked for instead.
  */
-export function useCashBefore(): BeforeRead<PortfolioCashBalance | null> {
+export function useCashBefore(): BeforeRead<PortfolioCashAt> {
+  const api = useApi();
   const { owner, draft } = useFlow();
 
-  const end = Date.parse(raceDayEnd(draft.day));
-  const { found, failed, retry } = useLogFind(
-    owner.id,
-    (entry) =>
-      entry.type === "cash" &&
-      entry.id !== draft.entry?.id &&
-      Date.parse(entry.effectiveAt) <= end,
+  const atEnd = useQuery(
+    api.portfolio.cashAt.queryOptions({
+      input: { userId: owner.id, at: raceDayEnd(draft.day) },
+      enabled: draft.kind === "cash",
+    }),
   );
+  const edited = draft.entry?.type === "cash" ? draft.entry : undefined;
+  const isEdited =
+    edited !== undefined &&
+    atEnd.data != null &&
+    Date.parse(atEnd.data.setAt) === Date.parse(edited.effectiveAt);
+  const justBefore = useQuery(
+    api.portfolio.cashAt.queryOptions({
+      input: {
+        userId: owner.id,
+        at: edited
+          ? new Date(Date.parse(edited.effectiveAt) - 1).toISOString()
+          : "",
+      },
+      enabled: isEdited,
+    }),
+  );
+  const read = isEdited ? justBefore : atEnd;
   return {
-    value: found?.type === "cash" ? found : found === null ? null : undefined,
-    failed,
-    retry,
+    value: read.data,
+    failed: read.isError,
+    retry: () => void read.refetch(),
   };
 }

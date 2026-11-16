@@ -1,4 +1,4 @@
-import type { Id, Portfolio, Timestamp } from "@fpr/contracts";
+import type { Id, Portfolio } from "@fpr/contracts";
 import { PencilSimpleIcon } from "@phosphor-icons/react/PencilSimple";
 import { PlusIcon } from "@phosphor-icons/react/Plus";
 import { Link } from "@tanstack/react-router";
@@ -90,13 +90,13 @@ export function EditableSections({
   name,
   portfolio,
   rows,
-  cashSetAt,
+  total,
 }: {
   userId: Id;
   name: string;
   portfolio: Portfolio | undefined;
   rows: readonly LogRow[] | undefined;
-  cashSetAt: Timestamp | undefined;
+  total: number | undefined;
 }) {
   const { t } = useTranslation();
 
@@ -105,12 +105,12 @@ export function EditableSections({
       <OwnedHoldings
         userId={userId}
         portfolio={portfolio}
-        cashSetAt={cashSetAt}
         label={t("memberPage.holdings", { name })}
       />
       <LatestChanges
         userId={userId}
         rows={rows}
+        total={total}
         historyLink={<Link to="/members/$userId/history" params={{ userId }} />}
       />
     </>

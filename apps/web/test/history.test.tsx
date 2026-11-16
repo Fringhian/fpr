@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
+import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { buttonNamed, click, screenText } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
@@ -51,5 +52,23 @@ describe("History", () => {
     );
     expect(screenText()).toContain("“Sold 50 Clean Energy Fund” on");
     expect(store.entries).toHaveLength(count);
+  });
+
+  it("names the admin on the entries they made for a member, and no one on the member's own", async () => {
+    // The admin persona reads FPR in French.
+    await visit(`/members/${fixturePersonId("jordan")}/history`, "admin");
+    const rows = () =>
+      [...document.body.querySelectorAll<HTMLElement>("ol > li")].map(
+        (li) => li.textContent ?? "",
+      );
+    await vi.waitFor(() =>
+      expect(rows().some((row) => row.includes("Achat de 300 Clean"))).toBe(
+        true,
+      ),
+    );
+
+    const byAdmin = rows().filter((row) => row.includes("par Alex Rivière"));
+    expect(byAdmin).toHaveLength(1);
+    expect(byAdmin[0]).toContain("Achat de 300 Clean Energy Fund");
   });
 });
