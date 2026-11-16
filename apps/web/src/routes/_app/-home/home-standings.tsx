@@ -54,9 +54,11 @@ function Loading({ period }: { period: string }) {
 }
 
 /**
- * Home's standings, by gain or by balance as the switch says, with who
- * hasn't started under the lanes. Pressing a lane focuses its member and
- * opens it, on phone with their best share.
+ * Home's standings, by gain or by balance, with who hasn't started under the
+ * lanes. The switch shows the board the lanes are from: after a press, the
+ * last board stays, busy, until the new one loads, and its lanes slide to
+ * their new ranks. Pressing a lane focuses its member and opens it, on phone
+ * with their best share.
  */
 export function HomeStandings({
   standings,
@@ -69,6 +71,7 @@ export function HomeStandings({
   onFocusMember,
 }: {
   standings: Leaderboard | undefined;
+  /** The board asked for, which `standings` may not be from yet. */
   board: LeaderboardBoard;
   onBoardChange: (board: LeaderboardBoard) => void;
   anonymous: boolean;
@@ -82,7 +85,8 @@ export function HomeStandings({
     <Loading period={period} />
   ) : (
     <Standings.Basic
-      board={board}
+      board={standings.board}
+      aria-busy={standings.board !== board || undefined}
       onBoardChange={onBoardChange}
       anonymous={anonymous}
       period={period}
