@@ -1,17 +1,14 @@
 // @vitest-environment happy-dom
 import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { addDays, raceToday } from "../src/lib/race-day.ts";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { fixtureShareId } from "../src/mocks/fixtures/shares.ts";
 import type { StoredChange } from "../src/mocks/store/types.ts";
-import { click, submit, typeInto } from "./interact.ts";
+import { click, screenText, submit, typeInto } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
 const SAM = fixturePersonId("sam");
-
-function text(): string {
-  return document.body.textContent ?? "";
-}
 
 function named(role: string, name: RegExp): HTMLElement | undefined {
   return [
@@ -25,7 +22,7 @@ function amountField(page: HTMLElement) {
 
 /** A day `days` before today, in the race's zone. */
 function daysAgo(days: number): string {
-  return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  return addDays(raceToday(), -days);
 }
 
 /** Sam's share changes in the mock store. */
@@ -48,7 +45,7 @@ describe("Record a change", () => {
           named("radio", /^Bought shares/)?.getAttribute("aria-checked"),
         ).toBe("true"),
     );
-    await submit(page, () => expect(text()).toContain("Which share?"));
+    await submit(page, () => expect(screenText()).toContain("Which share?"));
     await click(
       () => named("radio", /^World Index ETF/),
       () =>
@@ -56,12 +53,14 @@ describe("Record a change", () => {
           named("radio", /^World Index ETF/)?.getAttribute("aria-checked"),
         ).toBe("true"),
     );
-    await submit(page, () => expect(text()).toContain("When?"));
-    await submit(page, () => expect(text()).toContain("How many did you buy?"));
-    typeInto(amountField(page), "7.25");
-    await submit(page, () => expect(text()).toContain("Check and save"));
+    await submit(page, () => expect(screenText()).toContain("When?"));
     await submit(page, () =>
-      expect(text()).toContain("Bought 7.25 World Index ETF on"),
+      expect(screenText()).toContain("How many did you buy?"),
+    );
+    typeInto(amountField(page), "7.25");
+    await submit(page, () => expect(screenText()).toContain("Check and save"));
+    await submit(page, () =>
+      expect(screenText()).toContain("Bought 7.25 World Index ETF on"),
     );
 
     const saved = samsChanges(store.entries);
@@ -73,7 +72,7 @@ describe("Record a change", () => {
 
     await act(() => router.navigate({ to: "/portfolio" }));
     await vi.waitFor(() =>
-      expect(text()).toContain("Bought 7.25 World Index ETF"),
+      expect(screenText()).toContain("Bought 7.25 World Index ETF"),
     );
   });
 
@@ -86,11 +85,11 @@ describe("Record a change", () => {
 
     typeInto(amountField(page), "1,20");
     await submit(page, () =>
-      expect(text()).toContain("Enter an amount of zero or more"),
+      expect(screenText()).toContain("Enter an amount of zero or more"),
     );
     typeInto(amountField(page), "1,200");
-    await submit(page, () => expect(text()).toContain("€1,200.00"));
-    await submit(page, () => expect(text()).toContain("This session"));
+    await submit(page, () => expect(screenText()).toContain("€1,200.00"));
+    await submit(page, () => expect(screenText()).toContain("This session"));
     expect(store.entries.at(-1)).toMatchObject({ amountEur: "1200" });
   });
 
@@ -104,9 +103,9 @@ describe("Record a change", () => {
 
     typeInto(amountField(page), "1 200,50");
     await submit(page, () =>
-      expect(text()).toContain("Vérifier et enregistrer"),
+      expect(screenText()).toContain("Vérifier et enregistrer"),
     );
-    await submit(page, () => expect(text()).toContain("Cette session"));
+    await submit(page, () => expect(screenText()).toContain("Cette session"));
     expect(store.entries.at(-1)).toMatchObject({ amountEur: "1200.50" });
   });
 
@@ -134,14 +133,14 @@ describe("Record a change", () => {
       "member",
     );
     const before = store.entries.length;
-    await vi.waitFor(() => expect(text()).toContain("You held 150 on"));
+    await vi.waitFor(() => expect(screenText()).toContain("You held 150 on"));
 
     typeInto(amountField(page), "120");
-    await submit(page, () => expect(text()).toContain("Check and save"));
+    await submit(page, () => expect(screenText()).toContain("Check and save"));
     await submit(page, () =>
-      expect(text()).toContain("“Sold 50 Clean Energy Fund” on"),
+      expect(screenText()).toContain("“Sold 50 Clean Energy Fund” on"),
     );
-    expect(text()).toContain("How many did you sell?");
+    expect(screenText()).toContain("How many did you sell?");
     expect(store.entries).toHaveLength(before);
   });
 
@@ -152,7 +151,7 @@ describe("Record a change", () => {
       "member",
     );
     const before = store.entries.length;
-    await vi.waitFor(() => expect(text()).toContain("3 World Index ETF"));
+    await vi.waitFor(() => expect(screenText()).toContain("3 World Index ETF"));
 
     const save = page.querySelector<HTMLButtonElement>(
       'form button[type="submit"]',
@@ -160,7 +159,7 @@ describe("Record a change", () => {
     await act(async () => {
       save?.click();
       save?.click();
-      await vi.waitFor(() => expect(text()).toContain("This session"));
+      await vi.waitFor(() => expect(screenText()).toContain("This session"));
     });
     expect(store.entries).toHaveLength(before + 1);
   });
@@ -175,18 +174,20 @@ describe("Record a change", () => {
 
     await submit(page, () => expect(amountField(page)).toBeTruthy());
     typeInto(amountField(page), "5");
-    await submit(page, () => expect(text()).toContain("Check and save"));
-    await submit(page, () => expect(text()).toContain("This session"));
+    await submit(page, () => expect(screenText()).toContain("Check and save"));
+    await submit(page, () => expect(screenText()).toContain("This session"));
     const saved = router.state.location.href;
     expect(store.entries).toHaveLength(before + 1);
 
     await act(async () => {
       router.history.back();
-      await vi.waitFor(() => expect(text()).toContain("How many did you buy?"));
+      await vi.waitFor(() =>
+        expect(screenText()).toContain("How many did you buy?"),
+      );
     });
     typeInto(amountField(page), "5");
-    await submit(page, () => expect(text()).toContain("Check and save"));
-    await submit(page, () => expect(text()).toContain("This session"));
+    await submit(page, () => expect(screenText()).toContain("Check and save"));
+    await submit(page, () => expect(screenText()).toContain("This session"));
     expect(store.entries).toHaveLength(before + 1);
 
     const reload = await visit(saved, "member");
@@ -224,7 +225,7 @@ describe("Record a change", () => {
         },
       }),
     );
-    await vi.waitFor(() => expect(text()).toContain("4 World Index ETF"));
+    await vi.waitFor(() => expect(screenText()).toContain("4 World Index ETF"));
     await submit(page, () =>
       expect(samsChanges(store.entries)).toHaveLength(before + 1),
     );
@@ -254,12 +255,12 @@ describe("Record a change", () => {
     );
     const before = edited.entries.length;
 
-    await vi.waitFor(() => expect(text()).toContain("When?"));
+    await vi.waitFor(() => expect(screenText()).toContain("When?"));
     await submit(page, () => expect(amountField(page)?.value).toBe("2.5"));
     typeInto(amountField(page), "3");
-    await submit(page, () => expect(text()).toContain("Check and save"));
+    await submit(page, () => expect(screenText()).toContain("Check and save"));
     await submit(page, () =>
-      expect(text()).toContain("Bought 3 Global Tech Fund on"),
+      expect(screenText()).toContain("Bought 3 Global Tech Fund on"),
     );
 
     expect(edited.entries).toHaveLength(before);

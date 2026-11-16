@@ -1,7 +1,7 @@
 import type { PortfolioChange } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
-import { useToast } from "../../../components/molecules/toast/use-toast";
 import { isApiError, useErrorText } from "../../../lib/api/errors";
+import { useRefusedToast } from "../../../lib/api/use-refused-toast";
 import { formatDate } from "../../../lib/format/date";
 import { quote } from "../../../lib/format/text";
 import { useLanguage } from "../../../lib/i18n";
@@ -48,10 +48,5 @@ export function useEntryRefusalText(): (error: unknown) => string {
 
 /** Shows why a write to a log entry was refused, in a toast that stays until dismissed. */
 export function useEntryRefusal() {
-  const toast = useToast();
-  const refusalText = useEntryRefusalText();
-
-  return (title: string, error: unknown) => {
-    toast.show({ title, description: refusalText(error), timeout: 0 });
-  };
+  return useRefusedToast(useEntryRefusalText());
 }

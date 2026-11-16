@@ -67,7 +67,7 @@ describe("Admin, people", () => {
       (anchor) => anchor.textContent === named(texts.link.prepare, "Rui Costa"),
     );
     expect(prepare?.getAttribute("href")).toMatch(
-      new RegExp(`^/members/${rui?.id}\\?.*edit=1`),
+      new RegExp(`^/members/${rui?.id}\\?edit=true(&|$)`),
     );
 
     await click(

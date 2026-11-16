@@ -5,10 +5,10 @@ import type {
 } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { TextLink } from "../../../../components/atoms/text-link/text-link";
+import { editPortfolioLink } from "../../../../lib/edit-portfolio";
 import { formatDate, formatTime } from "../../../../lib/format/date";
 import { useLanguage } from "../../../../lib/i18n";
 import type { SecretContent } from "./dialog-steps";
-import { EditPortfolioLink } from "./edit-portfolio-link";
 import { hasPortfolio } from "./people-model";
 
 /**
@@ -19,11 +19,7 @@ function PrepareLink({ person }: { person: AdminPerson }) {
   const { t } = useTranslation();
 
   return (
-    <TextLink
-      toPage
-      className="text-s"
-      render={<EditPortfolioLink userId={person.id} />}
-    >
+    <TextLink toPage className="text-s" render={editPortfolioLink(person.id)}>
       {t("adminPeople.link.prepare", { name: person.displayName })}
     </TextLink>
   );

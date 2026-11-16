@@ -2,7 +2,7 @@ import type { AdminPerson } from "@fpr/contracts";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import * as Menu from "../../../../components/molecules/menu/menu";
-import { EditPortfolioLink } from "./edit-portfolio-link";
+import { editPortfolioLink } from "../../../../lib/edit-portfolio";
 import { hasPassword, hasPortfolio, type PeopleActions } from "./people-model";
 
 /**
@@ -33,7 +33,7 @@ export function PersonMenu({
     <>
       <Menu.Item onClick={open("edit")}>{t("adminPeople.menu.edit")}</Menu.Item>
       {hasPortfolio(person.role) ? (
-        <Menu.LinkItem render={<EditPortfolioLink userId={person.id} />}>
+        <Menu.LinkItem render={editPortfolioLink(person.id)}>
           {t("adminPeople.menu.editPortfolio")}
         </Menu.LinkItem>
       ) : null}

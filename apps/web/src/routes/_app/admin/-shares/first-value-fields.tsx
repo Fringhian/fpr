@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import * as Field from "../../../../components/molecules/field/field";
-import { raceToday } from "../../../../lib/race-day";
+import { useRaceToday } from "../../../../lib/use-race-today";
 import { typedPrice } from "./shares-model";
 
 /**
@@ -9,8 +9,7 @@ import { typedPrice } from "./shares-model";
  */
 export function FirstValueFields() {
   const { t } = useTranslation();
-
-  const today = raceToday();
+  const today = useRaceToday();
 
   const checkPrice = (value: unknown) =>
     typeof value === "string" && typedPrice(value) !== null
