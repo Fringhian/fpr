@@ -42,7 +42,7 @@ const generateOptions = {
     title: "FPR API",
     version: "1",
     description:
-      "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio.",
+      "Generated from the route contracts in `@fpr/contracts` by `pnpm contracts:openapi`. `x-roles` lists the roles a route accepts. `x-anonymize` marks a field the anonymizer changes for an anonymous viewer: `personal` is replaced, `euro` is removed and the percentage beside it stays, and `quantity` is replaced with its weight in the portfolio, or `null` without one.",
   },
   servers: [{ url: "/api" }],
   // Declared once under `components`, as nearly every route answers it.

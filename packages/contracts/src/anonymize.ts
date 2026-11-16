@@ -6,7 +6,7 @@ import { z } from "zod";
  * - `euro`: an amount in euros, removed. The percentage beside it stays, and
  *   a member's balance, which has none, leaves the ranks without amounts;
  * - `quantity`: a quantity held, or cash, replaced with its weight in the
- *   portfolio.
+ *   portfolio, or `null` without one.
  */
 export const anonymizeKinds = ["personal", "euro", "quantity"] as const;
 
@@ -39,9 +39,12 @@ export function euro<T extends z.ZodType>(schema: T): T {
   return mark(schema, "euro");
 }
 
-/** A quantity held, or cash. */
-export function quantity<T extends z.ZodType>(schema: T): T {
-  return mark(schema, "quantity");
+/**
+ * A quantity held, or cash, made nullable: `null` is what an anonymous viewer
+ * gets for one with no weight, without a price or with a balance of zero.
+ */
+export function quantity<T extends z.ZodType>(schema: T): z.ZodNullable<T> {
+  return mark(schema.nullable(), "quantity");
 }
 
 /** How the anonymizer treats a schema, or `undefined` when it keeps it. */
