@@ -9,10 +9,14 @@ import { useLanguage } from "../../../lib/i18n";
 import type { NewShareSearch } from "../../../lib/new-share-search";
 import { bodyOf, type ShareDraft } from "./draft";
 
-/** `back` with the new share picked, as Record a change's search names it. */
+/**
+ * `back` with the new share picked, as Record a change's search names it,
+ * and the quantity entered for the last share dropped.
+ */
 function pickedIn(back: string, share: ShareSummary): string {
   const url = new URL(back, window.location.origin);
   url.searchParams.set("share", share.id);
+  url.searchParams.delete("amount");
   return `${url.pathname}${url.search}`;
 }
 
