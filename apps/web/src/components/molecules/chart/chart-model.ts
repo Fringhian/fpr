@@ -1,4 +1,4 @@
-import type { UTCTimestamp } from "lightweight-charts";
+import type { Time, UTCTimestamp } from "lightweight-charts";
 import {
   type Decimal,
   formatMoney,
@@ -51,6 +51,15 @@ const SECONDS_PER_DAY = 86_400;
 /** A day as the chart's time: midnight UTC, in seconds. */
 export function dayToTime(day: IsoDate): UTCTimestamp {
   return (Date.parse(`${day}T00:00:00Z`) / 1000) as UTCTimestamp;
+}
+
+/** A time the chart hands back, in any of its forms, as its day. */
+export function dayOf(time: Time): IsoDate {
+  if (typeof time === "number") return timeToDay(time);
+  if (typeof time === "string") return time;
+  const month = String(time.month).padStart(2, "0");
+  const day = String(time.day).padStart(2, "0");
+  return `${time.year}-${month}-${day}`;
 }
 
 /** The chart's time back as its day. */
