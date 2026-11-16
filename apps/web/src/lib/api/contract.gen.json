@@ -257,6 +257,42 @@
         }
       }
     },
+    "logEntry": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/log/{entryId}",
+          "summary": "One entry of a member's log"
+        }
+      }
+    },
+    "cashAt": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {
+          "roles": [
+            "admin",
+            "member",
+            "guest",
+            "anonymous"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/users/{userId}/cash-at",
+          "summary": "A member's cash at a moment"
+        }
+      }
+    },
     "addChange": {
       "~orpc": {
         "errorMap": {},

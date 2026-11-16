@@ -2,9 +2,10 @@ import { z } from "zod";
 import { quantity } from "../../anonymize.js";
 import { errorMap, signedInRoute } from "../../contract.js";
 import { decimalSchema } from "../../decimal.js";
-import { writerRoles } from "../../roles.js";
+import { roles, writerRoles } from "../../roles.js";
 import { clientIdSchema, idSchema } from "../../schemas/ids.js";
 import { timestampSchema } from "../../schemas/time.js";
+import { portfolioMadeBySchema } from "./made-by.js";
 
 /** Cash in euros: zero or more. */
 export const portfolioCashAmountSchema = decimalSchema.refine(
@@ -18,6 +19,7 @@ export const portfolioCashBalanceSchema = z.object({
   id: idSchema,
   amountEur: quantity(portfolioCashAmountSchema),
   effectiveAt: timestampSchema,
+  madeBy: portfolioMadeBySchema,
 });
 
 export type PortfolioCashBalance = z.infer<typeof portfolioCashBalanceSchema>;
@@ -75,6 +77,40 @@ export const updatePortfolioCash = signedInRoute(writerRoles)
   .errors(
     errorMap("invalid_request", "forbidden", "not_found", "future_moment"),
   );
+
+/**
+ * `GET /users/{userId}/cash-at?at=`: the member, and the moment, with its
+ * offset percent-encoded in the query.
+ */
+export const portfolioCashAtQuerySchema = z.object({
+  userId: idSchema,
+  at: timestampSchema,
+});
+
+export type PortfolioCashAtQuery = z.input<typeof portfolioCashAtQuerySchema>;
+
+/**
+ * The cash a member had at a moment, and when it was set, or `null` when
+ * they set none at or before it.
+ */
+export const portfolioCashAtSchema = z
+  .object({
+    amountEur: quantity(portfolioCashAmountSchema),
+    setAt: timestampSchema,
+  })
+  .nullable();
+
+export type PortfolioCashAt = z.infer<typeof portfolioCashAtSchema>;
+
+export const getPortfolioCashAt = signedInRoute(roles)
+  .route({
+    method: "GET",
+    path: "/users/{userId}/cash-at",
+    summary: "A member's cash at a moment",
+  })
+  .input(portfolioCashAtQuerySchema)
+  .output(portfolioCashAtSchema)
+  .errors(errorMap("invalid_request", "not_found"));
 
 export const deletePortfolioCash = signedInRoute(writerRoles)
   .route({

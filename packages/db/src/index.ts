@@ -20,6 +20,8 @@ export type {
   PortfolioChangeChanges,
 } from "./queries/portfolio-changes.js";
 export * as portfolioChanges from "./queries/portfolio-changes.js";
+export type { PortfolioLogRow } from "./queries/portfolio-log.js";
+export * as portfolioLog from "./queries/portfolio-log.js";
 export type { PriceSources } from "./queries/prices.js";
 export * as prices from "./queries/prices.js";
 export * as resetKeys from "./queries/reset-keys.js";
@@ -28,6 +30,9 @@ export type { HeldMarketShare, ShareChanges } from "./queries/shares.js";
 export * as shares from "./queries/shares.js";
 export type { UserChanges } from "./queries/users.js";
 export * as users from "./queries/users.js";
+export type { BalanceSeries, SeriesClock } from "./queries/valuation.js";
+export * as valuation from "./queries/valuation.js";
+export type { Balance, BalancePoint } from "./queries/value-moments.js";
 export type {
   AccessKey,
   AccessKeyTable,

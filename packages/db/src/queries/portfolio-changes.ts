@@ -19,6 +19,8 @@ export interface BelowZero {
   quantityBefore: string;
   /** The quantity held from that moment, a decimal string below zero. */
   quantityAfter: string;
+  /** The changes at that moment, in the order they were recorded. */
+  changeIds: string[];
 }
 
 /** The first key of FPR's advisory locks on a person's share changes. */
@@ -121,7 +123,10 @@ export async function belowZero(
 ): Promise<BelowZero | undefined> {
   const { rows } = await sql<BelowZero>`
     with moments as (
-      select effective_at, sum(quantity_delta) as delta
+      select
+        effective_at,
+        sum(quantity_delta) as delta,
+        array_agg(id::text order by created_at, id) as change_ids
       from portfolio_changes
       where user_id = ${userId} and share_id = ${shareId}
       group by effective_at
@@ -130,13 +135,15 @@ export async function belowZero(
       select
         effective_at,
         delta,
+        change_ids,
         sum(delta) over (order by effective_at) as quantity_after
       from moments
     )
     select
       effective_at as at,
       quantity_after - delta as quantity_before,
-      quantity_after
+      quantity_after,
+      change_ids
     from running
     where quantity_after < 0
     order by effective_at

@@ -128,7 +128,9 @@ A person without a picture is drawn by the web app as their initial on their col
 | --- | --- | --- |
 | `GET /users/:userId/portfolio?period=` | all | Holdings with their position and price series, cash, balance, gain over the period |
 | `GET /users/:userId/holdings/:shareId?at=` | all | The quantity of a share held at a moment |
-| `GET /users/:userId/log` | all | Share changes and cash balances, newest first, paged |
+| `GET /users/:userId/log` | all | Share changes and cash balances, newest first, paged, each with who made it and what it changed |
+| `GET /users/:userId/log/:entryId` | all | One share change or cash balance of the log |
+| `GET /users/:userId/cash-at?at=` | all | The cash held at a moment, and when it was set |
 | `GET /users/:userId/balance-history?period=` | all | Balance and gain at each close of the period, then each refresh today, with the entries for chart markers |
 | `POST /users/:userId/changes` | writers | Add or remove shares |
 | `PATCH /changes/:id`, `DELETE /changes/:id` | writers | Edit or delete a share change |
@@ -193,7 +195,7 @@ The rules on roles, the last admin, and access are in `auth.md`, Admin rules. Ma
 
 ## Race calculation
 
-Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each day's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
+Leaderboards and the race chart come from one series per member, computed in Postgres from share changes, cash balances, and prices: their balance at each weekday's close from their first entry, then at each intraday refresh since the last close. How a balance is valued is in `database.md`, Valuation.
 
 - **Balance**: the series at the last close.
 - **Gain**: the series at the last close minus its value at the period's start, in euros, or divided by it, in percent.
@@ -202,7 +204,7 @@ Leaderboards and the race chart come from one series per member, computed in Pos
 - Leaderboards use closes only. The intraday points serve the race chart's current day, portfolios, and share pages.
 - A member whose first entry is after the period's start is measured from it, with a marker. A member with no entries is listed as not started. A member holding a share with no price yet is ranked on the others, marked incomplete.
 
-The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` in `prices` has changed, which catches the price service's runs.
+The series is cached in memory. The API clears it on every write it makes or forwards, and recomputes it when the latest `created_at` or the number of rows in `prices` has changed, which catches the price service's runs, or when a new close has passed.
 
 ## Anonymization
 

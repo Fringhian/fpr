@@ -5,6 +5,7 @@ import { createApp } from "./app.js";
 import { createAuth } from "./auth/auth.js";
 import { loadEnv } from "./env.js";
 import { createLogger } from "./logger.js";
+import { createPricesClient } from "./prices/prices-client.js";
 import { createAvatarStore, createS3Client } from "./storage/avatar-store.js";
 
 function main(): void {
@@ -38,6 +39,10 @@ function main(): void {
     bootstrapKey: env.ADMIN_BOOTSTRAP_KEY,
     pseudonymSecret: env.PSEUDONYM_SECRET,
     raceTimeZone: env.RACE_TIMEZONE,
+    prices: createPricesClient({
+      url: env.PRICES_URL,
+      token: env.PRICES_TOKEN,
+    }),
     logger,
     docs: process.env.NODE_ENV === "development",
   });

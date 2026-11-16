@@ -9,7 +9,7 @@ import type {
   PortfolioLogEntry,
 } from "@fpr/contracts";
 import { dayOf } from "./calendar.ts";
-import { Big, money, plain, ratio } from "./decimal.ts";
+import { Big, money, plain, ratio, zero } from "./decimal.ts";
 import { gainBetween, toGain } from "./gain.ts";
 import { firstEntryOn } from "./people.ts";
 import {
@@ -34,6 +34,7 @@ import {
   changesOf,
   type Holding,
   priceAt,
+  quantitiesAt,
   shareOf,
   valuationAt,
 } from "./valuation.ts";
@@ -52,6 +53,7 @@ export function toChange(
     share: toShareSummary(share),
     quantityDelta: change.quantityDelta,
     effectiveAt: change.effectiveAt,
+    madeBy: null,
   };
 }
 
@@ -61,6 +63,7 @@ export function toCash(cash: StoredCash): PortfolioCashBalance {
     id: cash.id,
     amountEur: cash.amountEur,
     effectiveAt: cash.effectiveAt,
+    madeBy: null,
   };
 }
 
@@ -68,7 +71,14 @@ export function toLogEntry(
   store: MockStore,
   entry: StoredEntry,
 ): PortfolioLogEntry {
-  return entry.type === "change" ? toChange(store, entry) : toCash(entry);
+  if (entry.type === "cash") {
+    return { ...toCash(entry), previousAmountEur: null };
+  }
+  const held = quantitiesAt(changesOf(store, entry.userId), entry.atMs);
+  return {
+    ...toChange(store, entry),
+    quantityAfter: plain(held.get(entry.shareId) ?? zero),
+  };
 }
 
 /**

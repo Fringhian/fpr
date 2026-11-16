@@ -15,7 +15,7 @@ import {
 } from "../../store/series.ts";
 import { requireShare, toShareSummary } from "../../store/shares.ts";
 import type { MockStore, StoredEntry } from "../../store/types.ts";
-import { changesOf, quantitiesAt } from "../../store/valuation.ts";
+import { cashOf, changesOf, quantitiesAt } from "../../store/valuation.ts";
 import { portfolioOwner } from "./owner.ts";
 
 /** Newest first, by moment then id. */
@@ -61,6 +61,7 @@ function logPage(
       last !== undefined && start + input.limit < all.length
         ? cursorOf(last)
         : null,
+    total: all.length,
   };
 }
 
@@ -96,6 +97,29 @@ export const portfolioReads = {
   log: mock.portfolio.log.handler(({ context, input }) => {
     portfolioOwner(context.store, input.userId);
     return logPage(context.store, context, input);
+  }),
+
+  logEntry: mock.portfolio.logEntry.handler(({ context, input }) => {
+    const { store } = context;
+    portfolioOwner(store, input.userId);
+    const entry = store.entries.find(
+      ({ id, userId }) => id === input.entryId && userId === input.userId,
+    );
+    if (entry === undefined) {
+      throw mockError("not_found");
+    }
+    weighEntries(store, context, [entry]);
+    return toLogEntry(store, entry);
+  }),
+
+  cashAt: mock.portfolio.cashAt.handler(({ context, input }) => {
+    portfolioOwner(context.store, input.userId);
+    const cash = cashOf(context.store, input.userId).findLast(
+      ({ atMs }) => atMs <= Date.parse(input.at),
+    );
+    return cash === undefined
+      ? null
+      : { amountEur: cash.amountEur, setAt: cash.effectiveAt };
   }),
 
   balanceHistory: mock.portfolio.balanceHistory.handler(

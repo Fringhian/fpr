@@ -188,6 +188,22 @@ export async function insertIntradayIfNewer(
 }
 
 /**
+ * A mark of every price written so far: the latest `created_at` and the
+ * number of prices. It changes with each price stored or deleted, even two
+ * written in the same instant.
+ */
+export async function writeMark(db: Db): Promise<string> {
+  const { latest, count } = await db
+    .selectFrom("prices")
+    .select((eb) => [
+      eb.fn.max<Date | null>("createdAt").as("latest"),
+      eb.fn.countAll<string>().as("count"),
+    ])
+    .executeTakeFirstOrThrow();
+  return `${latest?.toISOString() ?? "none"}/${count}`;
+}
+
+/**
  * Deletes every share's `intraday` prices from before a moment. Resolves with
  * how many were deleted.
  */
