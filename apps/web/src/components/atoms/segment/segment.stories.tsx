@@ -1,3 +1,9 @@
+import {
+  languages,
+  leaderboardBoards,
+  periods,
+  type units,
+} from "@fpr/contracts/values";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,19 +43,16 @@ function Stage({
   );
 }
 
-const PERIODS = ["1D", "1W", "1M", "3M", "YTD", "all"] as const;
-type Period = (typeof PERIODS)[number];
-
 function PeriodSegment(args: SegmentArgs) {
   const { t } = useTranslation();
 
   return (
-    <Segment.Root<Period>
+    <Segment.Root<(typeof periods)[number]>
       {...args}
       defaultValue="1M"
       aria-label={t("controls.period.label")}
     >
-      {PERIODS.map((period) => (
+      {periods.map((period) => (
         <Segment.Item key={period} value={period}>
           {t(`controls.period.${period}`)}
         </Segment.Item>
@@ -58,8 +61,6 @@ function PeriodSegment(args: SegmentArgs) {
   );
 }
 
-type Unit = "euro" | "percent";
-
 function UnitSegment({
   anonymous = false,
   ...args
@@ -67,12 +68,12 @@ function UnitSegment({
   const { t } = useTranslation();
 
   return (
-    <Segment.Root<Unit>
+    <Segment.Root<(typeof units)[number]>
       {...args}
       defaultValue="percent"
       aria-label={t("controls.unit.label")}
     >
-      <Segment.Item value="euro" disabled={anonymous}>
+      <Segment.Item value="eur" disabled={anonymous}>
         {t("controls.unit.euro")}
       </Segment.Item>
       <Segment.Item value="percent">{t("controls.unit.percent")}</Segment.Item>
@@ -80,38 +81,34 @@ function UnitSegment({
   );
 }
 
-type Standings = "gain" | "balance";
-
 function StandingsSegment(args: SegmentArgs) {
   const { t } = useTranslation();
 
   return (
-    <Segment.Root<Standings>
+    <Segment.Root<(typeof leaderboardBoards)[number]>
       {...args}
       defaultValue="gain"
       aria-label={t("controls.standings.label")}
     >
-      <Segment.Item value="gain">{t("controls.standings.gain")}</Segment.Item>
-      <Segment.Item value="balance">
-        {t("controls.standings.balance")}
-      </Segment.Item>
+      {leaderboardBoards.map((board) => (
+        <Segment.Item key={board} value={board}>
+          {t(`controls.standings.${board}`)}
+        </Segment.Item>
+      ))}
     </Segment.Root>
   );
 }
-
-const LANGUAGES = ["fr", "en"] as const;
-type LanguageOption = (typeof LANGUAGES)[number];
 
 function LanguageSegment(args: SegmentArgs) {
   const { t } = useTranslation();
 
   return (
-    <Segment.Root<LanguageOption>
+    <Segment.Root<(typeof languages)[number]>
       {...args}
       defaultValue="fr"
       aria-label={t("controls.language.label")}
     >
-      {LANGUAGES.map((language) => (
+      {languages.map((language) => (
         // Each language is named in itself, and read in its own voice.
         <Segment.Item key={language} value={language} lang={language}>
           {t(`controls.language.${language}`)}

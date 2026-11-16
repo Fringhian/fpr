@@ -1,3 +1,4 @@
+import { leaderboardBoards } from "@fpr/contracts/values";
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { useArgs } from "storybook/preview-api";
@@ -233,7 +234,7 @@ const configurable = {
   argTypes: {
     board: {
       control: { type: "inline-radio" },
-      options: ["gain", "balance"],
+      options: leaderboardBoards,
       table: { type: { summary: `"gain" | "balance"` } },
     },
     anonymous: { control: { type: "boolean" } },

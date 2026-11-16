@@ -12,8 +12,11 @@ export const units = ["eur", "percent"] as const;
 /** The languages FPR is written in. */
 export const languages = ["fr", "en"] as const;
 
-/** `balance`: the standings by balance. `gain`: by gain over the period. */
-export const leaderboardBoards = ["balance", "gain"] as const;
+/**
+ * `gain`: the standings by gain over the period. `balance`: by balance. In the
+ * order the web app's switch shows them.
+ */
+export const leaderboardBoards = ["gain", "balance"] as const;
 
 /** `market`: priced by the provider. `manual`: priced by value points members enter. */
 export const shareKinds = ["market", "manual"] as const;
