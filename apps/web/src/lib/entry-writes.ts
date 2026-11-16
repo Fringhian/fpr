@@ -80,7 +80,10 @@ export function useEntryWrites() {
             effectiveAt,
           });
     },
-    remove: ({ type, id }: SavedEntry): Promise<unknown> =>
+    remove: ({
+      type,
+      id,
+    }: Pick<SavedEntry, "type" | "id">): Promise<unknown> =>
       type === "cash"
         ? deleteCash.mutateAsync({ id })
         : deleteChange.mutateAsync({ id }),

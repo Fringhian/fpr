@@ -4,7 +4,11 @@ import type {
   ChartLine,
   ChartMark,
 } from "../../../components/molecules/chart/chart";
-import { changeSummaryOf, entryTitle } from "../../../lib/log-entry";
+import {
+  changeSummaryOf,
+  entryTitle,
+  savedEntryOf,
+} from "../../../lib/log-entry";
 import type { MemberColor } from "../../../lib/member-color";
 import { raceDayOf } from "../../../lib/race-day";
 import { balancePoints, lastCloseOf } from "../../../lib/series";
@@ -15,8 +19,10 @@ function changeMarks(
   language: Language,
 ): ChartMark[] {
   return entries.flatMap((entry): ChartMark[] => {
-    if (entry.type === "cash") return [];
-    const change = changeSummaryOf(entry);
+    // A change of unknown weight, for an anonymous viewer, has no direction to mark.
+    const saved = savedEntryOf(entry);
+    if (saved?.type !== "change") return [];
+    const change = changeSummaryOf(saved);
     return [
       {
         day: raceDayOf(entry.effectiveAt),

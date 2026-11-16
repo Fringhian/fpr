@@ -18,10 +18,13 @@ function Held({ position }: { position: Position }) {
   const language = useLanguage();
   const { setting } = useViewState();
 
-  const units = t("holdingCard.units", {
-    count: Number(position.quantity),
-    quantity: formatQuantity(position.quantity, language),
-  });
+  const units =
+    position.quantity === null
+      ? null
+      : t("holdingCard.units", {
+          count: Number(position.quantity),
+          quantity: formatQuantity(position.quantity, language),
+        });
   const value =
     position.valueEur === null
       ? null

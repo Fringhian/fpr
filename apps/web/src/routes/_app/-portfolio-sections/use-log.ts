@@ -2,6 +2,7 @@ import type { Id, Portfolio } from "@fpr/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useApi } from "../../../lib/api/use-api";
+import { useSession } from "../../../lib/session/use-session";
 import { logRows } from "./log-rows";
 
 const PAGE_SIZE = 20;
@@ -36,6 +37,7 @@ export function useLog(
   enabled = true,
 ) {
   const log = useLogPages(userId, enabled);
+  const { readOnly } = useSession();
 
   const pages = log.data?.pages;
   const complete = !log.hasNextPage;
@@ -46,10 +48,10 @@ export function useLog(
         ? logRows(
             pages.flatMap((page) => page.entries),
             holdings,
-            complete,
+            { complete, anonymous: readOnly },
           )
         : undefined,
-    [pages, holdings, complete],
+    [pages, holdings, complete, readOnly],
   );
   const cash = pages
     ?.flatMap((page) => page.entries)

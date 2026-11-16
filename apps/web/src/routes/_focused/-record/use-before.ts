@@ -28,8 +28,12 @@ export function useHeldOn(): BeforeRead<Decimal> {
       enabled: draft.kind !== "cash" && draft.shareId !== undefined,
     }),
   );
+  const held = holding.data?.quantity;
   return {
-    value: holding.data && heldBesides(holding.data.quantity, draft, at),
+    value:
+      held === undefined || held === null
+        ? undefined
+        : heldBesides(held, draft, at),
     failed: holding.isError,
     retry: () => void holding.refetch(),
   };

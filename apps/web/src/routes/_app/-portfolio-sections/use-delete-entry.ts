@@ -2,6 +2,7 @@ import type { Id, PortfolioLogEntry } from "@fpr/contracts";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../../components/molecules/toast/use-toast";
 import { entryValueOf, useEntryWrites } from "../../../lib/entry-writes";
+import { type SavedEntry, savedEntryOf } from "../../../lib/log-entry";
 import { useEntryRefusal } from "./use-entry-refusal";
 
 /**
@@ -17,7 +18,7 @@ export function useDeleteEntry(userId: Id) {
   const { add, remove } = useEntryWrites();
 
   // A deleted entry comes back as a new one, the same change on the same moment.
-  const undo = (entry: PortfolioLogEntry) =>
+  const undo = (entry: SavedEntry) =>
     add(userId, crypto.randomUUID(), entryValueOf(entry)).catch(
       (error: unknown) => refuse(t("entryActions.undoRefused"), error),
     );
@@ -29,10 +30,13 @@ export function useDeleteEntry(userId: Id) {
       refuse(t("entryActions.deleteRefused"), error);
       return;
     }
+    const saved = savedEntryOf(entry);
     toast.offerUndo({
       title: t(`entryActions.deleted.${entry.type}`),
       description: subject,
-      onUndo: () => void undo(entry),
+      onUndo: () => {
+        if (saved !== null) void undo(saved);
+      },
     });
   };
 }
