@@ -76,16 +76,25 @@ export function useHomeView(): {
   };
 }
 
-/** Shares' search text, empty when none, and the way to change it. */
+/**
+ * Shares' search: `q`, the text as typed, for the search field; `query`, the
+ * same text trimmed, which the list searches by; and the way to change it.
+ * Each is empty when there is none.
+ */
 export function useSharesQuery(): {
   q: string;
+  query: string;
   setQ: (q: string) => void;
 } {
   const search = useSearch({ from: "/_app/shares/" });
   const replaceSearch = useReplaceSearch();
 
+  const q = search.q ?? "";
+
   return {
-    q: search.q ?? "",
-    setQ: (q) => void replaceSearch({ q: q.trim() === "" ? undefined : q }),
+    q,
+    query: q.trim(),
+    setQ: (next) =>
+      void replaceSearch({ q: next.trim() === "" ? undefined : next }),
   };
 }

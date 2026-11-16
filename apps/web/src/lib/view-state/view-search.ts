@@ -46,16 +46,15 @@ export function validateHomeSearch(
 }
 
 /**
- * Shares' search: `q`, the search text, trimmed, and left out when empty. The
- * address reads digits alone, such as `?q=2024`, as a number.
+ * Shares' search: `q`, the search text as typed, spaces included, so the
+ * search field can hold “World ” on the way to “World Index”. It is left out
+ * when blank. The address reads digits alone, such as `?q=2024`, as a number.
  */
 export function validateSharesSearch(
   search: { q?: string | undefined } & SearchSchemaInput,
 ): { q?: string | undefined } {
   const raw: unknown = search.q;
   const q =
-    typeof raw === "string" || typeof raw === "number"
-      ? String(raw).trim()
-      : "";
-  return { q: q === "" ? undefined : q };
+    typeof raw === "string" || typeof raw === "number" ? String(raw) : "";
+  return { q: q.trim() === "" ? undefined : q };
 }

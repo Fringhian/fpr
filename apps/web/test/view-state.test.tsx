@@ -100,9 +100,9 @@ describe("each page's own view", () => {
     });
   });
 
-  it("keeps the Shares search, trimmed, and drops an empty one", async () => {
-    const { search } = await visit("/shares?q=%20world%20", "guest");
-    expect(search).toMatchObject({ q: "world" });
+  it("keeps the Shares search as typed, spaces included, and drops a blank one", async () => {
+    const { search } = await visit("/shares?q=World%20", "guest");
+    expect(search).toMatchObject({ q: "World " });
     expect((await visit("/shares?q=%20", "guest")).search).toMatchObject({
       q: undefined,
     });
