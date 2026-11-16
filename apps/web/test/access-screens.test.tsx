@@ -9,39 +9,21 @@ import {
   mockResetKey,
 } from "../src/mocks/magic.ts";
 import { keyState } from "../src/mocks/store/access-keys.ts";
+import { submit, typeInto } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
 /** Types `value` into the page's field named `name`, as a person would. */
 function fill(page: HTMLElement, name: string, value: string) {
-  const input = page.querySelector<HTMLInputElement>(`input[name="${name}"]`);
-  if (input === null) {
-    throw new Error(`No field named ${name}`);
-  }
-  const setValue = Object.getOwnPropertyDescriptor(
-    HTMLInputElement.prototype,
-    "value",
-  )?.set;
-  act(() => {
-    setValue?.call(input, value);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  });
+  typeInto(
+    page.querySelector<HTMLInputElement>(`input[name="${name}"]`),
+    value,
+  );
 }
 
 /** Presses the button named `label`, then waits until `done` holds. */
 async function press(page: HTMLElement, label: string, done: () => void) {
   const button = [...page.querySelectorAll("button")].find(
     (candidate) => candidate.textContent?.trim() === label,
-  );
-  await act(async () => {
-    button?.click();
-    await vi.waitFor(done);
-  });
-}
-
-/** Presses the step's main button, then waits until `done` holds. */
-async function submit(page: HTMLElement, done: () => void) {
-  const button = page.querySelector<HTMLButtonElement>(
-    'form button[type="submit"]',
   );
   await act(async () => {
     button?.click();

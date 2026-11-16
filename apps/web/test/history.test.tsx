@@ -1,20 +1,11 @@
 // @vitest-environment happy-dom
-import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { click } from "./interact.ts";
 import { visit } from "./visit-app.tsx";
 
 /** The text of the whole document: menus and toasts render in portals. */
 function screenText(): string {
   return document.body.textContent ?? "";
-}
-
-/** Clicks the element `find` gives, once it shows, then waits until `done` holds. */
-async function click(find: () => HTMLElement | undefined, done: () => void) {
-  await act(async () => {
-    await vi.waitFor(() => expect(find()).toBeDefined());
-    find()?.click();
-    await vi.waitFor(done);
-  });
 }
 
 function buttonNamed(name: string): HTMLElement | undefined {
