@@ -23,6 +23,7 @@
   "standings": {
     "title": "Classement",
     "titleOver": "Classement · {{period}}",
+    "loading": "Chargement du classement…",
     "empty": {
       "title": "Personne n’est encore dans la course",
       "body": "Le classement se remplit dès que quelqu’un enregistre sa première action."
@@ -143,7 +144,8 @@
     "helpLink": "En savoir plus dans Comment fonctionne FPR"
   },
   "moverRow": {
-    "empty": "Rien n’a encore bougé sur la période."
+    "empty": "Rien n’a encore bougé sur la période.",
+    "loading": "Chargement des titres…"
   },
   "focusPanel": {
     "period": {
@@ -260,7 +262,8 @@
     "label": "La course : le gain de chaque membre depuis le début de la période",
     "you": "Vous",
     "focusOn": "Mettre {{name}} en avant",
-    "notFinal": "Aujourd’hui, provisoire"
+    "notFinal": "Aujourd’hui, provisoire",
+    "loading": "Chargement de la course…"
   },
   "periodControl": {
     "title": "Période",

@@ -22,6 +22,7 @@
   "standings": {
     "title": "Standings",
     "titleOver": "Standings · {{period}}",
+    "loading": "Loading the standings…",
     "empty": {
       "title": "Nobody’s in the race yet",
       "body": "The standings fill in as soon as someone records their first share."
@@ -139,7 +140,8 @@
     "helpLink": "More in How FPR works"
   },
   "moverRow": {
-    "empty": "Nothing has moved over the period yet."
+    "empty": "Nothing has moved over the period yet.",
+    "loading": "Loading the holdings…"
   },
   "focusPanel": {
     "period": {
@@ -255,7 +257,8 @@
     "label": "The race: each member’s gain since the start of the period",
     "you": "You",
     "focusOn": "Focus on {{name}}",
-    "notFinal": "Today, not final"
+    "notFinal": "Today, not final",
+    "loading": "Loading the race…"
   },
   "periodControl": {
     "title": "Period",

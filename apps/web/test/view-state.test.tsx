@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { act } from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fixturePersonId } from "../src/mocks/fixtures/people.ts";
 import { visit } from "./visit-app.tsx";
 
@@ -102,6 +102,25 @@ describe("each page's own view", () => {
       focus: undefined,
       standings: undefined,
     });
+  });
+
+  it("shows Home's focused member from the address, and a lane pressed focuses its member", async () => {
+    const robin = fixturePersonId("robin");
+    const { router, page } = await visit(`/?focus=${robin}`, "member");
+    const panelTitle = () =>
+      [...page.querySelectorAll("section")]
+        .find((section) => section.textContent?.includes("What moved"))
+        ?.querySelector("h2")?.textContent;
+    await vi.waitFor(() => expect(panelTitle()).toBe("Robin Leclerc"));
+
+    const lane = page.querySelector<HTMLButtonElement>(
+      `li[data-member="${fixturePersonId("jordan")}"] button`,
+    );
+    await act(async () => lane?.click());
+    expect(router.state.location.search).toMatchObject({
+      focus: fixturePersonId("jordan"),
+    });
+    await vi.waitFor(() => expect(panelTitle()).toBe("Jordan Petit"));
   });
 
   it("keeps the Shares search as typed, spaces included, and drops a blank one", async () => {
