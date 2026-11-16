@@ -1,9 +1,9 @@
-import type { Decimal, ShareValue } from "@fpr/contracts";
+import type { Decimal, MadeBy, ShareValue } from "@fpr/contracts";
 import { mockError } from "../../server/errors.ts";
 import { mock, viewerOf } from "../../server/implementer.ts";
 import { timestamp } from "../../store/calendar.ts";
 import { Big } from "../../store/decimal.ts";
-import { racers, toPerson } from "../../store/people.ts";
+import { personOf, racers, toPerson } from "../../store/people.ts";
 import { requireShare } from "../../store/shares.ts";
 import type {
   MockPerson,
@@ -54,10 +54,23 @@ function playConflict(
   value.enteredBy = other.id;
 }
 
+/** `value_changed` with the stored price and the person who entered it. */
+function valueChanged(store: MockStore, value: StoredPrice) {
+  const by =
+    value.enteredBy == null ? undefined : personOf(store, value.enteredBy);
+  const changedBy: MadeBy =
+    by === undefined ? null : { id: by.id, displayName: by.displayName };
+  return mockError("value_changed", { priceEur: value.priceEur, changedBy });
+}
+
 /** Refuses an edit made over a value someone changed in the meantime. */
-function expectPrice(value: StoredPrice, expected: Decimal): void {
+function expectPrice(
+  store: MockStore,
+  value: StoredPrice,
+  expected: Decimal,
+): void {
   if (!new Big(value.priceEur).eq(expected)) {
-    throw mockError("value_changed", { priceEur: value.priceEur });
+    throw valueChanged(store, value);
   }
 }
 
@@ -99,7 +112,7 @@ export const valueWrites = {
     }
     const existing = share.prices.find((price) => price.atMs === atMs);
     if (existing !== undefined) {
-      throw mockError("value_changed", { priceEur: existing.priceEur });
+      throw valueChanged(store, existing);
     }
     const value: StoredPrice = {
       atMs,
@@ -122,7 +135,7 @@ export const valueWrites = {
     const share = manualShare(store, input.id);
     const value = valueAt(share, input.at);
     playConflict(store, share, value, viewer);
-    expectPrice(value, input.expectedPriceEur);
+    expectPrice(store, value, input.expectedPriceEur);
     recordEdit(store, share, viewer, {
       atMs: value.atMs,
       priceEur: input.priceEur,
@@ -142,7 +155,7 @@ export const valueWrites = {
       throw mockError("last_value_point");
     }
     playConflict(store, share, value, viewer);
-    expectPrice(value, input.expectedPriceEur);
+    expectPrice(store, value, input.expectedPriceEur);
     share.prices = share.prices.filter((price) => price !== value);
     recordEdit(store, share, viewer, {
       atMs: value.atMs,
