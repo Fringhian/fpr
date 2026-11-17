@@ -17,14 +17,16 @@ function PhoneBest({ best }: { best: LaneBest }) {
   return (
     <span
       className={cn(
-        "items-center gap-s text-xs text-secondary",
+        "max-w-full min-w-0 items-center gap-s text-xs text-secondary",
         "flex",
         "tablet:hidden",
         "desktop:hidden",
       )}
     >
-      <span>{t("lane.bestShare")}</span>
-      <Chip gain={best.percent ?? undefined}>{best.share}</Chip>
+      <span className="shrink-0">{t("lane.bestShare")}</span>
+      <Chip gain={best.percent ?? undefined}>
+        <span className="truncate">{best.share}</span>
+      </Chip>
     </span>
   );
 }

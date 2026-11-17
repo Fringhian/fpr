@@ -10,7 +10,7 @@ import { GainValue } from "../gain-value/gain-value";
  * `picture`: a picture at the start, nearly touching the edge.
  */
 export const capsule = cva(
-  "inline-flex items-center gap-[0.375rem] rounded-full bg-surface py-[0.1875rem] text-s font-semibold whitespace-nowrap text-primary",
+  "inline-flex max-w-full min-w-0 items-center gap-[0.375rem] rounded-full bg-surface py-[0.1875rem] text-s font-semibold whitespace-nowrap text-primary",
   {
     variants: {
       outline: {
