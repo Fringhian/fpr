@@ -68,14 +68,14 @@ function Key({ parts }: { parts: readonly AllocationPart[] }) {
   return (
     <ul
       aria-label={t("allocationBar.label")}
-      className="flex flex-wrap gap-x-m gap-y-[0.375rem] text-xs text-secondary"
+      className="flex flex-wrap gap-x-m gap-y-[0.375rem] text-xs text-secondary wrap-anywhere"
     >
       {parts.map((part) => {
         const { className: tone, style } = fill(part);
         return (
           <li
             key={partKey(part)}
-            className="inline-flex items-center gap-[0.375rem]"
+            className="inline-flex min-w-0 items-center gap-[0.375rem]"
           >
             <span
               aria-hidden="true"

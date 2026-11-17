@@ -73,7 +73,9 @@ export function Marker({
 
 /** The column that holds the `Title` and, under it, the `Detail`. */
 export function Text({ className, ...props }: ComponentProps<"span">) {
-  return <span {...props} className={cn("grid min-w-0", className)} />;
+  return (
+    <span {...props} className={cn("grid min-w-0 wrap-anywhere", className)} />
+  );
 }
 
 /** What happened: “Bought 10 World Index ETF”. */

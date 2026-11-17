@@ -67,7 +67,7 @@ export function Holdings({
       >
         {holdings.map((holding) => (
           <li key={holding.id} className="min-w-0 max-w-full">
-            <Chip className="max-w-full text-xs">
+            <Chip className="text-xs">
               <span className="truncate">{holding.name}</span>
               <span className="font-normal text-secondary tabular-nums">
                 {formatPercent(holding.weight, language)}
