@@ -74,7 +74,7 @@ export function ShareHeader({
       <div className="grid min-w-0 gap-s">
         <h1
           className={cn(
-            "font-semibold text-primary text-balance",
+            "font-semibold text-primary text-balance wrap-anywhere",
             "text-xl",
             "tablet:text-display",
             "desktop:text-display",
