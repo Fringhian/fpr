@@ -22,8 +22,8 @@ function glideDuration(): number {
  * Glides the charcoal capsule, the pressed item's `::before`, from the item
  * pressed before to the new one; not at all under reduced motion. `leave`
  * notes where the capsule sits as a press starts; once `selected` changes,
- * the new capsule travels from there to its own place and width. Returns
- * `leave` and the group's ref, joined with the `ref` the segment was given.
+ * the new capsule's edges travel from there to its own. Returns `leave` and
+ * the group's ref, joined with the `ref` the segment was given.
  */
 export function useGlide(
   selected: string | undefined,
@@ -45,14 +45,10 @@ export function useGlide(
       return;
     }
     const end = capsule.getBoundingClientRect();
-    // Transform only, so the compositor runs the glide while the page
-    // re-renders for the new value; the capsule's origin is its left edge.
     capsule.animate(
       {
-        transform: [
-          `translateX(${start.left - end.left}px) scaleX(${start.width / end.width})`,
-          "none",
-        ],
+        left: [`${start.left - end.left}px`, "0px"],
+        right: [`${end.right - start.right}px`, "0px"],
       },
       {
         duration: glideDuration(),
