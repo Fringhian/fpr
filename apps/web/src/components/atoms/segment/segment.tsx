@@ -3,6 +3,7 @@ import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { cva } from "class-variance-authority";
 import { type RefAttributes, useState } from "react";
 import { cn, stateClassName } from "../../../lib/cn";
+import { useGlide } from "./segment-glide";
 
 /** What the segment sits on: `sky` for the peach sky, `snow` for the page or a white surface. */
 export type Backdrop = "sky" | "snow";
@@ -17,7 +18,7 @@ export const backdropFill = {
 } as const satisfies Record<Backdrop, string>;
 
 const root = cva(
-  ["inline-flex gap-[0.125rem] rounded-full p-[0.1875rem]", "", "", ""],
+  ["isolate inline-flex gap-[0.125rem] rounded-full p-[0.1875rem]", "", "", ""],
   {
     variants: {
       backdrop: {
@@ -28,13 +29,15 @@ const root = cva(
   },
 );
 
+// The charcoal capsule is the pressed item's `::before`, behind every
+// item's label, so it can glide over the others to its place.
 const item = cn(
-  "cursor-pointer select-none whitespace-nowrap rounded-full bg-transparent px-[0.625rem] py-xs text-s font-semibold text-secondary",
+  "relative cursor-pointer select-none whitespace-nowrap rounded-full px-[0.625rem] py-xs text-s font-semibold text-secondary transition-colors duration-m ease-soft motion-reduce:transition-none before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-transparent before:content-['']",
   "",
   "",
   "",
   "hover:not-pressed:not-disabled:text-primary",
-  "pressed:bg-primary pressed:text-on-primary",
+  "pressed:text-on-primary pressed:before:bg-primary",
   "focus-visible:focus-ring",
   "disabled:dimmed",
 );
@@ -69,7 +72,8 @@ export type RootProps<Value extends string> = Selection<Value> & {
 
 /**
  * A row of capsules, one of them selected in charcoal: a Base UI ToggleGroup
- * holding one value. One option is always selected; the arrow keys move
+ * holding one value. The charcoal glides to a newly pressed option, from the
+ * last one. One option is always selected; the arrow keys move
  * between the options, and Space or Enter selects one. Name it with
  * `aria-label`. Every other prop goes to the ToggleGroup, `className`
  * included: a string, or a function of the group's state.
@@ -80,16 +84,19 @@ export function Root<Value extends string>({
   onValueChange,
   backdrop,
   className,
+  ref,
   ...props
 }: RootProps<Value>) {
   const [held, setHeld] = useState(defaultValue);
 
   const selected = value ?? held;
   const pressed = selected === undefined ? [] : [selected];
+  const { groupRef, leave } = useGlide(selected, ref);
 
   return (
     <ToggleGroup<Value>
       {...props}
+      ref={groupRef}
       value={pressed}
       onValueChange={(group, eventDetails) => {
         const [next] = group;
@@ -97,6 +104,7 @@ export function Root<Value extends string>({
         if (next === undefined) {
           return;
         }
+        leave();
         setHeld(next);
         onValueChange?.(next, eventDetails);
       }}
