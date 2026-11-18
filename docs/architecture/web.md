@@ -113,7 +113,7 @@ Settings (ACC-4 to ACC-7) is a dialog on tablet and desktop and a sheet on phone
 - Every chart is `Chart`, in `src/components/molecules/chart/chart.tsx`, on Lightweight Charts, with its colours read from `theme.css` at runtime. Charts follow the hover with a crosshair and give the same values on keyboard focus.
 - The charts carry no TradingView logo. How FPR works credits TradingView Lightweight Charts with a link to tradingview.com, as the library's licence asks.
 - Leaving a form with unsaved input asks first, and so does the browser before the tab closes. Deleting asks to confirm, or offers Undo in a toast, which shows in one polite live region per layout.
-- Motion respects `prefers-reduced-motion`.
+- A new page or step crossfades in, through the router's view transitions; a change that stays on the page, such as the period or the search, swaps in place. Motion respects `prefers-reduced-motion`.
 
 ## Languages
 
