@@ -7,8 +7,11 @@ import { memberColor } from "../../lib/member-color";
 import { signOut } from "../../lib/session/sign-out";
 import { useSession } from "../../lib/session/use-session";
 import { Settings } from "../-settings/settings";
+import { tabSlide } from "./tab-slide";
 
-const renderLink = ({ href }: Navigation.NavigationLink) => <Link to={href} />;
+const renderLink = ({ href, place }: Navigation.NavigationLink) => (
+  <Link to={href} viewTransition={place === "tab" && tabSlide} />
+);
 
 /**
  * The template's frame around every everyday page, kept while the person
