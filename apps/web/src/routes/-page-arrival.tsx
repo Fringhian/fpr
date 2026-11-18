@@ -1,24 +1,15 @@
 import { useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { pagePlace } from "../lib/page-place.ts";
 
 /** How long a page's heading may take to render, while its data loads. */
 const HEADING_WAIT_MS = 3000;
 
-/**
- * Where the visitor is: the page's path, plus the step of a step flow, which
- * `?step=` names. Any other search value, such as the period, changes the
- * view in place, not the page.
- */
 function useArrivedPlace(): string | undefined {
   return useRouterState({
-    select: ({ resolvedLocation }) => {
-      if (resolvedLocation === undefined) return undefined;
-      const { step } = resolvedLocation.search as { step?: unknown };
-      return step === undefined
-        ? resolvedLocation.pathname
-        : `${resolvedLocation.pathname}?step=${String(step)}`;
-    },
+    select: ({ resolvedLocation }) =>
+      resolvedLocation === undefined ? undefined : pagePlace(resolvedLocation),
   });
 }
 

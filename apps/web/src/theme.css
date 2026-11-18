@@ -207,6 +207,24 @@
   h1[tabindex="-1"] {
     outline: none;
   }
+
+  /* A new page crossfades in over the last one. Both fade on the same
+     timing, so what the two pages share, such as the navigation, holds
+     still. */
+  :root:active-view-transition-type(page) {
+    &::view-transition-old(root),
+    &::view-transition-new(root) {
+      animation-duration: var(--transition-duration-m);
+      animation-timing-function: var(--ease-soft);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::view-transition-old(root),
+      &::view-transition-new(root) {
+        animation: none;
+      }
+    }
+  }
 }
 
 /*

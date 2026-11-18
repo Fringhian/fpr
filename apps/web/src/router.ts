@@ -1,9 +1,43 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { createRouter, type RouterHistory } from "@tanstack/react-router";
+import {
+  createRouter,
+  type ParsedLocation,
+  type RouterHistory,
+} from "@tanstack/react-router";
 import type { i18n as I18n } from "i18next";
 import type { Api } from "./lib/api/api.ts";
+import { pagePlace } from "./lib/page-place.ts";
 import { NotFound } from "./routes/-states/not-found.tsx";
 import { routeTree } from "./routeTree.gen.ts";
+
+/**
+ * A new page, or a new step of a step flow, crossfades in as `theme.css`
+ * draws it; a change that stays on the page, such as the period or the
+ * search, swaps in place, and so does the first load. Only where the browser
+ * types view transitions: elsewhere the router would start one on every
+ * change, each keystroke of a search included.
+ */
+function pageTransition() {
+  if (
+    typeof CSS === "undefined" ||
+    !CSS.supports("selector(:active-view-transition-type(page))")
+  ) {
+    return false;
+  }
+  return {
+    types: ({
+      fromLocation,
+      toLocation,
+    }: {
+      fromLocation?: ParsedLocation;
+      toLocation: ParsedLocation;
+    }) =>
+      fromLocation !== undefined &&
+      pagePlace(fromLocation) !== pagePlace(toLocation)
+        ? ["page"]
+        : false,
+  };
+}
 
 /**
  * The app's router, on the browser's address unless given another `history`.
@@ -29,6 +63,7 @@ export function createAppRouter({
     ...(history === undefined ? {} : { history }),
     defaultPreload: "intent",
     defaultNotFoundComponent: NotFound,
+    defaultViewTransition: pageTransition(),
     scrollRestoration: true,
   });
 }
