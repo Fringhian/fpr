@@ -70,7 +70,7 @@ impeccable's craft floor and the Web Interface Guidelines (the `web-design-guide
 - Each state role has a soft fill, its pale ground: `positive-soft`, `negative-soft`, `success-soft`, `warning-soft`. Text on a soft fill takes its role (`bg-positive-soft text-positive`), at 4.5:1 or more.
 - Every size scale uses the same names — `xs`, `s`, `m`, `l`, `xl` — with its own values per namespace: spacing (`p-m`, `gap-s`, `w-l`), text (`text-s`), radius (`rounded-m`), container (`max-w-l`). Text adds one more step, `display`, for the page sentence on tablet and desktop. Spacing adds `0` (`p-0`, `inset-0`, `min-h-0`). Radius adds `card`, 18 px between `m` and `l`, for person rows, option cards and popovers (`rounded-card`).
 - Two outlines: `shadow-outline` draws the divider line outside a card's edge; `inset-shadow-outline` draws it inside the edge, for inputs, options and flat cards, and `inset-shadow-<colour>` recolours it for a state (`focus-within:inset-shadow-primary`, `invalid:inset-shadow-error`). An inset ring and a drop shadow combine (`inset-shadow-outline shadow-float`).
-- Motion: one easing, `ease-soft`, and three durations, `duration-s` (150 ms, a state change), `duration-m` (200 ms, a popup, a sheet, a panel, a page crossfade or a segment's capsule gliding) and `duration-l` (300 ms, a bar or a lane moving). A script reads the same tokens with `motionTiming` and checks `reducedMotion`, both from `src/lib/motion.ts`. Anything that moves or resizes stills under `motion-reduce:`.
+- Motion: one easing, `ease-soft`, and three durations, `duration-s` (150 ms, a state change), `duration-m` (200 ms, a popup, a sheet, a panel or a segment's capsule gliding) and `duration-l` (300 ms, a bar or a lane moving, or a tab's page sliding in). A script reads the same tokens from the page (`--ease-soft`, `--transition-duration-l`) with `cssVariable` from `src/lib/css-variable.ts`. Anything that moves or resizes stills under `motion-reduce:`.
 - Breakpoints are mobile-first: phone is the unprefixed base, then `tablet:` from 40rem (640 px) and `desktop:` from 70rem (1120 px).
 - Light theme only in v1. Components never use `dark:`; a later dark theme is a second set of token values.
 
@@ -154,6 +154,7 @@ cn(
 - `card-link` is a link that opens its whole card, such as a holding card's name or a member strip's: its hit area covers the `relative` card, and `focus-visible:after:focus-ring` draws its focus round it.
 - `frosted` is a bar floating over the page, such as the tab bar or the compact page bar: 80% white over a blur, opaque where the browser can't blur.
 - `scroller:` styles the page's scrolling element, `<html>`, while the element is on the page. A bar over the page sets the scroll padding that keeps a focused element clear of it with it, `scroller:scroll-pt-[…]`, never a global rule; a bar whose height follows its content measures itself instead, like `StepFlow.Actions`.
+- `tab-sliding:` styles an element while a tab's page slides in on a phone. A transition's snapshot can't blur what is behind it, so a frosted bar turns opaque meanwhile: `tab-sliding:bg-surface`.
 
 ## Components
 
