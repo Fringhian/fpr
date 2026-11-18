@@ -11,6 +11,13 @@ function pressedIn(group: HTMLElement | null): HTMLElement | null {
   return group?.querySelector<HTMLElement>("[data-pressed]") ?? null;
 }
 
+// The production build minifies `200ms` to `.2s`, so the unit decides.
+function glideDuration(): number {
+  const value = cssVariable("--transition-duration-m");
+  const amount = Number.parseFloat(value) || 0;
+  return value.endsWith("ms") ? amount : amount * 1000;
+}
+
 /**
  * Glides the charcoal capsule, the pressed item's `::before`, from the item
  * pressed before to the new one; not at all under reduced motion. `leave`
@@ -48,8 +55,7 @@ export function useGlide(
         ],
       },
       {
-        duration:
-          Number.parseFloat(cssVariable("--transition-duration-m")) || 0,
+        duration: glideDuration(),
         easing: cssVariable("--ease-soft") || "linear",
         pseudoElement: "::before",
       },
