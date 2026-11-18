@@ -32,7 +32,7 @@ const root = cva(
 // The charcoal capsule is the pressed item's `::before`, behind every
 // item's label, so it can glide over the others to its place.
 const item = cn(
-  "relative cursor-pointer select-none whitespace-nowrap rounded-full px-[0.625rem] py-xs text-s font-semibold text-secondary transition-colors duration-m ease-soft motion-reduce:transition-none before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-transparent before:content-['']",
+  "relative cursor-pointer select-none whitespace-nowrap rounded-full px-[0.625rem] py-xs text-s font-semibold text-secondary transition-colors duration-m ease-soft motion-reduce:transition-none before:absolute before:inset-0 before:-z-10 before:origin-left before:rounded-full before:bg-transparent before:content-['']",
   "",
   "",
   "",
