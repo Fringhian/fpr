@@ -1,5 +1,5 @@
 import { type RefCallback, useCallback, useLayoutEffect, useRef } from "react";
-import { cssVariable } from "../../../lib/css-variable";
+import { motionTiming, reducedMotion } from "../../../lib/motion";
 
 /** Where each lane of the list sits, by member id, measured from the list's top. */
 function laneTops(list: HTMLOListElement): Map<string, number> {
@@ -12,21 +12,13 @@ function laneTops(list: HTMLOListElement): Map<string, number> {
   return tops;
 }
 
-/** The slide's timing: the `l` duration and the soft easing of `theme.css`. */
-function slideTiming(): KeyframeAnimationOptions {
-  return {
-    duration: Number.parseFloat(cssVariable("--transition-duration-l")) || 0,
-    easing: cssVariable("--ease-soft") || "linear",
-  };
-}
-
 /** Slides each lane that moved from its old top to its new one; only its vertical position animates. */
 function slideLanes(
   list: HTMLOListElement,
   before: Map<string, number>,
   after: Map<string, number>,
 ): void {
-  const timing = slideTiming();
+  const timing = motionTiming("l");
   for (const item of list.children) {
     const id = item instanceof HTMLElement ? item.dataset.member : undefined;
     const from = id === undefined ? undefined : before.get(id);
@@ -64,10 +56,7 @@ export function useRankSlide(order: string): RefCallback<HTMLOListElement> {
     tops.current = laneTops(element);
     const reordered = shownOrder.current !== "" && shownOrder.current !== order;
     shownOrder.current = order;
-    if (
-      reordered &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
+    if (reordered && !reducedMotion()) {
       slideLanes(element, before, tops.current);
     }
   });
