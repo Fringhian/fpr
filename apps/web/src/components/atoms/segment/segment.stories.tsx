@@ -128,6 +128,7 @@ A row of capsules where one is selected in charcoal. It is Base UI’s ToggleGro
 
 - **Backdrop**: \`sky\` sits on the peach sky, on a white track. \`snow\` sits on the page or a white surface, on a sand track.
 - **Keyboard**: Tab reaches the group, the arrow keys move between its options, and Space or Enter selects the focused one.
+- **Motion**: the charcoal glides from the last option to the one just selected, and jumps under reduced motion.
 - **Used for** the period and the unit in the page bar, Gain / Balance on the standings, and the language in Settings and the first-use steps. An anonymous viewer sees the unit on % only, with € disabled.
 
 The controls change the segment’s own props. Each story fixes its options; the language menu in the toolbar shows them in French.
