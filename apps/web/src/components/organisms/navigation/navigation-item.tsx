@@ -45,7 +45,7 @@ export function Item({
 
   const isCurrent = current === destination;
   const link = useRender({
-    render: linkElement(renderLink, destination, place),
+    render: linkElement(renderLink, destination),
     props: {
       className: item({ place }),
       "aria-current": isCurrent ? "page" : undefined,

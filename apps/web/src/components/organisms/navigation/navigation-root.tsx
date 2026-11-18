@@ -110,11 +110,10 @@ export function Root({
 export function linkElement(
   renderLink: Context["renderLink"],
   target: LinkTarget,
-  place: NavigationLink["place"],
 ): ReactElement {
   const href = HREFS[target];
   return renderLink ? (
-    renderLink({ target, href, place })
+    renderLink({ target, href })
   ) : (
     // biome-ignore lint/a11y/useAnchorContent: useRender merges the item's icon and name into it.
     <a href={href} />

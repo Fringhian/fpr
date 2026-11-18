@@ -10,8 +10,7 @@ export type TabBarProps = ComponentProps<"nav">;
 /**
  * The phone's floating tab bar: a frosted capsule 16px above the bottom edge
  * and the safe area. The page scrolls under it and leaves `--tab-bar-room`
- * for it at its end. Nothing floats beside it. Hidden from tablet up. It
- * has its own view transition name, so it holds still while a page slides.
+ * for it at its end. Nothing floats beside it. Hidden from tablet up.
  */
 export function TabBar({ className, ...props }: TabBarProps) {
   const { t } = useTranslation();
@@ -24,22 +23,14 @@ export function TabBar({ className, ...props }: TabBarProps) {
       aria-label={t("navigation.label")}
       {...props}
       className={cn(
-        "fixed inset-x-m bottom-[calc(var(--spacing-m)+env(safe-area-inset-bottom))] z-40 font-sans [view-transition-name:tab-bar]",
+        "fixed inset-x-m bottom-[calc(var(--spacing-m)+env(safe-area-inset-bottom))] z-40 font-sans",
         "block",
         "tablet:hidden",
         "desktop:hidden",
         className,
       )}
     >
-      <ul
-        className={cn(
-          "frosted flex rounded-full p-[0.375rem] shadow-float",
-          "",
-          "",
-          "",
-          "tab-sliding:bg-surface",
-        )}
-      >
+      <ul className="frosted flex rounded-full p-[0.375rem] shadow-float">
         {main.map((destination) => (
           <Item key={destination} destination={destination} place="tab" />
         ))}

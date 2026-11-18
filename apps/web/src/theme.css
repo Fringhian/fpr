@@ -207,42 +207,6 @@
   h1[tabindex="-1"] {
     outline: none;
   }
-
-  /* A tab picked in the phone's tab bar: its page slides in a quarter of the
-     width from the side of its tab while the last page slides the other way
-     and fades, over the page ground. The tab bar, captured on its own, holds
-     still above both. */
-  :root:active-view-transition-type(tab-forward) {
-    --tab-slide: 25%;
-  }
-  :root:active-view-transition-type(tab-back) {
-    --tab-slide: -25%;
-  }
-  :root:active-view-transition-type(tab-forward, tab-back) {
-    &::view-transition {
-      background: var(--color-page);
-    }
-    &::view-transition-old(root) {
-      animation: tab-leave var(--transition-duration-s) var(--ease-soft) both;
-    }
-    &::view-transition-new(root) {
-      animation: tab-arrive var(--transition-duration-l) var(--ease-soft) both;
-    }
-  }
-}
-
-@keyframes tab-leave {
-  to {
-    opacity: 0;
-    translate: calc(-1 * var(--tab-slide));
-  }
-}
-
-@keyframes tab-arrive {
-  from {
-    opacity: 0;
-    translate: var(--tab-slide);
-  }
 }
 
 /*
@@ -317,8 +281,3 @@
    a bar over the page sets the scroll padding that keeps a focused or
    scrolled-to element clear of it (WCAG 2.4.11). */
 @custom-variant scroller (:root:has(&));
-/* Any element while a tab's page slides in. A view transition's snapshot
-   can't blur what is behind it, so a frosted bar turns opaque meanwhile. */
-@custom-variant tab-sliding (
-  &:where(:root:active-view-transition-type(tab-forward, tab-back) *)
-);

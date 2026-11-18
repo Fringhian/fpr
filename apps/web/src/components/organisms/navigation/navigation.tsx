@@ -7,7 +7,6 @@ export {
   destinationsFor,
   HREFS,
   type LinkTarget,
-  MAIN_DESTINATIONS,
   type NavigationLink,
 } from "./navigation-model";
 export { Root, type RootProps } from "./navigation-root";

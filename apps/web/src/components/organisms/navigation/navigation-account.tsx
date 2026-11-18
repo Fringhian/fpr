@@ -16,7 +16,7 @@ function AccountPopup({ fromSide }: { fromSide: boolean }) {
       align={fromSide ? "start" : "end"}
     >
       <Menu.Item onClick={onSettings}>{t("navigation.settings")}</Menu.Item>
-      <Menu.LinkItem render={linkElement(renderLink, "help", "menu")}>
+      <Menu.LinkItem render={linkElement(renderLink, "help")}>
         {t("navigation.help")}
       </Menu.LinkItem>
       <Menu.Separator />

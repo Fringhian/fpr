@@ -11,14 +11,6 @@ export type Destination =
   | "people"
   | "trackedShares";
 
-/** The four main items, in the order the navigation and the tab bar show them. */
-export const MAIN_DESTINATIONS: readonly Destination[] = [
-  "home",
-  "members",
-  "portfolio",
-  "shares",
-];
-
 /** A page the navigation links to: its items, and How FPR works in the account menu. */
 export type LinkTarget = Destination | "help";
 
@@ -53,8 +45,6 @@ export function destinationAt(pathname: string): Destination | undefined {
 export interface NavigationLink {
   target: LinkTarget;
   href: (typeof HREFS)[LinkTarget];
-  /** Where the link sits: the sidebar or rail, the phone's tab bar, or the account menu. */
-  place: "side" | "tab" | "menu";
 }
 
 /** The signed-in person, as their picture shows them. */
@@ -71,8 +61,8 @@ export function destinationsFor(role: Role): {
 } {
   return {
     main: mayEnter("portfolio", role)
-      ? MAIN_DESTINATIONS
-      : MAIN_DESTINATIONS.filter((item) => item !== "portfolio"),
+      ? ["home", "members", "portfolio", "shares"]
+      : ["home", "members", "shares"],
     admin: mayEnter("adminArea", role) ? ["people", "trackedShares"] : [],
   };
 }
