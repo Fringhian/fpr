@@ -5,7 +5,7 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { motionTiming, reducedMotion } from "../../../lib/motion";
+import { cssVariable } from "../../../lib/css-variable";
 
 function pressedIn(group: HTMLElement | null): HTMLElement | null {
   return group?.querySelector<HTMLElement>("[data-pressed]") ?? null;
@@ -33,7 +33,7 @@ export function useGlide(
       start === null ||
       selected === undefined ||
       capsule === null ||
-      reducedMotion()
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       return;
     }
@@ -43,7 +43,12 @@ export function useGlide(
         left: [`${start.left - end.left}px`, "0px"],
         right: [`${end.right - start.right}px`, "0px"],
       },
-      { ...motionTiming("m"), pseudoElement: "::before" },
+      {
+        duration:
+          Number.parseFloat(cssVariable("--transition-duration-m")) || 0,
+        easing: cssVariable("--ease-soft") || "linear",
+        pseudoElement: "::before",
+      },
     );
   }, [selected]);
 
