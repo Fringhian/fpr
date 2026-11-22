@@ -7,7 +7,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @fpr/web...
 RUN pnpm --filter @fpr/web run build
 
-FROM nginx:1.29.8-alpine
+FROM nginx:1.30.7-alpine
 # The header the host's reverse proxy carries the client's address in. The image's entrypoint
 # writes conf.d/client-ip.conf from the template with it at each start; the build writes the
 # default so the configuration is tested.
